@@ -11,8 +11,8 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Your App",
-  description: "Your app description",
+  title: "Fight Embedded",
+  description: "UFC fighter statistics, performance analytics, and more!",
 };
 
 interface RootLayoutProps {

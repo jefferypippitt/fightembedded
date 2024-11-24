@@ -63,12 +63,10 @@ export default async function Dashboard() {
               <div className="space-y-2">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Account Created
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Last Updated
+                    Account Created:{" "}
+                    {session?.user?.createdAt
+                      ? new Date(session.user.createdAt).toLocaleDateString()
+                      : "Unknown"}
                   </p>
                 </div>
               </div>
