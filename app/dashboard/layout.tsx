@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -16,11 +18,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <div className="flex-1">{children}</div>
-      <div className="py-4 text-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} Fight Embedded. All rights reserved.</p>
+    <SidebarProvider>
+      <AppSidebar user={session.user} />
+      <div className="flex-1">
+        <main className="container">{children}</main>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

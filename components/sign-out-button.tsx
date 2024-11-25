@@ -14,7 +14,9 @@ export function SignOutButton() {
         redirect("/");
       }}
     >
-      <Button type="submit">Sign Out</Button>
+      <Button className="w-full" type="submit">
+        Sign Out
+      </Button>
     </form>
   );
 }

@@ -42,7 +42,7 @@ export default function SignIn() {
         {
           onRequest: () => {
             toast({
-              title: "Please wait...",                 
+              title: "Please wait...",
               description: "Signing you in...",
             });
           },
@@ -77,7 +77,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="max-w-[350px] mx-auto">
+    <div className="max-w-[400px] mx-auto">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
         <p className="text-sm text-muted-foreground mt-2">
@@ -96,7 +96,7 @@ export default function SignIn() {
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="john@mail.com"
+                        placeholder="example@mail.com"
                         type="email"
                         {...field}
                       />
