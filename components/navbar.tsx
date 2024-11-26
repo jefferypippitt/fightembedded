@@ -13,27 +13,9 @@ import {
 import { ChevronDown, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
 
 export default function Navbar() {
-  const weightDivisions = {
-    men: [
-      { name: "Heavyweight", weight: "265" },
-      { name: "Light Heavyweight", weight: "205" },
-      { name: "Middleweight", weight: "185" },
-      { name: "Welterweight", weight: "170" },
-      { name: "Lightweight", weight: "155" },
-      { name: "Featherweight", weight: "145" },
-      { name: "Bantamweight", weight: "135" },
-      { name: "Flyweight", weight: "125" },
-    ],
-    women: [
-      { name: "Featherweight", weight: "145" },
-      { name: "Bantamweight", weight: "135" },
-      { name: "Flyweight", weight: "125" },
-      { name: "Strawweight", weight: "115" },
-    ],
-  };
-
   const rankings = [
     { name: "Fighter Popularity (Top 20)", href: "/rankings/popularity" },
     { name: "Division Rankings (Top 5)", href: "/rankings/divisions" },
@@ -65,23 +47,33 @@ export default function Navbar() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Men&apos;s Divisions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {weightDivisions.men.map((division) => (
-                  <DropdownMenuItem key={division.name}>
-                    <Link href={`/division/${division.name.toLowerCase().replace(" ", "")}`}>
-                      {division.name} ({division.weight} lbs)
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">Men&apos;s</h3>
+                  {weightClasses.men.map((division) => (
+                    <Link
+                      key={division.name}
+                      href={`/division/${generateDivisionSlug(division)}`}
+                      className="block text-sm hover:text-primary"
+                    >
+                      {division.name}
                     </Link>
-                  </DropdownMenuItem>
-                ))}
+                  ))}
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Women&apos;s Divisions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {weightDivisions.women.map((division) => (
-                  <DropdownMenuItem key={division.name}>
-                    <Link href={`/division/women-${division.name.toLowerCase().replace(" ", "")}`}>
-                      {division.name} ({division.weight} lbs)
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-muted-foreground">Women&apos;s</h3>
+                  {weightClasses.women.map((division) => (
+                    <Link
+                      key={division.name}
+                      href={`/division/${generateDivisionSlug(division, true)}`}
+                      className="block text-sm hover:text-primary"
+                    >
+                      {division.name}
                     </Link>
-                  </DropdownMenuItem>
-                ))}
+                  ))}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -127,25 +119,25 @@ export default function Navbar() {
                     <div className="pl-4 space-y-4">
                       <div className="space-y-2">
                         <h3 className="text-sm font-medium text-muted-foreground">Men&apos;s</h3>
-                        {weightDivisions.men.map((division) => (
+                        {weightClasses.men.map((division) => (
                           <Link
                             key={division.name}
-                            href={`/division/${division.name.toLowerCase().replace(" ", "")}`}
+                            href={`/division/${generateDivisionSlug(division)}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name} ({division.weight} lbs)
+                            {division.name}
                           </Link>
                         ))}
                       </div>
                       <div className="space-y-2">
                         <h3 className="text-sm font-medium text-muted-foreground">Women&apos;s</h3>
-                        {weightDivisions.women.map((division) => (
+                        {weightClasses.women.map((division) => (
                           <Link
                             key={division.name}
-                            href={`/division/women-${division.name.toLowerCase().replace(" ", "")}`}
+                            href={`/division/${generateDivisionSlug(division, true)}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name} ({division.weight} lbs)
+                            {division.name}
                           </Link>
                         ))}
                       </div>

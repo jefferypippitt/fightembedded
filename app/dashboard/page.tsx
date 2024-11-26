@@ -65,7 +65,7 @@ export default async function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <Button asChild>
-            <Link href="/athletes/new">
+            <Link href="/dashboard/new-athlete">
               <PlusCircle className="mr-2 h-4 w-4" />
               Add New Athlete
             </Link>
