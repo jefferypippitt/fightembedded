@@ -156,6 +156,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       koRate: 0,
       submissionRate: 0,
       followers: 0,
+      rank: 0,
+      poundForPoundRank: 0,
+      imageUrl: "",
     },
     resolver: zodResolver(athleteSchema),
   });
@@ -283,6 +286,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormLabel className="text-sm">Age</FormLabel>
                   <FormControl>
                     <Input
+                      placeholder="Age"
                       className="h-9"
                       type="number"
                       min={18}
@@ -290,7 +294,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       {...field}
                       value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
@@ -352,6 +357,61 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="rank"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">Rank</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Rank"
+                      className="h-9"
+                      type="number"
+                      min={1}
+                      {...field}
+                      value={field.value === 0 ? "" : field.value}
+                      onChange={(e) => {
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="poundForPoundRank"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">
+                    Pound for Pound Rank
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Pound for Pound Rank"
+                      className="h-9"
+                      type="number"
+                      min={1}
+                      max={15}
+                      {...field}
+                      value={field.value === 0 ? "" : field.value}
+                      onChange={(e) => {
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
+                        field.onChange(value);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
 
@@ -375,6 +435,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Wins"
                       type="number"
                       min={0}
                       {...field}
@@ -401,10 +462,10 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Losses</FormLabel>
-
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Losses"
                       type="number"
                       min={0}
                       {...field}
@@ -435,6 +496,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Draws"
                       type="number"
                       min={0}
                       {...field}
@@ -477,6 +539,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Wins by Knock Out"
                       type="number"
                       min={0}
                       max={100}
@@ -508,6 +571,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Wins by Submission"
                       type="number"
                       min={0}
                       max={100}
@@ -539,6 +603,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <Input
                       className="h-9"
+                      placeholder="Followers"
                       type="number"
                       min={0}
                       {...field}

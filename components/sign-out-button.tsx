@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Button } from "./ui/button";
 import { redirect } from "next/navigation";
+import "server-only";
 
 export function SignOutButton() {
   return (

@@ -39,6 +39,9 @@ export async function updateAthlete(
       koRate: Number(rawData.koRate),
       submissionRate: Number(rawData.submissionRate),
       followers: Number(rawData.followers),
+      rank: Number(rawData.rank),
+      poundForPoundRank: Number(rawData.poundForPoundRank),
+      imageUrl: String(rawData.imageUrl),
     };
 
     const validatedData = athleteSchema.parse(data);

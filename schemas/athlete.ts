@@ -7,6 +7,11 @@ export const athleteSchema = z.object({
 
   age: z.number().int().min(18).max(65),
 
+
+  rank: z.number().int().min(0).optional(),
+
+  poundForPoundRank: z.number().int().min(0).max(15).optional(),
+
   weightDivision: z
     .string()
     .min(2, "Weight division must be at least 2 characters"),
@@ -34,4 +39,6 @@ export const athleteSchema = z.object({
     .describe("Number of wins by submission"),
 
   followers: z.number().int().min(0).default(0),
+
+  imageUrl: z.string().optional(),
 });

@@ -68,6 +68,11 @@ export default async function DivisionPage({ params }: PageProps) {
                     <p className="text-sm">
                       Wins by Submission: {athlete.submissionRate}%
                     </p>
+                    <p className="text-sm">Followers: {athlete.followers}</p>
+                    <p className="text-sm">Rank: {athlete.rank}</p>
+                    <p className="text-sm">
+                      Pound for Pound Rank: {athlete.poundForPoundRank}
+                    </p>
                   </div>
                 </CardContent>
               </Card>

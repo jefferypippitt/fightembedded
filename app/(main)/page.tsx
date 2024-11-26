@@ -1,47 +1,66 @@
-export default function Home() {
+import { AthleteCard } from "@/components/athlete-card";
+import { P4PSidebar } from "@/components/p4p-sidebar";
+import prisma from "@/lib/prisma";
+
+export default async function Home() {
+  const champions = await prisma.athlete.findMany({
+    where: {
+      rank: 1,
+    },
+  });
+
   return (
-    <main className="px-4 py-4 space-y-8">
-      {/* Hero Section */}
-      <section className="space-y-2">
-        <h1 className="text-2xl font-bold text-center">UFC Champions</h1>
-      </section>
-
-      {/* Champions and Rankings Section */}
+    <>
+      <h1 className="text-3xl font-bold mb-6 text-center">UFC Champions</h1>
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Champions Section */}
-        <div className="flex-1 space-y-8">
-          {/* Male Champions */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold">
-              Men&apos;s Division Champions
-            </h2>
-          </section>
-
-          {/* Female Champions */}
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold">
-              Women&apos;s Division Champions
-            </h2>
-          </section>
+        <div className="lg:w-3/4">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Male Champions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {champions.filter(champion => champion.gender === 'MALE').map((champion) => {
+                const winRate = Math.round((champion.wins / (champion.wins + champion.losses)) * 100);
+                return (
+                  <AthleteCard 
+                    key={champion.id}
+                    {...champion}
+                    division={champion.weightDivision}
+                    isChampion={true}
+                    koTkoRate={champion.koRate}
+                    submissionRate={champion.submissionRate}
+                    record={`${champion.wins}-${champion.losses}`}
+                    winRate={winRate || 0}
+                    imageUrl={champion.imageUrl || '/default-avatar.png'}
+                  />
+                );
+              })}
+            </div>
+          </div>
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Female Champions</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {champions.filter(champion => champion.gender === 'FEMALE').map((champion) => {
+                const winRate = Math.round((champion.wins / (champion.wins + champion.losses)) * 100);
+                return (
+                  <AthleteCard 
+                    key={champion.id}
+                    {...champion}
+                    division={champion.weightDivision}
+                    isChampion={true}
+                    koTkoRate={champion.koRate}
+                    submissionRate={champion.submissionRate}
+                    record={`${champion.wins}-${champion.losses}`}
+                    winRate={winRate || 0}
+                    imageUrl={champion.imageUrl || '/default-avatar.png'}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </div>
-
-        {/* Sidebar Rankings */}
-        <aside className="hidden lg:block w-80 space-y-6">
-          <div className="border rounded-lg p-4">
-            <h2 className=" mb-4">
-              Men&apos;s P4P Rankings
-            </h2>
-          </div>
-
-          <div className="border rounded-lg p-4">
-            <h2 className=" mb-4">
-              Women&apos;s P4P Rankings
-            </h2>
-          </div>
-        </aside>
+        <div className="lg:w-1/4">
+          <P4PSidebar />
+        </div>
       </div>
-
-      {/* Other */}
-    </main>
+    </>
   );
 }

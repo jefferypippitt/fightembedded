@@ -36,6 +36,9 @@ export default async function EditAthletePage({ params }: EditAthletePageProps) 
       koRate: athlete.koRate,
       submissionRate: athlete.submissionRate,
       followers: athlete.followers,
+      rank: athlete.rank,
+      poundForPoundRank: athlete.poundForPoundRank,
+      imageUrl: athlete.imageUrl,
     };
 
     // Validate the transformed data

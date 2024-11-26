@@ -36,6 +36,9 @@ export async function createAthlete(formData: FormData): Promise<ActionResponse>
       koRate: Number(rawData.koRate),
       submissionRate: Number(rawData.submissionRate),
       followers: Number(rawData.followers),
+      imageUrl: String(rawData.imageUrl),
+      rank: Number(rawData.rank),
+      poundForPoundRank: Number(rawData.poundForPoundRank),
     };
 
     const validatedData = athleteSchema.parse(data);
