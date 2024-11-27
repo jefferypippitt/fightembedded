@@ -20,4 +20,8 @@ export interface Athlete {
   draws: number
   winsByKo: number
   winsBySubmission: number
+  imageUrl?: string
+  rank?: number
+  poundForPoundRank?: number
+  followers?: number
 } 
