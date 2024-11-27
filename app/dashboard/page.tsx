@@ -6,56 +6,27 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trophy, Users, TrendingUp, Flag, PlusCircle } from "lucide-react";
+import { Users, TrendingUp, Flag, PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
+import { getTopAthletes } from "@/server/actions/get-top-athletes";
+import { getDivisionStats } from "@/server/actions/get-division-stats";
+import { getCountryStats } from "@/server/actions/get-country-stats";
 
 export default async function Dashboard() {
+  const dashboardStats = await getDashboardStats();
+  const topAthletes = await getTopAthletes();
+  const divisionStats = await getDivisionStats();
+  const countryStats = await getCountryStats();
+
   const stats = [
     {
       title: "Total Athletes",
-      value: "156",
-      change: "+12%",
+      value: dashboardStats.totalAthletes.value.toString(),
+      change: dashboardStats.totalAthletes.change,
       trend: "up",
       icon: Users,
-    },
-    {
-      title: "Average Win Rate",
-      value: "67.3%",
-      change: "+5.2%",
-      trend: "up",
-      icon: TrendingUp,
-    },
-    {
-      title: "Total Matches",
-      value: "1,284",
-      change: "+8.1%",
-      trend: "up",
-      icon: Trophy,
-    },
-  ];
-
-  const topAthletes = [
-    {
-      name: "Alex Silva",
-      weightDivision: "Lightweight",
-      country: "Brazil",
-      record: "15-2-0",
-      koRate: 60,
-    },
-    {
-      name: "Sarah Thompson",
-      weightDivision: "Featherweight",
-      country: "USA",
-      record: "12-1-0",
-      koRate: 75,
-    },
-    {
-      name: "Yuki Tanaka",
-      weightDivision: "Welterweight",
-      country: "Japan",
-      record: "14-3-1",
-      koRate: 55,
-    },
+    }
   ];
 
   return (
@@ -73,7 +44,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Stats Section */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="grid gap-4 md:grid-cols-1 mb-8">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -106,8 +77,8 @@ export default async function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {topAthletes.map((athlete, index) => (
-                <div key={index} className="flex items-center">
+              {topAthletes.map((athlete) => (
+                <div key={athlete.name} className="flex items-center">
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {athlete.name}
@@ -117,9 +88,9 @@ export default async function Dashboard() {
                     </p>
                   </div>
                   <div className="ml-auto text-sm">
-                    <span className="font-medium">{athlete.record}</span>
+                    <span className="font-medium">{`${athlete.wins}-${athlete.losses}`}</span>
                     <span className="text-muted-foreground ml-2">
-                      ({athlete.koRate}% KO Rate)
+                      
                     </span>
                   </div>
                 </div>
@@ -137,11 +108,7 @@ export default async function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  { division: "Lightweight", count: 45, percentage: 28 },
-                  { division: "Welterweight", count: 38, percentage: 24 },
-                  { division: "Featherweight", count: 32, percentage: 20 },
-                ].map((division) => (
+                {divisionStats.map((division) => (
                   <div key={division.division} className="flex items-center">
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium leading-none">
@@ -172,11 +139,7 @@ export default async function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  { country: "Brazil", count: 42, trend: "up" },
-                  { country: "United States", count: 38, trend: "up" },
-                  { country: "Japan", count: 25, trend: "stable" },
-                ].map((country) => (
+                {countryStats.map((country) => (
                   <div key={country.country} className="flex items-center">
                     <div className="flex-1">
                       <p className="text-sm font-medium leading-none">
