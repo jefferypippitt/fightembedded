@@ -16,7 +16,6 @@ export async function getAthletesByDivision(
       },
     });
 
-    console.log('Athletes found for division:', divisionName, athletes);
     return athletes;
   } catch (error) {
     console.error("Error fetching athletes:", error);
