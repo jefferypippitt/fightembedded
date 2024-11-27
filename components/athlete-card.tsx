@@ -1,5 +1,5 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar,  AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Flag } from "lucide-react";
@@ -64,12 +64,7 @@ export function AthleteCard({
               alt={name}
               className="object-cover aspect-square"
             />
-            <AvatarFallback>
-              {name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
+           
           </Avatar>
           <div>
             <h3 className="font-semibold text-sm">{name}</h3>
