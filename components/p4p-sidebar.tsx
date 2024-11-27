@@ -21,14 +21,14 @@ interface Fighter {
 }
 
 const RankingSkeleton = () => (
-  <div className="space-y-2">
+  <div className="space-y-1">
     {[...Array(15)].map((_, i) => (
       <div key={i} className="flex items-center space-x-2 p-1.5">
         <Skeleton className="h-4 w-4" />
-        <Skeleton className="h-10 w-10 rounded-full" />
+        <Skeleton className="h-9 w-9 rounded-full" />
         <div className="flex-grow">
-          <Skeleton className="h-3 w-20 mb-1" />
-          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-3 w-16 mb-1" />
+          <Skeleton className="h-2 w-12" />
         </div>
       </div>
     ))}
@@ -40,7 +40,7 @@ const FighterCard = ({ fighter }: { fighter: Fighter }) => (
     <span className="font-bold text-sm w-4">
       {fighter.poundForPoundRank}.
     </span>
-    <Avatar className="h-10 w-10 rounded-full">
+    <Avatar className="h-9 w-9 rounded-full">
       <AvatarImage
         src={fighter.imageUrl || "/images/default-avatar.png"}
         alt={fighter.name}
@@ -57,7 +57,7 @@ const FighterCard = ({ fighter }: { fighter: Fighter }) => (
       <p className="font-medium text-sm leading-tight">
         {fighter.name}
       </p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <p className="text-xs text-muted-foreground">
           {fighter.weightDivision}
         </p>
@@ -109,9 +109,9 @@ export function P4PSidebar() {
   }, [showFemale]);
 
   return (
-    <Card className="w-full h-full">
-      <CardHeader className="p-3">
-        <CardTitle className="text-sm flex items-center justify-between">
+    <Card className="h-full">
+      <CardHeader className="p-2">
+        <CardTitle className="text-xs flex items-center justify-between">
           <span>P4P Rankings</span>
           <div className="flex space-x-1">
             <Button
@@ -133,16 +133,20 @@ export function P4PSidebar() {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-3">
-        <ScrollArea className="h-[calc(100vh-200px)]">
+      <CardContent className="p-2">
+        <ScrollArea className="h-[calc(100vh-280px)]">
           {loading ? (
             <RankingSkeleton />
           ) : (
-            <ul className="space-y-2">
-              {rankings.map((fighter) => (
-                <FighterCard key={fighter.id} fighter={fighter} />
-              ))}
-            </ul>
+            <div className="flex flex-col gap-1">
+              <div className="grid grid-cols-1 gap-2 w-full">
+                {rankings.map((fighter) => (
+                  <div key={fighter.id} className="w-full">
+                    <FighterCard fighter={fighter} />
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </ScrollArea>
       </CardContent>

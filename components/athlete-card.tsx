@@ -1,5 +1,5 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar,  AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, Flag } from "lucide-react";
@@ -41,43 +41,48 @@ export function AthleteCard({
   const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
 
   return (
-    <Card className="overflow-hidden h-64">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <Badge variant="secondary" className="text-xs">
+    <Card className="h-full">
+      <CardContent className="p-2 sm:p-4">
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <Badge variant="secondary" className="text-[10px] sm:text-xs">
             {division}
           </Badge>
           {isChampion ? (
-            <Trophy className="h-4 w-4 text-yellow-500" />
+            <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
           ) : (
             poundForPoundRank > 0 && (
-              <span className="text-xs font-medium">
+              <span className="text-[10px] sm:text-xs font-medium">
                 P4P #{poundForPoundRank}
               </span>
             )
           )}
         </div>
-        <div className="flex items-center space-x-4 mb-3">
-          <Avatar className="h-16 w-16 rounded-full">
+        <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
+          <Avatar className="h-12 w-12 sm:h-16 sm:w-16 rounded-full">
             <AvatarImage
               src={imageUrl}
               alt={name}
               className="object-cover aspect-square"
             />
-           
           </Avatar>
-          <div>
-            <h3 className="font-semibold text-sm">{name}</h3>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-muted-foreground">{record}</p>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-xs sm:text-sm">{name}</h3>
+            <div className="flex flex-col gap-0.5 sm:gap-1">
               <div className="flex items-center gap-1">
-                <Flag className="h-3 w-3" />
-                <span className="text-xs text-muted-foreground">{country}</span>
+                <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
+                  {record}
+                </span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Flag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                <span className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
+                  {country}
+                </span>
               </div>
             </div>
           </div>
         </div>
-        <div className="space-y-1 text-xs">
+        <div className="space-y-1 text-[10px] sm:text-xs">
           <div className="flex justify-between items-center">
             <span>Win Rate</span>
             <span className="font-medium">{winRate.toFixed(1)}%</span>
@@ -97,7 +102,7 @@ export function AthleteCard({
           <Progress value={submissionRate} className="h-1" />
         </div>
       </CardContent>
-      <CardFooter />
+      <CardFooter className="p-0" />
     </Card>
   );
 }
