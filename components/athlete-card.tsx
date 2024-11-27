@@ -1,58 +1,75 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Trophy, Flag } from 'lucide-react'
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Trophy, Flag } from "lucide-react";
 
 interface AthleteCardProps {
-  name: string
-  division: string
-  gender: string
-  record: string
-  imageUrl: string
-  country: string
-  winRate: number
-  koTkoRate?: number
-  submissionRate?: number
-  isChampion?: boolean
-  p4pRank?: number
-  rank?: number
-  wins?: number
-  losses?: number
-  draws?: number
+  name: string;
+  division: string;
+  gender: string;
+  imageUrl?: string;
+  country: string;
+  wins?: number;
+  losses?: number;
+  draws?: number;
+  winsByKo?: number;
+  winsBySubmission?: number;
+  followers?: number;
+  rank?: number;
+  poundForPoundRank?: number;
+  isChampion?: boolean;
 }
 
-export function AthleteCard({ 
-  name, 
+export function AthleteCard({
+  name,
   division,
-  imageUrl, 
-  country, 
-  winRate,
-  koTkoRate,
-  submissionRate,
-  isChampion = false,
-  p4pRank,
+  imageUrl = "/default-avatar.png",
+  country,
   wins = 0,
   losses = 0,
   draws = 0,
+  winsByKo = 0,
+  winsBySubmission = 0,
+  poundForPoundRank = 0,
+  isChampion = false,
 }: AthleteCardProps) {
-  const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ''}`;
+  const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
+  const totalFights = wins + losses + draws;
+  const winRate = totalFights > 0 ? (wins / totalFights) * 100 : 0;
+  const koRate = wins > 0 ? (winsByKo / wins) * 100 : 0;
+  const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
 
   return (
     <Card className="overflow-hidden h-64">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-3">
-          <Badge variant="secondary" className="text-xs">{division}</Badge>
+          <Badge variant="secondary" className="text-xs">
+            {division}
+          </Badge>
           {isChampion ? (
             <Trophy className="h-4 w-4 text-yellow-500" />
           ) : (
-            p4pRank && <span className="text-xs font-medium">P4P #{p4pRank}</span>
+            poundForPoundRank > 0 && (
+              <span className="text-xs font-medium">
+                P4P #{poundForPoundRank}
+              </span>
+            )
           )}
         </div>
         <div className="flex items-center space-x-4 mb-3">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={imageUrl} alt={name} />
-            <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+          <Avatar className="h-16 w-16 rounded-full">
+            <AvatarImage
+              src={imageUrl}
+              alt={name}
+              className="object-cover aspect-square"
+            />
+            <AvatarFallback>
+              {name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h3 className="font-semibold text-sm">{name}</h3>
@@ -68,27 +85,24 @@ export function AthleteCard({
         <div className="space-y-1 text-xs">
           <div className="flex justify-between items-center">
             <span>Win Rate</span>
-            <span className="font-medium">{winRate}%</span>
+            <span className="font-medium">{winRate.toFixed(1)}%</span>
           </div>
           <Progress value={winRate} className="h-1" />
-          
-          {isChampion && (
-            <>
-              <div className="flex justify-between items-center">
-                <span>KO/TKO</span>
-                <span className="font-medium">{koTkoRate}%</span>
-              </div>
-              <Progress value={koTkoRate} className="h-1" />
-              
-              <div className="flex justify-between items-center">
-                <span>Submission</span>
-                <span className="font-medium">{submissionRate}%</span>
-              </div>
-              <Progress value={submissionRate} className="h-1" />
-            </>
-          )}
+
+          <div className="flex justify-between items-center">
+            <span>KO/TKO</span>
+            <span className="font-medium">{koRate.toFixed(1)}%</span>
+          </div>
+          <Progress value={koRate} className="h-1" />
+
+          <div className="flex justify-between items-center">
+            <span>Submission</span>
+            <span className="font-medium">{submissionRate.toFixed(1)}%</span>
+          </div>
+          <Progress value={submissionRate} className="h-1" />
         </div>
       </CardContent>
+      <CardFooter />
     </Card>
-  )
+  );
 }

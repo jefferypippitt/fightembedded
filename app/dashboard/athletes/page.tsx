@@ -45,10 +45,10 @@ export default async function DashboardAthletesPage() {
                 Record: {athlete.wins}-{athlete.losses}-{athlete.draws}
               </p>
 
-              <p className="text-sm">Wins by Knock Out: {athlete.koRate}</p>
+              <p className="text-sm">Wins by Knock Out: {athlete.winsByKo}</p>
 
               <p className="text-sm">
-                Wins by Submission: {athlete.submissionRate}
+                Wins by Submission: {athlete.winsBySubmission}
               </p>
             </div>
           </div>

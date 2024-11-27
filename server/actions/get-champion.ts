@@ -37,8 +37,8 @@ export async function getChampions() {
           country: true,
           poundForPoundRank: true,
           weightDivision: true,
-          koRate: true,
-          submissionRate: true,
+          winsByKo: true,
+          winsBySubmission: true,
         },
       }),
       prisma.athlete.findFirst({
@@ -56,8 +56,8 @@ export async function getChampions() {
           imageUrl: true,
           country: true,
           poundForPoundRank: true,
-          koRate: true,
-          submissionRate: true,
+          winsByKo: true,
+          winsBySubmission: true,
         },
       }),
     ]);

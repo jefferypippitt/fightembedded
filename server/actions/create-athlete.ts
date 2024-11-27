@@ -19,7 +19,9 @@ async function checkAuth() {
   return session;
 }
 
-export async function createAthlete(formData: FormData): Promise<ActionResponse> {
+export async function createAthlete(
+  formData: FormData
+): Promise<ActionResponse> {
   try {
     await checkAuth();
     const rawData = Object.fromEntries(formData.entries());
@@ -29,21 +31,27 @@ export async function createAthlete(formData: FormData): Promise<ActionResponse>
       gender: rawData.gender as "MALE" | "FEMALE",
       weightDivision: String(rawData.weightDivision),
       country: String(rawData.country),
-      age: Number(rawData.age),
-      wins: Number(rawData.wins),
-      losses: Number(rawData.losses),
-      draws: Number(rawData.draws),
-      koRate: Number(rawData.koRate),
-      submissionRate: Number(rawData.submissionRate),
-      followers: Number(rawData.followers),
+      age: parseInt(rawData.age as string),
+      wins: parseInt(rawData.wins as string),
+      losses: parseInt(rawData.losses as string),
+      draws: parseInt(rawData.draws as string),
+      winsByKo: parseInt(rawData.winsByKo as string),
+      winsBySubmission: parseInt(rawData.winsBySubmission as string),
+      followers: parseInt(rawData.followers as string),
+      rank: rawData.rank ? parseInt(rawData.rank as string) : 0,
+      poundForPoundRank: rawData.poundForPoundRank
+        ? parseInt(rawData.poundForPoundRank as string)
+        : 0,
       imageUrl: String(rawData.imageUrl),
-      rank: Number(rawData.rank),
-      poundForPoundRank: Number(rawData.poundForPoundRank),
     };
 
     const validatedData = athleteSchema.parse(data);
     const athlete = await prisma.athlete.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        rank: validatedData.rank ?? 0,
+        poundForPoundRank: validatedData.poundForPoundRank ?? 0,
+      },
     });
 
     return {
@@ -53,7 +61,7 @@ export async function createAthlete(formData: FormData): Promise<ActionResponse>
     };
   } catch (error) {
     console.error("Create athlete error:", error);
-    
+
     if (error instanceof z.ZodError) {
       return {
         status: "error",

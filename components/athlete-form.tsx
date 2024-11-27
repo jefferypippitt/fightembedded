@@ -1,15 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-
 import { useFormStatus } from "react-dom";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { useForm } from "react-hook-form";
-
 import { Button } from "@/components/ui/button";
-
 import {
   Form,
   FormControl,
@@ -20,6 +15,9 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
+import { UploadButton } from "@/utils/uploadthing";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 
 import {
   Select,
@@ -140,25 +138,27 @@ function CountrySelect({
 
 export function AthleteForm({ initialData }: AthleteFormProps) {
   const router = useRouter();
+  const [imageUrl, setImageUrl] = useState<string>(initialData?.imageUrl || "");
 
   const formRef = useRef<HTMLFormElement>(null);
 
   const form = useForm<FormValues>({
-    defaultValues: initialData || {
-      name: "",
-      gender: undefined,
-      age: 0,
-      country: "",
-      weightDivision: "",
-      wins: 0,
-      losses: 0,
-      draws: 0,
-      koRate: 0,
-      submissionRate: 0,
-      followers: 0,
-      rank: 0,
-      poundForPoundRank: 0,
-      imageUrl: "",
+    defaultValues: {
+      ...initialData,
+      winsByKo: initialData?.winsByKo ?? 0,
+      winsBySubmission: initialData?.winsBySubmission ?? 0,
+      name: initialData?.name || "",
+      gender: initialData?.gender || undefined,
+      age: initialData?.age || 0,
+      country: initialData?.country || "",
+      weightDivision: initialData?.weightDivision || "",
+      wins: initialData?.wins || 0,
+      losses: initialData?.losses || 0,
+      draws: initialData?.draws || 0,
+      followers: initialData?.followers || 0,
+      rank: initialData?.rank || 0,
+      poundForPoundRank: initialData?.poundForPoundRank || 0,
+      imageUrl: initialData?.imageUrl || "",
     },
     resolver: zodResolver(athleteSchema),
   });
@@ -168,8 +168,16 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
-        formData.append(key, value?.toString() || "0");
+        if (value !== undefined && value !== null) {
+          formData.append(key, value.toString());
+        } else {
+          formData.append(key, "0");
+        }
       });
+
+      if (imageUrl) {
+        formData.set("imageUrl", imageUrl);
+      }
 
       const result = initialData
         ? await updateAthlete(initialData.id, formData)
@@ -178,35 +186,28 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       if (result.status === "success") {
         toast({
           title: "Success",
-
           description: result.message,
         });
 
-        router.push("/athletes");
-
+        router.push("/dashboard/athletes");
         router.refresh();
       } else {
         toast({
           title: "Submission Error",
-
           description:
             result.message ||
             "Failed to save athlete data. Please check all fields and try again.",
-
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Form submission error:", error);
-
       toast({
         title: "Error",
-
         description:
           error instanceof Error
             ? `Error: ${error.message}`
             : "An unexpected error occurred. Please try again.",
-
         variant: "destructive",
       });
     }
@@ -219,6 +220,57 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-6"
       >
+        {/* Add Image Upload Section */}
+        <div className="bg-card p-4 rounded-lg border shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-4 w-1 bg-primary rounded-full" />
+            <h2 className="text-lg font-semibold">Profile Image</h2>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <Avatar className="h-24 w-24">
+              <AvatarImage
+                src={imageUrl || "/default-avatar.png"}
+                alt="Profile"
+                className="object-cover"
+              />
+              <AvatarFallback>IMG</AvatarFallback>
+            </Avatar>
+
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <UploadButton
+                      endpoint="athleteImage"
+                      onClientUploadComplete={(res) => {
+                        if (res?.[0]) {
+                          const url = res[0].url;
+                          setImageUrl(url);
+                          field.onChange(url);
+                          toast({
+                            title: "Upload complete",
+                            description: "Image uploaded successfully",
+                          });
+                        }
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast({
+                          title: "Upload error",
+                          description: error.message,
+                          variant: "destructive",
+                        });
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
         {/* Personal Information Section */}
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
@@ -531,18 +583,16 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
-              name="koRate"
+              name="winsByKo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm">Wins by Knock Out</FormLabel>
-
+                  <FormLabel className="text-sm">Wins by KO/TKO</FormLabel>
                   <FormControl>
                     <Input
                       className="h-9"
-                      placeholder="Wins by Knock Out"
+                      placeholder="Enter KO/TKO wins"
                       type="number"
                       min={0}
-                      max={100}
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => {
@@ -550,12 +600,10 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           e.target.value === ""
                             ? undefined
                             : parseInt(e.target.value);
-
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}
@@ -563,18 +611,16 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
             <FormField
               control={form.control}
-              name="submissionRate"
+              name="winsBySubmission"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Wins by Submission</FormLabel>
-
                   <FormControl>
                     <Input
                       className="h-9"
-                      placeholder="Wins by Submission"
+                      placeholder="Enter submission wins"
                       type="number"
                       min={0}
-                      max={100}
                       {...field}
                       value={field.value || ""}
                       onChange={(e) => {
@@ -582,12 +628,10 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           e.target.value === ""
                             ? undefined
                             : parseInt(e.target.value);
-
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}

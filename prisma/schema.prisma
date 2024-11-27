@@ -77,23 +77,22 @@ model Verification {
 }
 
 model Athlete {
-  id                     String   @id @default(cuid())
-  name                   String
-  gender                 String   
-  age                    Int
-  weightDivision         String
-  country                String
-  imageUrl               String?
-  wins                   Int
-  losses                 Int
-  draws                  Int
-  koRate                 Int
-  submissionRate         Int
-  followers              Int
-  rank                   Int     @default(0)
-  poundForPoundRank      Int     @default(0)
+  id                String   @id @default(cuid())
+  name              String
+  gender            String   
+  age               Int
+  weightDivision    String
+  country           String
+  imageUrl          String?
+  wins              Int
+  losses            Int
+  draws             Int
+  winsByKo          Int
+  winsBySubmission  Int
+  followers         Int
+  rank              Int      
+  poundForPoundRank Int      
 
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
-

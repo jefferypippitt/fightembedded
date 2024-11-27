@@ -63,10 +63,10 @@ export default async function DivisionPage({ params }: PageProps) {
                       Record: {athlete.wins}-{athlete.losses}-{athlete.draws}
                     </p>
                     <p className="text-sm">
-                      Wins by KO: {athlete.koRate}%
+                      Wins by KO: {athlete.winsByKo}
                     </p>
                     <p className="text-sm">
-                      Wins by Submission: {athlete.submissionRate}%
+                      Wins by Submission: {athlete.winsBySubmission}
                     </p>
                     <p className="text-sm">Followers: {athlete.followers}</p>
                     <p className="text-sm">Rank: {athlete.rank}</p>
