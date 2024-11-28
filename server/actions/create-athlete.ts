@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
-import { AthleteInput, ActionResponse } from "@/types/athlete";
+import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -49,10 +49,11 @@ export async function createAthlete(
     const athlete = await prisma.athlete.create({
       data: {
         ...validatedData,
+        gender: validatedData.gender as "MALE" | "FEMALE",
         rank: validatedData.rank ?? 0,
         poundForPoundRank: validatedData.poundForPoundRank ?? 0,
       },
-    });
+    }) as Athlete;
 
     return {
       status: "success",

@@ -14,14 +14,14 @@ export interface Athlete {
   id: string
   name: string
   weightDivision: string
+  gender: 'MALE' | 'FEMALE'
   country: string
   wins: number
   losses: number
   draws: number
   winsByKo: number
   winsBySubmission: number
-  imageUrl?: string
   rank?: number
-  poundForPoundRank?: number
   followers?: number
+  imageUrl?: string | null
 } 

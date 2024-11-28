@@ -5,7 +5,7 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
-import { AthleteInput, ActionResponse } from "@/types/athlete";
+import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -60,7 +60,7 @@ export async function updateAthlete(
     return {
       status: "success",
       message: "Athlete updated successfully",
-      data: athlete,
+      data: athlete as Athlete,
     };
   } catch (error) {
     console.error("Update athlete error:", error);

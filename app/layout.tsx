@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -15,19 +16,17 @@ export const metadata: Metadata = {
   description: "UFC fighter statistics, performance analytics, and more!",
 };
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<RootLayoutProps>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
-      <body
-        className={`${manrope.variable} font-sans antialiased min-h-screen flex flex-col`}
-      >
+      <body className={cn(
+        manrope.variable,
+        "font-sans antialiased min-h-screen flex flex-col"
+      )}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
