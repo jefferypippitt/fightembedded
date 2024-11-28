@@ -97,3 +97,25 @@ model Athlete {
   updatedAt         DateTime @updatedAt
 }
 
+model Event {
+  id          String    @id @default(cuid())
+  name        String
+  date        DateTime
+  venue       String
+  location    String
+  mainEvent   String
+  coMainEvent String?
+  imageUrl    String?
+  status      EventStatus @default(UPCOMING)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("event")
+}
+
+enum EventStatus {
+  UPCOMING
+  COMPLETED
+  CANCELLED
+}
+
