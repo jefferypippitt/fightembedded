@@ -14,18 +14,17 @@ export default async function Home() {
     getUpcomingEvents(),
   ]);
 
-  console.log("Upcoming events on homepage:", upcomingEvents);
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center">
+    <div className="space-y-4">
+      <h1 className="text-xl sm:text-2xl font-bold text-center">
         UFC Champions
       </h1>
 
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4 space-y-8">
           <section>
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
               Male Champions
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -44,7 +43,7 @@ export default async function Home() {
           </section>
 
           <section>
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
               Female Champions
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -62,7 +61,7 @@ export default async function Home() {
             </div>
           </section>
           <section>
-            <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">
               Upcoming Events
             </h2>
             {upcomingEvents.length > 0 ? (
@@ -76,7 +75,6 @@ export default async function Home() {
                     location={event.location}
                     mainEvent={event.mainEvent}
                     coMainEvent={event.coMainEvent || undefined}
-                    status={event.status}
                   />
                 ))}
               </div>

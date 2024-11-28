@@ -21,7 +21,7 @@ export default async function DashboardLayout({
     <SidebarProvider>
       <AppSidebar user={session.user} />
       <div className="flex-1">
-        <main className="container">{children}</main>
+        <main className="container mx-auto">{children}</main>
       </div>
     </SidebarProvider>
   );

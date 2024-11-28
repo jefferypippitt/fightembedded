@@ -8,10 +8,15 @@ export default async function EditEventPage({
 }: {
   params: { id: string };
 }) {
-  const event = await getEvent(params.id);
+  // Await the params to access its properties
+  const { id } = await params;
 
+  // Fetch the event using the provided ID
+  const event = await getEvent(id);
+
+  // Check if the event was found
   if (!event) {
-    notFound();
+    notFound(); // Handle the case where the event does not exist
   }
 
   const typedEvent: UFCEvent = {

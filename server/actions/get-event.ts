@@ -33,8 +33,6 @@ export async function getUpcomingEvents() {
       take: 6,
     });
 
-    console.log("Fetched upcoming events:", events);
-
     return events;
   } catch (error) {
     console.error("Error fetching upcoming events:", error);
