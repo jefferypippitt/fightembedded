@@ -33,6 +33,7 @@ export function AthleteCard({
   winsBySubmission = 0,
   poundForPoundRank = 0,
   isChampion = false,
+
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;

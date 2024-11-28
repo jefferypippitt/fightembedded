@@ -10,49 +10,50 @@ export default async function Home() {
   });
 
   return (
-    <main>
-      <h1 className="text-2xl sm:text-3xl font-bold mb-2 sm:mb-4 text-center">UFC Champions</h1>
-      <div className="flex flex-col lg:flex-row gap-2 sm:gap-4 p-1 sm:p-2">
-        <div className="w-full lg:w-4/5">
-          <div className="mb-4 md:mb-6">
-            <h2 className="text-xl font-semibold mb-2 md:mb-4">Male Champions</h2>
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-              {champions
-                .filter((champion) => champion.gender === "MALE")
-                .map((champion) => (
-                  <div key={champion.id} className="w-full">
+    <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="space-y-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center">UFC Champions</h1>
+        
+        <div className="grid lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-4 space-y-8">
+            <section>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">Male Champions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {champions
+                  .filter((champion) => champion.gender === "MALE")
+                  .map((champion) => (
                     <AthleteCard 
+                      key={champion.id}
                       {...champion}
                       division={champion.weightDivision}
                       isChampion={true}
                       imageUrl={champion.imageUrl || "/default-avatar.png"}
                     />
-                  </div>
-                ))}
-            </div>
-          </div>
+                  ))}
+              </div>
+            </section>
 
-          <div>
-            <h2 className="text-xl font-semibold mb-2 md:mb-4">Female Champions</h2>
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
-              {champions
-                .filter((champion) => champion.gender === "FEMALE")
-                .map((champion) => (
-                  <div key={champion.id} className="w-full">
+            <section>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">Female Champions</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {champions
+                  .filter((champion) => champion.gender === "FEMALE")
+                  .map((champion) => (
                     <AthleteCard 
+                      key={champion.id}
                       {...champion}
                       division={champion.weightDivision}
                       isChampion={true}
                       imageUrl={champion.imageUrl || "/default-avatar.png"}
                     />
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
+            </section>
           </div>
-        </div>
 
-        <div className="w-full lg:w-1/5 mt-4 lg:mt-0">
-          <P4PSidebar />
+          <aside className="lg:col-span-1">
+            <P4PSidebar />
+          </aside>
         </div>
       </div>
     </main>

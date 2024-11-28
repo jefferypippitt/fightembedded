@@ -40,7 +40,7 @@ async function Athletes({ searchParams }: { searchParams: Promise<{ query?: stri
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {filteredAthletes.map((athlete) => (
         <AthleteListCard
           key={athlete.id}
@@ -54,6 +54,7 @@ async function Athletes({ searchParams }: { searchParams: Promise<{ query?: stri
           winsByKo={athlete.winsByKo}
           winsBySubmission={athlete.winsBySubmission}
           rank={athlete.rank}
+          followers={athlete.followers}
         />
       ))}
       {filteredAthletes.length === 0 && (
@@ -71,23 +72,25 @@ export default function AthletesPage({
   searchParams: Promise<{ query?: string }> 
 }) {
   return (
-    <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold">UFC Athletes</h1>
-        <SearchBar defaultValue={use(searchParams)?.query} />
+    <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">UFC Athletes</h1>
+          <SearchBar defaultValue={use(searchParams)?.query} />
+        </div>
+        
+        <Suspense 
+          fallback={
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {[...Array(6)].map((_, i) => (
+                <AthleteCardSkeleton key={i} />
+              ))}
+            </div>
+          }
+        >
+          <Athletes searchParams={searchParams} />
+        </Suspense>
       </div>
-      
-      <Suspense 
-        fallback={
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <AthleteCardSkeleton key={i} />
-            ))}
-          </div>
-        }
-      >
-        <Athletes searchParams={searchParams} />
-      </Suspense>
     </main>
   )
 } 

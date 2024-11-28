@@ -2,10 +2,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getAthletesByDivision } from "@/server/actions/get-athlete";
 import { getDivisionBySlug, parseDivisionSlug, getFullDivisionName } from "@/data/weight-class";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AthleteListCard } from "@/components/athlete-list-card";
 
-// Create an Athletes component to wrap the async data fetching
+
 async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
   const athletes = await getAthletesByDivision(fullDivisionName);
 
@@ -14,33 +14,49 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {athletes.map((athlete) => (
-        <Card key={athlete.id}>
-          <CardHeader>
-            <h2 className="font-semibold">{athlete.name}</h2>
-            <p className="text-sm text-muted-foreground">{athlete.country}</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <p className="text-sm">
-                Record: {athlete.wins}-{athlete.losses}-{athlete.draws}
-              </p>
-              <p className="text-sm">
-                Wins by KO: {athlete.winsByKo}
-              </p>
-              <p className="text-sm">
-                Wins by Submission: {athlete.winsBySubmission}
-              </p>
-              <p className="text-sm">Followers: {athlete.followers}</p>
-              <p className="text-sm">Rank: {athlete.rank}</p>
-              <p className="text-sm">
-                Pound for Pound Rank: {athlete.poundForPoundRank}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <AthleteListCard
+          key={athlete.id}
+          name={athlete.name}
+          weightDivision={athlete.weightDivision}
+          imageUrl={athlete.imageUrl || undefined}
+          country={athlete.country}
+          wins={athlete.wins}
+          losses={athlete.losses}
+          draws={athlete.draws}
+          winsByKo={athlete.winsByKo}
+          winsBySubmission={athlete.winsBySubmission}
+          rank={athlete.rank}
+          followers={athlete.followers}
+        />
       ))}
+    </div>
+  );
+}
+
+// Update the loading skeleton to match AthleteListCard style
+function AthleteCardSkeleton() {
+  return (
+    <div className="border rounded-lg p-2.5">
+      <div className="flex items-center gap-2.5">
+        <Skeleton className="h-10 w-10 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <div className="space-y-1">
+            <Skeleton className="h-4 w-24" />
+            <div className="flex gap-1.5">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-full" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -85,22 +101,9 @@ export default async function DivisionPage({ params }: PageProps) {
       <h1 className="text-2xl font-bold capitalize">{fullDivisionName} Division</h1>
       
       <Suspense fallback={
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="border rounded-lg p-4 space-y-3">
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-24" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-              </div>
-            </div>
+            <AthleteCardSkeleton key={i} />
           ))}
         </div>
       }>
