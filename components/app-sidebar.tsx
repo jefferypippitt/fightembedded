@@ -1,4 +1,4 @@
-import { User2, ChevronUp, Users } from "lucide-react";
+import { User2, ChevronUp, Users, Calendar } from "lucide-react";
 
 import {
   Sidebar,
@@ -50,7 +50,7 @@ const favorites = [
   {
     name: "Events",
 
-    url: "#",
+    url: "/dashboard/events",
 
     emoji: "📅",
   },
@@ -73,6 +73,12 @@ const management = [
     icon: Users,
 
     description: "Add, edit, or remove athletes",
+  },
+  {
+    name: "Manage Events",
+    url: "/dashboard/events",
+    icon: Calendar,
+    description: "Add, edit, or remove events",
   },
 ];
 

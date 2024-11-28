@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Users, TrendingUp, Flag, PlusCircle } from "lucide-react";
+import { Users, TrendingUp, Flag, PlusCircle, Calendar } from "lucide-react";
 import Link from "next/link";
 import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
 import { getTopAthletes } from "@/server/actions/get-top-athletes";
@@ -32,15 +32,23 @@ export default async function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="py-8">
-        {/* Header with Add Button */}
+        {/* Header with Add Buttons */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <Button asChild>
-            <Link href="/dashboard/new-athlete">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add New Athlete
-            </Link>
-          </Button>
+          <div className="flex gap-4">
+            <Button asChild>
+              <Link href="/dashboard/new-athlete">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add New Athlete
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/dashboard/events/new">
+                <Calendar className="mr-2 h-4 w-4" />
+                Add New Event
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Section */}
@@ -98,6 +106,18 @@ export default async function Dashboard() {
             </div>
           </CardContent>
         </Card>
+
+         {/* Upcoming Events Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Upcoming Events</CardTitle>
+            <CardDescription>Next scheduled UFC events</CardDescription>
+          </CardHeader>
+          <CardContent>
+            
+          </CardContent>
+        </Card>
+      </div>
 
         {/* Additional Stats */}
         <div className="grid gap-4 md:grid-cols-2">
@@ -159,6 +179,5 @@ export default async function Dashboard() {
           </Card>
         </div>
       </div>
-    </div>
   );
 }
