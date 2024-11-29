@@ -604,12 +604,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
+                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
@@ -632,12 +629,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
+                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
@@ -653,7 +647,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Followers</FormLabel>
-
                   <FormControl>
                     <Input
                       className="h-9"
@@ -661,18 +654,13 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
-
+                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}
