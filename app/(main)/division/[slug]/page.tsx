@@ -13,9 +13,17 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
     return <p className="text-muted-foreground">No athletes found in this division.</p>;
   }
 
+  // Sort athletes by rank (ascending order)
+  const sortedAthletes = [...athletes].sort((a, b) => {
+    // Handle cases where rank might be null/undefined
+    if (!a.rank) return 1;  // Push null/undefined ranks to the end
+    if (!b.rank) return -1;
+    return a.rank - b.rank;
+  });
+
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {athletes.map((athlete) => (
+      {sortedAthletes.map((athlete) => (
         <AthleteListCard
           key={athlete.id}
           name={athlete.name}
