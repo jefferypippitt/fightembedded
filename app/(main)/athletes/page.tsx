@@ -1,21 +1,52 @@
 import { Suspense } from "react"
 import { getAthletes } from "@/server/actions/athlete"
 import { AthleteListCard } from "@/components/athlete-list-card"
-
 import { Skeleton } from "@/components/ui/skeleton"
-
-
 import { use } from "react"
 import { SearchBar } from "@/components/search-bar"
 
 // Create a loading skeleton for the athlete cards
 function AthleteCardSkeleton() {
   return (
-    <div className="space-y-3">
-      <div className="h-20 rounded-lg bg-muted" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
+    <div className="rounded-lg border bg-card">
+      <div className="p-3">
+        {/* Avatar and Name section */}
+        <div className="flex flex-col items-center mb-2">
+          <div className="relative">
+            <Skeleton className="h-16 w-16 rounded-full" />
+          </div>
+          <div className="text-center mt-2 space-y-1">
+            <Skeleton className="h-4 w-24 mx-auto" />
+            <Skeleton className="h-3 w-16 mx-auto" />
+          </div>
+        </div>
+
+        {/* Division and Country */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+
+        {/* Stats section */}
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="space-y-1">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-8" />
+              </div>
+              <Skeleton className="h-1 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-3 py-2 border-t">
+        <div className="flex justify-between">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-3 w-8" />
+        </div>
       </div>
     </div>
   )

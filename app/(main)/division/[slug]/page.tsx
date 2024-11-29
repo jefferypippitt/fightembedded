@@ -35,30 +35,55 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
   );
 }
 
-// Update the loading skeleton to match AthleteListCard style
+// Update the AthleteCardSkeleton component
 function AthleteCardSkeleton() {
   return (
-    <div className="border rounded-lg p-2.5">
-      <div className="flex items-center gap-2.5">
-        <Skeleton className="h-10 w-10 rounded-full" />
-        <div className="flex-1 space-y-2">
-          <div className="space-y-1">
-            <Skeleton className="h-4 w-24" />
-            <div className="flex gap-1.5">
-              <Skeleton className="h-3 w-16" />
-              <Skeleton className="h-3 w-12" />
+    <div className="rounded-lg border bg-card">
+      <div className="p-3">
+        {/* Avatar and Name section */}
+        <div className="flex flex-col items-center mb-2 relative">
+          {/* Rank badge position */}
+          <div className="absolute -top-1 -right-1">
+            <Skeleton className="h-4 w-8" />
+          </div>
+          <div className="relative">
+            <Skeleton className="h-16 w-16 rounded-full" />
+          </div>
+          <div className="text-center mt-2 space-y-1">
+            <Skeleton className="h-4 w-24 mx-auto" />
+            <Skeleton className="h-3 w-16 mx-auto" />
+          </div>
+        </div>
+
+        {/* Division and Country */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+
+        {/* Stats section */}
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="space-y-1">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-3 w-8" />
+              </div>
+              <Skeleton className="h-1 w-full" />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-full" />
-            <Skeleton className="h-3 w-full" />
-          </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="px-3 py-2 border-t">
+        <div className="flex justify-between">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-3 w-8" />
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 interface PageProps {
