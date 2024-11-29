@@ -38,7 +38,12 @@ interface AthletesTableProps {
 }
 
 export default function AthletesTable({ athletes }: AthletesTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([
+    {
+      id: "rankAndName",
+      desc: false
+    }
+  ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
@@ -74,9 +79,9 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("rankAndName")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

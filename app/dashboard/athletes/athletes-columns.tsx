@@ -149,14 +149,18 @@ const WeightDivisionFilter = ({
 
 export const columns: ColumnDef<Athlete>[] = [
   {
-    accessorKey: "name",
+    id: "rankAndName",
+    accessorFn: (row) => ({
+      rank: row.rank,
+      name: row.name
+    }),
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name & Rank
+          Rank
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -183,6 +187,14 @@ export const columns: ColumnDef<Athlete>[] = [
           <span>{athlete.name}</span>
         </div>
       );
+    },
+    sortingFn: (rowA, rowB) => {
+      const rankA = rowA.original.rank || Number.MAX_SAFE_INTEGER;
+      const rankB = rowB.original.rank || Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
+    },
+    filterFn: (row, id, filterValue: string) => {
+      return row.original.name.toLowerCase().includes(filterValue.toLowerCase());
     },
   },
   {
