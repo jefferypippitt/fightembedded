@@ -1,8 +1,7 @@
-// Define the base types for better type safety
 export type WeightDivision = {
   name: string;
   slug: string;
-  weight?: number; // Optional weight in pounds
+  weight?: number; 
 };
 
 export type WeightClasses = {
@@ -22,7 +21,6 @@ export const weightClasses: WeightClasses = {
     { name: "Flyweight", slug: "flyweight", weight: 125 },
   ],
   women: [
-    { name: "Featherweight", slug: "featherweight", weight: 145 },
     { name: "Bantamweight", slug: "bantamweight", weight: 135 },
     { name: "Flyweight", slug: "flyweight", weight: 125 },
     { name: "Strawweight", slug: "strawweight", weight: 115 },

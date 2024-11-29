@@ -1,20 +1,10 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  TrendingUp,
-  PlusCircle,
-  Calendar,
-  Users,
-
-} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, PlusCircle, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
+import { Progress } from "@/components/ui/progress";
 
 export default async function Dashboard() {
   const {
@@ -71,12 +61,12 @@ export default async function Dashboard() {
               <CardContent className="pt-4">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-xs font-medium text-gray-500">{stat.title}</p>
+                    <p className="text-xs font-medium text-gray-500">
+                      {stat.title}
+                    </p>
                     <h3 className="text-lg font-bold mt-1">{stat.value}</h3>
                   </div>
-                
                 </div>
-          
               </CardContent>
             </Card>
           );
@@ -88,23 +78,26 @@ export default async function Dashboard() {
           {/* Weight Divisions */}
           <Card className="overflow-hidden">
             <CardHeader className="p-4">
-              <CardTitle className="text-base">Weight Division Distribution</CardTitle>
+              <CardTitle className="text-base">
+                Weight Division Distribution
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <ScrollArea className="h-[300px]">
-                <div className="space-y-3">
+                <div className="space-y-3 pr-4">
+                  {" "}
+                  {/* Added right padding here */}
                   {divisionStats.map((division) => (
-                    <div key={division.division}>
+                    <div key={division.division + division.count}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">{division.division}</span>
-                        <span className="text-xs text-gray-500">{division.count}</span>
+                        <span className="text-sm font-medium">
+                          {division.division}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {division.count}
+                        </span>
                       </div>
-                      <div className="h-1.5 bg-gray-100 rounded-full">
-                        <div
-                          className="h-full bg-blue-500 rounded-full"
-                          style={{ width: `${division.percentage}%` }}
-                        />
-                      </div>
+                      <Progress value={parseInt(division.percentage)} />
                     </div>
                   ))}
                 </div>
@@ -120,13 +113,18 @@ export default async function Dashboard() {
             <CardContent className="p-4 pt-0">
               <div className="space-y-2">
                 {recentAthletes.map((athlete) => (
-                  <div key={athlete.name} className="flex items-center justify-between p-2 border-b last:border-0">
+                  <div
+                    key={athlete.name}
+                    className="flex items-center justify-between p-2 border-b last:border-0"
+                  >
                     <div className="flex-1">
                       <p className="text-sm font-medium">{athlete.name}</p>
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span>{athlete.weightDivision}</span>
                         <span>•</span>
-                        <span>{new Date(athlete.createdAt).toLocaleDateString()}</span>
+                        <span>
+                          {new Date(athlete.createdAt).toLocaleDateString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -139,12 +137,14 @@ export default async function Dashboard() {
         {/* Top Athletes */}
         <Card>
           <CardHeader className="p-4">
-            <CardTitle className="text-base">Top Athletes</CardTitle>
+            <CardTitle className="text-base">
+              Highest Win Rate Athletes
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="space-y-2">
               {topAthletes.map((athlete) => (
-                <div key={athlete.name} className="p-2 rounded bg-gray-50">
+                <div key={athlete.name} className="p-2 rounded">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium">{athlete.name}</p>
@@ -154,7 +154,7 @@ export default async function Dashboard() {
                         <span>{athlete.country}</span>
                       </div>
                     </div>
-                    <div className="text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+                    <div className="text-xs font-medium text-green-500 px-2 py-1 rounded-full">
                       {athlete.winRate}% WR ({athlete.wins}-{athlete.losses})
                     </div>
                   </div>

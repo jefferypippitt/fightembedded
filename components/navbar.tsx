@@ -55,7 +55,7 @@ export default function Navbar() {
                       href={`/division/${generateDivisionSlug(division)}`}
                       className="block text-sm hover:text-primary"
                     >
-                      {division.name}
+                      {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                     </Link>
                   ))}
                 </div>
@@ -70,7 +70,7 @@ export default function Navbar() {
                       href={`/division/${generateDivisionSlug(division, true)}`}
                       className="block text-sm hover:text-primary"
                     >
-                      {division.name}
+                      {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                     </Link>
                   ))}
                 </div>
@@ -125,7 +125,7 @@ export default function Navbar() {
                             href={`/division/${generateDivisionSlug(division)}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name}
+                            {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                           </Link>
                         ))}
                       </div>
@@ -137,7 +137,7 @@ export default function Navbar() {
                             href={`/division/${generateDivisionSlug(division, true)}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name}
+                            {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                           </Link>
                         ))}
                       </div>

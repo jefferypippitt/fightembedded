@@ -1,4 +1,5 @@
 import { User2, ChevronUp, Users, Calendar } from "lucide-react";
+import { ModeToggle } from "@/components/theme-toggle";
 
 import {
   Sidebar,
@@ -32,7 +33,7 @@ interface AppSidebarProps {
 
 const favorites = [
   {
-    name: "Dashboard",
+    name: "Dashboard Overview",
 
     url: "/dashboard",
 
@@ -40,17 +41,17 @@ const favorites = [
   },
 
   {
-    name: "Athletes",
+    name: "Create Athlete",
 
-    url: "/dashboard/athletes",
+    url: "/dashboard/new-athlete",
 
     emoji: "🏋️",
   },
 
   {
-    name: "Events",
+    name: "Create Event",
 
-    url: "/dashboard/events",
+    url: "/dashboard/events/new",
 
     emoji: "📅",
   },
@@ -119,6 +120,18 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Preferences</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <div className="flex items-center px-3 py-2">
+                <ModeToggle />
+                <span className="ml-2">Theme</span>
+              </div>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
