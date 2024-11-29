@@ -21,12 +21,12 @@ export default async function EditEventPage({
 
   const typedEvent: UFCEvent = {
     ...event,
-    status: event.status as "UPCOMING" | "COMPLETED" | "CANCELLED"
+    status: event.status as "UPCOMING" | "COMPLETED" | "CANCELLED",
   };
 
   return (
     <div className="container max-w-7xl mx-auto py-6 px-4">
-      <h1 className="text-3xl font-bold mb-6">Edit Event</h1>
+      <h1 className="text-xl font-bold">Create New Event</h1>
       <EventForm initialData={typedEvent} />
     </div>
   );

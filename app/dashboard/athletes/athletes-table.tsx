@@ -60,15 +60,15 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
   });
 
   return (
-    <div className="container max-w-7xl mx-auto py-6 px-4">
+    <div className="py-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Manage Athletes</h1>
-        <Button asChild>
-          <Link href="/dashboard/new-athlete">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Athlete
-          </Link>
-        </Button>
+        <h1 className="text-xl font-bold">Manage Athletes</h1>
+        <Button variant="default" size="sm" asChild>
+            <Link href="/dashboard/new-athlete">
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Add Athlete
+            </Link>
+          </Button>
       </div>
 
       <div className="flex items-center py-4">
