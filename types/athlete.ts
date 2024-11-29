@@ -13,6 +13,7 @@ export type ActionResponse = {
 export interface Athlete {
   id: string
   name: string
+  rank?: number
   weightDivision: string
   gender: 'MALE' | 'FEMALE'
   country: string
@@ -21,7 +22,6 @@ export interface Athlete {
   draws: number
   winsByKo: number
   winsBySubmission: number
-  rank?: number
   followers?: number
   imageUrl?: string | null
 } 

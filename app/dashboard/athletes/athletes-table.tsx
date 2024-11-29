@@ -1,13 +1,25 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import {
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { ChevronDown, PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -15,130 +27,37 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  SortingState,
-  ColumnFiltersState,
-  getFilteredRowModel,
-} from "@tanstack/react-table"
-import Link from "next/link"
-import { PlusCircle, MoreHorizontal, Pencil, Trash } from "lucide-react"
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { deleteAthlete } from "@/server/actions/delete-athlete"
-import { useRouter } from "next/navigation"
-
-import { Athlete } from "@/types/athlete"
-import { toast } from "@/hooks/use-toast"
-
-const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
-  const router = useRouter()
-
-  const handleDelete = async () => {
-    try {
-      await deleteAthlete(athlete.id)
-      toast({
-        title: "Athlete deleted successfully",
-      })
-      router.refresh()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      toast({
-        title: "Error deleting athlete",
-      })
-    }
-  }
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
-          <Link href={`/dashboard/athletes/${athlete.id}/edit`}>
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete} className="text-red-600">
-          <Trash className="mr-2 h-4 w-4" />
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
-
-// Define columns for the data table
-const columns: ColumnDef<Athlete>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-  },
-  {
-    accessorKey: "weightDivision",
-    header: "Weight Division",
-    cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("weightDivision")}</Badge>
-    ),
-  },
-  {
-    accessorKey: "country",
-    header: "Country",
-  },
-  {
-    accessorKey: "record",
-    header: "Record",
-    cell: ({ row }) => {
-      const athlete = row.original
-      return `${athlete.wins}-${athlete.losses}-${athlete.draws}`
-    },
-  },
-  {
-    accessorKey: "winsByKo",
-    header: "KO Wins",
-  },
-  {
-    accessorKey: "winsBySubmission",
-    header: "Sub Wins",
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionsCell athlete={row.original} />
-  },
-]
+} from "@/components/ui/table";
+import Link from "next/link";
+import { flexRender } from "@tanstack/react-table";
+import { Athlete } from "@/types/athlete";
+import { columns } from "./athletes-columns";
 
 interface AthletesTableProps {
-  athletes: Athlete[]
+  athletes: Athlete[];
 }
 
 export default function AthletesTable({ athletes }: AthletesTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
   const table = useReactTable({
     data: athletes,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
+      columnVisibility,
     },
-  })
+  });
 
   return (
     <div className="container max-w-7xl mx-auto py-6 px-4">
@@ -161,6 +80,32 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
           }
           className="max-w-sm"
         />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columns <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="rounded-md border">
@@ -208,6 +153,25 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+        >
+          Next
+        </Button>
+      </div>
     </div>
-  )
+  );
 }
