@@ -5,7 +5,6 @@ import { getP4PRankings } from "@/server/actions/get-p4p";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 
@@ -134,21 +133,15 @@ export function P4PSidebar() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2">
-        <ScrollArea className="h-[calc(100vh-280px)]">
-          {loading ? (
-            <RankingSkeleton />
-          ) : (
-            <div className="flex flex-col gap-1">
-              <div className="grid grid-cols-1 gap-2 w-full">
-                {rankings.map((fighter) => (
-                  <div key={fighter.id} className="w-full">
-                    <FighterCard fighter={fighter} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </ScrollArea>
+        {loading ? (
+          <RankingSkeleton />
+        ) : (
+          <div className="flex flex-col gap-1">
+            {rankings.map((fighter) => (
+              <FighterCard key={fighter.id} fighter={fighter} />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
