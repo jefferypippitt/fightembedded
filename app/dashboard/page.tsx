@@ -1,51 +1,42 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, PlusCircle, Calendar, Users } from "lucide-react";
+import { PlusCircle, Calendar, Trophy, Clock } from "lucide-react";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export default async function Dashboard() {
   const {
     totalAthletes,
     divisionStats,
     topAthletes,
-    newAthletes,
     recentAthletes,
   } = await getDashboardStats();
 
-  const stats = [
-    {
-      title: "Total Athletes",
-      value: totalAthletes.value,
-      change: totalAthletes.change,
-      trend: totalAthletes.trend,
-      icon: Users,
-    },
-    {
-      title: "New Athletes",
-      value: newAthletes.value,
-      change: newAthletes.change,
-      trend: newAthletes.trend,
-      icon: TrendingUp,
-    },
-  ];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   return (
-    <div className="py-4">
+    <div className="py-4 space-y-4">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-2">
         <h1 className="text-xl font-bold">Dashboard Overview</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/new-athlete">
+            <Link href="/dashboard/new-athlete" className="flex items-center">
               <PlusCircle className="h-4 w-4 mr-1" />
               Add Athlete
             </Link>
           </Button>
           <Button size="sm" asChild>
-            <Link href="/dashboard/events/new">
+            <Link href="/dashboard/events/new" className="flex items-center">
               <Calendar className="h-4 w-4 mr-1" />
               Add Event
             </Link>
@@ -53,51 +44,38 @@ export default async function Dashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        {stats.map((stat) => {
-          return (
-            <Card key={stat.title} className="hover:shadow-sm">
-              <CardContent className="pt-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500">
-                      {stat.title}
-                    </p>
-                    <h3 className="text-lg font-bold mt-1">{stat.value}</h3>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      {/* Total Athletes Card */}
+      <Card className="border shadow-sm">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Athletes</p>
+              <p className="text-2xl font-bold">{totalAthletes.value}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
           {/* Weight Divisions */}
-          <Card className="overflow-hidden">
-            <CardHeader className="p-4">
-              <CardTitle className="text-base">
-                Weight Division Distribution
-              </CardTitle>
+          <Card>
+            <CardHeader className="py-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">Weight Divisions</CardTitle>
+                <Badge variant="secondary" className="text-xs">{divisionStats.length}</Badge>
+              </div>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <ScrollArea className="h-[300px]">
-                <div className="space-y-3 pr-4">
-                  {" "}
-                  {/* Added right padding here */}
+            <CardContent className="pt-0">
+              <ScrollArea className="h-[250px] pr-4">
+                <div className="space-y-3">
                   {divisionStats.map((division) => (
-                    <div key={division.division + division.count}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">
-                          {division.division}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {division.count}
-                        </span>
+                    <div key={division.division} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{division.division}</span>
+                        <span className="text-xs text-muted-foreground">{division.count}</span>
                       </div>
-                      <Progress value={parseInt(division.percentage)} />
+                      <Progress value={parseInt(division.percentage)} className="h-1.5" />
                     </div>
                   ))}
                 </div>
@@ -107,26 +85,21 @@ export default async function Dashboard() {
 
           {/* Recent Athletes */}
           <Card>
-            <CardHeader className="p-4">
-              <CardTitle className="text-base">Recent Athletes</CardTitle>
+            <CardHeader className="py-3">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Recent Athletes</CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="p-4 pt-0">
+            <CardContent className="pt-0">
               <div className="space-y-2">
                 {recentAthletes.map((athlete) => (
-                  <div
-                    key={athlete.name}
-                    className="flex items-center justify-between p-2 border-b last:border-0"
-                  >
-                    <div className="flex-1">
+                  <div key={athlete.name} className="p-2 rounded-md bg-muted">
+                    <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">{athlete.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <span>{athlete.weightDivision}</span>
-                        <span>•</span>
-                        <span>
-                          {new Date(athlete.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
+                      <Badge variant="outline" className="text-xs">{formatDate(athlete.createdAt)}</Badge>
                     </div>
+                    <Badge className="mt-1.5 text-xs">{athlete.weightDivision}</Badge>
                   </div>
                 ))}
               </div>
@@ -136,27 +109,23 @@ export default async function Dashboard() {
 
         {/* Top Athletes */}
         <Card>
-          <CardHeader className="p-4">
-            <CardTitle className="text-base">
-              Highest Win Rate Athletes
-            </CardTitle>
+          <CardHeader className="py-3">
+            <div className="flex items-center gap-2">
+              <Trophy className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Top Performers</CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="p-4 pt-0">
+          <CardContent className="pt-0">
             <div className="space-y-2">
               {topAthletes.map((athlete) => (
-                <div key={athlete.name} className="p-2 rounded">
+                <div key={athlete.name} className="p-2 rounded-md bg-muted">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-sm font-medium">{athlete.name}</p>
+                    <span className="text-xs text-muted-foreground">{athlete.wins}-{athlete.losses}</span>
+                  </div>
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{athlete.name}</p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                        <span>{athlete.weightDivision}</span>
-                        <span>•</span>
-                        <span>{athlete.country}</span>
-                      </div>
-                    </div>
-                    <div className="text-xs font-medium text-green-500 px-2 py-1 rounded-full">
-                      {athlete.winRate}% WR ({athlete.wins}-{athlete.losses})
-                    </div>
+                    <Badge className="text-xs">{athlete.weightDivision}</Badge>
+                    <Badge variant="secondary" className="text-xs">{athlete.winRate}% WR</Badge>
                   </div>
                 </div>
               ))}
@@ -164,8 +133,6 @@ export default async function Dashboard() {
           </CardContent>
         </Card>
       </div>
-      
-        {/* Implement Future Stats */}
     </div>
   );
 }

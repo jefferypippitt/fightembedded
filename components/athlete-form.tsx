@@ -245,6 +245,16 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                   <FormControl>
                     <UploadButton
                       endpoint="athleteImage"
+                      appearance={{
+                        button:
+                          "bg-background hover:bg-accent text-foreground border border-input h-9 px-3 py-1 text-sm rounded-md font-normal",
+                        allowedContent: "hidden",
+                      }}
+                      content={{
+                        button() {
+                          return "Choose file";
+                        },
+                      }}
                       onClientUploadComplete={(res) => {
                         if (res?.[0]) {
                           const url = res[0].url;

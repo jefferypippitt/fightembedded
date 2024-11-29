@@ -1,12 +1,7 @@
-"use server";
-
 import prisma from "@/lib/prisma";
 
 export async function getDashboardStats() {
-  const currentDate = new Date();
-  const lastMonthDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
-
-  // Get recent athletes
+  // Get recent athletes with formatted date
   const recentAthletes = await prisma.athlete.findMany({
     orderBy: {
       createdAt: 'desc'
@@ -19,6 +14,12 @@ export async function getDashboardStats() {
       createdAt: true
     }
   });
+
+  // Format dates for recent athletes
+  const formattedRecentAthletes = recentAthletes.map(athlete => ({
+    ...athlete,
+    createdAt: athlete.createdAt.toISOString() // Convert Date to ISO string for serialization
+  }));
 
   // Get all athletes with wins and losses for win rate calculation
   const athletesWithStats = await prisma.athlete.findMany({
@@ -34,6 +35,9 @@ export async function getDashboardStats() {
       country: true,
       wins: true,
       losses: true,
+    },
+    orderBy: {
+      wins: 'desc'
     }
   });
 
@@ -41,27 +45,15 @@ export async function getDashboardStats() {
     .map(athlete => ({
       ...athlete,
       winRate: athlete.wins + athlete.losses > 0 
-        ? (athlete.wins / (athlete.wins + athlete.losses)) * 100 
-        : 0
+        ? ((athlete.wins / (athlete.wins + athlete.losses)) * 100).toFixed(1)
+        : '0.0'
     }))
-    .sort((a, b) => b.winRate - a.winRate)
-    .slice(0, 9)
-    .map(athlete => ({
-      ...athlete,
-      winRate: athlete.winRate.toFixed(1)
-    }));
+    .sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate))
+    .slice(0, 9);
 
-  const [totalAthletes, lastMonthAthletes, divisionStats] = await Promise.all([
+  const [totalAthletes, divisionStats] = await Promise.all([
     prisma.athlete.count(),
     
-    prisma.athlete.count({
-      where: {
-        createdAt: {
-          lt: lastMonthDate
-        }
-      }
-    }),
-
     prisma.athlete.groupBy({
       by: ['weightDivision'],
       _count: {
@@ -75,37 +67,18 @@ export async function getDashboardStats() {
     })
   ]);
 
-  const athletesChange = lastMonthAthletes ? 
-    ((totalAthletes - lastMonthAthletes) / lastMonthAthletes * 100).toFixed(1) :
-    "0";
-
   const divisionStatsWithPercentage = divisionStats.map(division => ({
     division: division.weightDivision,
     count: division._count._all,
     percentage: ((division._count._all / totalAthletes) * 100).toFixed(2),
   }));
 
-  const newAthletesThisMonth = await prisma.athlete.count({
-    where: {
-      createdAt: {
-        gte: lastMonthDate
-      }
-    }
-  });
-
   return {
     totalAthletes: {
       value: totalAthletes,
-      change: `${athletesChange}%`,
-      trend: parseFloat(athletesChange) >= 0 ? "up" : "down"
-    },
-    newAthletes: {
-      value: newAthletesThisMonth,
-      change: `${((newAthletesThisMonth / (totalAthletes - newAthletesThisMonth)) * 100).toFixed(1)}%`,
-      trend: "up"
     },
     divisionStats: divisionStatsWithPercentage,
     topAthletes: athletesWithWinRate,
-    recentAthletes: recentAthletes
+    recentAthletes: formattedRecentAthletes
   };
 }
