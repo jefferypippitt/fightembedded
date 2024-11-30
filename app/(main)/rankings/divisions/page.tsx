@@ -1,7 +1,17 @@
-export default function DivisionRankingsPage() {
+import { getTop5Athletes } from "@/server/actions/get-top-5-athletes";
+import { DivisionChart } from "./division-chart";
+
+export default async function DivisionRankingsPage() {
+  const divisionRankings = await getTop5Athletes();
+
   return (
-    <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold">Division Rankings (Top 5)</h1>
+    <main className="max-w-7xl mx-auto px-2 py-4 space-y-2">
+      <h1 className="text-xl font-bold">Top 5 Ranked Athletes By Division</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {divisionRankings.map((division) => (
+          <DivisionChart key={division.division} division={division} />
+        ))}
+      </div>
     </main>
   );
-} 
+}

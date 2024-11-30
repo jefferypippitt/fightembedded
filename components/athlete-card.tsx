@@ -33,7 +33,6 @@ export function AthleteCard({
   winsBySubmission = 0,
   poundForPoundRank = 0,
   isChampion = false,
-
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -59,7 +58,7 @@ export function AthleteCard({
           )}
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
-          <Avatar className="h-12 w-12 sm:h-16 sm:w-16 rounded-full">
+          <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full">
             <AvatarImage
               src={imageUrl}
               alt={name}
@@ -72,12 +71,6 @@ export function AthleteCard({
               <div className="flex items-center gap-1">
                 <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">
                   {record}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Flag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                <span className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
-                  {country}
                 </span>
               </div>
             </div>
@@ -101,6 +94,12 @@ export function AthleteCard({
             <span className="font-medium">{submissionRate.toFixed(1)}%</span>
           </div>
           <Progress value={submissionRate} className="h-1" />
+          <div className="flex items-center gap-1">
+            <Flag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
+              {country}
+            </span>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="p-0" />

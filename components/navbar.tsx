@@ -1,7 +1,7 @@
 "use client"
 
-import Link from "next/link";
-import { ModeToggle } from "./theme-toggle";
+import Link from "next/link"
+import { ModeToggle } from "./theme-toggle"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,18 +9,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
+import { weightClasses, generateDivisionSlug } from "@/data/weight-class"
+import { useState } from "react"
 
 export default function Navbar() {
+  const [isWeightDropdownOpen, setIsWeightDropdownOpen] = useState(false)
+  const [isRankingsDropdownOpen, setIsRankingsDropdownOpen] = useState(false)
+
+  const handleLinkClick = () => {
+    setIsWeightDropdownOpen(false)
+    setIsRankingsDropdownOpen(false)
+  }
+
   const rankings = [
     { name: "Fighter Popularity (Top 20)", href: "/rankings/popularity" },
     { name: "Division Rankings (Top 5)", href: "/rankings/divisions" },
     { name: "Pound for Pound Rankings", href: "/rankings/pound-for-pound" },
-  ];
+  ]
 
   return (
     <div className="sticky top-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
@@ -38,7 +47,7 @@ export default function Navbar() {
             </Link>
 
             {/* Weight Divisions Dropdown */}
-            <DropdownMenu>
+            <DropdownMenu open={isWeightDropdownOpen} onOpenChange={setIsWeightDropdownOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-medium gap-2">
                   Weight Divisions <ChevronDown className="h-4 w-4" />
@@ -54,6 +63,7 @@ export default function Navbar() {
                       key={division.name}
                       href={`/division/${generateDivisionSlug(division)}`}
                       className="block text-sm hover:text-primary"
+                      onClick={handleLinkClick}
                     >
                       {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                     </Link>
@@ -69,6 +79,7 @@ export default function Navbar() {
                       key={division.name}
                       href={`/division/${generateDivisionSlug(division, true)}`}
                       className="block text-sm hover:text-primary"
+                      onClick={handleLinkClick}
                     >
                       {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
                     </Link>
@@ -78,7 +89,7 @@ export default function Navbar() {
             </DropdownMenu>
 
             {/* Rankings Dropdown */}
-            <DropdownMenu>
+            <DropdownMenu open={isRankingsDropdownOpen} onOpenChange={setIsRankingsDropdownOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-medium gap-2">
                   Rankings <ChevronDown className="h-4 w-4" />
@@ -86,8 +97,10 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 {rankings.map((item) => (
-                  <DropdownMenuItem key={item.name}>
-                    <Link href={item.href}>{item.name}</Link>
+                  <DropdownMenuItem key={item.name} asChild>
+                    <Link href={item.href} onClick={handleLinkClick}>
+                      {item.name}
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
