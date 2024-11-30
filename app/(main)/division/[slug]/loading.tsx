@@ -6,11 +6,7 @@ function AthleteCardSkeleton() {
     <Card className="hover:bg-accent/50 transition-colors">
       <CardContent className="p-3">
         {/* Avatar and Name section */}
-        <div className="flex flex-col items-center mb-2 relative">
-          {/* Rank badge position */}
-          <div className="absolute -top-1 -right-1">
-            <Skeleton className="h-4 w-8" />
-          </div>
+        <div className="flex flex-col items-center mb-2">
           <div className="relative">
             <Skeleton className="h-16 w-16 rounded-full" />
           </div>

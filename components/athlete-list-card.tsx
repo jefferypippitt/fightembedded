@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Flag } from "lucide-react";
+import { Flag} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface AthleteListCardProps {
@@ -17,7 +17,6 @@ interface AthleteListCardProps {
   rank?: number;
   followers?: number;
   record?: string;
-
 }
 
 export function AthleteListCard({
@@ -40,75 +39,70 @@ export function AthleteListCard({
   const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
 
   return (
-<Card className="hover:bg-accent/50 transition-colors">
-  <CardContent className="p-3">
-    {/* Top Section with Avatar and Rank */}
-    <div className="flex flex-col items-center mb-2 relative">
-      {rank && (
-        <Badge 
-          variant="secondary" 
-          className="absolute -top-1 -right-1 text-[10px] px-1.5 py-0"
-        >
-          #{rank}
-        </Badge>
-      )}
-      <Avatar className="h-16 w-16 mb-2 ring-2 ring-primary/20">
-        <AvatarImage
-          src={imageUrl}
-          alt={name}
-          className="object-cover"
-        />
-        <AvatarFallback>
-          {name.split(" ").map((n) => n[0]).join("")}
-        </AvatarFallback>
-      </Avatar>
-      
-      {/* Name and Record */}
-      <div className="text-center">
-        <h3 className="font-semibold text-sm">{name}</h3>
-        <h4 className="text-xs font-medium text-muted-foreground">{record}</h4>
-      </div>
-    </div>
+    <Card className="hover:bg-accent/50 transition-colors">
+      <CardContent className="p-3">
+        {/* Top Badges */}
+        <div className="flex justify-between items-center mb-3">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            {weightDivision}
+          </Badge>
+          {rank && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              #{rank}
+            </Badge>
+          )}
+        </div>
 
-    {/* Division and Country */}
-    <div className="flex items-center justify-center gap-2 mb-3">
-      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-        {weightDivision}
-      </Badge>
-      <div className="flex items-center gap-1">
-        <Flag className="h-3 w-3" />
-        <span className="text-[10px] text-muted-foreground">{country}</span>
-      </div>
-    </div>
-    
-    {/* Stats with Progress Bars */}
-    <div className="space-y-1.5">
-      <div className="flex justify-between items-center text-[10px]">
-        <span className="text-muted-foreground">Win Rate</span>
-        <span className="font-medium">{winRate.toFixed(1)}%</span>
-      </div>
-      <Progress value={winRate} className="h-1" />
+        {/* Avatar and Name Section */}
+        <div className="flex flex-col items-center mb-3">
+          <Avatar className="h-16 w-16 rounded-full ring-1 ring-gray-300">
+            <AvatarImage
+              src={imageUrl}
+              alt={name}
+              className="object-cover"
+            />
+          </Avatar>
+          
+          <div className="text-center">
+            <h3 className="font-semibold text-sm">{name}</h3>
+            <h4 className="text-xs font-medium text-muted-foreground">{record}</h4>
+          </div>
+        </div>
+        
+        {/* Stats with Progress Bars */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-[10px]">
+            <span className="text-muted-foreground">Win Rate</span>
+            <span className="font-medium">{winRate.toFixed(1)}%</span>
+          </div>
+          <Progress value={winRate} className="h-1" />
 
-      <div className="flex justify-between items-center text-[10px]">
-        <span className="text-muted-foreground">KO/TKO</span>
-        <span className="font-medium">{koRate.toFixed(1)}%</span>
-      </div>
-      <Progress value={koRate} className="h-1" />
+          <div className="flex justify-between items-center text-[10px]">
+            <span className="text-muted-foreground">KO/TKO</span>
+            <span className="font-medium">{koRate.toFixed(1)}%</span>
+          </div>
+          <Progress value={koRate} className="h-1" />
 
-      <div className="flex justify-between items-center text-[10px]">
-        <span className="text-muted-foreground">Submission</span>
-        <span className="font-medium">{submissionRate.toFixed(1)}%</span>
-      </div>
-      <Progress value={submissionRate} className="h-1" />
-    </div>
-  </CardContent>
+          <div className="flex justify-between items-center text-[10px]">
+            <span className="text-muted-foreground">Submission</span>
+            <span className="font-medium">{submissionRate.toFixed(1)}%</span>
+          </div>
+          <Progress value={submissionRate} className="h-1" />
+        </div>
+      </CardContent>
 
-  <CardFooter className="px-3 py-2 border-t">
-    <div className="flex items-center justify-between w-full text-[10px]">
-      <span className="text-muted-foreground">Followers:</span>
-      <span className="font-medium">{followers.toLocaleString()}</span>
-    </div>
-  </CardFooter>
-</Card>
+      <CardFooter className="px-3 py-2 border-t">
+        <div className="flex items-center justify-between w-full text-[10px]">
+          <div className="flex items-center gap-1">
+            <Flag className="h-3 w-3" />
+            <span className="text-muted-foreground">{country}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground">Followers:</span>
+            <span className="font-medium">{followers.toLocaleString()}</span>
+          </div>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }

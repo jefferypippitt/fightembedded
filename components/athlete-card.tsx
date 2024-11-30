@@ -58,7 +58,7 @@ export function AthleteCard({
           )}
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
-          <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full">
+          <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-1 ring-gray-300">
             <AvatarImage
               src={imageUrl}
               alt={name}
@@ -94,7 +94,7 @@ export function AthleteCard({
             <span className="font-medium">{submissionRate.toFixed(1)}%</span>
           </div>
           <Progress value={submissionRate} className="h-1" />
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 py-1">
             <Flag className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             <span className="text-[10px] sm:text-xs text-muted-foreground">
               {country}
