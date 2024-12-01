@@ -30,7 +30,11 @@ import { z } from "zod";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 type EventFormProps = {
@@ -50,7 +54,6 @@ export function EventForm({ initialData }: EventFormProps) {
         venue: initialData.venue,
         location: initialData.location,
         mainEvent: initialData.mainEvent,
-        coMainEvent: initialData.coMainEvent || "",
         status: initialData.status || "UPCOMING",
         imageUrl: initialData.imageUrl || undefined,
       }
@@ -60,7 +63,6 @@ export function EventForm({ initialData }: EventFormProps) {
         venue: "",
         location: "",
         mainEvent: "",
-        coMainEvent: "",
         status: "UPCOMING",
         imageUrl: undefined,
       };
@@ -100,7 +102,8 @@ export function EventForm({ initialData }: EventFormProps) {
     } catch (error) {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Something went wrong",
+        description:
+          error instanceof Error ? error.message : "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -178,7 +181,11 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Venue</FormLabel>
                   <FormControl>
-                    <Input className="h-9" placeholder="T-Mobile Arena" {...field} />
+                    <Input
+                      className="h-9"
+                      placeholder="T-Mobile Arena"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -192,7 +199,11 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Location</FormLabel>
                   <FormControl>
-                    <Input className="h-9" placeholder="Las Vegas, Nevada" {...field} />
+                    <Input
+                      className="h-9"
+                      placeholder="Las Vegas, Nevada"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -206,25 +217,10 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Main Event</FormLabel>
                   <FormControl>
-                    <Input className="h-9" placeholder="Fighter 1 vs Fighter 2" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="coMainEvent"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Co-Main Event (Optional)</FormLabel>
-                  <FormControl>
-                    <Input 
+                    <Input
                       className="h-9"
-                      placeholder="Fighter 3 vs Fighter 4" 
-                      {...field} 
-                      value={field.value || ""}
+                      placeholder="Fighter 1 vs Fighter 2"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage className="text-xs" />
@@ -259,7 +255,11 @@ export function EventForm({ initialData }: EventFormProps) {
 
         <div className="flex justify-left">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : initialData ? "Update Event" : "Create Event"}
+            {isSubmitting
+              ? "Saving..."
+              : initialData
+              ? "Update Event"
+              : "Create Event"}
           </Button>
         </div>
       </form>

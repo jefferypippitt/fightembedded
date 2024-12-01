@@ -33,8 +33,9 @@ export async function updateEvent(
       venue: String(rawData.venue),
       location: String(rawData.location),
       mainEvent: String(rawData.mainEvent),
-      coMainEvent: rawData.coMainEvent ? String(rawData.coMainEvent) : undefined,
-      status: (rawData.status as "UPCOMING" | "COMPLETED" | "CANCELLED") || "UPCOMING",
+      status:
+        (rawData.status as "UPCOMING" | "COMPLETED" | "CANCELLED") ||
+        "UPCOMING",
     };
 
     const validatedData = eventSchema.parse(data);
@@ -55,13 +56,16 @@ export async function updateEvent(
     if (error instanceof z.ZodError) {
       return {
         status: "error",
-        message: `Validation error: ${error.errors.map((e) => e.message).join(", ")}`,
+        message: `Validation error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`,
       };
     }
 
     return {
       status: "error",
-      message: error instanceof Error ? error.message : "Failed to update event",
+      message:
+        error instanceof Error ? error.message : "Failed to update event",
     };
   }
 }

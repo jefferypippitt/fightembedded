@@ -37,4 +37,4 @@ export async function deleteEvent(id: string) {
       message: "Failed to delete event",
     };
   }
-} 
+}

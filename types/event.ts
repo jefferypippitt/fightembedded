@@ -10,7 +10,6 @@ export type UFCEvent = {
   venue: string;
   location: string;
   mainEvent: string;
-  coMainEvent?: string | null;
   imageUrl?: string | null;
   status: "UPCOMING" | "COMPLETED" | "CANCELLED";
   createdAt: Date;
