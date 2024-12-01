@@ -74,7 +74,6 @@ export default async function Home() {
                     venue={event.venue}
                     location={event.location}
                     mainEvent={event.mainEvent}
-                    coMainEvent={event.coMainEvent || undefined}
                   />
                 ))}
               </div>
