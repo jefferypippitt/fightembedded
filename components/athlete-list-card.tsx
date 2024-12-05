@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Flag} from "lucide-react";
+import { Flag } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface AthleteListCardProps {
@@ -43,12 +43,12 @@ export function AthleteListCard({
       <CardContent className="p-3">
         {/* Top Badges */}
         <div className="flex justify-between items-center mb-3">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+          <Badge variant="default" className="text-[10px] px-1.5 py-0">
             {weightDivision}
           </Badge>
           {rank && (
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-              #{rank}
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              # {rank}
             </Badge>
           )}
         </div>
@@ -56,19 +56,17 @@ export function AthleteListCard({
         {/* Avatar and Name Section */}
         <div className="flex flex-col items-center mb-3">
           <Avatar className="h-16 w-16 rounded-full ring-1 ring-gray-300">
-            <AvatarImage
-              src={imageUrl}
-              alt={name}
-              className="object-cover"
-            />
+            <AvatarImage src={imageUrl} alt={name} className="object-cover" />
           </Avatar>
-          
+
           <div className="text-center">
             <h3 className="font-semibold text-sm">{name}</h3>
-            <h4 className="text-xs font-medium text-muted-foreground">{record}</h4>
+            <h4 className="text-xs font-medium text-muted-foreground">
+              {record}
+            </h4>
           </div>
         </div>
-        
+
         {/* Stats with Progress Bars */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-[10px]">

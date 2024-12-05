@@ -44,11 +44,11 @@ export function AthleteCard({
     <Card className="h-full">
       <CardContent className="p-2 sm:p-4">
         <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <Badge variant="secondary" className="text-[10px] sm:text-xs">
+          <Badge variant="outline" className="text-[10px] sm:text-xs">
             {division}
           </Badge>
           {isChampion ? (
-            <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-500" />
+            <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
           ) : (
             poundForPoundRank > 0 && (
               <span className="text-[10px] sm:text-xs font-medium">
