@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { CalendarDays, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -19,29 +19,24 @@ export function EventCard({
   mainEvent,
 }: EventCardProps) {
   return (
-    <Card className="hover:bg-accent/50 transition-colors">
-      <CardContent className="p-3">
-        {/* Event Name */}
-        <div className="flex justify-between items-start mb-2">
-          <p className="text-xs">{name}</p>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <CalendarDays className="h-3 w-3" />
-            <span>{formatDate(date)}</span>
-          </div>
-        </div>
-
-        {/* Location */}
-        <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-3">
-          <MapPin className="h-3 w-3" />
+    <Card className="overflow-hidden transition-all hover:shadow-md">
+      <CardHeader className="border-b bg-muted/50 p-2">
+        <CardTitle className="flex items-center justify-between">
+          <span className="text-base font-semibold">{name}</span>
+          <Badge variant="secondary" className="font-normal">
+            <CalendarDays className="mr-1 h-3 w-3" />
+            {formatDate(date)}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-2">
+        <div className="mb-2 flex items-center text-sm text-muted-foreground">
+          <MapPin className="mr-1 h-4 w-4" />
           <span>{`${venue}, ${location}`}</span>
         </div>
-
-        {/* Main Event */}
-        <div className="space-y-1.5">
-          <div className="flex flex-col">
-            <h4 className="text-xs font-medium">Main Event</h4>
-            <p className="text-[10px] text-muted-foreground">{mainEvent}</p>
-          </div>
+        <div className="space-y-1">
+          <h1 className="flex items-center text-sm font-medium">Main Event</h1>
+          <p className="text-sm text-muted-foreground">{mainEvent}</p>
         </div>
       </CardContent>
     </Card>
