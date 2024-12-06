@@ -1,19 +1,17 @@
-import { AthleteCard } from "@/components/athlete-card";
+import { Suspense } from "react";
+
 import { P4PSidebar } from "@/components/p4p-sidebar";
-import prisma from "@/lib/prisma";
+import { ChampionsSection } from "@/components/champions-section";
+import { ChampionsSkeleton } from "@/components/champions-section-skeleton";
+import { EventsSection } from "@/components/events-section";
+import { EventsSectionSkeleton } from "@/components/events-section-skeleton";
+
+import { getChampions } from "@/server/actions/get-champion";
 import { getUpcomingEvents } from "@/server/actions/get-event";
-import { EventCard } from "@/components/event-card";
 
 export default async function Home() {
-  const [champions, upcomingEvents] = await Promise.all([
-    prisma.athlete.findMany({
-      where: {
-        rank: 1,
-      },
-    }),
-    getUpcomingEvents(),
-  ]);
-
+  const { maleChampions, femaleChampions } = await getChampions();
+  const events = await getUpcomingEvents();
 
   return (
     <div className="space-y-4">
@@ -23,66 +21,16 @@ export default async function Home() {
 
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4 space-y-8">
-          <section>
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">
-              Male Champions
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {champions
-                .filter((champion) => champion.gender === "MALE")
-                .map((champion) => (
-                  <AthleteCard
-                    key={champion.id}
-                    {...champion}
-                    division={champion.weightDivision}
-                    isChampion={true}
-                    imageUrl={champion.imageUrl || "/default-avatar.png"}
-                  />
-                ))}
-            </div>
-          </section>
+          <Suspense fallback={<ChampionsSkeleton />}>
+            <ChampionsSection
+              maleChampions={maleChampions}
+              femaleChampions={femaleChampions}
+            />
+          </Suspense>
 
-          <section>
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">
-              Female Champions
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {champions
-                .filter((champion) => champion.gender === "FEMALE")
-                .map((champion) => (
-                  <AthleteCard
-                    key={champion.id}
-                    {...champion}
-                    division={champion.weightDivision}
-                    isChampion={true}
-                    imageUrl={champion.imageUrl || "/default-avatar.png"}
-                  />
-                ))}
-            </div>
-          </section>
-          <section>
-            <h2 className="text-lg sm:text-xl font-semibold mb-4">
-              Upcoming Events
-            </h2>
-            {upcomingEvents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {upcomingEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    name={event.name}
-                    date={event.date}
-                    venue={event.venue}
-                    location={event.location}
-                    mainEvent={event.mainEvent}
-                  />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-center py-8">
-                No upcoming events scheduled
-              </p>
-            )}
-          </section>
+          <Suspense fallback={<EventsSectionSkeleton />}>
+            <EventsSection events={events} />
+          </Suspense>
         </div>
 
         <aside className="lg:col-span-1">
