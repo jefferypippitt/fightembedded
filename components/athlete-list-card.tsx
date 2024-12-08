@@ -21,7 +21,6 @@ interface AthleteListCardProps {
 
 export function AthleteListCard({
   name,
-  weightDivision,
   imageUrl = "/default-avatar.png",
   country,
   wins = 0,
@@ -41,14 +40,15 @@ export function AthleteListCard({
   return (
     <Card className="hover:bg-accent/50 transition-colors">
       <CardContent className="p-3">
-        {/* Top Badges */}
-        <div className="flex justify-between items-center mb-3">
-          <Badge variant="default" className="text-[10px] px-1.5 py-0">
-            {weightDivision}
-          </Badge>
-          {rank && (
+        {/* Top Badge - Only Ranking */}
+        <div className="flex mb-3">
+          {rank ? (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-              # {rank}
+              #{rank}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              NR
             </Badge>
           )}
         </div>

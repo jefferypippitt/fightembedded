@@ -49,12 +49,14 @@ export function AthleteCard({
           </Badge>
           {isChampion ? (
             <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
+          ) : poundForPoundRank ? (
+            <span className="text-[10px] sm:text-xs font-medium">
+              P4P #{poundForPoundRank}
+            </span>
           ) : (
-            poundForPoundRank > 0 && (
-              <span className="text-[10px] sm:text-xs font-medium">
-                P4P #{poundForPoundRank}
-              </span>
-            )
+            <span className="text-[10px] sm:text-xs font-medium">
+              NR
+            </span>
           )}
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
