@@ -1,4 +1,3 @@
-// 1. First, create the server action file (app/server/actions/get-top-5-athletes.ts)
 "use server";
 
 import prisma from "@/lib/prisma";
@@ -16,6 +15,9 @@ export interface DivisionRankings {
 export async function getTop5Athletes(): Promise<DivisionRankings[]> {
   try {
     const divisions = await prisma.athlete.findMany({
+      where: {
+        AND: [{ rank: { gt: 0 } }, { rank: { lte: 5 } }],
+      },
       distinct: ["weightDivision"],
       select: {
         weightDivision: true,
@@ -27,10 +29,10 @@ export async function getTop5Athletes(): Promise<DivisionRankings[]> {
         const athletes = await prisma.athlete.findMany({
           where: {
             weightDivision,
-            rank: {
-              lte: 5,
-              not: undefined,
-            },
+            AND: [
+              { rank: { gt: 0 } }, // Filter out rank 0 (unranked)
+              { rank: { lte: 5 } }, // Only include ranks 1-5
+            ],
           },
           orderBy: {
             rank: "asc",
@@ -51,6 +53,7 @@ export async function getTop5Athletes(): Promise<DivisionRankings[]> {
       })
     );
 
+    // Filter out any divisions that don't have any ranked athletes
     return rankings.filter((division) => division.athletes.length > 0);
   } catch (error) {
     console.error("Error fetching top 5 athletes:", error);
