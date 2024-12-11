@@ -1,5 +1,5 @@
 import { Event } from "@prisma/client";
-import { EventCard } from "./event-card";
+import EventCard from "./event-card";
 
 interface EventsSectionProps {
   events: Event[];

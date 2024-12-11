@@ -1,6 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface EventCardProps {
@@ -11,7 +10,7 @@ interface EventCardProps {
   mainEvent: string;
 }
 
-export function EventCard({
+export default function EventCard({
   name,
   date,
   venue,
@@ -19,24 +18,26 @@ export function EventCard({
   mainEvent,
 }: EventCardProps) {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardHeader className="border-b bg-muted/50 p-2">
-        <CardTitle className="flex items-center justify-between">
-          <span className="text-base font-semibold">{name}</span>
-          <Badge variant="secondary" className="font-normal">
-            <CalendarDays className="mr-1 h-3 w-3" />
+    <Card className="group hover:shadow-lg transition-all duration-300">
+      <CardContent className="p-3 space-y-4">
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="font-semibold text-md truncate">{name}</h1>
+          <span className="text-xs font-medium whitespace-nowrap">
             {formatDate(date)}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-2">
-        <div className="mb-2 flex items-center text-sm text-muted-foreground">
-          <MapPin className="mr-1 h-4 w-4" />
-          <span>{`${venue}, ${location}`}</span>
+          </span>
         </div>
-        <div className="space-y-1">
-          <h1 className="flex items-center text-sm font-medium">Main Event</h1>
-          <p className="text-sm text-muted-foreground">{mainEvent}</p>
+
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3 flex-shrink-0" />
+          <span className="truncate">
+            {venue}, {location}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-primary font-medium">Main Event</span>
+          <div className="h-3 w-px bg-muted-foreground/30" />
+          <p className="text-xs">{mainEvent}</p>
         </div>
       </CardContent>
     </Card>
