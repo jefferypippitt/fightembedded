@@ -25,7 +25,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={cn(
         manrope.variable,
-        "font-sans antialiased min-h-screen flex flex-col"
+        "font-sans antialiased",
+        "min-h-screen min-w-[320px]",
+        "flex flex-col"
       )}>
         <ThemeProvider
           attribute="class"

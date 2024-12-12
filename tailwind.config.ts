@@ -10,7 +10,9 @@ export default {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ['var(--font-sans)']
+  			sans: [
+  				'var(--font-sans)'
+  			]
   		},
   		colors: {
   			background: 'hsl(var(--background))',
@@ -68,7 +70,32 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		keyframes: {
+  			marquee: {
+  				from: {
+  					transform: 'translateX(0)'
+  				},
+  				to: {
+  					transform: 'translateX(calc(-100% - var(--gap)))'
+  				}
+  			},
+  			'marquee-reverse': {
+  				from: {
+  					transform: 'translateX(0)'
+  				},
+  				to: {
+  					transform: 'translateX(calc(100% + var(--gap)))'
+  				}
+  			}
+  		},
+  		animation: {
+  			marquee: 'marquee var(--duration) linear infinite',
+  			'marquee-reverse': 'marquee-reverse var(--duration) linear infinite'
+  		},
+  		screens: {
+  			'xs': '480px',
+  		},
   	}
   },
   // eslint-disable-next-line @typescript-eslint/no-require-imports

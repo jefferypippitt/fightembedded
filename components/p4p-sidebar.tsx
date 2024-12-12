@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { getP4PRankings } from "@/server/actions/get-p4p";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Fighter {
   id: string;
@@ -28,15 +28,18 @@ const RankingSkeleton = () => (
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
-    className="space-y-1"
+    className="flex flex-col h-full justify-between"
   >
     {[...Array(15)].map((_, i) => (
-      <div key={i} className="flex items-center space-x-2 p-1.5">
+      <div key={i} className="flex items-center space-x-2 p-1.5 h-[48px]">
         <Skeleton className="h-4 w-4" />
         <Skeleton className="h-9 w-9 rounded-full" />
-        <div className="flex-grow">
-          <Skeleton className="h-3 w-16 mb-1" />
-          <Skeleton className="h-2 w-12" />
+        <div className="flex-grow space-y-1">
+          <Skeleton className="h-4 w-32" />
+          <div className="flex items-center gap-1">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-12" />
+          </div>
         </div>
       </div>
     ))}
@@ -52,7 +55,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
     className="flex items-center space-x-2 p-1.5 hover:bg-accent rounded-md transition-colors"
   >
     <span className="font-bold text-sm w-4">{fighter.poundForPoundRank}.</span>
-    <Avatar className="h-9 w-9">
+    <Avatar className="h-10 w-10 ring-1 ring-gray-300">
       <AvatarImage
         src={fighter.imageUrl || "/images/default-avatar.png"}
         alt={fighter.name}
@@ -84,85 +87,72 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
 FighterCard.displayName = "FighterCard";
 
 export function P4PSidebar() {
-  const [showFemale, setShowFemale] = useState(false);
   const [rankings, setRankings] = useState<Fighter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchRankings = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { maleP4PRankings, femaleP4PRankings } = await getP4PRankings();
-        if (isMounted) {
-          const rankings = (
-            showFemale ? femaleP4PRankings : maleP4PRankings
-          ).map((fighter) => ({
-            id: fighter.id,
-            name: fighter.name,
-            imageUrl: fighter.imageUrl || "/images/default-avatar.png",
-            weightDivision: fighter.weightDivision,
-            poundForPoundRank: fighter.poundForPoundRank,
-            wins: fighter.wins,
-            losses: fighter.losses,
-            draws: fighter.draws,
-          }));
-          setRankings(rankings);
-        }
-      } catch (error) {
-        if (isMounted) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Please try again later";
-          setError(errorMessage);
-          toast({
-            title: "Error loading rankings",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+  const fetchRankings = async (gender: "male" | "female") => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { maleP4PRankings, femaleP4PRankings } = await getP4PRankings();
+      const rankings = (
+        gender === "female" ? femaleP4PRankings : maleP4PRankings
+      ).map((fighter) => ({
+        id: fighter.id,
+        name: fighter.name,
+        imageUrl: fighter.imageUrl || "/images/default-avatar.png",
+        weightDivision: fighter.weightDivision,
+        poundForPoundRank: fighter.poundForPoundRank,
+        wins: fighter.wins,
+        losses: fighter.losses,
+        draws: fighter.draws,
+      }));
+      setRankings(rankings);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Please try again later";
+      setError(errorMessage);
+      toast({
+        title: "Error loading rankings",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchRankings();
-    return () => {
-      isMounted = false;
-    };
-  }, [showFemale]);
+  useEffect(() => {
+    fetchRankings("male");
+  }, []);
 
   return (
-    <Card className="h-full">
-      <CardHeader className="p-2">
-        <CardTitle className="text-xs flex items-center justify-between">
-          <span>P4P Rankings</span>
-          <div className="flex space-x-1">
-            <Button
-              variant={showFemale ? "outline" : "default"}
-              size="sm"
-              className="text-xs px-2 py-1 h-auto"
-              onClick={() => setShowFemale(false)}
-              disabled={loading}
-            >
-              Male
-            </Button>
-            <Button
-              variant={showFemale ? "default" : "outline"}
-              size="sm"
-              className="text-xs px-2 py-1 h-auto"
-              onClick={() => setShowFemale(true)}
-              disabled={loading}
-            >
-              Female
-            </Button>
-          </div>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="p-2 pb-0 shrink-0">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm text-muted-foreground">
+            Pound for Pound Rankings
+          </p>
+        </div>
+        <CardTitle className="text-xs">
+          <Tabs
+            defaultValue="male"
+            onValueChange={(value) => fetchRankings(value as "male" | "female")}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="male" disabled={loading}>
+                Male
+              </TabsTrigger>
+              <TabsTrigger value="female" disabled={loading}>
+                Female
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-2">
+      <CardContent className="p-2 flex-1 flex flex-col">
         <AnimatePresence mode="wait">
           {error ? (
             <Alert variant="destructive">
@@ -173,16 +163,30 @@ export function P4PSidebar() {
             <RankingSkeleton />
           ) : (
             <motion.div
-              key={showFemale ? "female" : "male"}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-1"
+              className="h-full flex flex-col justify-between"
             >
               {rankings.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}
+              {rankings.length < 15 && (
+                <div
+                  className="flex flex-col justify-between"
+                  style={{
+                    height: `${(15 - rankings.length) * 48}px`,
+                  }}
+                >
+                  {[...Array(15 - rankings.length)].map((_, i) => (
+                    <div
+                      key={`spacer-${i}`}
+                      className="h-[48px] flex items-center space-x-2 p-1.5"
+                    />
+                  ))}
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

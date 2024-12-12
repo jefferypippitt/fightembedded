@@ -11,14 +11,14 @@ export default function MainLayout({
     <div className={cn(
       "flex min-h-screen flex-col",
       "bg-background text-foreground",
-      "antialiased"
+      "antialiased w-full"
     )}>
       <Navbar />
       <main className={cn(
-        "flex-1",
+        "flex-1 w-full",
         "container mx-auto",
-        "px-4 sm:px-6 lg:px-8",
-        "py-4 sm:py-6 lg:py-8",
+        "px-2 sm:px-4 md:px-6 lg:px-8",
+        "py-2 sm:py-4 md:py-6 lg:py-8",
         "max-w-7xl"
       )}>
         {children}
