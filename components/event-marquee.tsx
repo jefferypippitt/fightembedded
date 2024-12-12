@@ -24,7 +24,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
     <section className="space-y-2">
       <h2 className="text-lg font-semibold">Upcoming Events</h2>
       <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background px-4">
-        <div className="w-[700px] mx-auto">
+        <div className="w-[900px] mx-auto">
           <Marquee pauseOnHover className="[--duration:40s]">
             {events.map((event) => (
               <EventCard key={event.id} {...event} />
