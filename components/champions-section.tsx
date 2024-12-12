@@ -45,9 +45,6 @@ export function ChampionsSection({
   return (
     <div className="space-y-8">
       <section>
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">
-          Male Champions
-        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {sortedMaleChampions.map((champion) => (
             <AthleteCard
@@ -62,9 +59,6 @@ export function ChampionsSection({
       </section>
 
       <section>
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">
-          Female Champions
-        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedFemaleChampions.map((champion) => (
             <AthleteCard

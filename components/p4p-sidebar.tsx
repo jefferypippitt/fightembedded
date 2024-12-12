@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { getP4PRankings } from "@/server/actions/get-p4p";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
@@ -21,30 +20,6 @@ interface Fighter {
   losses: number;
   draws: number;
 }
-
-const RankingSkeleton = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    transition={{ duration: 0.2 }}
-    className="flex flex-col h-full justify-between"
-  >
-    {[...Array(15)].map((_, i) => (
-      <div key={i} className="flex items-center space-x-2 p-1.5 h-[48px]">
-        <Skeleton className="h-4 w-4" />
-        <Skeleton className="h-9 w-9 rounded-full" />
-        <div className="flex-grow space-y-1">
-          <Skeleton className="h-4 w-32" />
-          <div className="flex items-center gap-1">
-            <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-12" />
-          </div>
-        </div>
-      </div>
-    ))}
-  </motion.div>
-);
 
 const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
   <motion.li
@@ -159,8 +134,6 @@ export function P4PSidebar() {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          ) : loading ? (
-            <RankingSkeleton />
           ) : (
             <motion.div
               initial={{ opacity: 0 }}

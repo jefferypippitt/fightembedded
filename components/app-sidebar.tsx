@@ -43,7 +43,7 @@ const favorites = [
   {
     name: "Create Athlete",
 
-    url: "/dashboard/new-athlete",
+    url: "/dashboard/athletes/new",
 
     emoji: "🏋️",
   },

@@ -30,7 +30,7 @@ export default async function Dashboard() {
         <h1 className="text-xl font-bold">Dashboard Overview</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard/new-athlete" className="flex items-center">
+            <Link href="/dashboard/athletes/new" className="flex items-center">
               <PlusCircle className="h-4 w-4 mr-1" />
               Add Athlete
             </Link>

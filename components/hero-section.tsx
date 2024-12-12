@@ -4,7 +4,7 @@ import NumberTicker from "./ui/number-ticker";
 
 export default function HeroSection() {
   return (
-    <div className="flex flex-col items-center text-center space-y-3 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col items-center text-center space-y-2 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 w-full max-w-5xl mx-auto">
       {/* Main Heading */}
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight break-words">
         <span className="block pb-1">Your Ultimate Source for</span>
