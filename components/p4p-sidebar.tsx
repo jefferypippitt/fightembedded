@@ -130,10 +130,10 @@ export function P4PSidebar() {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="p-2 pb-0 shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-center mb-2">
+          <h1 className="text-sm text-muted-foreground">
             Pound for Pound Rankings
-          </p>
+          </h1>
         </div>
         <CardTitle className="text-xs">
           <Tabs
