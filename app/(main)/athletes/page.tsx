@@ -113,8 +113,10 @@ export default function AthletesPage({
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="space-y-6">
         <div className="space-y-4">
-          <h1 className="text-2xl sm:text-3xl font-bold">UFC Athletes</h1>
-          <SearchBar defaultValue={use(searchParams)?.query} />
+          <h1 className="text-2xl sm:text-3xl font-bold text-center">All UFC Athletes</h1>
+          <div className="w-full max-w-2xl">
+            <SearchBar defaultValue={use(searchParams)?.query} />
+          </div>
         </div>
 
         <Suspense
