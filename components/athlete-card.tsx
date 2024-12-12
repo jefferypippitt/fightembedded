@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Flag } from "lucide-react";
+import { Medal, Flag } from "lucide-react";
 
 interface AthleteCardProps {
   name: string;
@@ -48,7 +48,7 @@ export function AthleteCard({
             {division}
           </Badge>
           {isChampion ? (
-            <Trophy className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
+            <Medal className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
           ) : poundForPoundRank ? (
             <span className="text-[10px] sm:text-xs font-medium">
               P4P #{poundForPoundRank}
