@@ -5,9 +5,10 @@ export function AthleteListCardSkeleton() {
   return (
     <Card className="hover:bg-accent/50 transition-colors">
       <CardContent className="p-3">
-        {/* Top Badge - Only Ranking */}
-        <div className="flex mb-3">
-          <Skeleton className="h-4 w-8" />
+        {/* Top Badge - Ranking and Age */}
+        <div className="flex justify-between items-center mb-3">
+          <Skeleton className="h-4 w-8" /> {/* Rank badge skeleton */}
+          <Skeleton className="h-4 w-12" /> {/* Age badge skeleton */}
         </div>
 
         {/* Avatar and Name Section */}

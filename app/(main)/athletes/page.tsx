@@ -1,9 +1,9 @@
-import { Suspense } from "react"
-import { getAthletes } from "@/server/actions/athlete"
-import { AthleteListCard } from "@/components/athlete-list-card"
-import { Skeleton } from "@/components/ui/skeleton"
-import { use } from "react"
-import { SearchBar } from "@/components/search-bar"
+import { Suspense } from "react";
+import { getAthletes } from "@/server/actions/athlete";
+import { AthleteListCard } from "@/components/athlete-list-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { use } from "react";
+import { SearchBar } from "@/components/search-bar";
 
 // Create a loading skeleton for the athlete cards
 function AthleteCardSkeleton() {
@@ -49,21 +49,27 @@ function AthleteCardSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Create an Athletes component to handle the async data
-async function Athletes({ searchParams }: { searchParams: Promise<{ query?: string }> }) {
+async function Athletes({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}) {
   // Await the searchParams before accessing query
   const params = await searchParams;
   const query = params?.query ?? "";
-  
+
   const athletes = await getAthletes();
-  
+
   // Filter athletes based on the query if it's not empty
-  const filteredAthletes = query ? athletes.filter((athlete) =>
-    athlete.name.toLowerCase().includes(query.toLowerCase())
-  ) : athletes; // Return all athletes if no query
+  const filteredAthletes = query
+    ? athletes.filter((athlete) =>
+        athlete.name.toLowerCase().includes(query.toLowerCase())
+      )
+    : athletes; // Return all athletes if no query
 
   // Handle the case where filteredAthletes might be empty
   if (filteredAthletes.length === 0) {
@@ -86,6 +92,7 @@ async function Athletes({ searchParams }: { searchParams: Promise<{ query?: stri
           winsBySubmission={athlete.winsBySubmission}
           rank={athlete.rank}
           followers={athlete.followers}
+          age={athlete.age}
         />
       ))}
       {filteredAthletes.length === 0 && (
@@ -94,13 +101,13 @@ async function Athletes({ searchParams }: { searchParams: Promise<{ query?: stri
         </p>
       )}
     </div>
-  )
+  );
 }
 
-export default function AthletesPage({ 
-  searchParams 
-}: { 
-  searchParams: Promise<{ query?: string }> 
+export default function AthletesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
 }) {
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -109,8 +116,8 @@ export default function AthletesPage({
           <h1 className="text-2xl sm:text-3xl font-bold">UFC Athletes</h1>
           <SearchBar defaultValue={use(searchParams)?.query} />
         </div>
-        
-        <Suspense 
+
+        <Suspense
           fallback={
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(6)].map((_, i) => (
@@ -123,5 +130,5 @@ export default function AthletesPage({
         </Suspense>
       </div>
     </main>
-  )
-} 
+  );
+}

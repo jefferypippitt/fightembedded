@@ -17,6 +17,7 @@ interface AthleteListCardProps {
   rank?: number;
   followers?: number;
   record?: string;
+  age?: number;
 }
 
 export function AthleteListCard({
@@ -30,6 +31,7 @@ export function AthleteListCard({
   winsBySubmission = 0,
   rank,
   followers = 0,
+  age,
 }: AthleteListCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -41,16 +43,13 @@ export function AthleteListCard({
     <Card className="hover:bg-accent/50 transition-colors">
       <CardContent className="p-3">
         {/* Top Badge - Only Ranking */}
-        <div className="flex mb-3">
+        <div className="flex justify-between items-center mb-3">
           {rank ? (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-              #{rank}
-            </Badge>
+            <Badge variant="outline">#{rank}</Badge>
           ) : (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-              NR
-            </Badge>
+            <Badge variant="outline">NR</Badge>
           )}
+          {age && <Badge variant="secondary">Age: {age}</Badge>}
         </div>
 
         {/* Avatar and Name Section */}

@@ -1,22 +1,29 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { getAthletesByDivision } from "@/server/actions/get-athlete";
-import { getDivisionBySlug, parseDivisionSlug, getFullDivisionName } from "@/data/weight-class";
+import {
+  getDivisionBySlug,
+  parseDivisionSlug,
+  getFullDivisionName,
+} from "@/data/weight-class";
 import { AthleteListCard } from "@/components/athlete-list-card";
 import { AthleteListCardSkeleton } from "./loading";
-
 
 async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
   const athletes = await getAthletesByDivision(fullDivisionName);
 
   if (athletes.length === 0) {
-    return <p className="text-muted-foreground">No athletes found in this division.</p>;
+    return (
+      <p className="text-muted-foreground">
+        No athletes found in this division.
+      </p>
+    );
   }
 
   // Sort athletes by rank (ascending order)
   const sortedAthletes = [...athletes].sort((a, b) => {
     // Handle cases where rank might be null/undefined
-    if (!a.rank) return 1;  // Push null/undefined ranks to the end
+    if (!a.rank) return 1; // Push null/undefined ranks to the end
     if (!b.rank) return -1;
     return a.rank - b.rank;
   });
@@ -37,6 +44,7 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
           winsBySubmission={athlete.winsBySubmission}
           rank={athlete.rank}
           followers={athlete.followers}
+          age={athlete.age}
         />
       ))}
     </div>
@@ -55,7 +63,10 @@ export default async function DivisionPage({ params }: PageProps) {
   if (!resolvedParams.slug) return notFound();
 
   // Normalize the slug to lowercase
-  const normalizedSlug = typeof resolvedParams.slug === 'string' ? resolvedParams.slug.toLowerCase() : '';
+  const normalizedSlug =
+    typeof resolvedParams.slug === "string"
+      ? resolvedParams.slug.toLowerCase()
+      : "";
 
   // Parse and validate the division slug
   const { gender, isValid } = parseDivisionSlug(normalizedSlug);
@@ -80,15 +91,19 @@ export default async function DivisionPage({ params }: PageProps) {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold capitalize">{fullDivisionName} Division</h1>
-      
-      <Suspense fallback={
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <AthleteListCardSkeleton key={i} />
-          ))}
-        </div>
-      }>
+      <h1 className="text-2xl font-bold capitalize">
+        {fullDivisionName} Division
+      </h1>
+
+      <Suspense
+        fallback={
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <AthleteListCardSkeleton key={i} />
+            ))}
+          </div>
+        }
+      >
         <Athletes fullDivisionName={fullDivisionName} />
       </Suspense>
     </main>
