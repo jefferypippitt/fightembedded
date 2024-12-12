@@ -91,14 +91,14 @@ export default async function DivisionPage({ params }: PageProps) {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold capitalize">
+      <h1 className="text-2xl font-bold capitalize text-center">
         {fullDivisionName} Division
       </h1>
 
       <Suspense
         fallback={
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <AthleteListCardSkeleton key={i} />
             ))}
           </div>

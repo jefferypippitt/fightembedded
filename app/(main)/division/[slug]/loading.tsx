@@ -7,8 +7,8 @@ export function AthleteListCardSkeleton() {
       <CardContent className="p-3">
         {/* Top Badge - Ranking and Age */}
         <div className="flex justify-between items-center mb-3">
-          <Skeleton className="h-4 w-8" /> {/* Rank badge skeleton */}
-          <Skeleton className="h-4 w-12" /> {/* Age badge skeleton */}
+          <Skeleton className="h-3 w-6" />
+          <Skeleton className="h-3 w-10" />
         </div>
 
         {/* Avatar and Name Section */}
@@ -48,11 +48,11 @@ export function AthleteListCardSkeleton() {
       <CardFooter className="px-3 py-2 border-t">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
-            <Skeleton className="h-3 w-3" /> {/* Flag icon skeleton */}
-            <Skeleton className="h-2 w-12" /> {/* Country name skeleton */}
+            <Skeleton className="h-3 w-3" />
+            <Skeleton className="h-2 w-12" />
           </div>
           <div className="flex items-center gap-1">
-            <Skeleton className="h-2 w-16" /> {/* Followers skeleton */}
+            <Skeleton className="h-2 w-16" />
           </div>
         </div>
       </CardFooter>
@@ -60,11 +60,10 @@ export function AthleteListCardSkeleton() {
   );
 }
 
-// Grid layout remains the same
 export default function Loading() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-      {Array.from({ length: 12 }).map((_, i) => (
+      {Array.from({ length: 9 }).map((_, i) => (
         <AthleteListCardSkeleton key={i} />
       ))}
     </div>

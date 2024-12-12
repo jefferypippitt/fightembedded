@@ -4,12 +4,18 @@ import { AthleteListCard } from "@/components/athlete-list-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { use } from "react";
 import { SearchBar } from "@/components/search-bar";
+import { Card, CardContent } from "@/components/ui/card";
 
-// Create a loading skeleton for the athlete cards
 function AthleteCardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card">
-      <div className="p-3">
+    <Card className="hover:bg-accent/50 transition-colors">
+      <CardContent className="p-3">
+        {/* Top Badge - Ranking and Age */}
+        <div className="flex justify-between items-center mb-3">
+          <Skeleton className="h-3 w-6" />
+          <Skeleton className="h-3 w-10" />
+        </div>
+
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-2">
           <div className="relative">
@@ -39,7 +45,7 @@ function AthleteCardSkeleton() {
             </div>
           ))}
         </div>
-      </div>
+      </CardContent>
 
       {/* Footer */}
       <div className="px-3 py-2 border-t">
@@ -48,7 +54,7 @@ function AthleteCardSkeleton() {
           <Skeleton className="h-3 w-8" />
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -113,7 +119,9 @@ export default function AthletesPage({
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div className="space-y-6">
         <div className="space-y-4">
-          <h1 className="text-2xl sm:text-3xl font-bold text-center">All UFC Athletes</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center">
+            All UFC Athletes
+          </h1>
           <div className="w-full max-w-2xl">
             <SearchBar defaultValue={use(searchParams)?.query} />
           </div>
@@ -122,7 +130,7 @@ export default function AthletesPage({
         <Suspense
           fallback={
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(9)].map((_, i) => (
                 <AthleteCardSkeleton key={i} />
               ))}
             </div>

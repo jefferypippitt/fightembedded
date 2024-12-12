@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { ModeToggle } from "./theme-toggle"
+import Link from "next/link";
+import { ModeToggle } from "./theme-toggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,27 +9,39 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown, Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
-import { weightClasses, generateDivisionSlug } from "@/data/weight-class"
-import { useState } from "react"
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
+import { useState } from "react";
 
 export default function Navbar() {
-  const [isWeightDropdownOpen, setIsWeightDropdownOpen] = useState(false)
-  const [isRankingsDropdownOpen, setIsRankingsDropdownOpen] = useState(false)
+  const [isWeightDropdownOpen, setIsWeightDropdownOpen] = useState(false);
+  const [isRankingsDropdownOpen, setIsRankingsDropdownOpen] = useState(false);
 
   const handleLinkClick = () => {
-    setIsWeightDropdownOpen(false)
-    setIsRankingsDropdownOpen(false)
-  }
+    setIsWeightDropdownOpen(false);
+    setIsRankingsDropdownOpen(false);
+  };
 
   const rankings = [
-    { name: "Fighter Popularity (Top 20)", href: "/rankings/popularity" },
-    { name: "Division Rankings (Top 5)", href: "/rankings/divisions" },
-    { name: "Pound for Pound Rankings", href: "/rankings/pound-for-pound" },
-  ]
+    {
+      name: "Fighter Popularity",
+      suffix: "(Top 20)",
+      href: "/rankings/popularity",
+    },
+    {
+      name: "Division Rankings",
+      suffix: "(Top 5)",
+      href: "/rankings/divisions",
+    },
+  ];
 
   return (
     <div className="sticky top-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
@@ -42,12 +54,18 @@ export default function Navbar() {
         <div className="flex items-center gap-6">
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="/athletes" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/athletes"
+              className="text-sm font-medium hover:text-primary"
+            >
               Athletes
             </Link>
 
             {/* Weight Divisions Dropdown */}
-            <DropdownMenu open={isWeightDropdownOpen} onOpenChange={setIsWeightDropdownOpen}>
+            <DropdownMenu
+              open={isWeightDropdownOpen}
+              onOpenChange={setIsWeightDropdownOpen}
+            >
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-medium gap-2">
                   Weight Divisions <ChevronDown className="h-4 w-4" />
@@ -57,7 +75,9 @@ export default function Navbar() {
                 <DropdownMenuLabel>Men&apos;s Divisions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Men&apos;s</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Men&apos;s
+                  </h3>
                   {weightClasses.men.map((division) => (
                     <Link
                       key={division.name}
@@ -65,7 +85,10 @@ export default function Navbar() {
                       className="block text-sm hover:text-primary"
                       onClick={handleLinkClick}
                     >
-                      {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
+                      {division.name}{" "}
+                      <span className="text-muted-foreground text-xs">
+                        ({division.weight} lbs)
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -73,7 +96,9 @@ export default function Navbar() {
                 <DropdownMenuLabel>Women&apos;s Divisions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Women&apos;s</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Women&apos;s
+                  </h3>
                   {weightClasses.women.map((division) => (
                     <Link
                       key={division.name}
@@ -81,7 +106,10 @@ export default function Navbar() {
                       className="block text-sm hover:text-primary"
                       onClick={handleLinkClick}
                     >
-                      {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
+                      {division.name}{" "}
+                      <span className="text-muted-foreground text-xs">
+                        ({division.weight} lbs)
+                      </span>
                     </Link>
                   ))}
                 </div>
@@ -89,7 +117,10 @@ export default function Navbar() {
             </DropdownMenu>
 
             {/* Rankings Dropdown */}
-            <DropdownMenu open={isRankingsDropdownOpen} onOpenChange={setIsRankingsDropdownOpen}>
+            <DropdownMenu
+              open={isRankingsDropdownOpen}
+              onOpenChange={setIsRankingsDropdownOpen}
+            >
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-sm font-medium gap-2">
                   Rankings <ChevronDown className="h-4 w-4" />
@@ -99,7 +130,10 @@ export default function Navbar() {
                 {rankings.map((item) => (
                   <DropdownMenuItem key={item.name} asChild>
                     <Link href={item.href} onClick={handleLinkClick}>
-                      {item.name}
+                      {item.name}{" "}
+                      <span className="text-muted-foreground text-xs">
+                        {item.suffix}
+                      </span>
                     </Link>
                   </DropdownMenuItem>
                 ))}
@@ -121,36 +155,55 @@ export default function Navbar() {
               </SheetTrigger>
               <SheetContent side="right">
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <nav className="flex flex-col gap-6" aria-label="Mobile navigation">
-                  <Link href="/athletes" className="text-sm font-medium hover:text-primary">
+                <nav
+                  className="flex flex-col gap-6"
+                  aria-label="Mobile navigation"
+                >
+                  <Link
+                    href="/athletes"
+                    className="text-sm font-medium hover:text-primary"
+                  >
                     Athletes
                   </Link>
-                  
+
                   {/* Mobile Weight Divisions */}
                   <div className="space-y-3">
                     <h2 className="text-sm font-medium">Weight Divisions</h2>
                     <div className="pl-4 space-y-4">
                       <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-muted-foreground">Men&apos;s</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">
+                          Men&apos;s
+                        </h3>
                         {weightClasses.men.map((division) => (
                           <Link
                             key={division.name}
                             href={`/division/${generateDivisionSlug(division)}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
+                            {division.name}{" "}
+                            <span className="text-muted-foreground text-xs">
+                              ({division.weight} lbs)
+                            </span>
                           </Link>
                         ))}
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-muted-foreground">Women&apos;s</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground">
+                          Women&apos;s
+                        </h3>
                         {weightClasses.women.map((division) => (
                           <Link
                             key={division.name}
-                            href={`/division/${generateDivisionSlug(division, true)}`}
+                            href={`/division/${generateDivisionSlug(
+                              division,
+                              true
+                            )}`}
                             className="block text-sm hover:text-primary"
                           >
-                            {division.name} <span className="text-muted-foreground">({division.weight} lbs)</span>
+                            {division.name}{" "}
+                            <span className="text-muted-foreground text-xs">
+                              ({division.weight} lbs)
+                            </span>
                           </Link>
                         ))}
                       </div>
@@ -167,7 +220,10 @@ export default function Navbar() {
                           href={item.href}
                           className="block text-sm hover:text-primary"
                         >
-                          {item.name}
+                          {item.name}{" "}
+                          <span className="text-muted-foreground text-xs">
+                            {item.suffix}
+                          </span>
                         </Link>
                       ))}
                     </div>

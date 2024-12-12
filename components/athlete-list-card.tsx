@@ -45,11 +45,11 @@ export function AthleteListCard({
         {/* Top Badge - Only Ranking */}
         <div className="flex justify-between items-center mb-3">
           {rank ? (
-            <Badge variant="outline">#{rank}</Badge>
+            <Badge variant="outline" className="text-[10px] px-2 py-0">#{rank}</Badge>
           ) : (
-            <Badge variant="outline">NR</Badge>
+            <Badge variant="outline" className="text-[10px] px-2 py-0">NR</Badge>
           )}
-          {age && <Badge variant="secondary">Age: {age}</Badge>}
+          {age && <Badge variant="secondary" className="text-[10px] px-2 py-0">Age: {age}</Badge>}
         </div>
 
         {/* Avatar and Name Section */}
