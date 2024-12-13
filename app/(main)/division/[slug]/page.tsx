@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { getAthletesByDivision } from "@/server/actions/get-athlete";
 import {
   getDivisionBySlug,
@@ -8,6 +9,66 @@ import {
 } from "@/data/weight-class";
 import { AthleteListCard } from "@/components/athlete-list-card";
 import { AthleteListCardSkeleton } from "./loading";
+
+interface GenerateMetadataProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: GenerateMetadataProps): Promise<Metadata> {
+  // Await the params
+  const { slug } = await params;
+
+  // Safety check for undefined slug
+  if (!slug) {
+    return {
+      title: "Division Not Found",
+      description: "The requested weight division could not be found.",
+    };
+  }
+
+  const normalizedSlug = slug.toLowerCase();
+  const { gender, isValid } = parseDivisionSlug(normalizedSlug);
+
+  if (!isValid) {
+    return {
+      title: "Invalid Division",
+      description: "This weight division does not exist in Fight Embedded.",
+    };
+  }
+
+  const division = getDivisionBySlug(normalizedSlug);
+  if (!division) {
+    return {
+      title: "Division Not Found",
+      description: "The requested weight division could not be found.",
+    };
+  }
+
+  const isWomen = gender === "women";
+  const fullDivisionName = getFullDivisionName(division, isWomen);
+  const capitalizedDivisionName = fullDivisionName
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return {
+    title: `${capitalizedDivisionName} Division`,
+    description: `Explore UFC ${capitalizedDivisionName} division athletes, rankings, stats, and performance analytics on Fight Embedded.`,
+    openGraph: {
+      title: `${capitalizedDivisionName} Division | Fight Embedded`,
+      description: `View detailed statistics and rankings for UFC ${capitalizedDivisionName} division fighters. Get comprehensive analytics and performance data.`,
+      type: "website",
+      siteName: "Fight Embedded",
+    },
+    twitter: {
+      card: "summary",
+      title: `${capitalizedDivisionName} Division | Fight Embedded`,
+      description: `Complete stats and rankings for UFC ${capitalizedDivisionName} division athletes. Access detailed performance metrics and analytics.`,
+    },
+  };
+}
 
 async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
   const athletes = await getAthletesByDivision(fullDivisionName);
@@ -22,8 +83,7 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
 
   // Sort athletes by rank (ascending order)
   const sortedAthletes = [...athletes].sort((a, b) => {
-    // Handle cases where rank might be null/undefined
-    if (!a.rank) return 1; // Push null/undefined ranks to the end
+    if (!a.rank) return 1;
     if (!b.rank) return -1;
     return a.rank - b.rank;
   });
@@ -52,21 +112,17 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
 }
 
 interface PageProps {
-  params: {
-    slug: string;
-  };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function DivisionPage({ params }: PageProps) {
-  const resolvedParams = await params;
+  // Await the params
+  const { slug } = await params;
 
-  if (!resolvedParams.slug) return notFound();
+  if (!slug) return notFound();
 
   // Normalize the slug to lowercase
-  const normalizedSlug =
-    typeof resolvedParams.slug === "string"
-      ? resolvedParams.slug.toLowerCase()
-      : "";
+  const normalizedSlug = slug.toLowerCase();
 
   // Parse and validate the division slug
   const { gender, isValid } = parseDivisionSlug(normalizedSlug);
@@ -75,7 +131,7 @@ export default async function DivisionPage({ params }: PageProps) {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold">Invalid Division</h1>
         <p className="text-muted-foreground">
-          The division &quot;{resolvedParams.slug}&quot; is not valid.
+          The division &quot;{slug}&quot; is not valid.
         </p>
       </main>
     );

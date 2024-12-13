@@ -12,8 +12,32 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Fight Embedded",
-  description: "UFC fighter statistics, performance analytics, and more!",
+  title: {
+    template: "%s | Fight Embedded",
+    default: "Fight Embedded",
+  },
+  description: "UFC athletes' stats, performance analytics, and more!",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://fightembedded.com",
+    siteName: "Fight Embedded",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@fightembedded",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -23,12 +47,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(
-        manrope.variable,
-        "font-sans antialiased",
-        "min-h-screen min-w-[320px]",
-        "flex flex-col"
-      )}>
+      <body
+        className={cn(
+          manrope.variable,
+          "font-sans antialiased",
+          "min-h-screen min-w-[320px]",
+          "flex flex-col"
+        )}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

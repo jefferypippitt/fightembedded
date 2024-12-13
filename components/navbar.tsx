@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ModeToggle } from "./theme-toggle";
 import {
   DropdownMenu,
@@ -48,6 +49,13 @@ export default function Navbar() {
       <div className="flex items-center justify-between mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/fight-embedded-bw.jpg"
+            alt="Fight Embedded Logo"
+            width={35}
+            height={35}
+            className="rounded-sm"
+          />
           <h1 className="text-lg font-medium">Fight Embedded</h1>
         </Link>
 
