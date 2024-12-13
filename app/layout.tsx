@@ -12,6 +12,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://fightembedded.com'),
   title: {
     template: "%s | Fight Embedded",
     default: "Fight Embedded",
