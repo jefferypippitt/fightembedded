@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -52,6 +52,9 @@ export function DivisionChart({ division }: DivisionChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="text-center">{division.division}</CardTitle>
+        <CardDescription className="text-center">
+          Top 5 Ranked Athletes
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>

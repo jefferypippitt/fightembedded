@@ -1,5 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Trophy, Calendar, Medal } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About | Fight Embedded",
+};
 
 export default function AboutPage() {
   const features = [

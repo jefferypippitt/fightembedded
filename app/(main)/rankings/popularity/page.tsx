@@ -1,5 +1,12 @@
 import { getTop20Athletes } from "@/server/actions/get-top-20-athletes";
 import { FighterPopularityChart } from "./fighter-popularity-chart";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Popularity",
+  description: "Top 20 Athletes by Popularity",
+};
+
 
 export default async function DivisionRankingsPage() {
   const top20Athletes = await getTop20Athletes();

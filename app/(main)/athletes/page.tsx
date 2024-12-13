@@ -5,6 +5,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { use } from "react";
 import { SearchBar } from "@/components/search-bar";
 import { Card, CardContent } from "@/components/ui/card";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Athletes",
+  description: "All UFC Athletes",
+};
 
 function AthleteCardSkeleton() {
   return (
