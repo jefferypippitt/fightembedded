@@ -247,7 +247,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       endpoint="athleteImage"
                       appearance={{
                         button:
-                          "bg-background hover:bg-accent text-foreground border border-input h-9 px-3 py-1 text-sm rounded-md font-normal",
+                          "bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-9 px-3 py-1 text-sm rounded-md font-normal",
                         allowedContent: "hidden",
                       }}
                       content={{
@@ -478,11 +478,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
 
         {/* Fight Record Section */}
-
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-4 w-1 bg-primary rounded-full" />
-
             <h2 className="text-lg font-semibold">Fight Record</h2>
           </div>
 
@@ -493,7 +491,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Wins</FormLabel>
-
                   <FormControl>
                     <Input
                       className="h-9"
@@ -501,18 +498,14 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
-
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}
@@ -531,18 +524,14 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
-
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}
@@ -554,7 +543,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm">Draws</FormLabel>
-
                   <FormControl>
                     <Input
                       className="h-9"
@@ -562,18 +550,14 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       type="number"
                       min={0}
                       {...field}
-                      value={field.value || ""}
+                      value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
                         const value =
-                          e.target.value === ""
-                            ? undefined
-                            : parseInt(e.target.value);
-
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
                   </FormControl>
-
                   <FormMessage className="text-xs" />
                 </FormItem>
               )}
@@ -606,7 +590,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       {...field}
                       value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
@@ -631,7 +616,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       {...field}
                       value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />
@@ -656,7 +642,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       {...field}
                       value={field.value === 0 ? "" : field.value}
                       onChange={(e) => {
-                        const value = e.target.value === "" ? 0 : parseInt(e.target.value);
+                        const value =
+                          e.target.value === "" ? 0 : parseInt(e.target.value);
                         field.onChange(value);
                       }}
                     />

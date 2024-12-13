@@ -41,7 +41,6 @@ export default async function EditAthletePage({ params }: PageProps) {
 
   try {
     const athlete = await getAthlete(id);
-    console.log("Athlete data from server:", athlete);
 
     if (!athlete) {
       return notFound();
