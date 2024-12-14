@@ -22,29 +22,51 @@ export default function HeroSection() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mt-4 sm:mt-6 w-full max-w-xl">
         <div className="flex flex-col items-center p-1 sm:p-2">
           <span className="text-base sm:text-lg lg:text-xl font-bold text-red-500">
-            <NumberTicker value={170} className="text-base sm:text-lg lg:text-xl font-bold" />+
+            <NumberTicker
+              value={170}
+              className="text-base sm:text-lg lg:text-xl font-bold"
+            />
+            +
           </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">Active Fighters</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            Active Fighters
+          </span>
         </div>
         <div className="flex flex-col items-center p-1 sm:p-2">
           <span className="text-base sm:text-lg lg:text-xl font-bold text-red-500">
-            <NumberTicker value={11} className="text-base sm:text-lg lg:text-xl font-bold" />
+            <NumberTicker
+              value={11}
+              className="text-base sm:text-lg lg:text-xl font-bold"
+            />
           </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">Weight Classes</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            Weight Classes
+          </span>
         </div>
         <div className="flex flex-col items-center p-1 sm:p-2">
           <span className="text-base sm:text-lg lg:text-xl font-bold text-red-500">
-            <NumberTicker value={11} className="text-base sm:text-lg lg:text-xl font-bold" />
+            <NumberTicker
+              value={11}
+              className="text-base sm:text-lg lg:text-xl font-bold"
+            />
           </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">Champions</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            Champions
+          </span>
         </div>
         <div className="flex flex-col items-center p-1 sm:p-2">
-        <span className="text-base sm:text-lg lg:text-xl font-bold text-red-500">
-            <NumberTicker value={200} className="text-base sm:text-lg lg:text-xl font-bold" />+
+          <span className="text-base sm:text-lg lg:text-xl font-bold text-red-500">
+            <NumberTicker
+              value={200}
+              className="text-base sm:text-lg lg:text-xl font-bold"
+            />
+            +
           </span>
-          <span className="text-xs sm:text-sm text-muted-foreground">Events</span>
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            Events
+          </span>
         </div>
       </div>
     </div>
   );
-};
+}

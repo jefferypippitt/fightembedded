@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 interface Fighter {
   id: string;
@@ -27,10 +28,12 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -20 }}
     transition={{ duration: 0.3 }}
-    className="flex items-center space-x-2 p-1.5 hover:bg-accent rounded-md transition-colors"
+    className="flex items-center space-x-2 p-1.5 hover:bg-red-600/10 dark:hover:bg-red-500/20 rounded-md transition-colors"
   >
-    <span className="font-bold text-sm w-4">{fighter.poundForPoundRank}.</span>
-    <Avatar className="h-10 w-10 ring-1 ring-gray-300">
+    <span className="font-bold text-sm w-4 text-gray-900 dark:text-white">
+      {fighter.poundForPoundRank}.
+    </span>
+    <Avatar className="h-10 w-10 ring-1 ring-red-600/20 dark:ring-red-500/30">
       <AvatarImage
         src={fighter.imageUrl || "/images/default-avatar.png"}
         alt={fighter.name}
@@ -44,9 +47,11 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       </AvatarFallback>
     </Avatar>
     <div className="flex-grow">
-      <p className="font-medium text-sm leading-tight">{fighter.name}</p>
+      <p className="font-medium text-sm leading-tight text-gray-900 dark:text-white">
+        {fighter.name}
+      </p>
       <div className="flex items-center gap-1">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-gray-600 dark:text-gray-300">
           {fighter.weightDivision}
         </p>
         <p className="text-xs">
@@ -103,10 +108,21 @@ export function P4PSidebar() {
   }, []);
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="p-2 pb-0 shrink-0">
+    <Card
+      className={cn(
+        "h-full flex flex-col",
+        "border-red-600/20 dark:border-red-500/30",
+        "bg-gradient-to-br from-white via-gray-50 to-gray-100",
+        "dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900",
+        "before:absolute before:inset-0 before:bg-gradient-to-r",
+        "before:from-red-600/0 before:via-red-600/5 before:to-red-600/0",
+        "dark:before:from-red-500/0 dark:before:via-red-500/20 dark:before:to-red-500/0",
+        "relative overflow-hidden"
+      )}
+    >
+      <CardHeader className="p-2 pb-0 shrink-0 relative z-10">
         <div className="flex items-center justify-center mb-2">
-          <h1 className="text-sm text-muted-foreground">
+          <h1 className="text-sm text-gray-700 dark:text-gray-200">
             Pound for Pound Rankings
           </h1>
         </div>
@@ -116,18 +132,26 @@ export function P4PSidebar() {
             onValueChange={(value) => fetchRankings(value as "male" | "female")}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="male" disabled={loading}>
+            <TabsList className="grid w-full grid-cols-2 bg-red-600/10 dark:bg-red-500/20">
+              <TabsTrigger
+                value="male"
+                disabled={loading}
+                className="data-[state=active]:bg-red-600/20 dark:data-[state=active]:bg-red-500/30"
+              >
                 Male
               </TabsTrigger>
-              <TabsTrigger value="female" disabled={loading}>
+              <TabsTrigger
+                value="female"
+                disabled={loading}
+                className="data-[state=active]:bg-red-600/20 dark:data-[state=active]:bg-red-500/30"
+              >
                 Female
               </TabsTrigger>
             </TabsList>
           </Tabs>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-2 flex-1 flex flex-col">
+      <CardContent className="p-2 flex-1 flex flex-col relative z-10">
         <AnimatePresence mode="wait">
           {error ? (
             <Alert variant="destructive">

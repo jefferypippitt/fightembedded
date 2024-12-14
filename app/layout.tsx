@@ -12,10 +12,14 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://fightembedded.com'),
+  metadataBase: new URL("https://fightembedded.com"),
   title: {
     template: "%s | Fight Embedded",
     default: "Fight Embedded",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
   },
   description: "UFC athletes' stats, performance analytics, and more!",
   openGraph: {
