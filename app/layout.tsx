@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     template: "%s | Fight Embedded",
     default: "Fight Embedded",
   },
-  description: "Your Ultimate Source for UFC Fighter Stats one place",
+  description: "Your Ultimate Source for UFC Fighter Stats in one place",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -42,8 +42,7 @@ export const metadata: Metadata = {
     url: "https://www.fightembedded.com",
     siteName: "Fight Embedded",
     title: "Fight Embedded - UFC Fighter Stats & Analytics",
-    description:
-      "Your Ultimate Source for UFC Fighter Stats in one place",
+    description: "Your Ultimate Source for UFC Fighter Stats in one place",
     images: [
       {
         url: "https://www.fightembedded.com/og-image.jpg",
@@ -57,8 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@fightembedded",
     title: "Fight Embedded - UFC Fighter Stats & Analytics",
-    description:
-      "Your Ultimate Source for UFC Fighter Stats",
+    description: "Your Ultimate Source for UFC Fighter Stats",
     images: ["https://www.fightembedded.com/og-image.jpg"],
   },
   robots: {
