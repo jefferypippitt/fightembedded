@@ -12,6 +12,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Home",
+  description:
+    "Your Ultimate Source for UFC Fighter Stats. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
 };
 
 export default async function Home() {
