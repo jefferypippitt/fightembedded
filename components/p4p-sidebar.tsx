@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { getP4PRankings } from "@/server/actions/get-p4p";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
@@ -34,17 +35,15 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       {fighter.poundForPoundRank}.
     </span>
     <Avatar className="h-10 w-10 ring-1 ring-red-600/20 dark:ring-red-500/30">
-      <AvatarImage
-        src={fighter.imageUrl || "/images/default-avatar.png"}
+      <Image
+        src={fighter.imageUrl}
         alt={fighter.name}
-        className="object-cover aspect-square"
+        className="object-cover"
+        width={100}
+        height={100}
+        quality={100}
+        priority={true}
       />
-      <AvatarFallback className="text-sm">
-        {fighter.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")}
-      </AvatarFallback>
     </Avatar>
     <div className="flex-grow">
       <p className="font-medium text-sm leading-tight text-gray-900 dark:text-white">

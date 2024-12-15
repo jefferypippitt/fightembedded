@@ -1,9 +1,10 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Flag } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface AthleteListCardProps {
   name: string;
@@ -87,7 +88,15 @@ export function AthleteListCard({
         {/* Avatar and Name Section */}
         <div className="flex flex-col items-center mb-3">
           <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
-            <AvatarImage src={imageUrl} alt={name} className="object-cover" />
+            <Image
+              src={imageUrl}
+              alt={name}
+              className="object-cover"
+              width={100}
+              height={100}
+              quality={100}
+              priority={true}
+            />
           </Avatar>
 
           <div className="text-center">

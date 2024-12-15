@@ -1,9 +1,10 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Medal, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface AthleteCardProps {
   name: string;
@@ -79,10 +80,14 @@ export function AthleteCard({
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
           <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
-            <AvatarImage
+            <Image
               src={imageUrl}
               alt={name}
-              className="object-cover aspect-square"
+              className="object-cover"
+              width={100}
+              height={100}
+              quality={100}
+              priority={true}
             />
           </Avatar>
           <div className="min-w-0 flex-1">
