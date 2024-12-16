@@ -38,7 +38,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       <Image
         src={fighter.imageUrl}
         alt={fighter.name}
-        className="object-cover"
+        className="object-cover w-full h-full"
         width={100}
         height={100}
         quality={100}

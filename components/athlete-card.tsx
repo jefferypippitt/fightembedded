@@ -83,7 +83,7 @@ export function AthleteCard({
             <Image
               src={imageUrl}
               alt={name}
-              className="object-cover"
+              className="object-cover w-full h-full"
               width={100}
               height={100}
               quality={100}
