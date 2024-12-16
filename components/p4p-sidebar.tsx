@@ -1,14 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { getP4PRankings } from "@/server/actions/get-p4p";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import Image from "next/image";
-import { toast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
@@ -23,14 +18,13 @@ interface Fighter {
   draws: number;
 }
 
+interface P4PSidebarProps {
+  maleP4PRankings: Fighter[];
+  femaleP4PRankings: Fighter[];
+}
+
 const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
-  <motion.li
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.3 }}
-    className="flex items-center space-x-2 p-1.5 hover:bg-red-600/10 dark:hover:bg-red-500/20 rounded-md transition-colors"
-  >
+  <li className="flex items-center space-x-2 p-1.5 hover:bg-red-600/10 dark:hover:bg-red-500/20 rounded-md transition-colors">
     <span className="font-bold text-sm w-4 text-gray-900 dark:text-white">
       {fighter.poundForPoundRank}.
     </span>
@@ -60,51 +54,18 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
         </p>
       </div>
     </div>
-  </motion.li>
+  </li>
 ));
 
 FighterCard.displayName = "FighterCard";
 
-export function P4PSidebar() {
-  const [rankings, setRankings] = useState<Fighter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchRankings = async (gender: "male" | "female") => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { maleP4PRankings, femaleP4PRankings } = await getP4PRankings();
-      const rankings = (
-        gender === "female" ? femaleP4PRankings : maleP4PRankings
-      ).map((fighter) => ({
-        id: fighter.id,
-        name: fighter.name,
-        imageUrl: fighter.imageUrl || "/images/default-avatar.png",
-        weightDivision: fighter.weightDivision,
-        poundForPoundRank: fighter.poundForPoundRank,
-        wins: fighter.wins,
-        losses: fighter.losses,
-        draws: fighter.draws,
-      }));
-      setRankings(rankings);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Please try again later";
-      setError(errorMessage);
-      toast({
-        title: "Error loading rankings",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRankings("male");
-  }, []);
+export function P4PSidebarClient({
+  maleP4PRankings,
+  femaleP4PRankings,
+}: P4PSidebarProps) {
+  const [currentGender, setCurrentGender] = useState<"male" | "female">("male");
+  const rankings =
+    currentGender === "male" ? maleP4PRankings : femaleP4PRankings;
 
   return (
     <Card
@@ -128,20 +89,20 @@ export function P4PSidebar() {
         <CardTitle className="text-xs">
           <Tabs
             defaultValue="male"
-            onValueChange={(value) => fetchRankings(value as "male" | "female")}
+            onValueChange={(value) =>
+              setCurrentGender(value as "male" | "female")
+            }
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-2 bg-red-600/10 dark:bg-red-500/20">
               <TabsTrigger
                 value="male"
-                disabled={loading}
                 className="data-[state=active]:bg-red-600/20 dark:data-[state=active]:bg-red-500/30"
               >
                 Male
               </TabsTrigger>
               <TabsTrigger
                 value="female"
-                disabled={loading}
                 className="data-[state=active]:bg-red-600/20 dark:data-[state=active]:bg-red-500/30"
               >
                 Female
@@ -151,41 +112,11 @@ export function P4PSidebar() {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-2 flex-1 flex flex-col relative z-10">
-        <AnimatePresence mode="wait">
-          {error ? (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="h-full flex flex-col justify-between"
-            >
-              {rankings.map((fighter) => (
-                <FighterCard key={fighter.id} fighter={fighter} />
-              ))}
-              {rankings.length < 15 && (
-                <div
-                  className="flex flex-col justify-between"
-                  style={{
-                    height: `${(15 - rankings.length) * 48}px`,
-                  }}
-                >
-                  {[...Array(15 - rankings.length)].map((_, i) => (
-                    <div
-                      key={`spacer-${i}`}
-                      className="h-[48px] flex items-center space-x-2 p-1.5"
-                    />
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="h-full flex flex-col justify-between">
+          {rankings.map((fighter) => (
+            <FighterCard key={fighter.id} fighter={fighter} />
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

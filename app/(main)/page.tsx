@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { P4PSidebar } from "@/components/p4p-sidebar";
+import { P4PSidebarSkeleton } from "@/components/p4p-sidebar-skeleton";
 import { ChampionsSection } from "@/components/champions-section";
 import { ChampionsSkeleton } from "@/components/champions-section-skeleton";
 import { EventMarqueeSkeleton } from "@/components/event-marquee-skeleton";
@@ -9,6 +9,7 @@ import { getUpcomingEvents } from "@/server/actions/get-event";
 import { EventMarqueeSection } from "@/components/event-marquee";
 import HeroSection from "@/components/hero-section";
 import { Metadata } from "next";
+import { P4PRankings } from "@/components/p4p-rankings";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -39,7 +40,9 @@ export default async function Home() {
         </div>
 
         <aside className="lg:col-span-1 h-full">
-          <P4PSidebar />
+          <Suspense fallback={<P4PSidebarSkeleton />}>
+            <P4PRankings />
+          </Suspense>
         </aside>
       </div>
     </div>

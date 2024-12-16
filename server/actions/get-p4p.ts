@@ -3,38 +3,34 @@
 import prisma from "@/lib/prisma";
 
 export async function getP4PRankings() {
-  try {
-    const maleP4PRankings = await prisma.athlete.findMany({
-      where: { 
-        gender: 'MALE',
-        poundForPoundRank: {
-          lte: 15,
-          gt: 0
-        }
+  const maleP4PRankings = await prisma.athlete.findMany({
+    where: {
+      gender: "MALE",
+      poundForPoundRank: {
+        gte: 1,
+        lte: 15,
       },
-      orderBy: {
-        poundForPoundRank: 'asc'
-      },
-      take: 15
-    });
+    },
+    orderBy: {
+      poundForPoundRank: "asc",
+    },
+  });
 
-    const femaleP4PRankings = await prisma.athlete.findMany({
-      where: { 
-        gender: 'FEMALE',
-        poundForPoundRank: {
-          lte: 15,
-          gt: 0
-        }
+  const femaleP4PRankings = await prisma.athlete.findMany({
+    where: {
+      gender: "FEMALE",
+      poundForPoundRank: {
+        gte: 1,
+        lte: 15,
       },
-      orderBy: {
-        poundForPoundRank: 'asc'
-      },
-      take: 15
-    });
+    },
+    orderBy: {
+      poundForPoundRank: "asc",
+    },
+  });
 
-    return { maleP4PRankings, femaleP4PRankings };
-  } catch (error) {
-    console.error("Error fetching P4P rankings:", error);
-    return { maleP4PRankings: [], femaleP4PRankings: [] };
-  }
+  return {
+    maleP4PRankings,
+    femaleP4PRankings,
+  };
 }
