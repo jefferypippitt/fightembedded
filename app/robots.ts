@@ -15,6 +15,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://www.fightembedded.com/sitemap.xml",
+    sitemap: "https://fightembedded.com/sitemap.xml",
   };
 }

@@ -50,7 +50,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/fight-embedded-bw.jpg"
+            src="/icon.png"
             alt="Fight Embedded Logo"
             width={35}
             height={35}

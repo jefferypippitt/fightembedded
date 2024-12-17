@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { weightClasses } from "@/data/weight-class";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.fightembedded.com";
+  const baseUrl = "https://fightembedded.com";
 
   const divisionUrls = [
     ...weightClasses.men.map((division) => ({
