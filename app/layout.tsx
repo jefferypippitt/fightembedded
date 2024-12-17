@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     template: "%s | Fight Embedded",
     default: "Fight Embedded",
   },
-  description: "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
+  description:
+    "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
   icons: {
     icon: [
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -42,10 +43,11 @@ export const metadata: Metadata = {
     url: "https://www.fightembedded.com",
     siteName: "Fight Embedded",
     title: "Fight Embedded - UFC Fighter Stats & Analytics",
-    description: "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
+    description:
+      "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
     images: [
       {
-        url: "https://www.fightembedded.com/og-image.jpg",
+        url: "/fight-embedded-bw.jpg",
         width: 1200,
         height: 630,
         alt: "Fight Embedded - UFC Athletes' Stats and Performance Analytics",
@@ -56,8 +58,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@fightembedded",
     title: "Fight Embedded - UFC Fighter Stats & Analytics",
-    description: "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
-    images: ["https://www.fightembedded.com/og-image.jpg"],
+    description:
+      "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
+    images: ["/fight-embedded-bw.jpg"],
   },
   robots: {
     index: true,
@@ -90,6 +93,23 @@ export default function RootLayout({
           name="theme-color"
           media="(prefers-color-scheme: dark)"
           content="#000000"
+        />
+        {/* Structured Data for Logo */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              url: "https://www.fightembedded.com",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://www.fightembedded.com/fight-embedded-bw.jpg",
+                width: 1200,
+                height: 630,
+              },
+            }),
+          }}
         />
       </head>
       <body
