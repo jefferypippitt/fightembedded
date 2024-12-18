@@ -37,10 +37,10 @@ export const metadata: Metadata = {
       "Your Ultimate Source for UFC Fighter Stats and Analytics. Explore detailed profiles, fight statistics, and rankings of all UFC athletes in one place",
     images: [
       {
-        url: "/icon.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Fight Embedded Logo",
+        alt: "Fight Embedded - UFC Fighter Stats & Analytics",
       },
     ],
   },
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fight Embedded - UFC Fighter Stats & Analytics",
     description: "Your Ultimate Source for UFC Fighter Stats and Analytics",
-    images: ["/icon.png"],
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
