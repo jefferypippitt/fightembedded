@@ -1,10 +1,39 @@
 import React from "react";
 import NumberTicker from "./ui/number-ticker";
 import { cn } from "@/lib/utils";
+import { getStats } from "@/server/actions/get-stats";
+import { Badge } from "@/components/ui/badge";
+import { Dot } from "lucide-react";
 
-export default function HeroSection() {
+export default async function HeroSection() {
+  const stats = await getStats();
+
+  const statsData = [
+    { value: stats.activeAthletes, label: "Active Fighters", suffix: "+" },
+    { value: stats.weightClasses, label: "Weight Classes" },
+    { value: stats.champions, label: "Champions" },
+    { value: stats.events, label: "Events", suffix: "+" },
+  ];
+
   return (
     <div className="flex flex-col items-center text-center space-y-2 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 w-full max-w-5xl mx-auto">
+      {/* Live Stats Badge */}
+      <div className="flex items-center gap-1.5 mb-2">
+        <Badge
+          variant="outline"
+          className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
+        >
+          <Dot className="h-4 w-4 animate-pulse text-red-600 dark:text-red-400" />
+          Live Stats
+        </Badge>
+        <Badge
+          variant="outline"
+          className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30"
+        >
+          Updated Weekly
+        </Badge>
+      </div>
+
       {/* Main Heading */}
       <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight break-words">
         <span className="block pb-1 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent">
@@ -23,12 +52,7 @@ export default function HeroSection() {
 
       {/* Stats Section */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 w-full max-w-xl">
-        {[
-          { value: 170, label: "Active Fighters", suffix: "+" },
-          { value: 11, label: "Weight Classes" },
-          { value: 11, label: "Champions" },
-          { value: 200, label: "Events", suffix: "+" },
-        ].map((stat, index) => (
+        {statsData.map((stat, index) => (
           <div key={index} className="group relative h-20">
             <div
               className={cn(
