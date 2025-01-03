@@ -30,7 +30,7 @@ export async function getUpcomingEvents() {
       orderBy: {
         date: "asc",
       },
-      take: 6,
+      take: 4,
     });
 
     return events;

@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 function EventCardSkeleton() {
   return (
@@ -37,9 +38,17 @@ function EventCardSkeleton() {
 export function EventMarqueeSkeleton() {
   return (
     <section className="space-y-2">
-      <Skeleton className="h-7 w-36" /> {/* For "Upcoming Events" title */}
+      <div className="flex justify-center">
+        <Badge
+          variant="outline"
+          className="px-4 py-1.5 text-base bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
+        >
+          <Skeleton className="h-5 w-32" />
+        </Badge>
+      </div>
       <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background px-4">
         <div className="w-[900px] mx-auto py-4 flex gap-4">
+          <EventCardSkeleton />
           <EventCardSkeleton />
           <EventCardSkeleton />
           <EventCardSkeleton />
@@ -47,4 +56,4 @@ export function EventMarqueeSkeleton() {
       </div>
     </section>
   );
-} 
+}
