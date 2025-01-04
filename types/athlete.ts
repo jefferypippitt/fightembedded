@@ -24,4 +24,5 @@ export interface Athlete {
   winsBySubmission: number
   followers?: number
   imageUrl?: string | null
+  retired?: boolean
 } 

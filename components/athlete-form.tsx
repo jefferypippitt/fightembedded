@@ -12,6 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
@@ -57,6 +58,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ControllerRenderProps } from "react-hook-form";
+import { Switch } from "@/components/ui/switch";
 
 type AthleteFormProps = {
   initialData?: z.infer<typeof athleteSchema> & { id: string };
@@ -471,6 +473,27 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     />
                   </FormControl>
                   <FormMessage className="text-xs" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="retired"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Retired Status</FormLabel>
+                    <FormDescription>
+                      Mark if the athlete is retired from competition
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

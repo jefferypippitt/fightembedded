@@ -21,6 +21,7 @@ interface AthleteCardProps {
   rank?: number;
   poundForPoundRank?: number;
   isChampion?: boolean;
+  retired?: boolean;
 }
 
 export function AthleteCard({
@@ -35,6 +36,7 @@ export function AthleteCard({
   winsBySubmission = 0,
   poundForPoundRank = 0,
   isChampion = false,
+  retired = false,
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -137,6 +139,14 @@ export function AthleteCard({
             </span>
           </div>
         </div>
+        {retired && (
+          <Badge 
+            variant="destructive" 
+            className="absolute top-2 right-2"
+          >
+            Retired
+          </Badge>
+        )}
       </CardContent>
       <CardFooter className="p-0" />
     </Card>

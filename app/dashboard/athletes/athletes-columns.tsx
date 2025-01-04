@@ -284,6 +284,18 @@ export const columns: ColumnDef<Athlete>[] = [
     },
   },
   {
+    accessorKey: "retired",
+    header: "Status",
+    cell: ({ row }) => {
+      const retired = row.getValue("retired");
+      return (
+        <Badge variant={retired ? "destructive" : "secondary"}>
+          {retired ? "Retired" : "Active"}
+        </Badge>
+      );
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => <ActionsCell athlete={row.original} />,
   },

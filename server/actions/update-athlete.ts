@@ -44,6 +44,7 @@ export async function updateAthlete(
         ? parseInt(rawData.poundForPoundRank as string)
         : 0,
       imageUrl: String(rawData.imageUrl),
+      retired: rawData.retired === "true",
     };
 
     const validatedData = athleteSchema.parse(data);
@@ -54,6 +55,7 @@ export async function updateAthlete(
         ...validatedData,
         rank: validatedData.rank ?? 0,
         poundForPoundRank: validatedData.poundForPoundRank ?? 0,
+        retired: validatedData.retired,
       },
     });
 

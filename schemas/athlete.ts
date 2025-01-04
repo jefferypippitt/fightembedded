@@ -24,4 +24,5 @@ export const athleteSchema = z.object({
   rank: z.coerce.number().int().min(0).default(0),
   poundForPoundRank: z.coerce.number().int().min(0).max(15).default(0),
   imageUrl: z.string().optional(),
+  retired: z.boolean().default(false),
 });
