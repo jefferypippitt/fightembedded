@@ -53,6 +53,7 @@ export function ChampionsSection({
               division={champion.weightDivision}
               isChampion={true}
               imageUrl={champion.imageUrl || "/default-avatar.png"}
+              retired={champion.retired || false}
             />
           ))}
         </div>
@@ -67,6 +68,7 @@ export function ChampionsSection({
               division={champion.weightDivision}
               isChampion={true}
               imageUrl={champion.imageUrl || "/default-avatar.png"}
+              retired={champion.retired || false}
             />
           ))}
         </div>
