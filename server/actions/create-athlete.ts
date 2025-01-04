@@ -43,6 +43,7 @@ export async function createAthlete(
         ? parseInt(rawData.poundForPoundRank as string)
         : 0,
       imageUrl: String(rawData.imageUrl),
+      retired: rawData.retired === "true",
     };
 
     const validatedData = athleteSchema.parse(data);
