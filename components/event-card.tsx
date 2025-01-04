@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { formatDate, cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface EventCardProps {
   name: string;
@@ -39,9 +40,9 @@ export default function EventCard({
           <h1 className="font-bold text-md text-gray-900 dark:text-white flex-1">
             {name}
           </h1>
-          <span className="text-xs font-bold whitespace-nowrap bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full">
+          <Badge variant="secondary" className="bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 hover:bg-red-600/10 dark:hover:bg-red-500/30">
             {formatDate(date)}
-          </span>
+          </Badge>
         </div>
 
         <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-200">

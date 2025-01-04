@@ -23,7 +23,7 @@ export default async function HeroSection() {
           variant="outline"
           className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
         >
-          <Dot className="h-4 w-4 animate-pulse text-red-600 dark:text-red-400" />
+          <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
           Live Stats
         </Badge>
         <Badge
