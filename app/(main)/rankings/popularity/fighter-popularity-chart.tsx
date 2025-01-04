@@ -10,6 +10,8 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+import { XLogo, InstagramLogo } from "@phosphor-icons/react";
+
 interface ChartData {
   name: string;
   male: number;
@@ -28,11 +30,11 @@ const chartConfig = {
     label: "Followers",
   },
   male: {
-    label: "Male Athletes",
+    label: "Followers",
     color: "hsl(var(--chart-1))",
   },
   female: {
-    label: "Female Athletes",
+    label: "Followers",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
@@ -63,7 +65,12 @@ export function FighterPopularityChart({
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle>Followers from X and Instagram</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Total Followers from
+            <XLogo className="h-5 w-5" />
+            and
+            <InstagramLogo className="h-5 w-5" />
+          </CardTitle>
         </div>
         <div className="flex">
           {(["male", "female"] as const).map((key) => (
