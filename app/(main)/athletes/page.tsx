@@ -105,6 +105,7 @@ async function Athletes({
           rank={athlete.rank}
           followers={athlete.followers}
           age={athlete.age}
+          retired={athlete.retired ?? false}
         />
       ))}
       {filteredAthletes.length === 0 && (

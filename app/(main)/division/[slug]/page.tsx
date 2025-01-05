@@ -105,6 +105,7 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
           rank={athlete.rank}
           followers={athlete.followers}
           age={athlete.age}
+          retired={athlete.retired ?? false}
         />
       ))}
     </div>
