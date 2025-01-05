@@ -64,7 +64,7 @@ export function AthleteListCard({
         <div className="flex justify-between items-center mb-3">
           {retired ? (
             <Badge
-              variant="destructive"
+              variant="outline"
               className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
             >
               Retired
