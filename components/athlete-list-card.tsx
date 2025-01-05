@@ -20,6 +20,7 @@ interface AthleteListCardProps {
   followers?: number;
   record?: string;
   age?: number;
+  retired?: boolean;
 }
 
 export function AthleteListCard({
@@ -34,6 +35,7 @@ export function AthleteListCard({
   rank,
   followers = 0,
   age,
+  retired,
 }: AthleteListCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -60,7 +62,14 @@ export function AthleteListCard({
       <CardContent className="p-3 relative z-10">
         {/* Top Badge - Only Ranking */}
         <div className="flex justify-between items-center mb-3">
-          {rank ? (
+          {retired ? (
+            <Badge
+              variant="destructive"
+              className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
+            >
+              Retired
+            </Badge>
+          ) : rank ? (
             <Badge
               variant="outline"
               className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
