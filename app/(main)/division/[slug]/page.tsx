@@ -9,6 +9,7 @@ import {
 } from "@/data/weight-class";
 import { AthleteListCard } from "@/components/athlete-list-card";
 import { AthleteListCardSkeleton } from "./loading";
+import { Badge } from "@/components/ui/badge";
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;
@@ -148,10 +149,14 @@ export default async function DivisionPage({ params }: PageProps) {
 
   return (
     <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-      <h1 className="text-2xl font-bold capitalize text-center">
-        {fullDivisionName} Division
-      </h1>
-
+      <div className="flex justify-center">
+        <Badge
+          variant="outline"
+          className="px-3 py-0.5 text-base sm:text-lg bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30 capitalize font-medium"
+        >
+          {fullDivisionName} Division
+        </Badge>
+      </div>
       <Suspense
         fallback={
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
