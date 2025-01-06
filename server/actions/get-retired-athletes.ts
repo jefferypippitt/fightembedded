@@ -1,0 +1,45 @@
+"use server";
+
+import prisma from "@/lib/prisma";
+import { Athlete } from "@/types/athlete";
+
+export async function getRetiredAthletes(): Promise<Athlete[]> {
+  try {
+    const athletes = await prisma.athlete.findMany({
+      where: {
+        retired: true,
+      },
+      orderBy: [
+        { followers: "desc" },
+        { name: "asc" }, // Secondary sort by name
+      ],
+      select: {
+        id: true,
+        name: true,
+        gender: true,
+        weightDivision: true,
+        country: true,
+        wins: true,
+        losses: true,
+        draws: true,
+        winsByKo: true,
+        winsBySubmission: true,
+        followers: true,
+        imageUrl: true,
+        retired: true,
+        age: true,
+        rank: true,
+      },
+    });
+
+    // Cast the gender field to match Athlete type
+    return athletes.map((athlete) => ({
+      ...athlete,
+      gender: athlete.gender as "MALE" | "FEMALE",
+      retired: athlete.retired ?? false,
+    }));
+  } catch (error) {
+    console.error("Error fetching retired athletes:", error);
+    throw new Error("Failed to fetch retired athletes");
+  }
+}

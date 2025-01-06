@@ -148,6 +148,13 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <Link
+              href="/retired"
+              className="text-sm font-medium hover:text-primary"
+            >
+              Retired
+            </Link>
+
             <ModeToggle />
           </nav>
 
@@ -236,6 +243,13 @@ export default function Navbar() {
                       ))}
                     </div>
                   </div>
+
+                  <Link
+                    href="/retired"
+                    className="text-sm font-medium hover:text-primary"
+                  >
+                    Retired
+                  </Link>
                 </nav>
               </SheetContent>
             </Sheet>

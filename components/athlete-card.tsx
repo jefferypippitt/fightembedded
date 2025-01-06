@@ -9,7 +9,7 @@ import Image from "next/image";
 interface AthleteCardProps {
   name: string;
   division: string;
-  gender: string;
+  gender: "MALE" | "FEMALE";
   imageUrl?: string;
   country: string;
   wins?: number;
@@ -22,6 +22,7 @@ interface AthleteCardProps {
   poundForPoundRank?: number;
   isChampion?: boolean;
   retired?: boolean;
+  age?: number;
 }
 
 export function AthleteCard({
@@ -37,6 +38,7 @@ export function AthleteCard({
   poundForPoundRank = 0,
   isChampion = false,
   retired = false,
+  followers,
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -74,11 +76,11 @@ export function AthleteCard({
             <span className="text-[10px] sm:text-xs font-medium text-gray-900 dark:text-white">
               P4P #{poundForPoundRank}
             </span>
-          ) : (
+          ) : !retired ? (
             <span className="text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400">
               NR
             </span>
-          )}
+          ) : null}
         </div>
         <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
           <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
@@ -102,6 +104,13 @@ export function AthleteCard({
                   {record}
                 </span>
               </div>
+              {followers !== undefined && (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300">
+                    {followers.toLocaleString()} followers
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -140,10 +149,7 @@ export function AthleteCard({
           </div>
         </div>
         {retired && (
-          <Badge 
-            variant="destructive" 
-            className="absolute top-2 right-2"
-          >
+          <Badge variant="destructive" className="absolute top-2 right-2">
             Retired
           </Badge>
         )}

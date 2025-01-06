@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { athleteSchema } from "@/schemas/athlete";
 
-
 export type AthleteInput = z.infer<typeof athleteSchema>;
 
 export type ActionResponse = {
@@ -11,18 +10,19 @@ export type ActionResponse = {
 };
 
 export interface Athlete {
-  id: string
-  name: string
-  rank?: number
-  weightDivision: string
-  gender: 'MALE' | 'FEMALE'
-  country: string
-  wins: number
-  losses: number
-  draws: number
-  winsByKo: number
-  winsBySubmission: number
-  followers?: number
-  imageUrl?: string | null
-  retired?: boolean
-} 
+  id: string;
+  name: string;
+  rank?: number;
+  weightDivision: string;
+  gender: "MALE" | "FEMALE";
+  country: string;
+  wins: number;
+  losses: number;
+  draws: number;
+  winsByKo: number;
+  winsBySubmission: number;
+  followers?: number;
+  imageUrl?: string | null;
+  retired?: boolean;
+  age: number;
+}
