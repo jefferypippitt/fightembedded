@@ -2,7 +2,6 @@
 
 import prisma from "@/lib/prisma";
 import { Athlete } from "@/types/athlete";
-import { revalidatePath } from "next/cache";
 
 export async function getRetiredAthletes(): Promise<Athlete[]> {
   try {
@@ -29,8 +28,6 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
         rank: true,
       },
     });
-
-    revalidatePath("/retired");
 
     return athletes.map((athlete) => ({
       ...athlete,

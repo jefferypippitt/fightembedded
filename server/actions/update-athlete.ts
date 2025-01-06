@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
+import { revalidatePath } from "next/cache";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -94,5 +95,26 @@ export async function updateAthlete(
           ? `Error updating athlete: ${error.message}`
           : "Failed to update athlete",
     };
+  }
+}
+
+export async function updateAthleteStatus(
+  athleteId: string, 
+  retired: boolean
+): Promise<Athlete> {
+  try {
+    const updatedAthlete = await prisma.athlete.update({
+      where: { id: athleteId },
+      data: { retired },
+    });
+
+    revalidatePath("/retired");
+    revalidatePath("/athletes");
+    revalidatePath(`/athlete/${athleteId}`);
+
+    return updatedAthlete as Athlete;
+  } catch (error) {
+    console.error("Error updating athlete status:", error);
+    throw new Error("Failed to update athlete status");
   }
 }
