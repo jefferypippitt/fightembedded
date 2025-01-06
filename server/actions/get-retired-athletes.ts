@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { Athlete } from "@/types/athlete";
+import { revalidatePath } from "next/cache";
 
 export async function getRetiredAthletes(): Promise<Athlete[]> {
   try {
@@ -9,10 +10,7 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
       where: {
         retired: true,
       },
-      orderBy: [
-        { followers: "desc" },
-        { name: "asc" }, // Secondary sort by name
-      ],
+      orderBy: [{ followers: "desc" }, { name: "asc" }],
       select: {
         id: true,
         name: true,
@@ -32,7 +30,8 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
       },
     });
 
-    // Cast the gender field to match Athlete type
+    revalidatePath("/retired");
+
     return athletes.map((athlete) => ({
       ...athlete,
       gender: athlete.gender as "MALE" | "FEMALE",
