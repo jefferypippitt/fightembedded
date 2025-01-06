@@ -50,6 +50,7 @@ export function ChampionsSection({
             <AthleteCard
               key={champion.id}
               {...champion}
+              gender={champion.gender as "MALE" | "FEMALE"}
               division={champion.weightDivision}
               isChampion={true}
               imageUrl={champion.imageUrl || "/default-avatar.png"}
@@ -65,6 +66,7 @@ export function ChampionsSection({
             <AthleteCard
               key={champion.id}
               {...champion}
+              gender={champion.gender as "MALE" | "FEMALE"}
               division={champion.weightDivision}
               isChampion={true}
               imageUrl={champion.imageUrl || "/default-avatar.png"}
