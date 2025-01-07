@@ -60,6 +60,15 @@ export async function updateAthlete(
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/athletes");
+    revalidatePath("/retired");
+    revalidatePath(`/athlete/${id}`);
+    revalidatePath("/rankings/divisions");
+    revalidatePath("/rankings/popularity");
+    revalidatePath("/division/[slug]", "page");
+    revalidatePath("/dashboard/athletes");
+
     return {
       status: "success",
       message: "Athlete updated successfully",
@@ -99,7 +108,7 @@ export async function updateAthlete(
 }
 
 export async function updateAthleteStatus(
-  athleteId: string, 
+  athleteId: string,
   retired: boolean
 ): Promise<Athlete> {
   try {

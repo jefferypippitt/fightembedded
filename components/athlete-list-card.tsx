@@ -83,8 +83,8 @@ export function AthleteListCard({
           )}
           {age && (
             <Badge
-              variant="secondary"
-              className="text-[10px] px-2 py-0 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+              variant="outline"
+              className="text-[10px] px-2 py-0 bg-zinc-600/10 dark:bg-zinc-500/30 text-zinc-700 dark:text-zinc-300 border-zinc-600/20 dark:border-zinc-500/30"
             >
               Age: {age}
             </Badge>
