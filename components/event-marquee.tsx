@@ -38,7 +38,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
           Upcoming Events
         </Badge>
       </div>
-      <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-background px-4">
+      <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-zinc-950 border-red-600/20 dark:border-red-600/20 px-4">
         <div className="w-[900px] mx-auto">
           <Marquee pauseOnHover className="[--duration:40s]">
             {events.map((event) => (

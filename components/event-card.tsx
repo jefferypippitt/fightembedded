@@ -23,16 +23,13 @@ export default function EventCard({
       className={cn(
         "group w-[400px] h-32 mx-3 hover:shadow-lg transition-all duration-300",
         "relative overflow-hidden",
-        "border-red-600/20 dark:border-red-500/30",
-        "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-        "dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900",
+        "border-red-600/20 dark:border-red-600/20",
+        "bg-white dark:bg-zinc-950",
         "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-red-600/0 before:via-red-600/5 before:to-red-600/0",
-        "dark:before:from-red-500/0 dark:before:via-red-500/20 dark:before:to-red-500/0",
+        "before:from-transparent before:via-red-600/5 before:to-transparent",
+        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
         "hover:before:opacity-100 before:transition-opacity",
-        "after:absolute after:inset-0 after:bg-gradient-to-t",
-        "after:from-black/5 after:to-transparent",
-        "dark:after:from-black/40 dark:after:to-transparent"
+        "hover:bg-gray-50 dark:hover:bg-black"
       )}
     >
       <CardContent className="p-2.5 h-full flex flex-col justify-between relative z-10">
@@ -40,7 +37,10 @@ export default function EventCard({
           <h1 className="font-bold text-md text-gray-900 dark:text-white flex-1">
             {name}
           </h1>
-          <Badge variant="secondary" className="bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 hover:bg-red-600/10 dark:hover:bg-red-500/30">
+          <Badge
+            variant="secondary"
+            className="bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 hover:bg-red-600/10 dark:hover:bg-red-500/30"
+          >
             {formatDate(date)}
           </Badge>
         </div>

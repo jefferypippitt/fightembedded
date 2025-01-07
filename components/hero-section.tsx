@@ -58,16 +58,13 @@ export default async function HeroSection() {
               className={cn(
                 "absolute inset-0 rounded-lg",
                 "h-full group relative overflow-hidden transition-all duration-300",
-                "border border-red-600/20 dark:border-red-500/30",
-                "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-                "dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900",
+                "border border-red-600/20 dark:border-red-600/20",
+                "bg-white dark:bg-zinc-950",
                 "before:absolute before:inset-0 before:bg-gradient-to-r",
-                "before:from-red-600/0 before:via-red-600/5 before:to-red-600/0",
-                "dark:before:from-red-500/0 dark:before:via-red-500/20 dark:before:to-red-500/0",
+                "before:from-transparent before:via-red-600/5 before:to-transparent",
+                "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
                 "hover:before:opacity-100 before:transition-opacity",
-                "after:absolute after:inset-0 after:bg-gradient-to-t",
-                "after:from-black/5 after:to-transparent",
-                "dark:after:from-black/40 dark:after:to-transparent"
+                "hover:bg-gray-50 dark:hover:bg-black"
               )}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center space-y-1 rounded-lg">

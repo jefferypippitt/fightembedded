@@ -71,12 +71,11 @@ export function P4PSidebarClient({
     <Card
       className={cn(
         "h-full flex flex-col",
-        "border-red-600/20 dark:border-red-500/30",
-        "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-        "dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900",
+        "border-red-600/20 dark:border-red-600/20",
+        "bg-white dark:bg-zinc-950",
         "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-red-600/0 before:via-red-600/5 before:to-red-600/0",
-        "dark:before:from-red-500/0 dark:before:via-red-500/20 dark:before:to-red-500/0",
+        "before:from-transparent before:via-red-600/5 before:to-transparent",
+        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
         "relative overflow-hidden"
       )}
     >
