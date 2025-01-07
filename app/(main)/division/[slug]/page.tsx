@@ -10,6 +10,7 @@ import {
 import { AthleteListCard } from "@/components/athlete-list-card";
 import { AthleteListCardSkeleton } from "./loading";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;
@@ -76,9 +77,18 @@ async function Athletes({ fullDivisionName }: { fullDivisionName: string }) {
 
   if (athletes.length === 0) {
     return (
-      <p className="text-muted-foreground">
-        No athletes found in this division.
-      </p>
+      <div className="text-center space-y-2">
+        <p className="text-muted-foreground">
+          No active athletes found in this division.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Note: Retired athletes can be found in the{" "}
+          <Link href="/retired" className="text-primary hover:underline">
+            retired athletes
+          </Link>{" "}
+          section.
+        </p>
+      </div>
     );
   }
 

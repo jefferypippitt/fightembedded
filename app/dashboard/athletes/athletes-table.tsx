@@ -41,8 +41,8 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "rankAndName",
-      desc: false
-    }
+      desc: false,
+    },
   ]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -69,17 +69,19 @@ export default function AthletesTable({ athletes }: AthletesTableProps) {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl font-bold">Manage Athletes</h1>
         <Button variant="default" size="sm" asChild>
-            <Link href="/dashboard/new-athlete">
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Add Athlete
-            </Link>
-          </Button>
+          <Link href="/dashboard/athletes/new">
+            <PlusCircle className="h-4 w-4 mr-1" />
+            Add Athlete
+          </Link>
+        </Button>
       </div>
 
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter by name..."
-          value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
             table.getColumn("rankAndName")?.setFilterValue(event.target.value)
           }

@@ -128,10 +128,10 @@ export default function AthletesPage({
       <div className="space-y-6">
         <div className="space-y-4">
           <div className="flex justify-center mb-6">
-            <Badge
-              variant="outline"
-              className="px-4 py-1.5 text-xl sm:text-2xl bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
-            >
+          <Badge
+          variant="outline"
+          className="px-3 py-0.5 text-base sm:text-lg bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30 capitalize font-medium"
+        >
               All UFC Athletes
             </Badge>
           </div>

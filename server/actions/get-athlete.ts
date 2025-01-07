@@ -11,8 +11,9 @@ export async function getAthletesByDivision(
       where: {
         weightDivision: {
           equals: divisionName,
-          mode: 'insensitive',
+          mode: "insensitive",
         },
+        retired: false,
       },
     });
 
@@ -26,7 +27,7 @@ export async function getAthletesByDivision(
 export async function getAthlete(id: string) {
   try {
     const athlete = await prisma.athlete.findUnique({
-      where: { id }
+      where: { id },
     });
     return athlete;
   } catch (error) {
