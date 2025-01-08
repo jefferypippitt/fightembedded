@@ -17,7 +17,6 @@ interface AthleteCardProps {
   draws?: number;
   winsByKo?: number;
   winsBySubmission?: number;
-  followers?: number;
   rank?: number;
   poundForPoundRank?: number;
   isChampion?: boolean;
@@ -38,7 +37,6 @@ export function AthleteCard({
   poundForPoundRank = 0,
   isChampion = false,
   retired = false,
-  followers,
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -101,13 +99,6 @@ export function AthleteCard({
                   {record}
                 </span>
               </div>
-              {followers !== undefined && (
-                <div className="flex items-center gap-1">
-                  <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300">
-                    {followers.toLocaleString()} followers
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>

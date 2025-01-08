@@ -16,9 +16,9 @@ export default async function HeroSection() {
   ];
 
   return (
-    <div className="flex flex-col items-center text-center space-y-2 px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 w-full max-w-5xl mx-auto">
+    <div className="flex flex-col items-center text-center space-y-2 px-3 sm:px-4 lg:px-6 py-2 sm:py-4 lg:py-6 w-full max-w-5xl mx-auto">
       {/* Live Stats Badge */}
-      <div className="flex items-center gap-1.5 mb-2">
+      <div className="flex items-center gap-1.5 mb-1">
         <Badge
           variant="outline"
           className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
@@ -51,7 +51,7 @@ export default async function HeroSection() {
       </p>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 w-full max-w-xl">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 w-full max-w-xl">
         {statsData.map((stat, index) => (
           <div key={index} className="group relative h-20">
             <div

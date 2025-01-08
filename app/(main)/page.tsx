@@ -22,7 +22,7 @@ export default async function Home() {
   const events = await getUpcomingEvents();
 
   return (
-    <div className="flex flex-col w-full gap-4 sm:gap-6">
+    <div className="flex flex-col w-full gap-2 sm:gap-4">
       <HeroSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 min-h-[800px]">
