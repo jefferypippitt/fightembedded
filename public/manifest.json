@@ -1,18 +1,16 @@
 {
-  "name": "fightembedded.com",
+  "name": "Fight Embedded",
   "short_name": "Fight Embedded",
   "icons": [
     {
-      "src": "/favicon.ico/web-app-manifest-192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     },
     {
-      "src": "/favicon.ico/web-app-manifest-512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "type": "image/png"
     }
   ],
   "theme_color": "#ffffff",
