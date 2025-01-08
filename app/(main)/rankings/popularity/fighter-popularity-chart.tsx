@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/chart";
 
 import { XLogo, InstagramLogo } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
 
 interface ChartData {
   name: string;
@@ -62,14 +63,25 @@ export function FighterPopularityChart({
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
+    <Card
+      className={cn(
+        "h-full group relative overflow-hidden transition-all duration-300",
+        "border-red-600/20 dark:border-red-600/20",
+        "bg-white dark:bg-zinc-950",
+        "before:absolute before:inset-0 before:bg-gradient-to-r",
+        "before:from-transparent before:via-red-600/5 before:to-transparent",
+        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
+        "hover:before:opacity-100 before:transition-opacity",
+        "hover:bg-gray-50 dark:hover:bg-black"
+      )}
+    >
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b border-red-600/20 dark:border-red-600/20 p-0 sm:flex-row relative z-10">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
             Total Followers from
-            <XLogo className="h-5 w-5" />
+            <XLogo className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             and
-            <InstagramLogo className="h-5 w-5" />
+            <InstagramLogo className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </CardTitle>
         </div>
         <div className="flex">
@@ -77,20 +89,26 @@ export function FighterPopularityChart({
             <button
               key={key}
               data-active={activeChart === key}
-              className="relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+              className={cn(
+                "relative z-30 flex flex-1 flex-col justify-center gap-1",
+                "border-t border-red-600/20 dark:border-red-600/20 px-6 py-4 text-left",
+                "even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6",
+                "hover:bg-red-600/5 dark:hover:bg-red-500/10",
+                "data-[active=true]:bg-red-600/10 dark:data-[active=true]:bg-red-500/20"
+              )}
               onClick={() => setActiveChart(key)}
             >
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-gray-600 dark:text-gray-300">
                 {chartConfig[key].label}
               </span>
-              <span className="text-lg font-bold leading-none sm:text-3xl">
+              <span className="text-lg font-bold leading-none sm:text-3xl text-gray-900 dark:text-white">
                 {total[key].toLocaleString()}
               </span>
             </button>
           ))}
         </div>
       </CardHeader>
-      <CardContent className="px-4 sm:p-6">
+      <CardContent className="px-4 sm:p-6 relative z-10">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[500px] w-full"
@@ -117,6 +135,11 @@ export function FighterPopularityChart({
               tickFormatter={(value) => value.toLocaleString()}
               fontSize={10}
               tickMargin={10}
+              tick={{
+                fill: "hsl(var(--foreground))",
+                fontSize: "10px",
+                fontWeight: 500,
+              }}
             />
             <YAxis
               dataKey="name"
@@ -125,12 +148,17 @@ export function FighterPopularityChart({
               axisLine={false}
               width={150}
               interval={0}
+              tick={{
+                fill: "hsl(var(--foreground))",
+                fontSize: "11px",
+                fontWeight: 500,
+              }}
             />
             <ChartTooltip
               cursor={{ fill: "hsl(var(--muted))" }}
               content={
                 <ChartTooltipContent
-                  className="w-[250px]"
+                  className="w-[250px] bg-white dark:bg-zinc-950 border border-red-600/20 dark:border-red-600/20 shadow-lg text-xs font-medium"
                   nameKey={activeChart}
                 />
               }
