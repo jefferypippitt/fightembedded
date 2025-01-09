@@ -1,9 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 import { Athlete } from "@/types/athlete";
 
 export async function getRetiredAthletes(): Promise<Athlete[]> {
+  // Disable caching at the data source
+  noStore();
+
   try {
     const athletes = await prisma.athlete.findMany({
       where: {
