@@ -65,14 +65,11 @@ export function FighterPopularityChart({
   return (
     <Card
       className={cn(
-        "h-full group relative overflow-hidden transition-all duration-300",
+        "h-full relative overflow-hidden",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-white dark:bg-zinc-950",
-        "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-transparent before:via-red-600/5 before:to-transparent",
-        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
-        "hover:before:opacity-100 before:transition-opacity",
-        "hover:bg-gray-50 dark:hover:bg-black"
+        "bg-gray-50 dark:bg-black",
+        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
+        "dark:from-transparent dark:via-red-600/10 dark:to-transparent"
       )}
     >
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b border-red-600/20 dark:border-red-600/20 p-0 sm:flex-row relative z-10">
@@ -93,7 +90,7 @@ export function FighterPopularityChart({
                 "relative z-30 flex flex-1 flex-col justify-center gap-1",
                 "border-t border-red-600/20 dark:border-red-600/20 px-6 py-4 text-left",
                 "even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6",
-                "hover:bg-red-600/5 dark:hover:bg-red-500/10",
+                "bg-red-600/5 dark:bg-red-500/10",
                 "data-[active=true]:bg-red-600/10 dark:data-[active=true]:bg-red-500/20"
               )}
               onClick={() => setActiveChart(key)}

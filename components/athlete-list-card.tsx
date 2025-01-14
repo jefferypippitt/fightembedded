@@ -46,14 +46,11 @@ export function AthleteListCard({
   return (
     <Card
       className={cn(
-        "h-full group relative overflow-hidden transition-all duration-300",
+        "h-full relative overflow-hidden",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-white dark:bg-zinc-950",
-        "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-transparent before:via-red-600/5 before:to-transparent",
-        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
-        "hover:before:opacity-100 before:transition-opacity",
-        "hover:bg-gray-50 dark:hover:bg-black"
+        "bg-gray-50 dark:bg-black",
+        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
+        "dark:from-transparent dark:via-red-600/10 dark:to-transparent"
       )}
     >
       <CardContent className="p-3 relative z-10">

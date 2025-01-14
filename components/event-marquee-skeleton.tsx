@@ -10,12 +10,9 @@ function EventCardSkeleton() {
         "w-[400px] h-32 mx-3",
         "relative overflow-hidden",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-white dark:bg-zinc-950",
-        "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-transparent before:via-red-600/5 before:to-transparent",
-        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
-        "hover:before:opacity-100 before:transition-opacity",
-        "hover:bg-gray-50 dark:hover:bg-black"
+        "bg-gray-50 dark:bg-black",
+        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
+        "dark:from-transparent dark:via-red-600/10 dark:to-transparent"
       )}
     >
       <CardContent className="p-2.5 h-full flex flex-col justify-between">
@@ -50,7 +47,7 @@ export function EventMarqueeSkeleton() {
           <Skeleton className="h-5 w-32" />
         </Badge>
       </div>
-      <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-zinc-950 border-red-600/20 dark:border-red-600/20 px-4">
+      <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-gray-50 dark:bg-black border-red-600/20 dark:border-red-600/20 px-4">
         <div className="w-[900px] mx-auto py-4 flex gap-4">
           <EventCardSkeleton />
           <EventCardSkeleton />

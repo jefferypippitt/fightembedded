@@ -72,10 +72,9 @@ export function P4PSidebarClient({
       className={cn(
         "h-full flex flex-col",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-white dark:bg-zinc-950",
-        "before:absolute before:inset-0 before:bg-gradient-to-r",
-        "before:from-transparent before:via-red-600/5 before:to-transparent",
-        "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
+        "bg-gray-50 dark:bg-black",
+        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
+        "dark:from-transparent dark:via-red-600/10 dark:to-transparent",
         "relative overflow-hidden"
       )}
     >

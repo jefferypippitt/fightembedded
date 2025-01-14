@@ -4,7 +4,7 @@ import NumberTicker from "./ui/number-ticker";
 import { cn } from "@/lib/utils";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
-import { Dot, ChevronRight } from "lucide-react";
+import { ChevronRight, Dot } from "lucide-react";
 
 export default async function HeroSection() {
   const stats = await getStats();
@@ -21,10 +21,10 @@ export default async function HeroSection() {
       {/* Live Stats Badge */}
       <Badge
         variant="outline"
-        className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30 animate-fade-in"
+        className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30"
       >
         <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
-        Post-Event Updates
+        Updated Weekly
       </Badge>
 
       {/* Main Heading */}
@@ -32,7 +32,7 @@ export default async function HeroSection() {
         <span className="block pb-1 text-gray-800 dark:text-gray-100">
           Your Ultimate Source for
         </span>
-        <span className="block leading-tight bg-[length:200%_auto] animate-gradient bg-gradient-to-r from-red-600 via-red-500 to-red-600 dark:from-red-400 dark:via-red-500 dark:to-red-400 bg-clip-text text-transparent">
+        <span className="block leading-tight text-red-600 dark:text-red-400">
           UFC Fighter Stats
         </span>
       </h1>
@@ -56,17 +56,13 @@ export default async function HeroSection() {
       {/* Stats Section */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 w-full max-w-xl">
         {statsData.map((stat, index) => (
-          <div key={index} className="group relative h-20">
+          <div key={index} className="relative h-20">
             <div
               className={cn(
                 "absolute inset-0 rounded-lg",
-                "h-full group relative overflow-hidden transition-all duration-300",
+                "h-full relative overflow-hidden",
                 "border border-red-600/20 dark:border-red-600/20",
                 "bg-white dark:bg-zinc-950",
-                "before:absolute before:inset-0 before:bg-gradient-to-r",
-                "before:from-transparent before:via-red-600/5 before:to-transparent",
-                "dark:before:from-transparent dark:before:via-red-600/10 dark:before:to-transparent",
-                "hover:before:opacity-100 before:transition-opacity",
                 "hover:bg-gray-50 dark:hover:bg-black"
               )}
             />
