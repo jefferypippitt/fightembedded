@@ -1,29 +1,38 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { SunIcon } from "./sun";
-import { SparklesIcon } from "./sparkles";
+
+import { Button } from "@/components/ui/button";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 export function ModeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
-    <div
-      onClick={toggleTheme}
-      className="relative inline-flex items-center justify-center"
+    <Button
+      size="icon"
+      variant="ghost"
+      onClick={() => {
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
+      }}
     >
-      <div className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0">
-        <SunIcon />
-      </div>
-      <div className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100">
-        <SparklesIcon />
-      </div>
+      {resolvedTheme === "dark" ? (
+        <SunIcon className="h-4 w-4" />
+      ) : (
+        <MoonIcon className="h-4 w-4" />
+      )}
+
       <span className="sr-only">Toggle theme</span>
-    </div>
+    </Button>
   );
 }
