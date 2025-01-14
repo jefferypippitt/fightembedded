@@ -249,7 +249,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       endpoint="athleteImage"
                       appearance={{
                         button:
-                          "bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-9 px-3 py-1 text-sm rounded-md font-normal",
+                          "bg-primary text-primary-foreground hover:bg-primary/90 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input h-9 px-3 py-1 text-sm rounded-md font-normal",
                         allowedContent: "hidden",
                       }}
                       content={{
