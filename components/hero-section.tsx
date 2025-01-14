@@ -62,8 +62,9 @@ export default async function HeroSection() {
                 "absolute inset-0 rounded-lg",
                 "h-full relative overflow-hidden",
                 "border border-red-600/20 dark:border-red-600/20",
-                "bg-white dark:bg-zinc-950",
-                "hover:bg-gray-50 dark:hover:bg-black"
+                "bg-gray-50 dark:bg-zinc-950",
+                "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+                "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
               )}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center space-y-1 rounded-lg">

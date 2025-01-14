@@ -4,6 +4,7 @@ import { Event } from "@prisma/client";
 import Marquee from "@/components/ui/marquee";
 import EventCard from "./event-card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface EventMarqueeSectionProps {
   events: Event[];
@@ -38,7 +39,16 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
           Upcoming Events
         </Badge>
       </div>
-      <div className="relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-zinc-950 border-red-600/20 dark:border-red-600/20 px-4">
+      <div
+        className={cn(
+          "relative flex h-[180px] w-full flex-col items-center justify-center overflow-hidden rounded-lg",
+          "border border-red-600/20 dark:border-red-600/20",
+          "bg-gray-50 dark:bg-zinc-950",
+          "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+          "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
+          "px-4"
+        )}
+      >
         <div className="w-[900px] mx-auto">
           <Marquee pauseOnHover className="[--duration:40s]">
             {events.map((event) => (

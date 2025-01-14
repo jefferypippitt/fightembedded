@@ -7,9 +7,10 @@ export function P4PSidebarSkeleton() {
     <Card
       className={cn(
         "h-full flex flex-col",
-        "border-red-600/20 dark:border-red-500/30",
-        "bg-gradient-to-br from-white via-gray-50 to-gray-100",
-        "dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900",
+        "border-red-600/20 dark:border-red-600/20",
+        "bg-gray-50 dark:bg-zinc-950",
+        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
         "relative overflow-hidden"
       )}
     >
@@ -33,4 +34,4 @@ export function P4PSidebarSkeleton() {
       </CardContent>
     </Card>
   );
-} 
+}

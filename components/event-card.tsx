@@ -24,9 +24,9 @@ export default function EventCard({
         "w-[400px] h-32 mx-3",
         "relative overflow-hidden",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-black",
-        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
-        "dark:from-transparent dark:via-red-600/10 dark:to-transparent"
+        "bg-gray-50 dark:bg-zinc-950",
+        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
       )}
     >
       <CardContent className="p-2.5 h-full flex flex-col justify-between relative z-10">

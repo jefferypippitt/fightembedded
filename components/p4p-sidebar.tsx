@@ -72,15 +72,15 @@ export function P4PSidebarClient({
       className={cn(
         "h-full flex flex-col",
         "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-black",
-        "bg-gradient-to-r from-transparent via-red-600/5 to-transparent",
-        "dark:from-transparent dark:via-red-600/10 dark:to-transparent",
+        "bg-gray-50 dark:bg-zinc-950",
+        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
         "relative overflow-hidden"
       )}
     >
       <CardHeader className="p-2 pb-0 shrink-0 relative z-10">
         <div className="flex items-center justify-center mb-2">
-          <h1 className="text-sm text-gray-700 dark:text-gray-200">
+          <h1 className="text-sm text-gray-700 dark:text-gray-200 font-semibold">
             Pound for Pound Rankings
           </h1>
         </div>

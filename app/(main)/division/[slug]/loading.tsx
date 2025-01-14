@@ -1,9 +1,18 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export function AthleteListCardSkeleton() {
   return (
-    <Card className="hover:bg-accent/50 transition-colors">
+    <Card
+      className={cn(
+        "h-full relative overflow-hidden",
+        "border-red-600/20 dark:border-red-600/20",
+        "bg-gray-50 dark:bg-zinc-950",
+        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
+      )}
+    >
       <CardContent className="p-3">
         {/* Top Badge - Ranking and Age */}
         <div className="flex justify-between items-center mb-3">
