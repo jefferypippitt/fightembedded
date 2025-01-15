@@ -1,53 +1,85 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import { ModeToggle } from "./theme-toggle";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
+import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
-import { useState } from "react";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const divisions = {
+  mens: weightClasses.men.map((division) => ({
+    title: division.name,
+    href: `/division/${generateDivisionSlug(division)}`,
+    description: `${division.weight}lbs`,
+    key: `mens-${division.name}`,
+  })),
+  womens: weightClasses.women.map((division) => ({
+    title: division.name,
+    href: `/division/${generateDivisionSlug(division, true)}`,
+    description: `${division.weight}lbs`,
+    key: `womens-${division.name}`,
+  })),
+};
+
+const rankings = [
+  {
+    title: "Fighter Popularity",
+    href: "/rankings/popularity",
+    description: "Top 20 Fighters",
+  },
+  {
+    title: "Division Rankings",
+    href: "/rankings/divisions",
+    description: "Top 5 per Division",
+  },
+];
+
+const ListItem = React.forwardRef<
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <NavigationMenuLink asChild>
+        <a
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className
+          )}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="text-xs text-muted-foreground mt-1">{children}</p>
+        </a>
+      </NavigationMenuLink>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default function Navbar() {
-  const [isWeightDropdownOpen, setIsWeightDropdownOpen] = useState(false);
-  const [isRankingsDropdownOpen, setIsRankingsDropdownOpen] = useState(false);
-
-  const handleLinkClick = () => {
-    setIsWeightDropdownOpen(false);
-    setIsRankingsDropdownOpen(false);
-  };
-
-  const rankings = [
-    {
-      name: "Fighter Popularity",
-      suffix: "(Top 20)",
-      href: "/rankings/popularity",
-    },
-    {
-      name: "Division Rankings",
-      suffix: "(Top 5)",
-      href: "/rankings/divisions",
-    },
-  ];
-
   return (
     <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
       <div className="flex items-center justify-between mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/icon.png"
@@ -59,201 +91,196 @@ export default function Navbar() {
           <h1 className="text-lg font-medium">Fight Embedded</h1>
         </Link>
 
-        <div className="flex items-center gap-6">
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/athletes"
-              className="text-sm font-medium hover:text-primary"
-            >
-              Athletes
-            </Link>
-
-            {/* Weight Divisions Dropdown */}
-            <DropdownMenu
-              open={isWeightDropdownOpen}
-              onOpenChange={setIsWeightDropdownOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium gap-2">
-                  Weight Divisions <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Men&apos;s Divisions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Men&apos;s
-                  </h3>
-                  {weightClasses.men.map((division) => (
-                    <Link
-                      key={division.name}
-                      href={`/division/${generateDivisionSlug(division)}`}
-                      className="block text-sm hover:text-primary"
-                      onClick={handleLinkClick}
-                    >
-                      {division.name}{" "}
-                      <span className="text-muted-foreground text-xs">
-                        ({division.weight} lbs)
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Women&apos;s Divisions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Women&apos;s
-                  </h3>
-                  {weightClasses.women.map((division) => (
-                    <Link
-                      key={division.name}
-                      href={`/division/${generateDivisionSlug(division, true)}`}
-                      className="block text-sm hover:text-primary"
-                      onClick={handleLinkClick}
-                    >
-                      {division.name}{" "}
-                      <span className="text-muted-foreground text-xs">
-                        ({division.weight} lbs)
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Rankings Dropdown */}
-            <DropdownMenu
-              open={isRankingsDropdownOpen}
-              onOpenChange={setIsRankingsDropdownOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-sm font-medium gap-2">
-                  Rankings <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {rankings.map((item) => (
-                  <DropdownMenuItem key={item.name} asChild>
-                    <Link href={item.href} onClick={handleLinkClick}>
-                      {item.name}{" "}
-                      <span className="text-muted-foreground text-xs">
-                        {item.suffix}
-                      </span>
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Link
-              href="/retired"
-              className="text-sm font-medium hover:text-primary"
-            >
-              Retired
-            </Link>
-
-            <ModeToggle />
-          </nav>
-
-          {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center gap-2">
-            <ModeToggle />
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <nav
-                  className="flex flex-col gap-6"
-                  aria-label="Mobile navigation"
-                >
+        <div className="hidden md:flex items-center gap-6">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
                   <Link
                     href="/athletes"
-                    className="text-sm font-medium hover:text-primary"
+                    className={navigationMenuTriggerStyle()}
                   >
                     Athletes
                   </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
 
-                  {/* Mobile Weight Divisions */}
-                  <div className="space-y-3">
-                    <h2 className="text-sm font-medium">Weight Divisions</h2>
-                    <div className="pl-4 space-y-4">
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-muted-foreground">
-                          Men&apos;s
-                        </h3>
-                        {weightClasses.men.map((division) => (
-                          <Link
-                            key={division.name}
-                            href={`/division/${generateDivisionSlug(division)}`}
-                            className="block text-sm hover:text-primary"
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Weight Divisions</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid w-[300px] gap-2 p-3">
+                    <div>
+                      <h3 className="text-xs font-medium text-muted-foreground mb-1">
+                        Men&apos;s Divisions
+                      </h3>
+                      <ul className="grid md:grid-cols-2 gap-1">
+                        {divisions.mens.map((division) => (
+                          <ListItem
+                            key={division.title}
+                            title={division.title}
+                            href={division.href}
+                            className="p-2"
                           >
-                            {division.name}{" "}
-                            <span className="text-muted-foreground text-xs">
-                              ({division.weight} lbs)
+                            {division.description}
+                          </ListItem>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="mt-2">
+                      <h3 className="text-xs font-medium text-muted-foreground mb-1">
+                        Women&apos;s Divisions
+                      </h3>
+                      <ul className="grid md:grid-cols-2 gap-1">
+                        {divisions.womens.map((division) => (
+                          <ListItem
+                            key={division.title}
+                            title={division.title}
+                            href={division.href}
+                            className="p-2"
+                          >
+                            {division.description}
+                          </ListItem>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid w-[280px] gap-1 p-3">
+                    {rankings.map((ranking) => (
+                      <ListItem
+                        key={ranking.title}
+                        title={ranking.title}
+                        href={ranking.href}
+                        className="p-2"
+                      >
+                        {ranking.description}
+                      </ListItem>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/retired"
+                    className={navigationMenuTriggerStyle()}
+                  >
+                    Retired
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+
+          <ModeToggle />
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden flex items-center gap-2">
+          <ModeToggle />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetTitle className="flex items-center gap-2">
+                <Image
+                  src="/icon.png"
+                  alt="Fight Embedded Logo"
+                  width={20}
+                  height={20}
+                  className="rounded-sm"
+                />
+                <span className="text-sm">Fight Embedded</span>
+              </SheetTitle>
+              <nav className="flex flex-col gap-3 mt-4">
+                <Link
+                  href="/athletes"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                >
+                  Athletes
+                </Link>
+
+                <div className="space-y-2">
+                  <h2 className="text-sm font-medium">Weight Divisions</h2>
+                  <div className="pl-2 space-y-2">
+                    <div className="space-y-1">
+                      <h3 className="text-xs font-medium text-muted-foreground">
+                        Men&apos;s
+                      </h3>
+                      <div className="grid grid-cols-2 gap-1">
+                        {divisions.mens.map((division) => (
+                          <Link
+                            key={division.key}
+                            href={division.href}
+                            className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <span className="block">{division.title}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {division.description}
                             </span>
                           </Link>
                         ))}
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium text-muted-foreground">
-                          Women&apos;s
-                        </h3>
-                        {weightClasses.women.map((division) => (
+                    </div>
+
+                    <div className="space-y-1">
+                      <h3 className="text-xs font-medium text-muted-foreground">
+                        Women&apos;s
+                      </h3>
+                      <div className="grid grid-cols-2 gap-1">
+                        {divisions.womens.map((division) => (
                           <Link
-                            key={division.name}
-                            href={`/division/${generateDivisionSlug(
-                              division,
-                              true
-                            )}`}
-                            className="block text-sm hover:text-primary"
+                            key={division.key}
+                            href={division.href}
+                            className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
-                            {division.name}{" "}
-                            <span className="text-muted-foreground text-xs">
-                              ({division.weight} lbs)
+                            <span className="block">{division.title}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              {division.description}
                             </span>
                           </Link>
                         ))}
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Mobile Rankings */}
-                  <div className="space-y-3">
-                    <h2 className="text-sm font-medium">Rankings</h2>
-                    <div className="pl-4 space-y-2">
+                <div className="space-y-2">
+                  <h2 className="text-sm font-medium">Rankings</h2>
+                  <div className="pl-2">
+                    <div className="grid grid-cols-2 gap-1">
                       {rankings.map((item) => (
                         <Link
-                          key={item.name}
+                          key={item.title}
                           href={item.href}
-                          className="block text-sm hover:text-primary"
+                          className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         >
-                          {item.name}{" "}
-                          <span className="text-muted-foreground text-xs">
-                            {item.suffix}
-                          </span>
+                          {item.title}
                         </Link>
                       ))}
                     </div>
                   </div>
+                </div>
 
-                  <Link
-                    href="/retired"
-                    className="text-sm font-medium hover:text-primary"
-                  >
-                    Retired
-                  </Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+                <Link
+                  href="/retired"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                >
+                  Retired
+                </Link>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </div>
