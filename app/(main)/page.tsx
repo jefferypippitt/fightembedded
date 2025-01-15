@@ -10,6 +10,7 @@ import { EventMarqueeSection } from "@/components/event-marquee";
 import HeroSection from "@/components/hero-section";
 import { Metadata } from "next";
 import { P4PRankings } from "@/components/p4p-rankings";
+import { AnimatedContainer } from "@/components/animated-container";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -22,7 +23,7 @@ export default async function Home() {
   const events = await getUpcomingEvents();
 
   return (
-    <div className="flex flex-col w-full gap-2 sm:gap-4">
+    <AnimatedContainer>
       <HeroSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 min-h-[800px]">
@@ -45,6 +46,6 @@ export default async function Home() {
           </Suspense>
         </aside>
       </div>
-    </div>
+    </AnimatedContainer>
   );
 }
