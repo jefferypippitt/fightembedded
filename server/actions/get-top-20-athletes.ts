@@ -18,6 +18,7 @@ export async function getTop20Athletes(): Promise<{
     const maleAthletes = await prisma.athlete.findMany({
       where: {
         gender: "MALE",
+        retired: false,
       },
       orderBy: {
         followers: "desc",
@@ -35,6 +36,7 @@ export async function getTop20Athletes(): Promise<{
     const femaleAthletes = await prisma.athlete.findMany({
       where: {
         gender: "FEMALE",
+        retired: false,
       },
       orderBy: {
         followers: "desc",

@@ -30,8 +30,9 @@ export async function getTop5Athletes(): Promise<DivisionRankings[]> {
           where: {
             weightDivision,
             AND: [
-              { rank: { gt: 0 } }, // Filter out rank 0 (unranked)
-              { rank: { lte: 5 } }, // Only include ranks 1-5
+              { rank: { gt: 0 } },
+              { rank: { lte: 5 } }, 
+              { retired: false }, 
             ],
           },
           orderBy: {
