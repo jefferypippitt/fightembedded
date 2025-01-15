@@ -62,7 +62,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground",
             className
           )}
           {...props}
@@ -98,7 +98,10 @@ export default function Navbar() {
                 <NavigationMenuLink asChild>
                   <Link
                     href="/athletes"
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "bg-transparent hover:bg-transparent focus:bg-transparent"
+                    )}
                   >
                     Athletes
                   </Link>
@@ -106,7 +109,9 @@ export default function Navbar() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Weight Divisions</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
+                  Weight Divisions
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="grid w-[300px] gap-2 p-3">
                     <div>
@@ -148,7 +153,9 @@ export default function Navbar() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Rankings</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
+                  Rankings
+                </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[280px] gap-1 p-3">
                     {rankings.map((ranking) => (
@@ -169,7 +176,10 @@ export default function Navbar() {
                 <NavigationMenuLink asChild>
                   <Link
                     href="/retired"
-                    className={navigationMenuTriggerStyle()}
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "bg-transparent hover:bg-transparent focus:bg-transparent"
+                    )}
                   >
                     Retired
                   </Link>
@@ -205,7 +215,7 @@ export default function Navbar() {
               <nav className="flex flex-col gap-3 mt-4">
                 <Link
                   href="/athletes"
-                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                 >
                   Athletes
                 </Link>
@@ -222,7 +232,7 @@ export default function Navbar() {
                           <Link
                             key={division.key}
                             href={division.href}
-                            className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
                             <span className="text-[10px] text-muted-foreground">
@@ -242,7 +252,7 @@ export default function Navbar() {
                           <Link
                             key={division.key}
                             href={division.href}
-                            className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
                             <span className="text-[10px] text-muted-foreground">
@@ -263,7 +273,7 @@ export default function Navbar() {
                         <Link
                           key={item.title}
                           href={item.href}
-                          className="block select-none rounded-md px-2 py-1.5 text-xs no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                         >
                           {item.title}
                         </Link>
@@ -274,7 +284,7 @@ export default function Navbar() {
 
                 <Link
                   href="/retired"
-                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                 >
                   Retired
                 </Link>
