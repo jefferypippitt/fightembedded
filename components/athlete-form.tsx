@@ -248,7 +248,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     <UploadButton
                       endpoint="athleteImage"
                       appearance={{
-                        button: "inline-flex items-center justify-center rounded-md text-sm font-medium px-3 h-9 border bg-background text-foreground",
+                        button:
+                          "inline-flex items-center justify-center rounded-md text-sm font-medium px-3 h-9 border bg-background hover:bg-accent hover:text-accent-foreground dark:text-white dark:hover:bg-accent",
                         allowedContent: "hidden",
                       }}
                       content={{
