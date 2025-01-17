@@ -24,7 +24,7 @@ export default async function HeroSection() {
         className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30"
       >
         <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
-        Updated Weekly
+        Live Updates
       </Badge>
 
       {/* Main Heading */}
