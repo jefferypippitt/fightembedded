@@ -1,19 +1,36 @@
 import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
-import { cn } from "@/lib/utils";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, Dot } from "lucide-react";
+import { ChevronRight, Dot, Trophy, Users, Weight, Calendar } from "lucide-react";
 
 export default async function HeroSection() {
   const stats = await getStats();
 
   const statsData = [
-    { value: stats.activeAthletes, label: "UFC Athletes", suffix: "+" },
-    { value: stats.weightClasses, label: "Weight Classes" },
-    { value: stats.champions, label: "Champions" },
-    { value: stats.events, label: "Events", suffix: "+" },
+    { 
+      value: stats.activeAthletes, 
+      label: "UFC Athletes", 
+      suffix: "+",
+      icon: <Users className="h-3.5 w-3.5" />
+    },
+    { 
+      value: stats.weightClasses, 
+      label: "Weight Classes",
+      icon: <Weight className="h-3.5 w-3.5" />
+    },
+    { 
+      value: stats.champions, 
+      label: "Champions",
+      icon: <Trophy className="h-3.5 w-3.5" />
+    },
+    { 
+      value: stats.events, 
+      label: "Events", 
+      suffix: "+",
+      icon: <Calendar className="h-3.5 w-3.5" />
+    },
   ];
 
   return (
@@ -32,8 +49,9 @@ export default async function HeroSection() {
         <span className="block pb-1 text-gray-800 dark:text-gray-100">
           Your Ultimate Source for
         </span>
-        <span className="block leading-tight text-red-600 dark:text-red-400">
+        <span className="relative block leading-tight text-red-600 dark:text-red-400">
           UFC Fighter Stats
+          <span className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/70 to-transparent"></span>
         </span>
       </h1>
 
@@ -56,28 +74,27 @@ export default async function HeroSection() {
       {/* Stats Section */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 w-full max-w-xl">
         {statsData.map((stat, index) => (
-          <div key={index} className="relative h-20">
-            <div
-              className={cn(
-                "absolute inset-0 rounded-lg",
-                "h-full relative overflow-hidden",
-                "border border-red-600/20 dark:border-red-600/20",
-                "bg-gray-50 dark:bg-zinc-950",
-                "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-                "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
-              )}
-            />
+          <div key={index} className="relative h-20 group">
+            {/* Clean, minimal card design */}
+           
+            
             <div className="absolute inset-0 flex flex-col items-center justify-center space-y-1 rounded-lg">
-              <div className="flex items-center justify-center h-6">
-                <NumberTicker
-                  value={stat.value}
-                  className="text-lg font-bold text-red-600 dark:text-red-400"
-                />
-                {stat.suffix && (
-                  <span className="text-lg font-bold text-red-600 dark:text-red-400">
-                    {stat.suffix}
-                  </span>
-                )}
+              {/* Icon and Value row */}
+              <div className="flex items-center justify-center h-6 space-x-1.5">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-100/80 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+                  {stat.icon}
+                </div>
+                <div className="flex items-center">
+                  <NumberTicker
+                    value={stat.value}
+                    className="text-lg font-bold text-red-600 dark:text-red-400"
+                  />
+                  {stat.suffix && (
+                    <span className="text-lg font-bold text-red-600 dark:text-red-400">
+                      {stat.suffix}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="h-4 flex items-center justify-center">
                 <span className="text-xs text-gray-600 dark:text-gray-300 font-medium">
