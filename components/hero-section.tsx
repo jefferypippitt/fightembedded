@@ -49,9 +49,8 @@ export default async function HeroSection() {
         <span className="block pb-1 text-gray-800 dark:text-gray-100">
           Your Ultimate Source for
         </span>
-        <span className="relative block leading-tight text-red-600 dark:text-red-400">
+        <span className="block leading-tight text-red-600 dark:text-red-400">
           UFC Fighter Stats
-          <span className="absolute -bottom-1 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/70 to-transparent"></span>
         </span>
       </h1>
 
