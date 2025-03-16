@@ -141,6 +141,8 @@ function CountrySelect({
 export function AthleteForm({ initialData }: AthleteFormProps) {
   const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string>(initialData?.imageUrl || "");
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -230,14 +232,21 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
 
           <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage
-                src={imageUrl || "/default-avatar.png"}
-                alt="Profile"
-                className="object-cover"
-              />
-              <AvatarFallback>IMG</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-24 w-24">
+                <AvatarImage
+                  src={imageUrl || "/default-avatar.png"}
+                  alt="Profile"
+                  className="object-cover"
+                />
+                <AvatarFallback>IMG</AvatarFallback>
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                    <div className="text-white text-sm font-medium">{uploadProgress}%</div>
+                  </div>
+                )}
+              </Avatar>
+            </div>
 
             <FormField
               control={form.control}
@@ -256,7 +265,13 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           return "Choose file";
                         },
                       }}
+                      onUploadProgress={(progress) => {
+                        setIsUploading(true);
+                        setUploadProgress(Math.round(progress));
+                      }}
                       onClientUploadComplete={(res) => {
+                        setIsUploading(false);
+                        setUploadProgress(0);
                         if (res?.[0]) {
                           const url = res[0].url;
                           setImageUrl(url);
@@ -268,6 +283,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         }
                       }}
                       onUploadError={(error: Error) => {
+                        setIsUploading(false);
+                        setUploadProgress(0);
                         toast({
                           title: "Upload error",
                           description: error.message,
