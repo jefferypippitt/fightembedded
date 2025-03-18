@@ -50,16 +50,19 @@ export function AthleteListCard({
   return (
     <Card
       className={cn(
-        "h-full relative overflow-hidden",
-        "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
-        "hover:bg-accent/50 transition-colors cursor-pointer",
+        "h-full relative overflow-hidden group",
+        "border-red-600/10 dark:border-red-600/10",
+        "bg-white dark:bg-neutral-950",
+        "shadow-sm hover:shadow-md",
+        "transition-all duration-200",
+        "hover:border-red-600/20 dark:hover:border-red-600/20",
         isSelected && "ring-2 ring-primary"
       )}
       onClick={onSelect}
     >
+      {/* Background gradient on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
+      
       <CardContent className="p-3 relative z-10">
         {/* Top Badge - Ranking and Age */}
         <div className="flex justify-between items-center mb-3">
@@ -68,7 +71,7 @@ export function AthleteListCard({
               Retired
             </Badge>
           ) : rank ? (
-            <Badge variant="outline" className="text-xs font-medium text-muted-foreground ">
+            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
               #{rank}
             </Badge>
           ) : (
@@ -85,11 +88,11 @@ export function AthleteListCard({
 
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
-          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
+          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30 group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200">
             <Image
               src={imageUrl}
               alt={name}
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full transition-transform duration-200"
               width={100}
               height={100}
               quality={100}
@@ -110,9 +113,9 @@ export function AthleteListCard({
         {/* Division */}
         <div className="flex items-center justify-center gap-2 mb-3">
           {weightDivision && (
-              <Badge
+            <Badge
               variant="outline"
-              className="text-[10px] sm:text-xs bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
+              className="text-[10px] sm:text-xs bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors duration-200"
             >
               {weightDivision}
             </Badge>
@@ -127,7 +130,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -136,7 +139,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -145,7 +148,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
         </div>
       </CardContent>

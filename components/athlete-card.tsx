@@ -50,19 +50,23 @@ export function AthleteCard({
   return (
     <Card
       className={cn(
-        "h-full relative overflow-hidden",
-        "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
+        "h-full relative overflow-hidden group",
+        "border-red-600/10 dark:border-red-600/10",
+        "bg-white dark:bg-neutral-950",
+        "shadow-sm hover:shadow-md",
+        "transition-all duration-200",
+        "hover:border-red-600/20 dark:hover:border-red-600/20"
       )}
     >
+      {/* Background gradient on hover */}
+      <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
+      
       <CardContent className="p-3 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-3">
           <Badge
             variant="outline"
-            className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20 bg-red-600/10 dark:bg-red-500/30"
+            className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20 bg-red-50 dark:bg-red-900/10 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors duration-200"
           >
             {division}
           </Badge>
@@ -71,7 +75,7 @@ export function AthleteCard({
               Retired
             </Badge>
           ) : isChampion ? (
-            <Medal className="h-4 w-4 text-amber-500" />
+            <Medal className="h-4 w-4 text-amber-500 group-hover:scale-105 transition-transform duration-200" />
           ) : poundForPoundRank > 0 ? (
             <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
               P4P #{poundForPoundRank}
@@ -85,11 +89,11 @@ export function AthleteCard({
 
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
-          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
+          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30 group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200">
             <Image
               src={imageUrl}
               alt={name}
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full transition-transform duration-200"
               width={100}
               height={100}
               quality={100}
@@ -120,7 +124,7 @@ export function AthleteCard({
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -129,7 +133,7 @@ export function AthleteCard({
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -138,7 +142,7 @@ export function AthleteCard({
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
           />
         </div>
       </CardContent>
