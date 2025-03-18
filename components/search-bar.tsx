@@ -6,7 +6,12 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
-export function SearchBar({ defaultValue }: { defaultValue?: string }) {
+interface SearchBarProps {
+  defaultValue?: string
+  onChange?: (value: string) => void
+}
+
+export function SearchBar({ defaultValue, onChange }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,6 +33,7 @@ export function SearchBar({ defaultValue }: { defaultValue?: string }) {
       setValue("");
       // Update URL and trigger new search without the query parameter
       router.push(`?${createQueryString("")}`);
+      onChange?.("");
     }
   };
 
@@ -36,6 +42,7 @@ export function SearchBar({ defaultValue }: { defaultValue?: string }) {
     setValue(newValue);
     // Update URL and trigger new search with the query parameter
     router.push(`?${createQueryString(newValue)}`);
+    onChange?.(newValue);
   };
 
   return (

@@ -30,6 +30,8 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
         retired: true,
         age: true,
         rank: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
 

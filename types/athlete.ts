@@ -12,17 +12,19 @@ export type ActionResponse = {
 export interface Athlete {
   id: string;
   name: string;
-  rank?: number;
-  weightDivision: string;
-  gender: "MALE" | "FEMALE";
+  imageUrl: string | null;
   country: string;
   wins: number;
   losses: number;
   draws: number;
   winsByKo: number;
   winsBySubmission: number;
-  followers?: number;
-  imageUrl?: string | null;
-  retired?: boolean;
+  rank?: number;
+  followers: number;
   age: number;
+  retired: boolean | null;
+  weightDivision: string;
+  gender: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

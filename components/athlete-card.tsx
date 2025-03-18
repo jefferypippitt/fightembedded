@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Medal, Flag } from "lucide-react";
+import { Medal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -22,6 +22,7 @@ interface AthleteCardProps {
   isChampion?: boolean;
   retired?: boolean;
   age?: number;
+  followers?: number;
 }
 
 export function AthleteCard({
@@ -37,6 +38,8 @@ export function AthleteCard({
   poundForPoundRank = 0,
   isChampion = false,
   retired = false,
+  age,
+  followers = 0,
 }: AthleteCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -54,28 +57,35 @@ export function AthleteCard({
         "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
       )}
     >
-      <CardContent className="p-2 sm:p-4 relative z-10">
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
+      <CardContent className="p-3 relative z-10">
+        {/* Top Badge - Division and Rank/Champion Status */}
+        <div className="flex justify-between items-center mb-3">
           <Badge
             variant="outline"
-            className="text-[10px] sm:text-xs bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
+            className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20 bg-red-600/10 dark:bg-red-500/30"
           >
             {division}
           </Badge>
-          {isChampion ? (
-            <Medal className="h-3 w-3 sm:h-4 sm:w-4 text-amber-500" />
-          ) : poundForPoundRank ? (
-            <span className="text-[10px] sm:text-xs font-medium text-gray-900 dark:text-white">
+          {retired ? (
+            <Badge variant="outline" className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20">
+              Retired
+            </Badge>
+          ) : isChampion ? (
+            <Medal className="h-4 w-4 text-amber-500" />
+          ) : poundForPoundRank > 0 ? (
+            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
               P4P #{poundForPoundRank}
-            </span>
-          ) : !retired ? (
-            <span className="text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400">
-              NR
-            </span>
-          ) : null}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+              Not Ranked
+            </Badge>
+          )}
         </div>
-        <div className="flex items-center space-x-2 sm:space-x-4 mb-2 sm:mb-3">
-          <Avatar className="h-10 w-10 sm:h-14 sm:w-14 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
+
+        {/* Avatar and Name section */}
+        <div className="flex flex-col items-center mb-3">
+          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
             <Image
               src={imageUrl}
               alt={name}
@@ -86,60 +96,66 @@ export function AthleteCard({
               priority={true}
             />
           </Avatar>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-white">
+
+          <div className="text-center">
+            <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
               {name}
             </h3>
-            <div className="flex flex-col gap-0.5 sm:gap-1">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 font-medium">
-                  {record}
-                </span>
-              </div>
-            </div>
+            <h4 className="text-xs font-medium text-gray-600 dark:text-gray-300">
+              {record}
+            </h4>
+            {age && (
+              <span className="text-xs text-muted-foreground">
+                {age} years
+              </span>
+            )}
           </div>
         </div>
-        <div className="space-y-1 text-[10px] sm:text-xs">
-          <div className="flex justify-between items-center text-gray-700 dark:text-gray-200">
+
+        {/* Stats with Progress Bars */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
             <span>Win Rate</span>
             <span className="font-medium">{winRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
 
-          <div className="flex justify-between items-center text-gray-700 dark:text-gray-200">
+          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
             <span>KO/TKO</span>
             <span className="font-medium">{koRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
 
-          <div className="flex justify-between items-center text-gray-700 dark:text-gray-200">
+          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
             <span>Submission</span>
             <span className="font-medium">{submissionRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
-          <div className="flex items-center gap-1 py-1">
-            <Flag className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-600 dark:text-red-400" />
-            <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300">
-              {country}
+        </div>
+      </CardContent>
+
+      <CardFooter className="px-3 py-2 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
+        <div className="flex items-center justify-between w-full text-[10px]">
+          <div className="flex items-center gap-1">
+            <span className="font-medium">{country}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-gray-600 dark:text-gray-300">Followers:</span>
+            <span className="font-medium text-gray-700 dark:text-gray-200">
+              {followers.toLocaleString()}
             </span>
           </div>
         </div>
-        {retired && (
-          <Badge variant="destructive" className="absolute top-2 right-2">
-            Retired
-          </Badge>
-        )}
-      </CardContent>
-      <CardFooter className="p-0" />
+      </CardFooter>
     </Card>
   );
 }

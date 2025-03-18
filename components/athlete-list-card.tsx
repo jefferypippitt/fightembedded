@@ -1,14 +1,13 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Flag } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-interface AthleteListCardProps {
+export interface AthleteListCardProps {
+  id?: string;
   name: string;
-  weightDivision: string;
   imageUrl?: string;
   country: string;
   wins?: number;
@@ -18,9 +17,11 @@ interface AthleteListCardProps {
   winsBySubmission?: number;
   rank?: number;
   followers?: number;
-  record?: string;
   age?: number;
   retired?: boolean;
+  weightDivision?: string;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 export function AthleteListCard({
@@ -36,6 +37,9 @@ export function AthleteListCard({
   followers = 0,
   age,
   retired = false,
+  weightDivision,
+  isSelected,
+  onSelect,
 }: AthleteListCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -50,45 +54,36 @@ export function AthleteListCard({
         "border-red-600/20 dark:border-red-600/20",
         "bg-gray-50 dark:bg-zinc-950",
         "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
+        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
+        "hover:bg-accent/50 transition-colors cursor-pointer",
+        isSelected && "ring-2 ring-primary"
       )}
+      onClick={onSelect}
     >
       <CardContent className="p-3 relative z-10">
-        {/* Top Badge - Only Ranking */}
+        {/* Top Badge - Ranking and Age */}
         <div className="flex justify-between items-center mb-3">
-          {retired === true ? (
-            <Badge
-              variant="outline"
-              className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
-            >
+          {retired ? (
+            <Badge variant="outline" className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20">
               Retired
             </Badge>
           ) : rank ? (
-            <Badge
-              variant="outline"
-              className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
-            >
+            <Badge variant="outline" className="text-xs font-medium text-muted-foreground ">
               #{rank}
             </Badge>
           ) : (
-            <Badge
-              variant="outline"
-              className="text-[10px] px-2 py-0 bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
-            >
-              NR
+            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+              Not Ranked
             </Badge>
           )}
           {age && (
-            <Badge
-              variant="outline"
-              className="text-[10px] px-2 py-0 bg-zinc-600/10 dark:bg-zinc-500/30 text-zinc-700 dark:text-zinc-300 border-zinc-600/20 dark:border-zinc-500/30"
-            >
-              Age: {age}
-            </Badge>
+            <span className="text-xs text-muted-foreground">
+              {age} years
+            </span>
           )}
         </div>
 
-        {/* Avatar and Name Section */}
+        {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
           <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30">
             <Image
@@ -112,6 +107,18 @@ export function AthleteListCard({
           </div>
         </div>
 
+        {/* Division */}
+        <div className="flex items-center justify-center gap-2 mb-3">
+          {weightDivision && (
+              <Badge
+              variant="outline"
+              className="text-[10px] sm:text-xs bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 border-red-600/20 dark:border-red-500/30"
+            >
+              {weightDivision}
+            </Badge>
+          )}
+        </div>
+
         {/* Stats with Progress Bars */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -120,7 +127,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -129,7 +136,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -138,7 +145,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500"
           />
         </div>
       </CardContent>
@@ -146,8 +153,7 @@ export function AthleteListCard({
       <CardFooter className="px-3 py-2 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
-            <Flag className="h-3 w-3 text-red-600 dark:text-red-400" />
-            <span className="text-gray-600 dark:text-gray-300">{country}</span>
+            <span className="font-medium">{country}</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-gray-600 dark:text-gray-300">Followers:</span>
