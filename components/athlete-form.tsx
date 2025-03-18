@@ -17,7 +17,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { UploadButton } from "@/utils/uploadthing";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 
 import {
@@ -42,7 +42,7 @@ import { useRef } from "react";
 import { weightClasses } from "@/data/weight-class";
 import { countries } from "@/data/countries";
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -59,6 +59,8 @@ import {
 } from "@/components/ui/popover";
 import { ControllerRenderProps } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
+import Image from "next/image";
+
 
 type AthleteFormProps = {
   initialData?: z.infer<typeof athleteSchema> & { id: string };
@@ -227,22 +229,29 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         {/* Add Image Upload Section */}
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-4 w-1 bg-primary rounded-full" />
             <h2 className="text-lg font-semibold">Profile Image</h2>
           </div>
 
           <div className="flex items-center gap-6">
             <div className="relative">
-              <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src={imageUrl || "/default-avatar.png"}
-                  alt="Profile"
-                  className="object-cover"
-                />
-                <AvatarFallback>IMG</AvatarFallback>
-                {isUploading && (
-                  <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
-                    <div className="text-white text-sm font-medium">{uploadProgress}%</div>
+              <Avatar className="h-24 w-24 ring-1 ring-border">
+                {imageUrl ? (
+                  <AvatarImage
+                    src={imageUrl}
+                    alt="Profile"
+                    className="object-cover transition-all duration-300"
+                    width={96}
+                    height={96}
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+                    <Image
+                      src="/placeholder/image-photography-icon.png"
+                      alt="Profile placeholder"
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 dark:invert"
+                    />
                   </div>
                 )}
               </Avatar>
@@ -257,12 +266,25 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     <UploadButton
                       endpoint="athleteImage"
                       appearance={{
-                        button: "bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 h-9 text-sm font-medium transition-colors",
+                        button: "ut-button",
                         allowedContent: "hidden",
                       }}
                       content={{
                         button() {
-                          return "Choose file";
+                          return (
+                            <>
+                              {isUploading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span>Uploading {uploadProgress}%</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Choose file</span>
+                                </>
+                              )}
+                            </>
+                          );
                         },
                       }}
                       onUploadProgress={(progress) => {
@@ -291,6 +313,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           variant: "destructive",
                         });
                       }}
+                      disabled={isUploading}
                     />
                   </FormControl>
                   <FormMessage className="text-xs" />
@@ -303,8 +326,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-4 w-1 bg-primary rounded-full" />
-
             <h2 className="text-lg font-semibold">Personal Information</h2>
           </div>
 
@@ -519,7 +540,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         {/* Fight Record Section */}
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-4 w-1 bg-primary rounded-full" />
             <h2 className="text-lg font-semibold">Fight Record</h2>
           </div>
 
@@ -608,8 +628,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
         <div className="bg-card p-4 rounded-lg border shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-4 w-1 bg-primary rounded-full" />
-
             <h2 className="text-lg font-semibold">Performance Stats</h2>
           </div>
 

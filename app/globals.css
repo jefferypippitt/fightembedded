@@ -82,3 +82,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* UploadThing Button Styles */
+.ut-button {
+  @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-md px-4 h-9 text-sm font-medium transition-all duration-200 flex items-center gap-2;
+}
+
+.ut-button[data-state="readying"] {
+  @apply opacity-70 cursor-not-allowed;
+}
+
+.ut-button[data-state="uploading"] {
+  @apply opacity-70 cursor-not-allowed;
+}
+
+.ut-button[data-state="uploading"]::after {
+  @apply bg-secondary/20;
+}

@@ -1,5 +1,9 @@
 import { createAuthClient } from "better-auth/react";
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL || "https://www.fightembedded.com",
+  baseURL: isDevelopment 
+    ? 'http://localhost:3000'
+    : 'https://fightembedded.com',
 });
