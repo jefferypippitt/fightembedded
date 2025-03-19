@@ -61,4 +61,18 @@ export const getDivisionBySlug = (slug: string): WeightDivision | null => {
 
 export const getFullDivisionName = (division: WeightDivision, isWomen: boolean): string => {
   return `${isWomen ? "Women's" : "Men's"} ${division.name}`;
+};
+
+export const getAllDivisions = (): Array<{ slug: string; name: string }> => {
+  const menDivisions = weightClasses.men.map(division => ({
+    slug: generateDivisionSlug(division, false),
+    name: getFullDivisionName(division, false)
+  }));
+
+  const womenDivisions = weightClasses.women.map(division => ({
+    slug: generateDivisionSlug(division, true),
+    name: getFullDivisionName(division, true)
+  }));
+
+  return [...menDivisions, ...womenDivisions];
 }; 

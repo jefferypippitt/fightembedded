@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { SearchBar } from '@/components/search-bar'
 import { AthleteListCard } from '@/components/athlete-list-card'
-import { Athlete } from '@/types/athlete'
+import { SearchBar } from '@/components/search-bar'
 import { AthleteComparison } from '@/components/athlete-comparison'
+import type { Athlete } from '@/types/athlete'
+import Link from 'next/link'
 
-interface AthletesClientProps {
-  searchParams?: { [key: string]: string | string[] | undefined }
+interface DivisionContentProps {
   athletes: Athlete[]
 }
 
@@ -77,9 +77,9 @@ function Athletes({
   )
 }
 
-export function AthletesClient({ searchParams, athletes }: AthletesClientProps) {
+export function DivisionContent({ athletes }: DivisionContentProps) {
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
-  const [query, setQuery] = useState(searchParams?.query?.toString() || '')
+  const [query, setQuery] = useState('')
 
   const handleAthleteSelect = (athlete: Athlete) => {
     setSelectedAthletes((current) => {
@@ -99,6 +99,23 @@ export function AthletesClient({ searchParams, athletes }: AthletesClientProps) 
 
   const handleClearSelection = () => {
     setSelectedAthletes([])
+  }
+
+  if (athletes.length === 0) {
+    return (
+      <div className="text-center space-y-2">
+        <p className="text-muted-foreground">
+          No active athletes found in this division.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Note: Retired athletes can be found in the{" "}
+          <Link href="/retired" className="text-primary hover:underline">
+            retired athletes
+          </Link>{" "}
+          section.
+        </p>
+      </div>
+    )
   }
 
   return (

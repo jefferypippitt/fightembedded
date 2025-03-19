@@ -1,6 +1,6 @@
 "use client";
 
-import { Delete, Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -11,13 +11,15 @@ export interface SearchBarProps {
   onChange: (value: string) => void
   placeholder?: string
   'aria-label'?: string
+  maxWidth?: string
 }
 
 export function SearchBar({ 
   defaultValue = '', 
   onChange, 
   placeholder = 'Search...',
-  'aria-label': ariaLabel = 'Search'
+  'aria-label': ariaLabel = 'Search',
+  maxWidth = '100%'
 }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,9 +55,9 @@ export function SearchBar({
   };
 
   return (
-    <div className="flex gap-2 max-w-md">
-      <div className="relative flex-1">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+    <div className="w-full" style={{ maxWidth }}>
+      <div className="relative w-full">
+        <Search className="absolute left-2 top-2.5 h-4 w-4" />
         <Input
           ref={inputRef}
           name="query"
@@ -63,7 +65,7 @@ export function SearchBar({
           type="search"
           value={value}
           onChange={handleChange}
-          className="pl-8 pr-8 [&::-webkit-search-cancel-button]:hidden"
+          className="pl-8 pr-8 w-full [&::-webkit-search-cancel-button]:hidden placeholder:text-sm"
           aria-label={ariaLabel}
         />
         {value && (
@@ -74,7 +76,7 @@ export function SearchBar({
             onClick={handleClear}
             className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-transparent"
           >
-            <Delete className="h-4 w-4" />
+            <X className="h-4 w-4" />
             <span className="sr-only">Clear search</span>
           </Button>
         )}

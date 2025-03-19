@@ -1,16 +1,12 @@
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getAthletesByDivision } from "@/server/actions/get-athlete";
 import {
   getDivisionBySlug,
   parseDivisionSlug,
   getFullDivisionName,
 } from "@/data/weight-class";
-import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
-import { AthletesClient } from "@/app/(main)/athletes/athletes-client";
-import { unstable_noStore as noStore } from "next/cache";
-
+import { DivisionContent } from "./division-content";
+import { getDivisionAthletes } from "@/server/actions/division";
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;
@@ -74,73 +70,23 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-async function DivisionContent({ slug }: { slug: string }) {
-  // Disable caching for this component
-  noStore();
-
-  // Normalize the slug to lowercase
-  const normalizedSlug = slug.toLowerCase();
-
-  // Parse and validate the division slug
-  const { gender, isValid } = parseDivisionSlug(normalizedSlug);
-  if (!isValid) {
-    return (
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold text-red-600 dark:text-red-400">Invalid Division</h1>
-        <p className="text-muted-foreground">
-          The division &quot;{slug}&quot; is not valid.
-        </p>
-      </div>
-    );
-  }
-
-  // Get the division details
-  const division = getDivisionBySlug(normalizedSlug);
-  if (!division) return notFound();
-
-  // Get the full division name
-  const isWomen = gender === "women";
-  const fullDivisionName = getFullDivisionName(division, isWomen).toLowerCase();
-
-  // Fetch athletes for this division
-  const athletes = await getAthletesByDivision(fullDivisionName);
-
-  // Sort athletes by rank (ascending order)
-  const sortedAthletes = [...athletes].sort((a, b) => {
-    // Handle unranked athletes (put them at the end)
-    if (!a.rank) return 1;
-    if (!b.rank) return -1;
-    return a.rank - b.rank;
-  });
-
-  return <AthletesClient athletes={sortedAthletes} />;
-}
-
 export default async function DivisionPage({ params }: PageProps) {
   const { slug } = await params;
 
   if (!slug) return notFound();
 
-  // Get the division details for the title
-  const normalizedSlug = slug.toLowerCase();
-  const { gender, isValid } = parseDivisionSlug(normalizedSlug);
-  const division = getDivisionBySlug(normalizedSlug);
-  
-  if (!isValid || !division) return notFound();
-
-  const isWomen = gender === "women";
-  const fullDivisionName = getFullDivisionName(division, isWomen).toLowerCase();
+  // Get division athletes using the server action
+  const divisionData = await getDivisionAthletes(slug);
+  if (!divisionData) return notFound();
 
   return (
     <div className="space-y-6">
       <div className="flex justify-center mb-6">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
-          {fullDivisionName} Division
+          {divisionData.name} Division
         </h1>
       </div>
-      <Suspense fallback={<AthletesGridSkeleton count={9} />}>
-        <DivisionContent slug={slug} />
-      </Suspense>
+      <DivisionContent athletes={divisionData.athletes} />
     </div>
   );
 }
