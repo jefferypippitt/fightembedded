@@ -1,6 +1,6 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
@@ -15,31 +15,11 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { DivisionRankings } from "@/server/actions/get-top-5-athletes";
-import { cn } from "@/lib/utils";
 
 const chartConfig = {
   followers: {
     label: "Followers",
-  },
-  athlete1: {
-    label: "Rank #1",
     color: "hsl(var(--chart-1))",
-  },
-  athlete2: {
-    label: "Rank #2",
-    color: "hsl(var(--chart-2))",
-  },
-  athlete3: {
-    label: "Rank #3",
-    color: "hsl(var(--chart-3))",
-  },
-  athlete4: {
-    label: "Rank #4",
-    color: "hsl(var(--chart-4))",
-  },
-  athlete5: {
-    label: "Rank #5",
-    color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
 
@@ -49,89 +29,61 @@ interface DivisionChartProps {
 
 export function DivisionChart({ division }: DivisionChartProps) {
   const chartData = division.athletes.map((athlete) => ({
-    name: `#${athlete.rank} ${athlete.name}`,
+    name: `${athlete.rank}. ${athlete.name}`,
     followers: athlete.followers,
     rank: athlete.rank,
     fill: `hsl(var(--chart-${athlete.rank}))`,
   }));
 
   return (
-    <Card
-      className={cn(
-        "h-full relative overflow-hidden",
-        "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
-      )}
-    >
-      <CardHeader className="relative z-10 space-y-1.5 text-center">
-        <CardTitle className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-          {division.division}
-        </CardTitle>
-        <CardDescription className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-medium">
-          Top 5 Ranked Athletes
-        </CardDescription>
+    <Card>
+      <CardHeader>
+        <CardTitle>{division.division}</CardTitle>
+        <CardDescription>Top 5 Ranked Athletes</CardDescription>
       </CardHeader>
-      <CardContent className="relative z-10">
+      <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart
+            accessibilityLayer
             data={chartData}
             layout="vertical"
             margin={{
-              left: 10,
-              right: 10,
-              top: 10,
-              bottom: 10,
+              left: -20,
             }}
           >
-            <CartesianGrid
-              vertical={true}
-              stroke="hsl(var(--border))"
-              strokeDasharray="4"
-            />
-            <XAxis
-              type="number"
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(value) => value.toLocaleString()}
-              fontSize={10}
-              tickMargin={10}
-              tick={{
-                fill: "hsl(var(--foreground))",
-                fontSize: "10px",
-                fontWeight: 500,
-              }}
+            <XAxis 
+              type="number" 
+              dataKey="followers" 
+              hide 
             />
             <YAxis
               dataKey="name"
               type="category"
               tickLine={false}
+              tickMargin={15}
               axisLine={false}
-              width={150}
-              interval={0}
+              width={140}
               tick={{
                 fill: "hsl(var(--foreground))",
                 fontSize: "11px",
                 fontWeight: 500,
+                x: 0,
               }}
             />
             <ChartTooltip
-              cursor={{ fill: "hsl(var(--muted))" }}
+              cursor={false}
               content={
                 <ChartTooltipContent
-                  className="w-[250px] bg-white dark:bg-zinc-950 border border-red-600/20 dark:border-red-600/20 shadow-lg text-xs font-medium"
+                  className="w-[250px] bg-background border shadow-lg text-xs font-medium"
                   nameKey="followers"
+                  hideLabel
                 />
               }
             />
-            <Bar
-              dataKey="followers"
-              radius={[0, 4, 4, 0]}
-              fill="none"
-              stroke="none"
-              fillOpacity={0.9}
-              className="[&>path]:fill-[var(--chart-color)]"
+            <Bar 
+              dataKey="followers" 
+              fill="var(--color-followers)" 
+              radius={3} 
             />
           </BarChart>
         </ChartContainer>

@@ -3,7 +3,6 @@
 import { Event } from "@prisma/client";
 import Marquee from "@/components/ui/marquee";
 import EventCard from "./event-card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface EventMarqueeSectionProps {
@@ -15,12 +14,9 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
     return (
       <section className="space-y-2">
         <div className="flex justify-center">
-          <Badge
-            variant="outline"
-            className="px-4 py-1.5 text-base bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
-          >
+          <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             Upcoming Events
-          </Badge>
+          </h2>
         </div>
         <p className="text-neutral-600 dark:text-neutral-400">
           No upcoming events found.
@@ -32,12 +28,9 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
   return (
     <section className="space-y-2">
       <div className="flex justify-center">
-        <Badge
-          variant="outline"
-          className="px-4 py-1.5 text-base bg-red-500/10 text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-500/30"
-        >
+        <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
           Upcoming Events
-        </Badge>
+        </h2>
       </div>
       <div
         className={cn(

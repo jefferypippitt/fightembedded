@@ -76,10 +76,14 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-export default function Navbar() {
+interface NavbarProps {
+  className?: string;
+}
+
+export default function Navbar({ className = "" }: NavbarProps) {
   return (
-    <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50">
-      <div className="flex items-center justify-between mx-auto max-w-7xl h-14 px-4 sm:px-6 lg:px-8">
+    <div className={`sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-b ${className}`}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/icon.png"
@@ -91,16 +95,17 @@ export default function Navbar() {
           <h1 className="text-lg font-medium">Fight Embedded</h1>
         </Link>
 
+        {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="h-9">
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
                     href="/athletes"
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      "bg-transparent hover:bg-transparent focus:bg-transparent"
+                      "h-9 bg-transparent hover:bg-transparent focus:bg-transparent"
                     )}
                   >
                     Athletes
@@ -109,7 +114,7 @@ export default function Navbar() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
+                <NavigationMenuTrigger className="h-9 bg-transparent hover:bg-transparent focus:bg-transparent">
                   Weight Divisions
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -153,7 +158,7 @@ export default function Navbar() {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-transparent focus:bg-transparent">
+                <NavigationMenuTrigger className="h-9 bg-transparent hover:bg-transparent focus:bg-transparent">
                   Rankings
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -178,7 +183,7 @@ export default function Navbar() {
                     href="/retired"
                     className={cn(
                       navigationMenuTriggerStyle(),
-                      "bg-transparent hover:bg-transparent focus:bg-transparent"
+                      "h-9 bg-transparent hover:bg-transparent focus:bg-transparent"
                     )}
                   >
                     Retired
@@ -188,15 +193,19 @@ export default function Navbar() {
             </NavigationMenuList>
           </NavigationMenu>
 
-          <ModeToggle />
+          <div className="h-9">
+            <ModeToggle />
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center gap-2">
-          <ModeToggle />
+          <div className="h-9">
+            <ModeToggle />
+          </div>
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
@@ -235,14 +244,13 @@ export default function Navbar() {
                             className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {division.description}
                             </span>
                           </Link>
                         ))}
                       </div>
                     </div>
-
                     <div className="space-y-1">
                       <h3 className="text-xs font-medium text-muted-foreground">
                         Women&apos;s
@@ -255,7 +263,7 @@ export default function Navbar() {
                             className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {division.description}
                             </span>
                           </Link>
@@ -267,18 +275,19 @@ export default function Navbar() {
 
                 <div className="space-y-2">
                   <h2 className="text-sm font-medium">Rankings</h2>
-                  <div className="pl-2">
-                    <div className="grid grid-cols-2 gap-1">
-                      {rankings.map((item) => (
-                        <Link
-                          key={item.title}
-                          href={item.href}
-                          className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                        >
-                          {item.title}
-                        </Link>
-                      ))}
-                    </div>
+                  <div className="pl-2 space-y-2">
+                    {rankings.map((ranking) => (
+                      <Link
+                        key={ranking.title}
+                        href={ranking.href}
+                        className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                      >
+                        <span className="block">{ranking.title}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {ranking.description}
+                        </span>
+                      </Link>
+                    ))}
                   </div>
                 </div>
 
@@ -295,4 +304,4 @@ export default function Navbar() {
       </div>
     </div>
   );
-}
+} 

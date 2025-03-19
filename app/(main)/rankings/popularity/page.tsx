@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: "Top 20 Athletes by Popularity",
 };
 
-
 export default async function DivisionRankingsPage() {
   const top20Athletes = await getTop20Athletes();
 
@@ -28,11 +27,18 @@ export default async function DivisionRankingsPage() {
   }));
 
   return (
-    <main className="max-w-7xl mx-auto px-2 py-4 space-y-2">
-      <FighterPopularityChart
-        maleAthletes={maleChartData}
-        femaleAthletes={femaleChartData}
-      />
+    <main className="container mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-6">
+      <div className="space-y-4">
+        <div className="flex justify-center mb-4">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+            Top 20 Athletes by Popularity
+          </h1>
+        </div>
+        <FighterPopularityChart
+          maleAthletes={maleChartData}
+          femaleAthletes={femaleChartData}
+        />
+      </div>
     </main>
   );
 }

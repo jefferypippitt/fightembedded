@@ -46,10 +46,10 @@ const createStatsData = (stats: Stats): StatItem[] => [
 ];
 
 const StatCard = ({ stat }: { stat: StatItem }) => (
-  <div className="group relative overflow-hidden rounded-lg bg-white dark:bg-neutral-950 p-3.5 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-red-600/10 dark:border-red-600/10 hover:border-red-600/30 dark:hover:border-red-600/30">
+  <div className="group relative overflow-hidden rounded-lg bg-white dark:bg-neutral-950 p-2.5 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-red-600/10 dark:border-red-600/10 hover:border-red-600/30 dark:hover:border-red-600/30">
     <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/5 group-hover:to-red-600/10 transition-all duration-300" />
-    <div className="relative flex flex-col items-center space-y-2">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 shadow-md group-hover:shadow-red-500/20 transition-all duration-300">
+    <div className="relative flex flex-col items-center space-y-1.5">
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 shadow-md group-hover:shadow-red-500/20 transition-all duration-300">
         {stat.icon}
       </div>
       <div className="flex items-center space-x-0.5">
@@ -71,8 +71,8 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
 )
 
 const HeroContent = () => (
-  <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-3 lg:space-y-4 flex-1">
-    <div className="space-y-2">
+  <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-2 lg:space-y-3 flex-1">
+    <div className="space-y-1">
       <div>
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-800 dark:text-gray-100">
           Your Ultimate Source for
@@ -99,7 +99,7 @@ const HeroContent = () => (
 )
 
 const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
-  <div className="flex flex-col items-center gap-3 w-full lg:w-auto lg:max-w-md">
+  <div className="flex flex-col items-center gap-2 w-full lg:w-auto lg:max-w-md">
     <Badge
       variant="outline"
       className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30"
@@ -107,7 +107,7 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
       <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
       Live Updates
     </Badge>
-    <div className="grid grid-cols-2 gap-3 w-full">
+    <div className="grid grid-cols-2 gap-2 w-full">
       {statsData.map((stat, index) => (
         <StatCard key={index} stat={stat} />
       ))}
@@ -120,8 +120,8 @@ export default async function HeroSection() {
   const statsData = createStatsData(stats);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-6 sm:py-8">
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
+    <div className="w-full pb-4 sm:pb-6">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-3">
         <HeroContent />
         <StatsGrid statsData={statsData} />
       </div>

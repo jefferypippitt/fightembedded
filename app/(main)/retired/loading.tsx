@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { getRetiredAthletes } from "@/server/actions/get-retired-athletes";
 
 export function AthleteListCardSkeleton() {
   return (
@@ -49,13 +48,10 @@ export function AthleteListCardSkeleton() {
   );
 }
 
-export default async function RetiredLoadingPage() {
-  const retiredAthletes = await getRetiredAthletes();
-  const skeletonCount = retiredAthletes.length;
-
+export default function RetiredLoadingPage() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      {Array.from({ length: skeletonCount }).map((_, i) => (
+      {Array.from({ length: 9 }).map((_, i) => (
         <AthleteListCardSkeleton key={i} />
       ))}
     </div>

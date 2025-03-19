@@ -26,8 +26,8 @@ export default async function Home() {
     <AnimatedContainer>
       <HeroSection />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 min-h-[800px]">
-        <div className="lg:col-span-4 space-y-4 sm:space-y-6 lg:space-y-8 order-last lg:order-first">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 sm:gap-3 min-h-[500px]">
+        <div className="lg:col-span-4 space-y-3 sm:space-y-4 lg:space-y-6 order-last lg:order-first">
           <Suspense fallback={<ChampionsSkeleton />}>
             <ChampionsSection
               maleChampions={maleChampions}

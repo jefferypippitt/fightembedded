@@ -6,12 +6,19 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
-interface SearchBarProps {
+export interface SearchBarProps {
   defaultValue?: string
-  onChange?: (value: string) => void
+  onChange: (value: string) => void
+  placeholder?: string
+  'aria-label'?: string
 }
 
-export function SearchBar({ defaultValue, onChange }: SearchBarProps) {
+export function SearchBar({ 
+  defaultValue = '', 
+  onChange, 
+  placeholder = 'Search...',
+  'aria-label': ariaLabel = 'Search'
+}: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,11 +59,12 @@ export function SearchBar({ defaultValue, onChange }: SearchBarProps) {
         <Input
           ref={inputRef}
           name="query"
-          placeholder="Search athletes"
+          placeholder={placeholder}
           type="search"
           value={value}
           onChange={handleChange}
           className="pl-8 pr-8 [&::-webkit-search-cancel-button]:hidden"
+          aria-label={ariaLabel}
         />
         {value && (
           <Button

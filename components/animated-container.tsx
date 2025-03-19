@@ -31,7 +31,7 @@ export function AnimatedContainer({ children }: { children: React.ReactNode }) {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="flex flex-col w-full gap-2 sm:gap-4"
+      className="flex flex-col w-full gap-0.5 sm:gap-1"
     >
       {Array.isArray(children) 
         ? children.map((child, index) => (

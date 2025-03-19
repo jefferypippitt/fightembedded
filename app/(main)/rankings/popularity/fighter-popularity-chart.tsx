@@ -9,8 +9,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-import { XLogo, InstagramLogo } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 interface ChartData {
@@ -44,9 +42,7 @@ export function FighterPopularityChart({
   maleAthletes,
   femaleAthletes,
 }: FighterPopularityChartProps) {
-  const [activeChart, setActiveChart] = React.useState<"male" | "female">(
-    "male"
-  );
+  const [activeChart, setActiveChart] = React.useState<"male" | "female">("male");
 
   const chartData = React.useMemo(() => {
     return activeChart === "male"
@@ -63,22 +59,11 @@ export function FighterPopularityChart({
   );
 
   return (
-    <Card
-      className={cn(
-        "h-full relative overflow-hidden",
-        "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
-      )}
-    >
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b border-red-600/20 dark:border-red-600/20 p-0 sm:flex-row relative z-10">
+    <Card className="h-full relative overflow-hidden">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row relative z-10">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            Total Followers from
-            <XLogo className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            and
-            <InstagramLogo className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          <CardTitle className="text-gray-900 dark:text-white">
+            Total Followers from X and Instagram
           </CardTitle>
         </div>
         <div className="flex">
@@ -88,17 +73,17 @@ export function FighterPopularityChart({
               data-active={activeChart === key}
               className={cn(
                 "relative z-30 flex flex-1 flex-col justify-center gap-1",
-                "border-t border-red-600/20 dark:border-red-600/20 px-6 py-4 text-left",
+                "border-t px-6 py-4 text-left",
                 "even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6",
-                "bg-red-600/5 dark:bg-red-500/10",
-                "data-[active=true]:bg-red-600/10 dark:data-[active=true]:bg-red-500/20"
+                "bg-accent/5",
+                "data-[active=true]:bg-accent/10"
               )}
               onClick={() => setActiveChart(key)}
             >
-              <span className="text-xs text-gray-600 dark:text-gray-300">
+              <span className="text-xs text-muted-foreground">
                 {chartConfig[key].label}
               </span>
-              <span className="text-lg font-bold leading-none sm:text-3xl text-gray-900 dark:text-white">
+              <span className="text-lg font-bold leading-none sm:text-3xl">
                 {total[key].toLocaleString()}
               </span>
             </button>
@@ -155,7 +140,7 @@ export function FighterPopularityChart({
               cursor={{ fill: "hsl(var(--muted))" }}
               content={
                 <ChartTooltipContent
-                  className="w-[250px] bg-white dark:bg-zinc-950 border border-red-600/20 dark:border-red-600/20 shadow-lg text-xs font-medium"
+                  className="w-[250px] bg-background border shadow-lg text-xs font-medium"
                   nameKey={activeChart}
                 />
               }
