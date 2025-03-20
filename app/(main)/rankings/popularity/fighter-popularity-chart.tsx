@@ -142,7 +142,7 @@ export function FighterPopularityChart({
               cursor={{ fill: "hsl(var(--muted))" }}
               content={
                 <ChartTooltipContent
-                  className="w-[250px] bg-background border shadow-lg text-xs font-medium"
+                  className="w-[150px] bg-background border shadow-lg text-[10px] font-medium"
                   nameKey={activeChart}
                 />
               }
