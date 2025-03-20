@@ -93,16 +93,16 @@ export function FighterPopularityChart({
       <CardContent className="px-2 sm:p-6 relative z-10">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[300px] sm:h-[500px] w-full"
+          className="aspect-auto h-[500px] sm:h-[500px] w-full"
         >
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
-              left: -5,
-              right: 15,
-              top: 10,
-              bottom: 10,
+              left: 1,
+              right: 5,
+              top: 1,
+              bottom: 1,
             }}
           >
             <CartesianGrid
@@ -133,7 +133,7 @@ export function FighterPopularityChart({
               interval={0}
               tick={{
                 fill: "hsl(var(--foreground))",
-                fontSize: "11px",
+                fontSize: "9px",
                 fontWeight: 500,
                 x: 0,
               }}
