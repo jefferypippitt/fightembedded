@@ -61,8 +61,8 @@ export function FighterPopularityChart({
   return (
     <Card className="h-full relative overflow-hidden">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row relative z-10">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle className="text-gray-900 dark:text-white">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-3 sm:px-6 sm:py-5">
+          <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
             Total Followers from X and Instagram
           </CardTitle>
         </div>
@@ -73,7 +73,7 @@ export function FighterPopularityChart({
               data-active={activeChart === key}
               className={cn(
                 "relative z-30 flex flex-1 flex-col justify-center gap-1",
-                "border-t px-6 py-4 text-left",
+                "border-t px-4 py-3 text-left",
                 "even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6",
                 "bg-accent/5",
                 "data-[active=true]:bg-accent/10"
@@ -83,24 +83,24 @@ export function FighterPopularityChart({
               <span className="text-xs text-muted-foreground">
                 {chartConfig[key].label}
               </span>
-              <span className="text-lg font-bold leading-none sm:text-3xl">
+              <span className="text-base sm:text-3xl font-bold leading-none">
                 {total[key].toLocaleString()}
               </span>
             </button>
           ))}
         </div>
       </CardHeader>
-      <CardContent className="px-4 sm:p-6 relative z-10">
+      <CardContent className="px-2 sm:p-6 relative z-10">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[500px] w-full"
+          className="aspect-auto h-[300px] sm:h-[500px] w-full"
         >
           <BarChart
             data={chartData}
             layout="vertical"
             margin={{
-              left: 10,
-              right: 10,
+              left: -5,
+              right: 15,
               top: 10,
               bottom: 10,
             }}
@@ -127,13 +127,15 @@ export function FighterPopularityChart({
               dataKey="name"
               type="category"
               tickLine={false}
+              tickMargin={15}
               axisLine={false}
-              width={150}
+              width={140}
               interval={0}
               tick={{
                 fill: "hsl(var(--foreground))",
                 fontSize: "11px",
                 fontWeight: 500,
+                x: 0,
               }}
             />
             <ChartTooltip
