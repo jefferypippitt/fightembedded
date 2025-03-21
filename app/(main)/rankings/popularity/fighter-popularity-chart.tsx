@@ -9,7 +9,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { cn } from "@/lib/utils";
 
 interface ChartData {
   name: string;
@@ -30,11 +29,11 @@ const chartConfig = {
   },
   male: {
     label: "Followers",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
   },
   female: {
     label: "Followers",
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
@@ -62,22 +61,16 @@ export function FighterPopularityChart({
     <Card className="h-full relative overflow-hidden">
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row relative z-10">
         <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-3 sm:px-6 sm:py-5">
-          <CardTitle className="text-base sm:text-lg text-gray-900 dark:text-white">
+          <CardTitle className="text-base sm:text-lg">
             Total Followers from X and Instagram
           </CardTitle>
         </div>
         <div className="flex">
           {(["male", "female"] as const).map((key) => (
-            <button
-              key={key}
-              data-active={activeChart === key}
-              className={cn(
-                "relative z-30 flex flex-1 flex-col justify-center gap-1",
-                "border-t px-4 py-3 text-left",
-                "even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6",
-                "bg-accent/5",
-                "data-[active=true]:bg-accent/10"
-              )}
+             <button
+             key={key}
+             data-active={activeChart === key}
+             className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
               onClick={() => setActiveChart(key)}
             >
               <span className="text-xs text-muted-foreground">

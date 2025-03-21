@@ -62,7 +62,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground",
+            "block select-none rounded-md p-3 leading-none no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground",
             className
           )}
           {...props}
@@ -82,7 +82,7 @@ interface NavbarProps {
 
 export default function Navbar({ className = "" }: NavbarProps) {
   return (
-    <div className={`sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-b ${className}`}>
+    <div className={`sticky top-0 bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60 z-50 border-b ${className}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -224,7 +224,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
               <nav className="flex flex-col gap-3 mt-4">
                 <Link
                   href="/athletes"
-                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                 >
                   Athletes
                 </Link>
@@ -241,7 +241,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                           <Link
                             key={division.key}
                             href={division.href}
-                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
                             <span className="text-xs text-muted-foreground">
@@ -260,7 +260,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                           <Link
                             key={division.key}
                             href={division.href}
-                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                            className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                           >
                             <span className="block">{division.title}</span>
                             <span className="text-xs text-muted-foreground">
@@ -280,7 +280,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
                       <Link
                         key={ranking.title}
                         href={ranking.href}
-                        className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                        className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                       >
                         <span className="block">{ranking.title}</span>
                         <span className="text-xs text-muted-foreground">
@@ -293,7 +293,7 @@ export default function Navbar({ className = "" }: NavbarProps) {
 
                 <Link
                   href="/retired"
-                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-none transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                 >
                   Retired
                 </Link>

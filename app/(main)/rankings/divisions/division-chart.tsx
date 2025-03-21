@@ -19,7 +19,7 @@ import { DivisionRankings } from "@/server/actions/get-top-5-athletes";
 const chartConfig = {
   followers: {
     label: "Followers",
-    color: "hsl(var(--chart-1))",
+    color: "var(--color-chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -32,7 +32,11 @@ export function DivisionChart({ division }: DivisionChartProps) {
     name: `${athlete.rank}. ${athlete.name}`,
     followers: athlete.followers,
     rank: athlete.rank,
-    fill: `hsl(var(--chart-${athlete.rank}))`,
+    fill: athlete.rank === 1 ? 'oklch(0.646 0.222 41.116)' :
+          athlete.rank === 2 ? 'oklch(0.6 0.118 184.704)' :
+          athlete.rank === 3 ? 'oklch(0.398 0.07 227.392)' :
+          athlete.rank === 4 ? 'oklch(0.828 0.189 84.429)' :
+          'oklch(0.769 0.188 70.08)'
   }));
 
   return (
@@ -64,7 +68,7 @@ export function DivisionChart({ division }: DivisionChartProps) {
               axisLine={false}
               width={140}
               tick={{
-                fill: "hsl(var(--foreground))",
+                fill: "var(--color-foreground)",
                 fontSize: "11px",
                 fontWeight: 500,
                 x: 0,
@@ -82,7 +86,7 @@ export function DivisionChart({ division }: DivisionChartProps) {
             />
             <Bar 
               dataKey="followers" 
-              fill="var(--color-followers)" 
+              fill="fill"
               radius={3} 
             />
           </BarChart>

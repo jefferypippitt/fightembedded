@@ -45,7 +45,7 @@ export default async function Dashboard() {
       </div>
 
       {/* Total Athletes Card */}
-      <Card className="border shadow-sm">
+      <Card className="border shadow-xs">
         <CardContent className="py-4">
           <div className="flex items-center justify-between">
             <div>

@@ -22,7 +22,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="inline-flex items-center rounded-md bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+          className="inline-flex items-center rounded-md bg-gray-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Home

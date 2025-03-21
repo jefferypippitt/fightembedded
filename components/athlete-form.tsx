@@ -227,7 +227,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         className="space-y-6"
       >
         {/* Add Image Upload Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-semibold">Profile Image</h2>
           </div>
@@ -324,7 +324,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
         {/* Personal Information Section */}
 
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-semibold">Personal Information</h2>
           </div>
@@ -518,7 +518,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               control={form.control}
               name="retired"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
                   <div className="space-y-0.5">
                     <FormLabel>Retired Status</FormLabel>
                     <FormDescription>
@@ -538,7 +538,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
 
         {/* Fight Record Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-semibold">Fight Record</h2>
           </div>
@@ -626,7 +626,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
         {/* Performance Stats Section */}
 
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-semibold">Performance Stats</h2>
           </div>

@@ -130,7 +130,7 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
             maxWidth="400px"
           />
         </div>
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <AthleteComparison 
             selectedAthletes={selectedAthletes}
             onClearSelection={handleClearSelection}

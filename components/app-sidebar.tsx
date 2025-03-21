@@ -153,7 +153,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               <DropdownMenuContent
                 side="top"
                 align="start"
-                className="w-[--radix-popper-anchor-width]"
+                className="w-(--radix-popper-anchor-width)"
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">

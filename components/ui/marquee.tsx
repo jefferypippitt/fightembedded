@@ -32,6 +32,11 @@ export default function Marquee({
           reverse && "animate-marquee-reverse",
           pauseOnHover && "group-hover:[animation-play-state:paused]"
         )}
+        style={{
+          animationDuration: "var(--duration)",
+          animationTimingFunction: "linear",
+          animationIterationCount: "infinite",
+        }}
       >
         {children}
       </div>
@@ -42,6 +47,11 @@ export default function Marquee({
           reverse && "animate-marquee-reverse",
           pauseOnHover && "group-hover:[animation-play-state:paused]"
         )}
+        style={{
+          animationDuration: "var(--duration)",
+          animationTimingFunction: "linear",
+          animationIterationCount: "infinite",
+        }}
       >
         {children}
       </div>

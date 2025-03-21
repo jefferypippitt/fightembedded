@@ -53,7 +53,7 @@ export function AthleteListCard({
         "h-full relative overflow-hidden group",
         "border-red-600/10 dark:border-red-600/10",
         "bg-white dark:bg-neutral-950",
-        "shadow-sm hover:shadow-md",
+        "shadow-xs hover:shadow-md",
         "transition-all duration-200",
         "hover:border-red-600/20 dark:hover:border-red-600/20",
         isSelected && "ring-2 ring-primary"
@@ -61,7 +61,7 @@ export function AthleteListCard({
       onClick={onSelect}
     >
       {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
+      <div className="absolute inset-0 bg-linear-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
       
       <CardContent className="p-3 relative z-10">
         {/* Top Badge - Ranking and Age */}
@@ -130,7 +130,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -139,7 +139,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
           />
 
           <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
@@ -148,7 +148,7 @@ export function AthleteListCard({
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 group-hover:[&>div]:bg-red-600/90 dark:group-hover:[&>div]:bg-red-500/90 transition-colors duration-200"
+            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
           />
         </div>
       </CardContent>

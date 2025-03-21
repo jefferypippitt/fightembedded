@@ -114,7 +114,7 @@ export function EventForm({ initialData }: EventFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="bg-card p-4 rounded-lg border shadow-sm">
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-4 w-1 bg-primary rounded-full" />
             <h2 className="text-lg font-semibold">Event Details</h2>

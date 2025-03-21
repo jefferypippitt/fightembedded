@@ -30,7 +30,7 @@ export default async function DivisionRankingsPage() {
     <main className="container mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-6">
       <div className="space-y-4">
         <div className="flex justify-center mb-4">
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
             Top 20 Athletes by Popularity
           </h1>
         </div>

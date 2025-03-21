@@ -31,15 +31,15 @@ export function AnimatedContainer({ children }: { children: React.ReactNode }) {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="flex flex-col w-full gap-0.5 sm:gap-1"
+      className="flex flex-col w-full gap-0.5 sm:gap-1 overflow-hidden"
     >
       {Array.isArray(children) 
         ? children.map((child, index) => (
-            <motion.div key={index} variants={itemVariants}>
+            <motion.div key={index} variants={itemVariants} className="overflow-hidden">
               {child}
             </motion.div>
           ))
-        : <motion.div variants={itemVariants}>{children}</motion.div>
+        : <motion.div variants={itemVariants} className="overflow-hidden">{children}</motion.div>
       }
     </motion.div>
   );

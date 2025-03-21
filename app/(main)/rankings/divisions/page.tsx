@@ -40,7 +40,7 @@ export default async function DivisionRankingsPage() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
           Top 5 Athletes by Division
         </h1>
       </div>

@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
-import { formatDate, cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface EventCardProps {
   name: string;
@@ -25,8 +26,8 @@ export default function EventCard({
         "relative overflow-hidden",
         "border-red-600/20 dark:border-red-600/20",
         "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
+        "bg-linear-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-linear-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent"
       )}
     >
       <CardContent className="p-2.5 h-full flex flex-col justify-between relative z-10">
@@ -38,18 +39,18 @@ export default function EventCard({
             variant="secondary"
             className="bg-red-600/10 dark:bg-red-500/30 text-red-700 dark:text-red-300 hover:bg-red-600/10 dark:hover:bg-red-500/30"
           >
-            {formatDate(date)}
+            {format(date, "MMM d, yyyy")}
           </Badge>
         </div>
 
         <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-200">
-          <MapPin className="h-3 w-3 flex-shrink-0 text-red-600 dark:text-red-400" />
+          <MapPin className="h-3 w-3 shrink-0 text-red-600 dark:text-red-400" />
           <span>
             {venue}, {location}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 bg-black/5 dark:bg-black/40 p-2 rounded-lg">
+        <div className="flex items-center gap-2 p-2 rounded-lg">
           <span className="text-xs bg-red-600 dark:bg-red-500 text-white font-medium px-2 py-0.5 rounded shrink-0">
             Main Event
           </span>

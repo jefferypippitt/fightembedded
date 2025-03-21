@@ -9,8 +9,8 @@ export function P4PSidebarSkeleton() {
         "h-full flex flex-col",
         "border-red-600/20 dark:border-red-600/20",
         "bg-gray-50 dark:bg-zinc-950",
-        "bg-gradient-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-gradient-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
+        "bg-linear-to-r from-transparent via-red-600/[0.03] to-transparent",
+        "dark:bg-linear-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
         "relative overflow-hidden"
       )}
     >
@@ -25,7 +25,7 @@ export function P4PSidebarSkeleton() {
           <div key={i} className="flex items-center space-x-2 p-1.5">
             <Skeleton className="h-4 w-4" />
             <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="flex-grow space-y-2">
+            <div className="grow space-y-2">
               <Skeleton className="h-3 w-24" />
               <Skeleton className="h-3 w-16" />
             </div>

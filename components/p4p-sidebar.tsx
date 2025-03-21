@@ -39,7 +39,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
         priority={true}
       />
     </Avatar>
-    <div className="flex-grow">
+    <div className="grow">
       <p className="font-medium text-sm leading-tight text-gray-900 dark:text-white">
         {fighter.name}
       </p>
@@ -73,13 +73,13 @@ export function P4PSidebarClient({
         "h-full flex flex-col",
         "border-red-600/10 dark:border-red-600/10",
         "bg-white dark:bg-neutral-950",
-        "shadow-sm hover:shadow-md",
+        "shadow-xs hover:shadow-md",
         "transition-all duration-200",
         "hover:border-red-600/20 dark:hover:border-red-600/20",
         "relative overflow-hidden group"
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
+      <div className="absolute inset-0 bg-linear-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
       
       <CardHeader className="p-2 pb-0 shrink-0 relative z-10">
         <div className="flex items-center justify-center mb-2">

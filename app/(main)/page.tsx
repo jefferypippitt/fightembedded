@@ -26,8 +26,8 @@ export default async function Home() {
     <AnimatedContainer>
       <HeroSection />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 sm:gap-3 min-h-[500px]">
-        <div className="lg:col-span-4 space-y-3 sm:space-y-4 lg:space-y-6 order-last lg:order-first">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 sm:gap-3">
+        <div className="lg:col-span-4 space-y-3 sm:space-y-4 lg:space-y-6 order-last lg:order-first overflow-hidden">
           <Suspense fallback={<ChampionsSkeleton />}>
             <ChampionsSection
               maleChampions={maleChampions}
@@ -40,7 +40,7 @@ export default async function Home() {
           </Suspense>
         </div>
 
-        <aside className="lg:col-span-1 h-full">
+        <aside className="lg:col-span-1 overflow-hidden">
           <Suspense fallback={<P4PSidebarSkeleton />}>
             <P4PRankings />
           </Suspense>
