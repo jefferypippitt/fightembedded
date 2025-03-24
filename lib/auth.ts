@@ -2,6 +2,10 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 
+const allowedOrigins = process.env.NODE_ENV === 'development'
+  ? ['http://localhost:3000']
+  : ['https://www.fightembedded.com'];
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -12,7 +16,7 @@ export const auth = betterAuth({
     allowSignUp: false,
   },
   cors: {
-    origin: ['https://www.fightembedded.com'],
+    origin: allowedOrigins,
     credentials: true
   }
 });
