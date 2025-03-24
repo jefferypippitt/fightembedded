@@ -22,7 +22,6 @@ import { authClient } from "@/lib/auth-client";
 export default function SignIn() {
   const form = useForm<z.infer<typeof signInFormSchema>>({
     resolver: zodResolver(signInFormSchema),
-
     defaultValues: {
       email: "",
       password: "",
@@ -38,7 +37,6 @@ export default function SignIn() {
           password,
           callbackURL: "/dashboard",
         },
-
         {
           onRequest: () => {
             toast({
@@ -46,7 +44,6 @@ export default function SignIn() {
               description: "Signing you in...",
             });
           },
-
           onSuccess: () => {
             toast({
               title: "Success!",
