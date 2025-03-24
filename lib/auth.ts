@@ -11,4 +11,8 @@ export const auth = betterAuth({
     autoSignIn: false,
     allowSignUp: false,
   },
+  cors: {
+    origin: ['https://www.fightembedded.com'],
+    credentials: true
+  }
 });
