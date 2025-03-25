@@ -50,8 +50,8 @@ export default async function EditEventPage({ params }: PageProps) {
     };
 
     return (
-      <div className="container max-w-7xl mx-auto py-6 px-4">
-        <h1 className="text-xl font-bold">Edit Event</h1>
+      <div className="py-4">
+        <h1 className="text-xl font-bold mb-6">Edit Event</h1>
         <EventForm initialData={typedEvent} />
       </div>
     );

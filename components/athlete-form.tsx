@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useFormStatus } from "react-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -66,12 +65,17 @@ type AthleteFormProps = {
   initialData?: z.infer<typeof athleteSchema> & { id: string };
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
+function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "Submitting..." : "Submit"}
+    <Button type="submit" disabled={isSubmitting}>
+      {isSubmitting ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Please wait
+        </>
+      ) : (
+        "Submit"
+      )}
     </Button>
   );
 }
@@ -145,6 +149,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
   const [imageUrl, setImageUrl] = useState<string>(initialData?.imageUrl || "");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -171,6 +176,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
   async function onSubmit(data: z.infer<typeof athleteSchema>) {
     try {
+      setIsSubmitting(true);
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
@@ -216,6 +222,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
             : "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -713,7 +721,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
 
         <div className="flex justify-left">
-          <SubmitButton />
+          <SubmitButton isSubmitting={isSubmitting} />
         </div>
       </form>
     </Form>
