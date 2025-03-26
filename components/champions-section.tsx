@@ -43,9 +43,9 @@ export function ChampionsSection({
   const sortedFemaleChampions = sortByDivisionOrder(femaleChampions, true);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {sortedMaleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}
@@ -61,7 +61,7 @@ export function ChampionsSection({
       </section>
 
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {sortedFemaleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}

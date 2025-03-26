@@ -12,7 +12,7 @@ export default function LegalLayout({
 }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6">
-      <div className="max-w-4xl mx-auto">
+      <div>
         {children}
       </div>
     </div>

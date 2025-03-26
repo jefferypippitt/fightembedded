@@ -1,4 +1,4 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent} from "@/components/ui/card";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -48,14 +48,14 @@ export function AthleteCard({
 
   return (
     <Card
-      className="h-full relative overflow-hidden group border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20"
+      className="h-full relative overflow-hidden group border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 p-2"
     >
       {/* Background gradient on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
       
-      <CardContent className="p-3 relative z-10">
+      <CardContent className="p-2 pt-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-2">
           <Badge
             variant="outline"
             className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20 bg-red-50 dark:bg-red-900/10 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors duration-200"
@@ -139,7 +139,7 @@ export function AthleteCard({
         </div>
       </CardContent>
 
-      <CardFooter className="px-3 py-2 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
+      <div className="px-2 py-1 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
             <span className="font-medium">{country}</span>
@@ -151,7 +151,7 @@ export function AthleteCard({
             </span>
           </div>
         </div>
-      </CardFooter>
+      </div>
     </Card>
   );
 }

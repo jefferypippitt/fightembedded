@@ -27,9 +27,8 @@ export default async function DivisionRankingsPage() {
   }));
 
   return (
-    <main className="container mx-auto max-w-5xl px-2 sm:px-4 py-4 sm:py-6">
       <div className="space-y-4">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center">
           <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
             Top 20 Athletes by Popularity
           </h1>
@@ -39,6 +38,6 @@ export default async function DivisionRankingsPage() {
           femaleAthletes={femaleChartData}
         />
       </div>
-    </main>
+   
   );
 }

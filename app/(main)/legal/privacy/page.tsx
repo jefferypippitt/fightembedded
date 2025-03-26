@@ -40,16 +40,6 @@ export default function PrivacyPage() {
           UFC and related trademarks are property of their respective owners.
         </p>
       </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold tracking-tight">Contact Us</h2>
-        <p className="text-sm">
-          Have questions or suggestions? We&apos;d love to hear from you. Reach out to us at{" "}
-          <span className="text-red-600 dark:text-red-400">
-            fightembedded@gmail.com
-          </span>
-        </p>
-      </section>
     </article>
   );
 } 

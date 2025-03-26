@@ -1,32 +1,27 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export function AthleteCardSkeleton() {
   return (
-    <Card className="h-full relative overflow-hidden">
-      <CardContent className="p-3">
-        {/* Top Badge - Ranking and Age */}
-        <div className="flex justify-between items-center mb-3">
-          <Skeleton className="h-5 w-16" />
+    <Card className="h-full relative overflow-hidden group border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 p-2">
+      <CardContent className="p-2 pt-0 relative z-10">
+        {/* Top Badge - Division and Rank/Champion Status */}
+        <div className="flex justify-between items-center mb-2">
+          <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-12" />
         </div>
 
         {/* Avatar and Name section */}
-        <div className="flex flex-col items-center mb-3">
-          <Skeleton className="h-16 w-16 rounded-full" />
-          <div className="text-center mt-2">
+        <div className="flex flex-col items-center mb-2">
+          <Skeleton className="h-14 w-14 rounded-full" />
+          <div className="text-center mt-1">
             <Skeleton className="h-4 w-32 mb-1" />
             <Skeleton className="h-3 w-20" />
           </div>
         </div>
 
-        {/* Division */}
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <Skeleton className="h-5 w-24 rounded-full" />
-        </div>
-
         {/* Stats with Progress Bars */}
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           <div className="flex justify-between items-center">
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-3 w-12" />
@@ -47,7 +42,7 @@ export function AthleteCardSkeleton() {
         </div>
       </CardContent>
 
-      <CardFooter className="px-3 py-2 border-t">
+      <div className="px-2 py-1 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-1">
             <Skeleton className="h-3 w-20" />
@@ -56,7 +51,7 @@ export function AthleteCardSkeleton() {
             <Skeleton className="h-3 w-16" />
           </div>
         </div>
-      </CardFooter>
+      </div>
     </Card>
   )
 }
