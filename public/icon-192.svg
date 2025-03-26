@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="192" height="192" fill="#1F2937"/>
+  
+  <!-- Octagon outline -->
+  <path d="M48 73L73 48H119L144 73V119L119 144H73L48 119V73Z" 
+        stroke="#E5E7EB" 
+        stroke-width="4" 
+        fill="none"/>
+  
+  <!-- Fist silhouette -->
+  <path d="
+    M67 92
+    C67 92, 77 81, 86 81
+    H106
+    C115 81, 125 92, 125 92
+    V100
+    L115 111
+    H77
+    L67 100
+    V92
+    Z" 
+    fill="#E5E7EB"/>
+  
+  <!-- Knuckle details -->
+  <path d="
+    M81 81
+    L81 111
+    M90 81
+    L90 111
+    M100 81
+    L100 111
+    M110 81
+    L110 111
+    " 
+    stroke="#1F2937"
+    stroke-width="3"/>
+  
+  <!-- Thumb -->
+  <path d="
+    M67 96
+    C67 96, 63 100, 63 104
+    C63 108, 67 111, 71 111
+    " 
+    stroke="#E5E7EB"
+    stroke-width="4"
+    fill="none"/>
+</svg> 

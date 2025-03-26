@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="512" height="512" fill="#1F2937"/>
+  
+  <!-- Octagon outline -->
+  <path d="M128 195L195 128H317L384 195V317L317 384H195L128 317V195Z" 
+        stroke="#E5E7EB" 
+        stroke-width="8" 
+        fill="none"/>
+  
+  <!-- Fist silhouette -->
+  <path d="
+    M179 246
+    C179 246, 205 216, 230 216
+    H282
+    C307 216, 333 246, 333 246
+    V266
+    L307 296
+    H205
+    L179 266
+    V246
+    Z" 
+    fill="#E5E7EB"/>
+  
+  <!-- Knuckle details -->
+  <path d="
+    M215 216
+    L215 296
+    M240 216
+    L240 296
+    M265 216
+    L265 296
+    M290 216
+    L290 296
+    " 
+    stroke="#1F2937"
+    stroke-width="6"/>
+  
+  <!-- Thumb -->
+  <path d="
+    M179 256
+    C179 256, 169 266, 169 276
+    C169 286, 179 296, 189 296
+    " 
+    stroke="#E5E7EB"
+    stroke-width="8"
+    fill="none"/>
+</svg> 

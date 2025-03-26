@@ -71,7 +71,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const userData = user ? {
     name: user.name || 'Anonymous',
     email: user.email,
-    avatar: user.image || '/avatars/default.jpg',
+    avatar: user.image || '/images/default-avatar.svg',
     initials: getInitials(user.name || 'Anonymous')
   } : null
 
