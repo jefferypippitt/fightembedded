@@ -3,6 +3,7 @@ import { getEvent } from "@/server/actions/get-event";
 import { notFound } from "next/navigation";
 import { UFCEvent } from "@/types/event";
 import { Metadata } from "next";
+import { SiteHeader } from "@/components/site-header";
 
 interface GenerateMetadataProps {
   params: Promise<{ id: string }>;
@@ -32,16 +33,13 @@ interface PageProps {
 }
 
 export default async function EditEventPage({ params }: PageProps) {
-  // Await the params to access its properties
   const { id } = await params;
 
   try {
-    // Fetch the event using the provided ID
     const event = await getEvent(id);
 
-    // Check if the event was found
     if (!event) {
-      return notFound(); // Handle the case where the event does not exist
+      return notFound();
     }
 
     const typedEvent: UFCEvent = {
@@ -50,9 +48,17 @@ export default async function EditEventPage({ params }: PageProps) {
     };
 
     return (
-      <div className="py-4">
-        <h1 className="text-xl font-bold mb-6">Edit Event</h1>
-        <EventForm initialData={typedEvent} />
+      <div className="flex flex-col gap-6">
+        <SiteHeader title="Edit Event" />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6">
+                <EventForm initialData={typedEvent} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   } catch (error) {

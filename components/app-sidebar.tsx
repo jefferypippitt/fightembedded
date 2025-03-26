@@ -1,182 +1,103 @@
-import { User2, ChevronUp, Users, Calendar } from "lucide-react";
-import { ModeToggle } from "@/components/theme-toggle";
+"use client"
 
+import * as React from "react"
+import {
+  IconChartBar,
+  IconDatabase,
+  IconListDetails,
+  IconReport,
+
+} from "@tabler/icons-react"
+
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import { NavManagement } from "./nav-management"
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
   SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
   SidebarMenuButton,
-} from "@/components/ui/sidebar";
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-import { SignOutButton } from "@/components/sign-out-button";
-
-interface AppSidebarProps {
-  user: {
-    name?: string | null;
-
-    email?: string | null;
-  };
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: {
+    name: string
+    email: string
+    image?: string | null
+  } | null
 }
 
-const favorites = [
-  {
-    name: "Dashboard Overview",
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
 
-    url: "/dashboard",
+const data = {
+  navMain: [
+    {
+      title: "Create Athlete",
+      url: "/dashboard/athletes/new",
+      icon: IconListDetails,
+    },
+    {
+      title: "Create Event",
+      url: "/dashboard/events/new",
+      icon: IconChartBar,
+    },
+  ],
+  management: [
+    {
+      name: "Manage Athletes",
+      url: "/dashboard/athletes",
+      icon: IconDatabase,
+    },
+    {
+      name: "Manage Events",
+      url: "/dashboard/events",
+      icon: IconReport,
+    },
+  ],
+}
 
-    emoji: "🏠",
-  },
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
+  const userData = user ? {
+    name: user.name || 'Anonymous',
+    email: user.email,
+    avatar: user.image || '/avatars/default.jpg',
+    initials: getInitials(user.name || 'Anonymous')
+  } : null
 
-  {
-    name: "Create Athlete",
-
-    url: "/dashboard/athletes/new",
-
-    emoji: "🏋️",
-  },
-
-  {
-    name: "Create Event",
-
-    url: "/dashboard/events/new",
-
-    emoji: "📅",
-  },
-
-  {
-    name: "Back to Fight Embedded",
-
-    url: "/",
-
-    emoji: "🔙",
-  },
-];
-
-const management = [
-  {
-    name: "Manage Athletes",
-
-    url: "/dashboard/athletes",
-
-    icon: Users,
-
-    description: "Add, edit, or remove athletes",
-  },
-  {
-    name: "Manage Events",
-    url: "/dashboard/events",
-    icon: Calendar,
-    description: "Add, edit, or remove events",
-  },
-];
-
-export function AppSidebar({ user }: AppSidebarProps) {
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupLabel>Fight Embedded</SidebarGroupLabel>
-
-          <SidebarMenu>
-            {favorites.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url} title={item.name}>
-                    <span>{item.emoji}</span>
-
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
-
-          <SidebarMenu>
-            {management.map((item) => (
-              <SidebarMenuItem key={item.name}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url} title={item.name}>
-                    <item.icon className="h-4 w-4" />
-
-                    <span className="ml-2">{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Preferences</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <div className="flex items-center px-3 py-2">
-                <ModeToggle />
-                <span className="ml-2">Theme</span>
-              </div>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="w-full">
-                  <User2 className="h-4 w-4" />
-
-                  <span className="ml-2">Admin Account</span>
-
-                  <ChevronUp className="ml-auto h-4 w-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent
-                side="top"
-                align="start"
-                className="w-(--radix-popper-anchor-width)"
-              >
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {user.name}
-                    </p>
-
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem>
-                  <SignOutButton />
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a href="/dashboard">
+                <span className="text-base font-semibold">FightEmbedded</span>
+              </a>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} />
+        <NavManagement items={data.management} />
+      </SidebarContent>
+      <SidebarFooter>
+        {userData && <NavUser user={{ ...userData, initials: userData.initials }} />}
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

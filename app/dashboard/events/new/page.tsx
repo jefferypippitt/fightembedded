@@ -1,10 +1,19 @@
 import { EventForm } from "@/components/event-form";
+import { SiteHeader } from "@/components/site-header";
 
 export default function NewEventPage() {
   return (
-    <div className="py-4">
-      <h1 className="text-xl font-bold mb-6">Add New Event</h1>
-      <EventForm />
-    </div>
+    <>
+      <SiteHeader title="Add New Event" />
+      <div className="flex flex-1 flex-col">
+        <div className="@container/main flex flex-1 flex-col gap-2">
+          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+            <div className="px-4 lg:px-6">
+              <EventForm />
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 } 

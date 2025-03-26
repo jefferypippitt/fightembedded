@@ -1,7 +1,7 @@
-
 import prisma from "@/lib/prisma";
 import { UFCEvent } from "@/types/event";
-import { EventsTable } from "./events-table";
+import { EventsDataTable } from "./events-data-table";
+import { SiteHeader } from "@/components/site-header";
 
 export default async function EventsPage() {
   const events = await prisma.event.findMany({
@@ -15,5 +15,22 @@ export default async function EventsPage() {
     status: event.status as "UPCOMING" | "COMPLETED" | "CANCELLED"
   }));
 
-  return <EventsTable events={typedEvents} />;
+  const upcomingEvents = typedEvents.filter(event => 
+    event.status === "UPCOMING" && new Date(event.date) > new Date()
+  );
+
+  const completedEvents = typedEvents.filter(event => 
+    event.status === "COMPLETED"
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <SiteHeader title="Events" />
+      <EventsDataTable 
+        events={typedEvents}
+        upcomingEvents={upcomingEvents}
+        completedEvents={completedEvents}
+      />
+    </div>
+  );
 } 

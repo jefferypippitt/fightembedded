@@ -20,6 +20,7 @@ export interface Athlete {
   winsByKo: number;
   winsBySubmission: number;
   rank?: number;
+  poundForPoundRank?: number;
   followers: number;
   age: number;
   retired: boolean | null;

@@ -21,35 +21,83 @@ export async function getDashboardStats() {
     createdAt: athlete.createdAt.toISOString() // Convert Date to ISO string for serialization
   }));
 
-  // Get all athletes with wins and losses for win rate calculation
-  const athletesWithStats = await prisma.athlete.findMany({
+  // Get recently retired athletes
+  const recentlyRetiredAthletes = await prisma.athlete.findMany({
     where: {
-      OR: [
-        { wins: { gt: 0 } },
-        { losses: { gt: 0 } }
-      ]
+      retired: true
     },
+    orderBy: {
+      updatedAt: 'desc'
+    },
+    take: 3,
     select: {
       name: true,
       weightDivision: true,
       country: true,
+      updatedAt: true,
       wins: true,
-      losses: true,
-    },
-    orderBy: {
-      wins: 'desc'
+      losses: true
     }
   });
 
-  const athletesWithWinRate = athletesWithStats
-    .map(athlete => ({
-      ...athlete,
-      winRate: athlete.wins + athlete.losses > 0 
-        ? ((athlete.wins / (athlete.wins + athlete.losses)) * 100).toFixed(1)
+  // Format dates for recently retired athletes
+  const formattedRecentlyRetiredAthletes = recentlyRetiredAthletes.map(athlete => ({
+    ...athlete,
+    updatedAt: athlete.updatedAt.toISOString(),
+    winRate: athlete.wins + athlete.losses > 0 
+      ? ((athlete.wins / (athlete.wins + athlete.losses)) * 100).toFixed(1)
+      : '0.0'
+  }));
+
+  // Get pound-for-pound rankings
+  const [maleP4P, femaleP4P] = await Promise.all([
+    prisma.athlete.findFirst({
+      where: {
+        gender: 'MALE',
+        retired: false,
+        poundForPoundRank: 1
+      },
+      select: {
+        name: true,
+        weightDivision: true,
+        country: true,
+        wins: true,
+        losses: true,
+        poundForPoundRank: true
+      }
+    }),
+    prisma.athlete.findFirst({
+      where: {
+        gender: 'FEMALE',
+        retired: false,
+        poundForPoundRank: 1
+      },
+      select: {
+        name: true,
+        weightDivision: true,
+        country: true,
+        wins: true,
+        losses: true,
+        poundForPoundRank: true
+      }
+    })
+  ]);
+
+  // Format pound-for-pound rankings with win rates
+  const poundForPoundRankings = {
+    male: maleP4P ? {
+      ...maleP4P,
+      winRate: maleP4P.wins + maleP4P.losses > 0 
+        ? ((maleP4P.wins / (maleP4P.wins + maleP4P.losses)) * 100).toFixed(1)
         : '0.0'
-    }))
-    .sort((a, b) => parseFloat(b.winRate) - parseFloat(a.winRate))
-    .slice(0, 9);
+    } : null,
+    female: femaleP4P ? {
+      ...femaleP4P,
+      winRate: femaleP4P.wins + femaleP4P.losses > 0 
+        ? ((femaleP4P.wins / (femaleP4P.wins + femaleP4P.losses)) * 100).toFixed(1)
+        : '0.0'
+    } : null
+  };
 
   const [totalAthletes, divisionStats] = await Promise.all([
     prisma.athlete.count(),
@@ -78,7 +126,8 @@ export async function getDashboardStats() {
       value: totalAthletes,
     },
     divisionStats: divisionStatsWithPercentage,
-    topAthletes: athletesWithWinRate,
-    recentAthletes: formattedRecentAthletes
+    poundForPoundRankings,
+    recentAthletes: formattedRecentAthletes,
+    recentlyRetiredAthletes: formattedRecentlyRetiredAthletes
   };
 }

@@ -1,20 +1,11 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+"use client";
+
 import { Button } from "./ui/button";
-import { redirect } from "next/navigation";
-import "server-only";
+import { signOut } from "@/server/actions/auth";
 
 export function SignOutButton() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await auth.api.signOut({
-          headers: await headers(),
-        });
-        redirect("/");
-      }}
-    >
+    <form action={signOut}>
       <Button className="w-full" type="submit">
         Sign Out
       </Button>

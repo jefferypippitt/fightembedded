@@ -42,7 +42,7 @@
   --shiny-gradient: oklch(var(--primary) / 0.1);
   --shiny-gradient-hover: oklch(var(--primary) / 0.2);
 }
- 
+
 .dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
