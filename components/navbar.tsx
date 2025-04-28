@@ -114,6 +114,20 @@ export default function Navbar({ className = "" }: NavbarProps) {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/events"
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "h-9 bg-transparent hover:bg-transparent focus:bg-transparent"
+                    )}
+                  >
+                    Events
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
                 <NavigationMenuTrigger className="h-9 bg-transparent hover:bg-transparent focus:bg-transparent">
                   Weight Divisions
                 </NavigationMenuTrigger>
@@ -227,6 +241,13 @@ export default function Navbar({ className = "" }: NavbarProps) {
                   className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
                 >
                   Athletes
+                </Link>
+
+                <Link
+                  href="/events"
+                  className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
+                >
+                  Events
                 </Link>
 
                 <div className="space-y-2">

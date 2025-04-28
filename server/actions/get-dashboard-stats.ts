@@ -1,12 +1,19 @@
 import prisma from "@/lib/prisma";
 
 export async function getDashboardStats() {
-  // Get recent athletes with formatted date
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  // Get recent athletes from the last 30 days
   const recentAthletes = await prisma.athlete.findMany({
+    where: {
+      createdAt: {
+        gte: thirtyDaysAgo
+      }
+    },
     orderBy: {
       createdAt: 'desc'
     },
-    take: 3,
     select: {
       name: true,
       weightDivision: true,
@@ -18,18 +25,20 @@ export async function getDashboardStats() {
   // Format dates for recent athletes
   const formattedRecentAthletes = recentAthletes.map(athlete => ({
     ...athlete,
-    createdAt: athlete.createdAt.toISOString() // Convert Date to ISO string for serialization
+    createdAt: athlete.createdAt.toISOString()
   }));
 
-  // Get recently retired athletes
+  // Get recently retired athletes from the last 30 days
   const recentlyRetiredAthletes = await prisma.athlete.findMany({
     where: {
-      retired: true
+      retired: true,
+      updatedAt: {
+        gte: thirtyDaysAgo
+      }
     },
     orderBy: {
       updatedAt: 'desc'
     },
-    take: 3,
     select: {
       name: true,
       weightDivision: true,
@@ -48,6 +57,13 @@ export async function getDashboardStats() {
       ? ((athlete.wins / (athlete.wins + athlete.losses)) * 100).toFixed(1)
       : '0.0'
   }));
+
+  // Get total athletes count
+  const totalAthletes = await prisma.athlete.count({
+    where: {
+      retired: false
+    }
+  });
 
   // Get pound-for-pound rankings
   const [maleP4P, femaleP4P] = await Promise.all([
@@ -99,35 +115,12 @@ export async function getDashboardStats() {
     } : null
   };
 
-  const [totalAthletes, divisionStats] = await Promise.all([
-    prisma.athlete.count(),
-    
-    prisma.athlete.groupBy({
-      by: ['weightDivision'],
-      _count: {
-        _all: true,
-      },
-      orderBy: {
-        _count: {
-          weightDivision: 'desc'
-        }
-      }
-    })
-  ]);
-
-  const divisionStatsWithPercentage = divisionStats.map(division => ({
-    division: division.weightDivision,
-    count: division._count._all,
-    percentage: ((division._count._all / totalAthletes) * 100).toFixed(2),
-  }));
-
   return {
     totalAthletes: {
-      value: totalAthletes,
+      value: totalAthletes
     },
-    divisionStats: divisionStatsWithPercentage,
-    poundForPoundRankings,
     recentAthletes: formattedRecentAthletes,
-    recentlyRetiredAthletes: formattedRecentlyRetiredAthletes
+    recentlyRetiredAthletes: formattedRecentlyRetiredAthletes,
+    poundForPoundRankings
   };
 }
