@@ -16,8 +16,9 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { UploadButton } from "@/utils/uploadthing";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
+import { AthleteAvatar } from "@/components/ui/athlete-avatar";
+import { getCountryCode } from "@/lib/country-codes";
 
 import {
   Select,
@@ -58,7 +59,7 @@ import {
 } from "@/components/ui/popover";
 import { ControllerRenderProps } from "react-hook-form";
 import { Switch } from "@/components/ui/switch";
-import Image from "next/image";
+
 
 
 type AthleteFormProps = {
@@ -241,29 +242,11 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="relative">
-              <Avatar className="h-24 w-24 ring-1 ring-border">
-                {imageUrl ? (
-                  <AvatarImage
-                    src={imageUrl}
-                    alt="Profile"
-                    className="object-cover transition-all duration-300"
-                    width={96}
-                    height={96}
-                  />
-                ) : (
-                  <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
-                    <Image
-                      src="/placeholder/image-photography-icon.png"
-                      alt="Profile placeholder"
-                      width={32}
-                      height={32}
-                      className="h-8 w-8 dark:invert"
-                    />
-                  </div>
-                )}
-              </Avatar>
-            </div>
+            <AthleteAvatar 
+              imageUrl={imageUrl} 
+              countryCode={getCountryCode(form.watch("country"))}
+              size="md"
+            />
 
             <FormField
               control={form.control}

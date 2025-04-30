@@ -1,9 +1,9 @@
 import { Card, CardContent} from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Medal } from "lucide-react";
-import Image from "next/image";
+import { AthleteAvatar } from "@/components/ui/athlete-avatar";
+import { getCountryCode } from "@/lib/country-codes";
 
 interface AthleteCardProps {
   name: string;
@@ -81,17 +81,12 @@ export function AthleteCard({
 
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
-          <Avatar className="h-16 w-16 rounded-full ring-1 ring-red-600/20 dark:ring-red-500/30 group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200">
-            <Image
-              src={imageUrl}
-              alt={name}
-              className="object-cover w-full h-full transition-transform duration-200"
-              width={100}
-              height={100}
-              quality={100}
-              priority={true}
-            />
-          </Avatar>
+          <AthleteAvatar
+            imageUrl={imageUrl}
+            countryCode={getCountryCode(country)}
+            size="sm"
+            className="group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200"
+          />
 
           <div className="text-center">
             <h3 className="font-semibold text-sm text-gray-900 dark:text-white">

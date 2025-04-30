@@ -2,9 +2,9 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar } from "@/components/ui/avatar";
-import Image from "next/image";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AthleteAvatar } from "@/components/ui/athlete-avatar";
+import { getCountryCode } from "@/lib/country-codes";
 
 interface Fighter {
   id: string;
@@ -15,6 +15,7 @@ interface Fighter {
   wins: number;
   losses: number;
   draws: number;
+  country: string;
 }
 
 interface P4PSidebarProps {
@@ -27,17 +28,12 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
     <span className="font-bold text-sm w-4 text-gray-900 dark:text-white">
       {fighter.poundForPoundRank}.
     </span>
-    <Avatar className="h-10 w-10 ring-1 ring-red-600/20 dark:ring-red-500/30 group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200">
-      <Image
-        src={fighter.imageUrl}
-        alt={fighter.name}
-        className="object-cover w-full h-full"
-        width={100}
-        height={100}
-        quality={100}
-        priority={true}
-      />
-    </Avatar>
+    <AthleteAvatar
+      imageUrl={fighter.imageUrl}
+      countryCode={getCountryCode(fighter.country)}
+      size="xs"
+      className="ring-red-600/20 dark:ring-red-500/30 group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200"
+    />
     <div className="grow">
       <p className="font-medium text-sm leading-tight text-gray-900 dark:text-white">
         {fighter.name}
