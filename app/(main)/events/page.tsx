@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getAllUpcomingEvents } from "@/server/actions/get-all-events";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
   title: "Upcoming Events | Fight Embedded",
@@ -22,25 +23,30 @@ export default async function EventsPage() {
           <p className="text-muted-foreground">No upcoming events scheduled</p>
         </div>
       ) : (
-        <div className="border border-dashed p-4">
-          <div className="space-y-4">
+        <div className="border border-dashed p-4 rounded-lg">
+          <div className="space-y-6">
             {events.map((event) => (
               <div
                 key={event.id}
-                className="flex items-center justify-between border-b border-dashed pb-4 last:border-0"
+                className="flex items-center justify-between border-b border-dashed pb-6 last:border-0"
               >
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold">{event.name}</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(event.date), "MMMM d, yyyy")}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-semibold">{event.name}</h2>
+                  </div>
+                  <p className="text-sm text-gray-400">
+                    <span className="text-red-500">Date:</span> {format(new Date(event.date), "MMMM d, yyyy")}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {event.venue} • {event.location}
+                  <p className="text-sm text-gray-400">
+                    <span className="text-red-500">Venue:</span> {event.venue}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    <span className="text-red-500">Location:</span> {event.location}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium">Main Event Fighters</p>
-                  <p className="text-sm text-muted-foreground">{event.mainEvent}</p>
+                  <Badge variant="destructive" className="mb-2">Main Event</Badge>
+                  <p className="text-sm text-gray-400">{event.mainEvent}</p>
                 </div>
               </div>
             ))}
