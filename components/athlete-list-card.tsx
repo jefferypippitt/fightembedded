@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
@@ -64,7 +64,7 @@ export function AthleteListCard({
       {/* Background gradient on hover */}
       <div className="absolute inset-0 bg-linear-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
       
-      <div className="p-2 pt-0 relative z-10">
+      <CardContent className="p-2 pt-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-2">
           {retired ? (
@@ -82,7 +82,7 @@ export function AthleteListCard({
           )}
           {age && (
             <span className="text-[10px] text-muted-foreground">
-              {age} years
+              Age: {age}
             </span>
           )}
         </div>
@@ -147,9 +147,9 @@ export function AthleteListCard({
             className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
           />
         </div>
-      </div>
+      </CardContent>
 
-      <div className="px-2 py-1 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
+      <CardFooter className="px-2 py-1 border-red-600/10 dark:border-red-500/20 relative z-10">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
             <span className="font-medium">{country}</span>
@@ -161,7 +161,7 @@ export function AthleteListCard({
             </span>
           </div>
         </div>
-      </div>
+      </CardFooter>
     </Card>
   );
 }

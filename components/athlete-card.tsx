@@ -1,4 +1,4 @@
-import { Card, CardContent} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Medal } from "lucide-react";
@@ -97,7 +97,7 @@ export function AthleteCard({
             </h4>
             {age && (
               <span className="text-xs text-muted-foreground">
-                {age} years
+                Age: {age}
               </span>
             )}
           </div>
@@ -134,7 +134,7 @@ export function AthleteCard({
         </div>
       </CardContent>
 
-      <div className="px-2 py-1 border-t border-red-600/10 dark:border-red-500/20 relative z-10">
+      <CardFooter className="px-2  border-red-600/10 dark:border-red-500/20 relative z-10">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
             <span className="font-medium">{country}</span>
@@ -146,7 +146,7 @@ export function AthleteCard({
             </span>
           </div>
         </div>
-      </div>
+      </CardFooter>
     </Card>
   );
 }

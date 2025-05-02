@@ -41,6 +41,7 @@ export default async function Home() {
         </div>
 
         <aside className="lg:col-span-1 overflow-hidden">
+          <h1 className="text-center">Pound For Pound Rankings</h1>
           <Suspense fallback={<P4PSidebarSkeleton />}>
             <P4PRankings />
           </Suspense>

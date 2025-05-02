@@ -59,14 +59,10 @@ export function P4PSidebarClient({
   femaleP4PRankings,
 }: P4PSidebarProps) {
   return (
-    <Card className="w-full border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 relative overflow-hidden group">
-      <div className="absolute inset-0 bg-linear-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
-      <CardContent className="relative z-10 p-2">
-        <h2 className="text-sm text-center mb-2 text-gray-900 dark:text-white">
-          Pound for Pound Rankings
-        </h2>
+    <Card className="border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 relative overflow-hidden group">
+      <CardContent className="relative z-10 p-0 mx-1">
         <Tabs defaultValue="male">
-          <TabsList className="grid w-full grid-cols-2 bg-red-700/10 dark:bg-red-700/20">
+          <TabsList className="w-full bg-red-700/10 dark:bg-red-700/20">
             <TabsTrigger 
               value="male"
               className="data-[state=active]:bg-red-500/20 dark:data-[state=active]:bg-red-600/20"
@@ -80,15 +76,15 @@ export function P4PSidebarClient({
               Female
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="male" className="mt-0">
-            <ul className="space-y-1 -ml-1">
+          <TabsContent value="male">
+            <ul className="space-y-1">
               {maleP4PRankings.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}
             </ul>
           </TabsContent>
-          <TabsContent value="female" className="mt-0">
-            <ul className="space-y-1 -ml-1">
+          <TabsContent value="female">
+            <ul className="space-y-1">
               {femaleP4PRankings.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}

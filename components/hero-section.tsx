@@ -47,19 +47,18 @@ const createStatsData = (stats: Stats): StatItem[] => [
 ];
 
 const StatCard = ({ stat }: { stat: StatItem }) => (
-  <div className="group relative overflow-hidden rounded-lg bg-white dark:bg-neutral-950 p-2.5 shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 border border-red-600/10 dark:border-red-600/10 hover:border-red-600/30 dark:hover:border-red-600/30">
-    <div className="absolute inset-0 bg-linear-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/5 group-hover:to-red-600/10 transition-all duration-300" />
-    <div className="relative flex flex-col items-center space-y-1.5">
-      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 shadow-md group-hover:shadow-red-500/20 transition-all duration-300">
+  <div className="relative rounded-lg bg-white dark:bg-neutral-950 p-1.5 sm:p-2.5 shadow-md border border-red-600/10 dark:border-red-600/10">
+    <div className="flex flex-col items-center space-y-1">
+      <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 shadow-md">
         {stat.icon}
       </div>
       <div className="flex items-center space-x-0.5">
-        <NumberTicker value={stat.value} className="text-lg font-bold" />
+        <NumberTicker value={stat.value} className="text-base sm:text-lg font-bold" />
         {stat.suffix && (
-          <span className="text-lg font-bold text-red-600">{stat.suffix}</span>
+          <span className="text-base sm:text-lg font-bold text-red-600">{stat.suffix}</span>
         )}
       </div>
-      <span className="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-300">
+      <span className="text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400">
         {stat.label}
       </span>
     </div>
@@ -67,26 +66,20 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
 );
 
 const HeroContent = () => (
-  <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-2 lg:space-y-3 flex-1">
-    <div className="space-y-1">
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-800 dark:text-gray-100">
-          Your Ultimate Source for
-        </h1>
-      </div>
-      <div>
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-red-500 dark:text-red-500">
-          UFC Fighter Stats
-        </h1>
-      </div>
+  <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-3 md:space-y-4 w-full lg:flex-1">
+    <div className="space-y-1 w-full">
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-800 dark:text-gray-100">
+        Your Ultimate Source for
+      </h1>
+      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-red-500 dark:text-red-500">
+        UFC Fighter Stats
+      </h1>
     </div>
-    <div>
-      <p className="text-sm sm:text-base font-medium max-w-md lg:max-w-none">
-        Dive into comprehensive profiles, detailed performance stats, and
-        current rankings for every UFC athlete.
-      </p>
-    </div>
-    <div>
+    <p className="text-sm sm:text-base font-medium max-w-md">
+      Dive into comprehensive profiles, detailed performance stats, and
+      current rankings for every UFC athlete.
+    </p>
+    <div className="mt-1 mb-2 md:mt-2 md:mb-0">
       <Link href="/athletes">
         <ShinyButton>Explore All Athletes</ShinyButton>
       </Link>
@@ -94,20 +87,21 @@ const HeroContent = () => (
   </div>
 );
 
+const LiveUpdatesBadge = () => (
+  <Badge
+    variant="outline"
+    className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30 text-xs mb-1 md:mb-2"
+  >
+    <Dot className="h-3 w-3 sm:h-4 sm:w-4 animate-pulse text-green-500 dark:text-green-400" />
+    Live Updates
+  </Badge>
+);
+
 const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
-  <div className="flex flex-col items-center gap-2 w-full lg:w-auto lg:max-w-md">
-    <Badge
-      variant="outline"
-      className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30"
-    >
-      <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
-      Live Updates
-    </Badge>
-    <div className="grid grid-cols-2 gap-2 w-full">
-      {statsData.map((stat, index) => (
-        <StatCard key={index} stat={stat} />
-      ))}
-    </div>
+  <div className="grid grid-cols-4 md:grid-cols-2 gap-1.5 sm:gap-2 w-full max-w-screen-sm md:max-w-xs lg:max-w-md">
+    {statsData.map((stat, index) => (
+      <StatCard key={index} stat={stat} />
+    ))}
   </div>
 );
 
@@ -116,11 +110,15 @@ export default async function HeroSection() {
   const statsData = createStatsData(stats);
 
   return (
-    <div className="w-full pb-4 sm:pb-6">
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-2 lg:gap-3">
+    <section className="w-full pb-4 sm:pb-6 px-3 sm:px-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
         <HeroContent />
-        <StatsGrid statsData={statsData} />
+        
+        <div className="w-full md:w-auto flex flex-col items-center">
+          <LiveUpdatesBadge />
+          <StatsGrid statsData={statsData} />
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
