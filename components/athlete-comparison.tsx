@@ -45,7 +45,7 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
           <SheetTitle>Athlete Comparison</SheetTitle>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 px-4">
             {selectedAthletes.map((athlete) => (
               <AthleteListCard
                 key={athlete.id}
@@ -67,8 +67,9 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
             ))}
           </div>
           <Button 
-            variant="ghost" 
-            className="w-full mt-4"
+            variant="default" 
+            size="lg"
+            className='mx-auto block mt-4 w-1/2'
             onClick={() => {
               onClearSelection()
               setOpen(false)
