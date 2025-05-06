@@ -6,6 +6,8 @@ import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
 import { z } from "zod";
 import { ActionResponse, EventInput } from "@/types/event";
+import { revalidatePath } from "next/cache";
+import { revalidateEvents } from "./get-all-events";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -40,6 +42,11 @@ export async function createEvent(formData: FormData): Promise<ActionResponse> {
     const event = await prisma.event.create({
       data: validatedData,
     });
+
+    // Revalidate events pages
+    revalidatePath('/events');
+    revalidatePath('/dashboard/events');
+    revalidateEvents();
 
     return {
       status: "success",

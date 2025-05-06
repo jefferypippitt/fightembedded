@@ -16,13 +16,15 @@ export type Event = {
 
 export async function getAllUpcomingEvents() {
   try {
+    const currentDate = new Date();
+    
     const events = await prisma.event.findMany({
       where: {
         AND: [
           { status: "UPCOMING" },
           {
             date: {
-              gte: new Date(),
+              gte: currentDate,
             },
           },
         ],
