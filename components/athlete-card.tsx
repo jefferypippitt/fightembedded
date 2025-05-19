@@ -86,6 +86,7 @@ export function AthleteCard({
             countryCode={getCountryCode(country)}
             size="sm"
             className="group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200"
+            priority={isChampion}
           />
 
           <div className="text-center">

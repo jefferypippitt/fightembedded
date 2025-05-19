@@ -9,6 +9,7 @@ interface AthleteAvatarProps {
   countryCode?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
+  priority?: boolean;
 }
 
 const sizeMap = {
@@ -22,7 +23,8 @@ export function AthleteAvatar({
   imageUrl, 
   countryCode, 
   size = 'md',
-  className = ''
+  className = '',
+  priority = false
 }: AthleteAvatarProps) {
   return (
     <div className="relative">
@@ -56,6 +58,7 @@ export function AthleteAvatar({
             src={imageUrl}
             alt="Profile"
             className="object-cover transition-all duration-300"
+            fetchPriority={priority ? "high" : "auto"}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -65,6 +68,7 @@ export function AthleteAvatar({
               width={32}
               height={32}
               className="h-8 w-8 dark:invert"
+              priority={priority}
             />
           </div>
         )}

@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -60,6 +60,16 @@ export async function updateAthlete(
       },
     });
 
+    // Revalidate cache tags to immediately update data
+    revalidateTag('all-athletes');
+    revalidateTag('athlete-by-id');
+    revalidateTag('athletes-by-division');
+    revalidateTag('p4p-rankings');
+    revalidateTag('champions');
+    revalidateTag('undefeated-athletes');
+    revalidateTag('retired-athletes');
+
+    // Revalidate paths
     revalidatePath("/");
     revalidatePath("/athletes");
     revalidatePath("/retired");
@@ -117,6 +127,12 @@ export async function updateAthleteStatus(
       data: { retired },
     });
 
+    // Revalidate cache tags
+    revalidateTag('all-athletes');
+    revalidateTag('athlete-by-id');
+    revalidateTag('retired-athletes');
+    
+    // Revalidate paths
     revalidatePath("/retired");
     revalidatePath("/athletes");
     revalidatePath(`/athlete/${athleteId}`);

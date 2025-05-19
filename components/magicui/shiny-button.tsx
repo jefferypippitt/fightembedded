@@ -34,7 +34,7 @@ function ShinyButton({
     <motion.button
       data-slot="shiny-button"
       className={cn(
-        "relative overflow-hidden rounded-lg",
+        "relative overflow-hidden rounded-lg cursor-pointer",
         "px-3 py-1.5 sm:px-4 sm:py-2 md:px-5 md:py-2",
         "bg-black/5 dark:bg-white/5 backdrop-blur-xl transition-all duration-300",
         "hover:shadow-[0_0_1rem_var(--color-shiny-gradient)]",

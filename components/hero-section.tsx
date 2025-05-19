@@ -3,15 +3,14 @@ import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
-import { Dot, Trophy, Users, Weight, Calendar } from "lucide-react";
+import { Dot, PlusCircle } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
 
 
 interface StatItem {
   value: number;
   label: string;
-  suffix?: string;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
 interface Stats {
@@ -25,43 +24,32 @@ const createStatsData = (stats: Stats): StatItem[] => [
   {
     value: stats.activeAthletes,
     label: "UFC Athletes",
-    suffix: "+",
-    icon: <Users className="h-3.5 w-3.5" />,
+    icon: <PlusCircle className="h-4 w-4 text-red-600" />,
   },
   {
     value: stats.weightClasses,
     label: "Weight Classes",
-    icon: <Weight className="h-3.5 w-3.5" />,
   },
   {
     value: stats.champions,
     label: "Champions",
-    icon: <Trophy className="h-3.5 w-3.5" />,
   },
   {
     value: stats.events,
     label: "Events",
-    suffix: "+",
-    icon: <Calendar className="h-3.5 w-3.5" />,
+    icon: <PlusCircle className="h-4 w-4 text-red-600" />,
   },
 ];
 
 const StatCard = ({ stat }: { stat: StatItem }) => (
-  <div className="relative rounded-lg bg-white dark:bg-neutral-950 p-1.5 sm:p-2.5 shadow-md border border-red-600/10 dark:border-red-600/10">
-    <div className="flex flex-col items-center space-y-1">
-      <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 shadow-md">
-        {stat.icon}
-      </div>
-      <div className="flex items-center space-x-0.5">
-        <NumberTicker value={stat.value} className="text-base sm:text-lg font-bold" />
-        {stat.suffix && (
-          <span className="text-base sm:text-lg font-bold text-red-600">{stat.suffix}</span>
-        )}
-      </div>
-      <span className="text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400">
-        {stat.label}
-      </span>
+  <div className="text-center">
+    <div className="flex items-center justify-center space-x-1">
+      <NumberTicker value={stat.value} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100" />
+      {stat.icon && stat.icon}
     </div>
+    <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+      {stat.label}
+    </span>
   </div>
 );
 
@@ -98,7 +86,7 @@ const LiveUpdatesBadge = () => (
 );
 
 const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
-  <div className="grid grid-cols-4 md:grid-cols-2 gap-1.5 sm:gap-2 w-full max-w-screen-sm md:max-w-xs lg:max-w-md">
+  <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-[280px]">
     {statsData.map((stat, index) => (
       <StatCard key={index} stat={stat} />
     ))}

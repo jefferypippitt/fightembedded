@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -55,6 +56,37 @@ export async function createAthlete(
         poundForPoundRank: validatedData.poundForPoundRank ?? 0,
       },
     }) as Athlete;
+
+    // Revalidate cache tags to immediately update data
+    revalidateTag('all-athletes');
+    revalidateTag('athletes-by-division');
+    
+    if (validatedData.rank === 1) {
+      revalidateTag('champions');
+    }
+    
+    if (validatedData.losses === 0) {
+      revalidateTag('undefeated-athletes');
+    }
+    
+    if (validatedData.retired) {
+      revalidateTag('retired-athletes');
+    }
+    
+    if (validatedData.poundForPoundRank > 0) {
+      revalidateTag('p4p-rankings');
+    }
+
+    // Revalidate paths
+    revalidatePath("/");
+    revalidatePath("/athletes");
+    if (validatedData.retired) {
+      revalidatePath("/retired");
+    }
+    revalidatePath("/rankings/divisions");
+    revalidatePath("/rankings/popularity");
+    revalidatePath(`/division/${encodeURIComponent(validatedData.weightDivision)}`, "page");
+    revalidatePath("/dashboard/athletes");
 
     return {
       status: "success",
