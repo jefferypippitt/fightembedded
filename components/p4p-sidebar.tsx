@@ -59,23 +59,28 @@ export function P4PSidebarClient({
   femaleP4PRankings,
 }: P4PSidebarProps) {
   return (
-    <Card className="border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 relative overflow-hidden group">
-      <CardContent className="relative z-10 p-0 mx-1">
-        <Tabs defaultValue="male">
-          <TabsList className="w-full bg-red-700/10 dark:bg-red-700/20">
-            <TabsTrigger 
-              value="male"
-              className="data-[state=active]:bg-red-500/20 dark:data-[state=active]:bg-red-600/20"
-            >
-              Male
-            </TabsTrigger>
-            <TabsTrigger 
-              value="female"
-              className="data-[state=active]:bg-red-500/20 dark:data-[state=active]:bg-red-600/20"
-            >
-              Female
-            </TabsTrigger>
-          </TabsList>
+    <Card className="border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 relative overflow-hidden group p-0">
+      <Tabs defaultValue="male" className="w-full">
+        <TabsList className="w-full bg-red-700/10 dark:bg-red-700/20 rounded-b-none rounded-t-sm">
+          <TabsTrigger 
+            value="male"
+            className="data-[state=active]:bg-red-500/20 dark:data-[state=active]:bg-red-600/20"
+          >
+            Male
+          </TabsTrigger>
+          <TabsTrigger 
+            value="female"
+            className="data-[state=active]:bg-red-500/20 dark:data-[state=active]:bg-red-600/20"
+          >
+            Female
+          </TabsTrigger>
+        </TabsList>
+        
+        <h2 className="font-semibold text-center py-2 text-sm text-gray-900 dark:text-white border-b border-red-600/10 dark:border-red-600/10">
+          Pound For Pound Rankings
+        </h2>
+        
+        <CardContent className="relative z-10 p-0 mx-1 pt-1">
           <TabsContent value="male">
             <ul className="space-y-1">
               {maleP4PRankings.map((fighter) => (
@@ -90,8 +95,8 @@ export function P4PSidebarClient({
               ))}
             </ul>
           </TabsContent>
-        </Tabs>
-      </CardContent>
+        </CardContent>
+      </Tabs>
     </Card>
   );
 }

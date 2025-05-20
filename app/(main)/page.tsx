@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-
 import { P4PSidebarSkeleton } from "@/components/p4p-sidebar-skeleton";
 import { ChampionsSection } from "@/components/champions-section";
 import { ChampionsSkeleton } from "@/components/champions-section-skeleton";
@@ -10,7 +9,6 @@ import { EventMarqueeSection } from "@/components/event-marquee";
 import HeroSection from "@/components/hero-section";
 import { Metadata } from "next";
 import { P4PRankings } from "@/components/p4p-rankings";
-import { AnimatedContainer } from "@/components/animated-container";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -23,7 +21,7 @@ export default async function Home() {
   const events = await getUpcomingEvents();
 
   return (
-    <AnimatedContainer>
+    <div>
       <HeroSection />
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 sm:gap-3">
@@ -41,12 +39,11 @@ export default async function Home() {
         </div>
 
         <aside className="lg:col-span-1 overflow-hidden">
-          <h1 className="text-center">Pound For Pound Rankings</h1>
           <Suspense fallback={<P4PSidebarSkeleton />}>
             <P4PRankings />
           </Suspense>
         </aside>
       </div>
-    </AnimatedContainer>
+    </div>
   );
 }

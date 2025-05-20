@@ -70,21 +70,12 @@ export function FighterPopularityChart({
              <button
              key={key}
              data-active={activeChart === key}
-             className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6"
+             className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6 cursor-pointer"
               onClick={() => setActiveChart(key)}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <span 
-                  className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-medium ${
-                    key === "male" 
-                      ? "bg-[var(--chart-1)] text-white" 
-                      : "bg-[var(--chart-2)] text-white"
-                  }`}
-                >
-                  {key === "male" ? "M" : "F"}
-                </span>
-                <span className="text-xs text-muted-foreground capitalize">
-                  {key} {chartConfig[key].label}
+              <div className="flex items-center mb-1">
+                <span className="text-xs text-muted-foreground">
+                  {key === "male" ? "Male" : "Female"} {chartConfig[key].label}
                 </span>
               </div>
               <span className="text-base sm:text-3xl font-bold leading-none">

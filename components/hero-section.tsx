@@ -3,7 +3,7 @@ import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
-import { Dot, PlusCircle } from "lucide-react";
+import { Dot, TrendingUp } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
 
 
@@ -24,7 +24,7 @@ const createStatsData = (stats: Stats): StatItem[] => [
   {
     value: stats.activeAthletes,
     label: "UFC Athletes",
-    icon: <PlusCircle className="h-4 w-4 text-red-600" />,
+    icon: <TrendingUp className="h-4 w-4 text-green-600" />,
   },
   {
     value: stats.weightClasses,
@@ -37,7 +37,7 @@ const createStatsData = (stats: Stats): StatItem[] => [
   {
     value: stats.events,
     label: "Events",
-    icon: <PlusCircle className="h-4 w-4 text-red-600" />,
+    icon: <TrendingUp className="h-4 w-4 text-green-600" />,
   },
 ];
 
