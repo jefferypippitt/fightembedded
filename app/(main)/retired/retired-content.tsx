@@ -55,15 +55,5 @@ function Athletes({
 }
 
 export function RetiredContent({ athletes }: RetiredContentProps) {
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-center">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-          Retired UFC Athletes
-        </h1>
-      </div>
-
-      <Athletes athletes={athletes} />
-    </div>
-  )
+  return <Athletes athletes={athletes} />
 } 

@@ -1,5 +1,7 @@
 import { Athlete } from "@prisma/client";
 import { AthleteCard } from "@/components/athlete-card";
+import { Suspense } from "react";
+import { ChampionsSkeleton } from "./champions-section-skeleton";
 
 interface ChampionsSectionProps {
   maleChampions: Athlete[];
@@ -34,7 +36,8 @@ function sortByDivisionOrder(champions: Athlete[], isWomen: boolean) {
   });
 }
 
-export function ChampionsSection({
+// Server Component for data transformation
+async function ChampionsData({
   maleChampions,
   femaleChampions,
 }: ChampionsSectionProps) {
@@ -43,7 +46,7 @@ export function ChampionsSection({
   const sortedFemaleChampions = sortByDivisionOrder(femaleChampions, true);
 
   return (
-    <div className="space-y-4">
+    <>
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {sortedMaleChampions.map((champion) => (
@@ -75,6 +78,17 @@ export function ChampionsSection({
           ))}
         </div>
       </section>
+    </>
+  );
+}
+
+// Main component with Suspense boundary
+export function ChampionsSection(props: ChampionsSectionProps) {
+  return (
+    <div className="space-y-4">
+      <Suspense fallback={<ChampionsSkeleton />}>
+        <ChampionsData {...props} />
+      </Suspense>
     </div>
   );
 }

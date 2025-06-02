@@ -1,10 +1,12 @@
-import { getP4PRankings } from "@/server/actions/get-p4p";
 import { P4PSidebarClient } from "./p4p-sidebar";
 import { Athlete } from "@prisma/client";
 
-export async function P4PRankings() {
-  const { maleP4PRankings, femaleP4PRankings } = await getP4PRankings();
+interface P4PRankingsProps {
+  maleP4PRankings: Athlete[];
+  femaleP4PRankings: Athlete[];
+}
 
+export function P4PRankings({ maleP4PRankings, femaleP4PRankings }: P4PRankingsProps) {
   const mapRankings = (rankings: Athlete[]) =>
     rankings.map((fighter) => ({
       ...fighter,

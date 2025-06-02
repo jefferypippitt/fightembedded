@@ -1,6 +1,6 @@
 "use client";
 
-import { Event } from "@prisma/client";
+import { Event } from "@/types/event";
 import Marquee from "@/components/ui/marquee";
 import EventCard from "./event-card";
 
@@ -33,10 +33,10 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
       </div>
       <div className="w-[900px] mx-auto">
         <Marquee pauseOnHover className="[--duration:40s]">
-            {events.map((event) => (
-              <EventCard key={event.id} {...event} />
-            ))}
-          </Marquee>
+          {events.map((event) => (
+            <EventCard key={event.id} {...event} />
+          ))}
+        </Marquee>
       </div>
     </section>
   );

@@ -2,14 +2,9 @@ import { Card } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Event } from "@/types/event";
 
-interface EventCardProps {
-  name: string;
-  date: Date;
-  venue: string;
-  location: string;
-  mainEvent: string;
-}
+type EventCardProps = Pick<Event, "name" | "date" | "venue" | "location" | "mainEvent">;
 
 export default function EventCard({
   name,

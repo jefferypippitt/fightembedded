@@ -76,7 +76,7 @@ export function P4PSidebarClient({
           </TabsTrigger>
         </TabsList>
         
-        <h2 className="font-semibold text-center py-2 text-sm text-gray-900 dark:text-white border-b border-red-600/10 dark:border-red-600/10">
+        <h2 className="font-medium text-center py-2 text-gray-900 dark:text-white border-b border-red-600/10 dark:border-red-600/10">
           Pound For Pound Rankings
         </h2>
         

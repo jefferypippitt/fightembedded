@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import 'flag-icons/css/flag-icons.min.css';
 
 interface AthleteAvatarProps {
@@ -30,13 +31,20 @@ export function AthleteAvatar({
     <div className="relative">
       {/* Flag Background */}
       {countryCode && (
-        <div 
-          className={`absolute inset-0 ${sizeMap[size]} rounded-full overflow-hidden`}
-          style={{
-            background: `center / cover no-repeat url(https://flagcdn.com/${countryCode.toLowerCase()}.svg)`,
-            opacity: '0.8',
-          }}
-        />
+        <div className="relative">
+          <Image
+            src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
+            alt={`${countryCode} flag`}
+            width={size === 'xs' ? 40 : size === 'sm' ? 64 : size === 'md' ? 96 : 128}
+            height={size === 'xs' ? 40 : size === 'sm' ? 64 : size === 'md' ? 96 : 128}
+            className={cn(
+              sizeMap[size],
+              "rounded-full object-cover opacity-80",
+              "absolute inset-0"
+            )}
+            priority={priority}
+          />
+        </div>
       )}
       
       {/* Gradient Overlay for better image visibility */}
@@ -57,7 +65,7 @@ export function AthleteAvatar({
           <AvatarImage
             src={imageUrl}
             alt="Profile"
-            className="object-cover transition-all duration-300"
+            className="object-cover"
             fetchPriority={priority ? "high" : "auto"}
           />
         ) : (

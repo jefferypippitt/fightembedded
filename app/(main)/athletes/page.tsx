@@ -1,30 +1,37 @@
-import { AthletesClient } from "./athletes-client"
-import { getAthletes } from "@/server/actions/athlete"
+import { getAthletes } from '@/server/actions/athlete'
+import { Metadata } from "next"
+import { AthletesContent } from './athletes-content'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Athletes",
-  description: "All UFC Athletes",
+  description: "Browse all UFC fighters and their career statistics",
 }
 
 export default async function AthletesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: Promise<{ query?: string }>
 }) {
-  const [athletes, params] = await Promise.all([
-    getAthletes(),
-    searchParams
-  ])
+  const athletes = await getAthletes()
+  const params = await searchParams
+  const query = params.query || ''
+  
+  // Enhanced server-side filtering with better search logic
+  const filteredAthletes = query.trim()
+    ? athletes.filter((athlete) => {
+        const searchTerm = query.toLowerCase().trim()
+        const searchTerms = searchTerm.split(/\s+/)
+        
+        // Check if all search terms are found in any of the searchable fields
+        return searchTerms.every(term => {
+          const nameMatch = athlete.name.toLowerCase().includes(term)
+          const countryMatch = athlete.country.toLowerCase().includes(term)
+          const divisionMatch = athlete.weightDivision.toLowerCase().includes(term)
+          
+          return nameMatch || countryMatch || divisionMatch
+        })
+      })
+    : athletes
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-          All UFC Athletes
-        </h1>
-      </div>
-
-      <AthletesClient searchParams={params} athletes={athletes} />
-    </div>
-  )
+  return <AthletesContent athletes={filteredAthletes} />
 }

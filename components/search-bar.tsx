@@ -1,10 +1,12 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRef, useState, useCallback } from "react";
+import { useDebouncedCallback } from "use-debounce";
+import { cn } from "@/lib/utils";
 
 export interface SearchBarProps {
   defaultValue?: string
@@ -12,6 +14,7 @@ export interface SearchBarProps {
   placeholder?: string
   'aria-label'?: string
   maxWidth?: string
+  isLoading?: boolean
 }
 
 export function SearchBar({ 
@@ -19,9 +22,11 @@ export function SearchBar({
   onChange, 
   placeholder = 'Search...',
   'aria-label': ariaLabel = 'Search',
-  maxWidth = '100%'
+  maxWidth = '100%',
+  isLoading = false
 }: SearchBarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState(defaultValue || "");
@@ -41,34 +46,51 @@ export function SearchBar({
       inputRef.current.value = "";
       setValue("");
       // Update URL and trigger new search without the query parameter
-      router.push(`?${createQueryString("")}`);
+      router.replace(`${pathname}?${createQueryString("")}`);
       onChange?.("");
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Debounced URL update handler
+  const debouncedUrlUpdate = useDebouncedCallback((term: string) => {
+    router.replace(`${pathname}?${createQueryString(term)}`);
+    onChange?.(term);
+  }, 300);
+
+  // Immediate input update handler
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
-    // Update URL and trigger new search with the query parameter
-    router.push(`?${createQueryString(newValue)}`);
-    onChange?.(newValue);
-  };
+    debouncedUrlUpdate(newValue);
+  }, [debouncedUrlUpdate]);
 
   return (
     <div className="w-full" style={{ maxWidth }}>
       <div className="relative w-full">
-        <Search className="absolute left-2 top-2.5 h-4 w-4" />
+        <Search className={cn(
+          "absolute left-2 top-2.5 h-4 w-4 text-muted-foreground",
+          isLoading && "opacity-50"
+        )} />
         <Input
           ref={inputRef}
           name="query"
           placeholder={placeholder}
           type="search"
           value={value}
-          onChange={handleChange}
-          className="pl-8 pr-8 w-full [&::-webkit-search-cancel-button]:hidden placeholder:text-sm"
+          onChange={handleInputChange}
+          className={cn(
+            "pl-8 pr-8 w-full [&::-webkit-search-cancel-button]:hidden placeholder:text-sm",
+            isLoading && "pr-12"
+          )}
           aria-label={ariaLabel}
+          disabled={isLoading}
         />
-        {value && (
+        {isLoading && (
+          <div className="absolute right-8 top-1/2 -translate-y-1/2">
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          </div>
+        )}
+        {value && !isLoading && (
           <Button
             variant="ghost"
             size="icon"

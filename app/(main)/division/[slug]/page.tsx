@@ -6,10 +6,11 @@ import {
   getFullDivisionName,
 } from "@/data/weight-class";
 import { DivisionContent } from "./division-content";
-import { getDivisionAthletes } from "@/server/actions/division";
+import { getDivisionAthletes } from "@/server/actions/athlete";
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ query?: string }>;
 }
 
 export async function generateMetadata({
@@ -68,16 +69,30 @@ export async function generateMetadata({
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ query?: string }>;
 }
 
-export default async function DivisionPage({ params }: PageProps) {
+export default async function DivisionPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { query } = await searchParams;
 
   if (!slug) return notFound();
 
   // Get division athletes using the server action
   const divisionData = await getDivisionAthletes(slug);
   if (!divisionData) return notFound();
+
+  // Filter athletes based on search query
+  const filteredAthletes = query
+    ? divisionData.athletes.filter((athlete) => {
+        const searchTerm = query.toLowerCase();
+        return (
+          athlete.name.toLowerCase().includes(searchTerm) ||
+          athlete.country.toLowerCase().includes(searchTerm) ||
+          athlete.weightDivision.toLowerCase().includes(searchTerm)
+        );
+      })
+    : divisionData.athletes;
 
   return (
     <div className="space-y-6">
@@ -86,7 +101,7 @@ export default async function DivisionPage({ params }: PageProps) {
           {divisionData.name} Division
         </h1>
       </div>
-      <DivisionContent athletes={divisionData.athletes} />
+      <DivisionContent athletes={filteredAthletes} />
     </div>
   );
 }

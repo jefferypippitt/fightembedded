@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useCallback } from 'react'
 import { AthleteListCard } from '@/components/athlete-list-card'
+import type { Athlete } from '@/types/athlete'
 import { SearchBar } from '@/components/search-bar'
 import { AthleteComparison } from '@/components/athlete-comparison'
-import type { Athlete } from '@/types/athlete'
-import Link from 'next/link'
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+import { useState, useCallback, useMemo } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 
-interface DivisionContentProps {
+interface AthletesContentProps {
   athletes: Athlete[]
 }
 
@@ -65,22 +65,27 @@ function Athletes({
   )
 }
 
-export function DivisionContent({ athletes }: DivisionContentProps) {
+export function AthletesContent({ athletes }: AthletesContentProps) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const router = useRouter()
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
-  // Simple search handler that updates URL immediately
-  const handleSearch = (term: string) => {
+  // Debounced search handler with loading state
+  const handleSearch = useDebouncedCallback((term: string) => {
+    setIsSearching(true)
     const params = new URLSearchParams(searchParams)
+    
     if (term) {
       params.set('query', term)
     } else {
       params.delete('query')
     }
+    
     router.replace(`${pathname}?${params.toString()}`)
-  }
+    setIsSearching(false)
+  }, 300)
 
   const handleAthleteSelect = useCallback((athlete: Athlete) => {
     setSelectedAthletes((current) => {
@@ -102,51 +107,43 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
     setSelectedAthletes([])
   }, [])
 
-  // Get the current query from URL
-  const query = searchParams.get('query') || ''
-
-  if (athletes.length === 0) {
-    return (
-      <div className="text-center space-y-2">
-        <p className="text-muted-foreground">
-          No active athletes found in this division.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Note: Retired athletes can be found in the{" "}
-          <Link href="/retired" className="text-primary hover:underline">
-            retired athletes
-          </Link>{" "}
-          section.
-        </p>
-      </div>
-    )
-  }
+  // Memoize the current query to prevent unnecessary re-renders
+  const query = useMemo(() => searchParams.get('query') || '', [searchParams])
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div className="w-full sm:w-[400px]">
-          <SearchBar 
-            defaultValue={query} 
-            onChange={handleSearch}
-            placeholder="Search athletes by name, country, or division..."
-            aria-label="Search athletes"
-            maxWidth="400px"
-          />
-        </div>
-        <div className="shrink-0">
-          <AthleteComparison 
-            selectedAthletes={selectedAthletes}
-            onClearSelection={handleClearSelection}
-          />
-        </div>
+    <div className="space-y-6">
+      <div className="flex justify-center">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+          All UFC Athletes
+        </h1>
       </div>
 
-      <Athletes 
-        athletes={athletes} 
-        selectedAthletes={selectedAthletes}
-        onSelect={handleAthleteSelect}
-      />
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="w-full sm:w-[400px]">
+            <SearchBar 
+              defaultValue={query} 
+              onChange={handleSearch}
+              placeholder="Search athletes by name, country, or division..."
+              aria-label="Search athletes"
+              maxWidth="400px"
+              isLoading={isSearching}
+            />
+          </div>
+          <div className="shrink-0">
+            <AthleteComparison 
+              selectedAthletes={selectedAthletes}
+              onClearSelection={handleClearSelection}
+            />
+          </div>
+        </div>
+
+        <Athletes 
+          athletes={athletes} 
+          selectedAthletes={selectedAthletes}
+          onSelect={handleAthleteSelect}
+        />
+      </div>
     </div>
   )
 } 
