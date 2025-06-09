@@ -1,11 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { DotIcon, TrendingUp } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
-import { HeroSkeleton } from "./hero-section-skeleton";
 
 interface StatItem {
   value: number;
@@ -93,26 +92,18 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
   </div>
 );
 
-async function StatsContent() {
+export default async function HeroSection() {
   const stats = await getStats();
   const statsData = createStatsData(stats);
 
   return (
-    <div className="w-full md:w-auto flex flex-col items-center">
-      <LiveUpdatesBadge />
-      <StatsGrid statsData={statsData} />
-    </div>
-  );
-}
-
-export default function HeroSection() {
-  return (
     <section>
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
         <HeroContent />
-        <Suspense fallback={<HeroSkeleton />}>
-          <StatsContent />
-        </Suspense>
+        <div className="w-full md:w-auto flex flex-col items-center">
+          <LiveUpdatesBadge />
+          <StatsGrid statsData={statsData} />
+        </div>
       </div>
     </section>
   );
