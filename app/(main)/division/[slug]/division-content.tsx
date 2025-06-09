@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { AthleteListCard } from '@/components/athlete-list-card'
 import { SearchBar } from '@/components/search-bar'
 import { AthleteComparison } from '@/components/athlete-comparison'
 import type { Athlete } from '@/types/athlete'
 import Link from 'next/link'
 import { useSearchParams, usePathname, useRouter } from 'next/navigation'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface DivisionContentProps {
   athletes: Athlete[]
@@ -70,17 +71,22 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
-  // Simple search handler that updates URL immediately
-  const handleSearch = (term: string) => {
+  // Debounced search handler with loading state
+  const handleSearch = useDebouncedCallback((term: string) => {
+    setIsSearching(true)
     const params = new URLSearchParams(searchParams)
+    
     if (term) {
       params.set('query', term)
     } else {
       params.delete('query')
     }
+    
     router.replace(`${pathname}?${params.toString()}`)
-  }
+    setIsSearching(false)
+  }, 300)
 
   const handleAthleteSelect = useCallback((athlete: Athlete) => {
     setSelectedAthletes((current) => {
@@ -102,8 +108,8 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
     setSelectedAthletes([])
   }, [])
 
-  // Get the current query from URL
-  const query = searchParams.get('query') || ''
+  // Memoize the current query to prevent unnecessary re-renders
+  const query = useMemo(() => searchParams.get('query') || '', [searchParams])
 
   if (athletes.length === 0) {
     return (
@@ -132,6 +138,7 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
             placeholder="Search athletes by name, country, or division..."
             aria-label="Search athletes"
             maxWidth="400px"
+            isLoading={isSearching}
           />
         </div>
         <div className="shrink-0">

@@ -4,7 +4,6 @@ import { format } from "date-fns";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -34,7 +33,6 @@ export default async function EventsPage() {
       ) : (
         <div className="max-w-7xl mx-auto">
           <Table>
-            <TableCaption>A list of upcoming UFC events</TableCaption>
             <TableHeader>
               <TableRow className="hover:bg-red-50 dark:hover:bg-red-950/50">
                 <TableHead className="w-[200px]">Event Name</TableHead>

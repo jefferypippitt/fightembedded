@@ -1,94 +1,84 @@
-import { Athlete } from "@prisma/client";
+'use client';
+
 import { AthleteCard } from "@/components/athlete-card";
-import { Suspense } from "react";
-import { ChampionsSkeleton } from "./champions-section-skeleton";
+
+interface Champion {
+  id: string;
+  name: string;
+  gender: "MALE" | "FEMALE";
+  weightDivision: string;
+  country: string;
+  imageUrl: string | null;
+  wins: number;
+  losses: number;
+  draws: number;
+  winsByKo: number;
+  winsBySubmission: number;
+  followers: number;
+  rank: number;
+  age: number;
+  retired: boolean | null;
+}
 
 interface ChampionsSectionProps {
-  maleChampions: Athlete[];
-  femaleChampions: Athlete[];
+  maleChampions: Champion[];
+  femaleChampions: Champion[];
 }
 
-const MALE_WEIGHT_ORDER = [
-  "Men's Heavyweight",
-  "Men's Light Heavyweight",
-  "Men's Middleweight",
-  "Men's Welterweight",
-  "Men's Lightweight",
-  "Men's Featherweight",
-  "Men's Bantamweight",
-  "Men's Flyweight",
-] as const;
-
-const FEMALE_WEIGHT_ORDER = [
-  "Women's Bantamweight",
-  "Women's Flyweight",
-  "Women's Strawweight",
-] as const;
-
-// Helper function to sort by weight class order
-function sortByDivisionOrder(champions: Athlete[], isWomen: boolean) {
-  const order = isWomen ? FEMALE_WEIGHT_ORDER : MALE_WEIGHT_ORDER;
-
-  return [...champions].sort((a, b) => {
-    const indexA = order.indexOf(a.weightDivision as never);
-    const indexB = order.indexOf(b.weightDivision as never);
-    return indexA - indexB; // Lower index = heavier weight
-  });
-}
-
-// Server Component for data transformation
-async function ChampionsData({
-  maleChampions,
-  femaleChampions,
-}: ChampionsSectionProps) {
-  // Sort champions by weight class (heaviest to lightest)
-  const sortedMaleChampions = sortByDivisionOrder(maleChampions, false);
-  const sortedFemaleChampions = sortByDivisionOrder(femaleChampions, true);
-
+export default function ChampionsSection({ maleChampions, femaleChampions }: ChampionsSectionProps) {
   return (
-    <>
+    <div className="space-y-8">
+      {/* Men's Champions Section */}
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {sortedMaleChampions.map((champion) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {maleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}
-              {...champion}
-              gender={champion.gender as "MALE" | "FEMALE"}
+              name={champion.name}
               division={champion.weightDivision}
-              isChampion={true}
-              imageUrl={champion.imageUrl || "/default-avatar.png"}
+              gender={champion.gender}
+              imageUrl={champion.imageUrl || undefined}
+              country={champion.country}
+              wins={champion.wins}
+              losses={champion.losses}
+              draws={champion.draws}
+              winsByKo={champion.winsByKo}
+              winsBySubmission={champion.winsBySubmission}
+              rank={champion.rank}
+              isChampion={champion.rank === 1}
               retired={champion.retired || false}
+              age={champion.age}
+              followers={champion.followers}
             />
           ))}
         </div>
       </section>
 
+      {/* Women's Champions Section */}
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {sortedFemaleChampions.map((champion) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {femaleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}
-              {...champion}
-              gender={champion.gender as "MALE" | "FEMALE"}
+              name={champion.name}
               division={champion.weightDivision}
-              isChampion={true}
-              imageUrl={champion.imageUrl || "/default-avatar.png"}
+              gender={champion.gender}
+              imageUrl={champion.imageUrl || undefined}
+              country={champion.country}
+              wins={champion.wins}
+              losses={champion.losses}
+              draws={champion.draws}
+              winsByKo={champion.winsByKo}
+              winsBySubmission={champion.winsBySubmission}
+              rank={champion.rank}
+              isChampion={champion.rank === 1}
               retired={champion.retired || false}
+              age={champion.age}
+              followers={champion.followers}
             />
           ))}
         </div>
       </section>
-    </>
-  );
-}
-
-// Main component with Suspense boundary
-export function ChampionsSection(props: ChampionsSectionProps) {
-  return (
-    <div className="space-y-4">
-      <Suspense fallback={<ChampionsSkeleton />}>
-        <ChampionsData {...props} />
-      </Suspense>
     </div>
   );
 }

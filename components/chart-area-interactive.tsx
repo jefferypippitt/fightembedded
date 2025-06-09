@@ -46,10 +46,11 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
       })
       .map(division => {
         const divisionData = data.find(d => d.slug === division.slug)
-        const totalCount = divisionData?.data.reduce((acc, curr) => acc + curr.count, 0) || 0
+        // Get the latest count from the data
+        const latestData = divisionData?.data[divisionData.data.length - 1]
         return {
           name: division.name.replace(`${gender === "male" ? "Men's" : "Women's"} `, ""),
-          count: totalCount,
+          count: latestData?.count || 0,
         }
       })
       .sort((a, b) => {

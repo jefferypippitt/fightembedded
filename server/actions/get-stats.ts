@@ -7,7 +7,7 @@ export async function getStats() {
   // Disable caching at the data source
   noStore();
 
-  const [activeAthletes, weightClasses, champions, events] = await Promise.all([
+  const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] = await Promise.all([
     // Count all athletes
     prisma.athlete.count(),
 
@@ -27,6 +27,46 @@ export async function getStats() {
 
     // Count events
     prisma.event.count(),
+
+    // Get male pound-for-pound rankings
+    prisma.athlete.findMany({
+      where: {
+        gender: "male",
+        poundForPoundRank: {
+          gt: 0,
+        },
+      },
+      orderBy: {
+        poundForPoundRank: "asc",
+      },
+      take: 3,
+      select: {
+        id: true,
+        name: true,
+        poundForPoundRank: true,
+        weightDivision: true,
+      },
+    }),
+
+    // Get female pound-for-pound rankings
+    prisma.athlete.findMany({
+      where: {
+        gender: "female",
+        poundForPoundRank: {
+          gt: 0,
+        },
+      },
+      orderBy: {
+        poundForPoundRank: "asc",
+      },
+      take: 3,
+      select: {
+        id: true,
+        name: true,
+        poundForPoundRank: true,
+        weightDivision: true,
+      },
+    }),
   ]);
 
   return {
@@ -34,5 +74,9 @@ export async function getStats() {
     weightClasses,
     champions,
     events,
+    poundForPoundRankings: {
+      male: maleP4P,
+      female: femaleP4P,
+    },
   };
 }
