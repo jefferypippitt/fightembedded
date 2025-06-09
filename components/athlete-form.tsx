@@ -30,7 +30,7 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { createAthlete } from "@/server/actions/create-athlete";
 import { updateAthlete } from "@/server/actions/update-athlete";
 import { athleteSchema } from "@/schemas/athlete";
@@ -197,32 +197,22 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         : await createAthlete(formData);
 
       if (result.status === "success") {
-        toast({
-          title: "Success",
-          description: result.message,
-        });
-
+        toast.success(result.message);
         router.push("/dashboard/athletes");
         router.refresh();
       } else {
-        toast({
-          title: "Submission Error",
-          description:
-            result.message ||
-            "Failed to save athlete data. Please check all fields and try again.",
-          variant: "destructive",
-        });
+        toast.error(
+          result.message ||
+            "Failed to save athlete data. Please check all fields and try again."
+        );
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error
-            ? `Error: ${error.message}`
-            : "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : "An unexpected error occurred. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -289,20 +279,13 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           const url = res[0].url;
                           setImageUrl(url);
                           field.onChange(url);
-                          toast({
-                            title: "Upload complete",
-                            description: "Image uploaded successfully",
-                          });
+                          toast.success("Image uploaded successfully");
                         }
                       }}
                       onUploadError={(error: Error) => {
                         setIsUploading(false);
                         setUploadProgress(0);
-                        toast({
-                          title: "Upload error",
-                          description: error.message,
-                          variant: "destructive",
-                        });
+                        toast.error(error.message);
                       }}
                       disabled={isUploading}
                     />

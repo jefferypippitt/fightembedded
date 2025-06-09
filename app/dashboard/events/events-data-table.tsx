@@ -31,10 +31,10 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import { toast } from "sonner"
 
 import { UFCEvent } from "@/types/event"
 import { deleteEvent } from "@/server/actions/delete-event"
-import { toast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -77,20 +77,19 @@ const ActionsCell = ({ event }: { event: UFCEvent }) => {
 
   const handleDelete = async () => {
     try {
-      const response = await deleteEvent(event.id)
-      if (response.status === "error") {
-        throw new Error(response.message)
+      const result = await deleteEvent(event.id)
+      if (result.status === "success") {
+        toast.success("Event deleted successfully")
+        router.refresh()
+      } else {
+        toast.error(result.message || "Failed to delete event")
       }
-      toast({
-        title: "Event deleted successfully",
-      })
-      router.refresh()
-    } catch (error: unknown) {
-      toast({
-        title: "Error deleting event",
-        description:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      })
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : "An unexpected error occurred. Please try again."
+      )
     }
   }
 

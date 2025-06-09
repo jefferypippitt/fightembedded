@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { createEvent } from "@/server/actions/create-event";
 import { updateEvent } from "@/server/actions/update-event";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { UFCEvent } from "@/types/event";
 import { useState } from "react";
 import { z } from "zod";
@@ -92,20 +92,13 @@ export function EventForm({ initialData }: EventFormProps) {
         throw new Error(response.message);
       }
 
-      toast({
-        title: initialData ? "Event updated" : "Event created",
-        description: response.message,
-      });
-
+      toast.success(response.message);
       router.push("/dashboard/events");
       router.refresh();
     } catch (error) {
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong"
+      );
     } finally {
       setIsSubmitting(false);
     }

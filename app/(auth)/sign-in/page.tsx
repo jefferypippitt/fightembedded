@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { signInFormSchema } from "@/lib/auth-schema";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 export default function SignIn() {
@@ -39,24 +39,14 @@ export default function SignIn() {
         },
         {
           onRequest: () => {
-            toast({
-              title: "Please wait...",
-              description: "Signing you in...",
-            });
+            toast.loading("Signing you in...");
           },
           onSuccess: () => {
-            toast({
-              title: "Success!",
-              description: "Redirecting to dashboard...",
-            });
+            toast.success("Redirecting to dashboard...");
             form.reset();
           },
           onError: (ctx) => {
-            toast({
-              title: "Error signing in",
-              description: ctx.error.message,
-              variant: "destructive",
-            });
+            toast.error(ctx.error.message);
             form.setError("email", {
               type: "manual",
               message: ctx.error.message,
@@ -64,12 +54,10 @@ export default function SignIn() {
           },
         }
       );
-    } catch {
-      toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        toast.error("An unexpected error occurred. Please try again later.");
+      }
     }
   }
 

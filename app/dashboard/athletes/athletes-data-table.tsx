@@ -30,10 +30,10 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import { Athlete } from "@/types/athlete"
 import { deleteAthlete } from "@/server/actions/delete-athlete"
-import { toast } from "@/hooks/use-toast"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -75,17 +75,19 @@ const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
 
   const handleDelete = async () => {
     try {
-      await deleteAthlete(athlete.id)
-      toast({
-        title: "Athlete deleted successfully",
-      })
-      router.refresh()
-    } catch (error: unknown) {
-      toast({
-        title: "Error deleting athlete",
-        description:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      })
+      const success = await deleteAthlete(athlete.id)
+      if (success) {
+        toast.success("Athlete deleted successfully")
+        router.refresh()
+      } else {
+        toast.error("Failed to delete athlete")
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : "An unexpected error occurred. Please try again."
+      )
     }
   }
 
