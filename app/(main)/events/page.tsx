@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+
 export const metadata: Metadata = {
   title: "Upcoming Events | Fight Embedded",
   description: "View all upcoming MMA events and fight cards",
@@ -23,7 +24,7 @@ export default async function EventsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-center">
         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-          Upcoming Events
+          UFC Fight Schedule
         </h1>
       </div>
       {events.length === 0 ? (
@@ -47,23 +48,25 @@ export default async function EventsPage() {
                   key={event.id}
                   className="hover:bg-red-50 dark:hover:bg-red-950/50"
                 >
-                  <TableCell className="font-medium">{event.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Badge variant="eventDate">{event.name}</Badge>
+                  </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="border-red-200 text-red-700 dark:border-red-800 dark:text-red-300">
+                    <Badge variant="coMainEvent">
                       {format(new Date(event.date), "MMM d, yyyy")}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-200">
+                    <div className="flex items-center">
                       <span>
-                        {event.venue}, {event.location}
+                        <Badge variant="outline">{event.venue}, {event.location}</Badge>
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-700 dark:text-gray-100">
-                        {event.mainEvent}
+                      <p className="text-gray-700 dark:text-gray-100">
+                        <Badge variant="mainEvent">{event.mainEvent}</Badge>
                       </p>
                     </div>
                   </TableCell>

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Cell } from "recharts"
 import {
   Card,
   CardAction,
@@ -68,6 +68,24 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
       color: "var(--primary)",
     },
   } satisfies ChartConfig
+
+  // Map division names to their corresponding chart colors
+  const divisionColors: Record<string, string> = {
+    // Men's divisions
+    "Men's Heavyweight": "var(--chart-1)",
+    "Men's Light Heavyweight": "var(--chart-2)",
+    "Men's Middleweight": "var(--chart-3)",
+    "Men's Welterweight": "var(--chart-4)",
+    "Men's Lightweight": "var(--chart-5)",
+    "Men's Featherweight": "var(--chart-6)",
+    "Men's Bantamweight": "var(--chart-7)",
+    "Men's Flyweight": "var(--chart-8)",
+    // Women's divisions
+    "Women's Featherweight": "var(--chart-9)",
+    "Women's Bantamweight": "var(--chart-10)",
+    "Women's Flyweight": "var(--chart-11)",
+    "Women's Strawweight": "var(--chart-12)",
+  }
 
   return (
     <Card className="@container/card data-[slot=card]:from-primary/5 data-[slot=card]:to-card dark:data-[slot=card]:bg-card data-[slot=card]:bg-gradient-to-t data-[slot=card]:shadow-xs">
@@ -144,7 +162,14 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
                 fontWeight: 500,
                 offset: 5
               }}
-            />
+            >
+              {transformedData.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`}
+                  fill={divisionColors[`${gender === "male" ? "Men's" : "Women's"} ${entry.name}`] || "var(--primary)"}
+                />
+              ))}
+            </Bar>
           </BarChart>
         </ChartContainer>
       </CardContent>

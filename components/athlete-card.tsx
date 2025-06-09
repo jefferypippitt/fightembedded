@@ -1,9 +1,14 @@
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Medal } from "lucide-react";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
+import { cn } from "@/lib/utils";
 
 interface AthleteCardProps {
   name: string;
@@ -24,9 +29,40 @@ interface AthleteCardProps {
   followers?: number;
 }
 
+// Map division names to badge variants
+const getDivisionVariant = (division: string, gender: "MALE" | "FEMALE"): "lightweight" | "welterweight" | "middleweight" | "lightHeavyweight" | "heavyweight" | "featherweight" | "bantamweight" | "flyweight" | "womenFeatherweight" | "womenBantamweight" | "womenFlyweight" | "womenStrawweight" | "default" => {
+  // Remove gender prefix if present
+  const divisionName = division.replace(/^(Men's|Women's)\s+/, '');
+  
+  // Men's divisions
+  if (gender === "MALE") {
+    const menDivisions: Record<string, "lightweight" | "welterweight" | "middleweight" | "lightHeavyweight" | "heavyweight" | "featherweight" | "bantamweight" | "flyweight"> = {
+      "Heavyweight": "heavyweight",
+      "Light Heavyweight": "lightHeavyweight",
+      "Middleweight": "middleweight",
+      "Welterweight": "welterweight",
+      "Lightweight": "lightweight",
+      "Featherweight": "featherweight",
+      "Bantamweight": "bantamweight",
+      "Flyweight": "flyweight",
+    };
+    return menDivisions[divisionName] || "default";
+  }
+  
+  // Women's divisions
+  const womenDivisions: Record<string, "womenFeatherweight" | "womenBantamweight" | "womenFlyweight" | "womenStrawweight"> = {
+    "Featherweight": "womenFeatherweight",
+    "Bantamweight": "womenBantamweight",
+    "Flyweight": "womenFlyweight",
+    "Strawweight": "womenStrawweight",
+  };
+  return womenDivisions[divisionName] || "default";
+};
+
 export function AthleteCard({
   name,
   division,
+  gender,
   imageUrl = "/default-avatar.png",
   country,
   wins = 0,
@@ -48,33 +84,45 @@ export function AthleteCard({
 
   return (
     <Card
-      className="h-full relative overflow-hidden group border-red-600/10 dark:border-red-600/10 bg-white dark:bg-neutral-950 shadow-xs hover:shadow-md transition-all duration-200 hover:border-red-600/20 dark:hover:border-red-600/20 p-2"
+      className={cn(
+        "h-full relative overflow-hidden group",
+        "border-border/40 dark:border-border/40",
+        "bg-card dark:bg-card",
+        "shadow-sm hover:shadow-md",
+        "transition-all duration-300",
+        "hover:border-primary/20 dark:hover:border-primary/20",
+        "p-3"
+      )}
     >
       {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-600/0 to-red-600/0 group-hover:from-red-600/[0.02] group-hover:to-red-600/[0.03] transition-all duration-200" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/[0.02] group-hover:to-primary/[0.03] transition-all duration-300" />
       
-      <CardContent className="p-2 pt-0 relative z-10">
+      <CardContent className="p-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
-        <div className="flex justify-between items-center mb-2">
-          <Badge
-            variant="outline"
-            className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20 bg-red-50 dark:bg-red-900/10 group-hover:bg-red-100 dark:group-hover:bg-red-900/20 transition-colors duration-200"
-          >
-            {division}
-          </Badge>
+        <div className="flex justify-between items-center mb-3">
           {retired ? (
-            <Badge variant="outline" className="text-xs font-medium text-red-600 dark:text-red-400 border-red-600/20 dark:border-red-400/20">
+            <Badge variant="destructive" className="text-[10px] py-0 px-2 font-medium">
               Retired
             </Badge>
           ) : isChampion ? (
-            <Medal className="h-4 w-4 text-amber-500 group-hover:scale-105 transition-transform duration-200" />
+            <div className="flex items-center gap-1.5">
+              <Medal className="h-3.5 w-3.5 text-amber-500" />
+              <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-amber-500/10 text-amber-500 hover:bg-amber-500/20">
+                Champion
+              </Badge>
+            </div>
           ) : poundForPoundRank > 0 ? (
-            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-primary/10 text-primary hover:bg-primary/20">
               P4P #{poundForPoundRank}
             </Badge>
           ) : (
-            <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
               Not Ranked
+            </Badge>
+          )}
+          {age && (
+            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
+              Age: {age}
             </Badge>
           )}
         </div>
@@ -85,64 +133,69 @@ export function AthleteCard({
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}
             size="sm"
-            className="group-hover:ring-red-600/30 dark:group-hover:ring-red-500/40 transition-all duration-200"
+            className="ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
             priority={isChampion}
           />
 
-          <div className="text-center">
-            <h3 className="font-semibold text-sm text-gray-900 dark:text-white">
+          <div className="text-center mt-2">
+            <h3 className="font-semibold text-sm text-foreground leading-tight">
               {name}
             </h3>
-            <h4 className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <h4 className="text-[10px] font-medium text-muted-foreground leading-tight">
               {record}
             </h4>
-            {age && (
-              <span className="text-xs text-muted-foreground">
-                Age: {age}
-              </span>
-            )}
           </div>
         </div>
 
+        {/* Division */}
+        <div className="flex items-center justify-center mb-3">
+          <Badge
+            variant={getDivisionVariant(division, gender)}
+            className="text-[10px] py-0 px-2 font-medium"
+          >
+            {division}
+          </Badge>
+        </div>
+
         {/* Stats with Progress Bars */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Win Rate</span>
-            <span className="font-medium">{winRate.toFixed(1)}%</span>
+            <span className="font-medium text-foreground">{winRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={winRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
+            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
           />
 
-          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
+          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>KO/TKO</span>
-            <span className="font-medium">{koRate.toFixed(1)}%</span>
+            <span className="font-medium text-foreground">{koRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={koRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
+            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
           />
 
-          <div className="flex justify-between items-center text-[10px] text-gray-700 dark:text-gray-200">
+          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Submission</span>
-            <span className="font-medium">{submissionRate.toFixed(1)}%</span>
+            <span className="font-medium text-foreground">{submissionRate.toFixed(1)}%</span>
           </div>
           <Progress
             value={submissionRate}
-            className="h-1 bg-red-600/10 dark:bg-red-500/20 [&>div]:bg-red-600 dark:[&>div]:bg-red-500 [&>div]:group-hover:bg-red-600/90 dark:[&>div]:group-hover:bg-red-500/90 transition-colors duration-200"
+            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
           />
         </div>
       </CardContent>
 
-      <CardFooter className="px-2  border-red-600/10 dark:border-red-500/20 relative z-10">
+      <CardFooter className="px-0 pt-3 pb-0 border-t border-border/40 dark:border-border/40 relative z-10">
         <div className="flex items-center justify-between w-full text-[10px]">
           <div className="flex items-center gap-1">
-            <span className="font-medium">{country}</span>
+            <span className="font-medium text-foreground">{country}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-gray-600 dark:text-gray-300">Followers:</span>
-            <span className="font-medium text-gray-700 dark:text-gray-200">
+            <span className="text-muted-foreground">Followers:</span>
+            <span className="font-medium text-foreground">
               {followers.toLocaleString()}
             </span>
           </div>
@@ -151,3 +204,4 @@ export function AthleteCard({
     </Card>
   );
 }
+

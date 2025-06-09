@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Event } from "@/types/event";
 
@@ -14,44 +14,27 @@ export default function EventCard({
   mainEvent,
 }: EventCardProps) {
   return (
-    <Card
-      className={cn(
-        "w-[400px] h-32 mx-3",
-        "relative overflow-hidden",
-        "border-red-600/20 dark:border-red-600/20",
-        "bg-gray-50 dark:bg-zinc-950",
-        "bg-linear-to-r from-transparent via-red-600/[0.03] to-transparent",
-        "dark:bg-linear-to-r dark:from-transparent dark:via-red-400/[0.02] dark:to-transparent",
-        "p-2"
-      )}
-    >
-      <div className="h-full flex flex-col justify-between relative z-10">
+    <Card className="w-[340px] h-32 px-4 py-2">
+      <CardHeader className="p-0 pb-1">
         <div className="flex items-center justify-between gap-2">
-          <h1 className="font-bold text-md text-gray-900 dark:text-white flex-1">
-            {name}
-          </h1>
-          <div className="text-[10px] text-red-700 dark:text-red-300 bg-red-600/5 dark:bg-red-500/10 rounded-md px-1.5 py-0.5 font-medium">
+          <CardTitle className="text-base font-medium line-clamp-1">{name}</CardTitle>
+          <Badge variant="eventDate" className="text-[12px] px-1.5 py-0.5 font-medium shrink-0">
             {format(date, "MMM d, yyyy")}
-          </div>
+          </Badge>
         </div>
-
-        <div className="flex items-center gap-1 text-[10px] text-gray-600 dark:text-gray-200">
-          <MapPin className="h-3 w-3 shrink-0 text-red-600 dark:text-red-400" />
-          <span>
-            {venue}, {location}
-          </span>
+      </CardHeader>
+      <CardContent className="p-0 flex flex-col gap-1.5">
+        <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
+          <MapPin className="h-4 w-4" />
+          <span className="truncate">{venue}, {location}</span>
         </div>
-
-        <div className="flex items-center gap-2 p-1.5 rounded-lg">
-          <div className="text-[10px] bg-red-600/10 dark:bg-red-500/20 text-red-700 dark:text-red-300 font-medium px-1.5 py-0.5 rounded-md shrink-0">
+        <div className="flex items-center gap-2">
+          <Badge variant="mainEvent" className="text-[12px] px-1.5 py-0.5 font-medium shrink-0">
             Main Event
-          </div>
-          <div className="h-3 w-px bg-red-600/20 dark:bg-red-500/30 shrink-0" />
-          <p className="text-[10px] text-gray-700 dark:text-gray-100">
-            {mainEvent}
-          </p>
+          </Badge>
+          <span className="text-[12px] text-gray-700 dark:text-gray-100 truncate">{mainEvent}</span>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

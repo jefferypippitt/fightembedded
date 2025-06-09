@@ -32,11 +32,11 @@ export function DivisionChart({ division }: DivisionChartProps) {
     name: `${athlete.rank}. ${athlete.name}`,
     followers: athlete.followers,
     rank: athlete.rank,
-    fill: athlete.rank === 1 ? 'oklch(0.646 0.222 41.116)' :
-          athlete.rank === 2 ? 'oklch(0.6 0.118 184.704)' :
-          athlete.rank === 3 ? 'oklch(0.398 0.07 227.392)' :
-          athlete.rank === 4 ? 'oklch(0.828 0.189 84.429)' :
-          'oklch(0.769 0.188 70.08)'
+    fill: athlete.rank === 1 ? 'var(--chart-1)' :
+          athlete.rank === 2 ? 'var(--chart-3)' :
+          athlete.rank === 3 ? 'var(--chart-6)' :
+          athlete.rank === 4 ? 'var(--chart-12)' :
+          'var(--chart-9)'
   }));
 
   return (

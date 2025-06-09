@@ -27,7 +27,7 @@ interface ChampionsSectionProps {
 
 export default function ChampionsSection({ maleChampions, femaleChampions }: ChampionsSectionProps) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Men's Champions Section */}
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

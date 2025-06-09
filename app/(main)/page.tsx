@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main>
       <Suspense fallback={<HeroSkeleton/>}>
         <HeroSectionWrapper />
       </Suspense>
@@ -32,12 +32,12 @@ export default function Page() {
           </Suspense>
         </div>
 
-        <aside className="lg:col-span-1 overflow-hidden">
+        <div className="lg:col-span-1 overflow-hidden">
           <Suspense fallback={<RankingsSkeleton />}>
             <RankingsSectionWrapper />
           </Suspense>
-        </aside>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

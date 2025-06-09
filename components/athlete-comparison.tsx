@@ -47,7 +47,7 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
         >
           <Scale className="h-4 w-4" />
           Compare
-          <Badge variant="secondary" className="ml-2">
+          <Badge variant="destructive" className="ml-2">
             {selectedAthletes.length}/2
           </Badge>
         </Button>
