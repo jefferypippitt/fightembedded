@@ -101,13 +101,15 @@ export function AthleteCard({
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-3">
           {retired ? (
-            <Badge variant="destructive" className="text-[10px] py-0 px-2 font-medium">
-              Retired
-            </Badge>
+            <div className="flex items-center gap-1.5">
+              <Badge variant="retired" className="text-[10px] py-0 px-2">
+                Retired
+              </Badge>
+            </div>
           ) : isChampion ? (
             <div className="flex items-center gap-1.5">
-              <Medal className="h-3.5 w-3.5 text-amber-500" />
-              <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-amber-500/10 text-amber-500 hover:bg-amber-500/20">
+              <Medal className="h-3.5 w-3.5 text-yellow-500" />
+              <Badge variant="champion" className="text-[10px] py-0 px-2">
                 Champion
               </Badge>
             </div>
@@ -133,7 +135,10 @@ export function AthleteCard({
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}
             size="sm"
-            className="ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
+            className={cn(
+              "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
+              retired && "opacity-75"
+            )}
             priority={isChampion}
           />
 

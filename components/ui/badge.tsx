@@ -53,6 +53,10 @@ const badgeVariants = cva(
           "border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 hover:bg-fuchsia-500/20 hover:border-fuchsia-500/40 dark:border-fuchsia-400/30 dark:bg-fuchsia-400/10 dark:hover:bg-fuchsia-400/20 dark:hover:border-fuchsia-400/40",
         womenStrawweight:
           "border border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/40 dark:border-orange-400/30 dark:bg-orange-400/10 dark:hover:bg-orange-400/20 dark:hover:border-orange-400/40",
+        retired:
+          "border border-slate-400/30 bg-slate-100/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 hover:border-slate-500/30 dark:border-slate-600/30 dark:bg-slate-800/20 dark:hover:bg-slate-700/30 dark:hover:border-slate-500/40 font-medium",
+        champion:
+          "border border-yellow-400/40 bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-700 dark:text-yellow-300 hover:from-yellow-100 hover:to-amber-100 hover:border-yellow-500/50 dark:border-yellow-600/30 dark:from-yellow-900/30 dark:to-amber-900/30 dark:hover:from-yellow-800/40 dark:hover:to-amber-800/40 font-semibold shadow-sm",
       },
     },
     defaultVariants: {

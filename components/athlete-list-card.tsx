@@ -96,7 +96,7 @@ export function AthleteListCard({
         "transition-all duration-300",
         "hover:border-primary/20 dark:hover:border-primary/20",
         "p-3",
-        isSelected && "ring-2 ring-primary"
+        isSelected && "ring-1 ring-primary"
       )}
       onClick={onSelect}
     >
@@ -107,13 +107,15 @@ export function AthleteListCard({
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-3">
           {retired ? (
-            <Badge variant="destructive" className="text-[10px] py-0 px-2 font-medium">
-              Retired
-            </Badge>
+            <div className="flex items-center gap-1.5">
+              <Badge variant="retired" className="text-[10px] py-0 px-2">
+                Retired
+              </Badge>
+            </div>
           ) : rank === 1 ? (
             <div className="flex items-center gap-1.5">
-              <Medal className="h-3.5 w-3.5 text-amber-500" />
-              <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-amber-500/10 text-amber-500 hover:bg-amber-500/20">
+              <Medal className="h-3.5 w-3.5 text-yellow-500" />
+              <Badge variant="champion" className="text-[10px] py-0 px-2">
                 Champion
               </Badge>
             </div>
@@ -139,7 +141,10 @@ export function AthleteListCard({
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}
             size="sm"
-            className="ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
+            className={cn(
+              "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
+              retired && "opacity-75"
+            )}
             priority={rank === 1 || rank === 2}
           />
 

@@ -1,10 +1,7 @@
-"use client";
-
-import * as React from "react";
+import { BookOpenIcon, InfoIcon, LifeBuoyIcon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { ModeToggle } from "./theme-toggle";
+import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,301 +9,333 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { weightClasses, generateDivisionSlug } from "@/data/weight-class";
 import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ModeToggle } from "./theme-toggle";
+import Image from "next/image";
 
-const divisions = {
-  mens: weightClasses.men.map((division) => ({
-    title: division.name,
-    href: `/division/${generateDivisionSlug(division)}`,
-    description: `${division.weight}lbs`,
-    key: `mens-${division.name}`,
-  })),
-  womens: weightClasses.women.map((division) => ({
-    title: division.name,
-    href: `/division/${generateDivisionSlug(division, true)}`,
-    description: `${division.weight}lbs`,
-    key: `womens-${division.name}`,
-  })),
-};
-
-const rankings = [
+// Navigation links array to be used in both desktop and mobile menus
+const navigationLinks = [
   {
-    title: "Fighter Popularity",
-    href: "/rankings/popularity",
-    description: "Top 20 Fighters",
+    label: "Athletes",
+    submenu: true,
+    type: "description",
+    items: [
+      {
+        href: "/athletes",
+        label: "Active Fighters",
+        description: "Browse all active fighters in the UFC.",
+      },
+      {
+        href: "/retired",
+        label: "Retired Fighters",
+        description: "View the hall of fame and retired fighters in the UFC.",
+      },
+    ],
   },
   {
-    title: "Division Rankings",
-    href: "/rankings/divisions",
-    description: "Top 5 per Division",
+    label: "Male Divisions",
+    submenu: true,
+    type: "description",
+    items: [
+      {
+        href: "/division/men-heavyweight",
+        label: "Heavyweight",
+        description: "265 lbs (120.2 kg)",
+      },
+      {
+        href: "/division/men-light-heavyweight",
+        label: "Light Heavyweight",
+        description: "205 lbs (93.0 kg)",
+      },
+      {
+        href: "/division/men-middleweight",
+        label: "Middleweight",
+        description: "185 lbs (83.9 kg)",
+      },
+      {
+        href: "/division/men-welterweight",
+        label: "Welterweight",
+        description: "170 lbs (77.1 kg)",
+      },
+      {
+        href: "/division/men-lightweight",
+        label: "Lightweight",
+        description: "155 lbs (70.3 kg)",
+      },
+      {
+        href: "/division/men-featherweight",
+        label: "Featherweight",
+        description: "145 lbs (65.8 kg)",
+      },
+      {
+        href: "/division/men-bantamweight",
+        label: "Bantamweight",
+        description: "135 lbs (61.2 kg)",
+      },
+      {
+        href: "/division/men-flyweight",
+        label: "Flyweight",
+        description: "125 lbs (56.7 kg)",
+      },
+    ],
   },
+  {
+    label: "Female Divisions",
+    submenu: true,
+    type: "description",
+    items: [
+      {
+        href: "/division/women-bantamweight",
+        label: "Bantamweight",
+        description: "135 lbs (61.2 kg)",
+      },
+      {
+        href: "/division/women-flyweight",
+        label: "Flyweight",
+        description: "125 lbs (56.7 kg)",
+      },
+      {
+        href: "/division/women-strawweight",
+        label: "Strawweight",
+        description: "115 lbs (52.2 kg)",
+      },
+    ],
+  },
+  {
+    label: "Rankings",
+    submenu: true,
+    type: "description",
+    items: [
+      {
+        href: "/rankings/popularity",
+        label: "Popular Rankings",
+        description: "Top 20 athletes by popularity",
+      },
+      {
+        href: "/rankings/divisions",
+        label: "Division Rankings",
+        description: "Top 5 athletes by division",
+      },
+    ],
+  },
+  { href: "/events", label: "Events" },
 ];
 
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+export default function Navbar() {
   return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none rounded-md p-3 leading-none no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="text-xs text-muted-foreground mt-1">{children}</p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
-
-interface NavbarProps {
-  className?: string;
-}
-
-export default function Navbar({ className = "" }: NavbarProps) {
-  return (
-    <div
-      className={`sticky top-0 bg-background/75 backdrop-blur-md supports-backdrop-filter:bg-background/50 z-50 border-b ${className}`}
-    >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        <div>
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/icon.png"
-              alt="Fight Embedded Logo"
-              width={35}
-              height={35}
-              className="rounded-sm"
-            />
-            <h1 className="text-lg font-medium">Fight Embedded</h1>
-          </Link>
-        </div>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
-          <NavigationMenu>
-            <NavigationMenuList className="h-9">
-              {[
-                { label: "Athletes", href: "/athletes" },
-                { label: "Events", href: "/events" },
-                {
-                  label: "Weight Divisions",
-                  items: divisions,
-                  type: "dropdown",
-                },
-                { label: "Rankings", items: rankings, type: "dropdown" },
-                { label: "Retired", href: "/retired" },
-              ].map((item) => (
-                <div key={item.label}>
-                  <NavigationMenuItem>
-                    {item.type === "dropdown" ? (
-                      <>
-                        <NavigationMenuTrigger className="h-9 bg-transparent hover:bg-transparent focus:bg-transparent">
-                          {item.label}
-                        </NavigationMenuTrigger>
-                        {item.label === "Weight Divisions" ? (
-                          <NavigationMenuContent>
-                            <div className="grid w-[300px] gap-2 p-3">
-                              <div>
-                                <h3 className="text-xs font-medium text-muted-foreground mb-1">
-                                  Men&apos;s Divisions
-                                </h3>
-                                <ul className="grid md:grid-cols-2 gap-1">
-                                  {divisions.mens.map((division) => (
-                                    <ListItem
-                                      key={division.title}
-                                      title={division.title}
-                                      href={division.href}
-                                      className="p-2"
-                                    >
-                                      {division.description}
-                                    </ListItem>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="mt-2">
-                                <h3 className="text-xs font-medium text-muted-foreground mb-1">
-                                  Women&apos;s Divisions
-                                </h3>
-                                <ul className="grid md:grid-cols-2 gap-1">
-                                  {divisions.womens.map((division) => (
-                                    <ListItem
-                                      key={division.title}
-                                      title={division.title}
-                                      href={division.href}
-                                      className="p-2"
-                                    >
-                                      {division.description}
-                                    </ListItem>
-                                  ))}
-                                </ul>
-                              </div>
+    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-4">
+          {/* Left side */}
+          <div className="flex items-center gap-2">
+            {/* Mobile menu trigger */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  className="group size-8 md:hidden"
+                  variant="ghost"
+                  size="icon"
+                >
+                  <svg
+                    className="pointer-events-none"
+                    width={16}
+                    height={16}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M4 12L20 12"
+                      className="origin-center -translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
+                    />
+                    <path
+                      d="M4 12H20"
+                      className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
+                    />
+                    <path
+                      d="M4 12H20"
+                      className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
+                    />
+                  </svg>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-64 p-1 md:hidden">
+                <NavigationMenu className="max-w-none *:w-full">
+                  <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
+                    {navigationLinks.map((link, index) => (
+                      <NavigationMenuItem key={index} className="w-full">
+                        {link.submenu ? (
+                          <>
+                            <div className="text-muted-foreground px-2 py-1.5 text-xs font-medium">
+                              {link.label}
                             </div>
-                          </NavigationMenuContent>
+                            <ul>
+                              {link.items.map((item, itemIndex) => (
+                                <li key={itemIndex}>
+                                  <Link
+                                    href={item.href || "#"}
+                                    legacyBehavior
+                                    passHref
+                                  >
+                                    <NavigationMenuLink className="py-1.5">
+                                      {item.label}
+                                    </NavigationMenuLink>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
                         ) : (
-                          <NavigationMenuContent>
-                            <ul className="grid w-[280px] gap-1 p-3">
-                              {rankings.map((ranking) => (
-                                <ListItem
-                                  key={ranking.title}
-                                  title={ranking.title}
-                                  href={ranking.href}
-                                  className="p-2"
-                                >
-                                  {ranking.description}
-                                </ListItem>
+                          <Link href={link.href || "#"} legacyBehavior passHref>
+                            <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                              {link.label}
+                            </NavigationMenuLink>
+                          </Link>
+                        )}
+                        {/* Add separator between different types of items */}
+                        {index < navigationLinks.length - 1 &&
+                          // Show separator if:
+                          // 1. One is submenu and one is simple link OR
+                          // 2. Both are submenus but with different types
+                          ((!link.submenu &&
+                            navigationLinks[index + 1].submenu) ||
+                            (link.submenu &&
+                              !navigationLinks[index + 1].submenu) ||
+                            (link.submenu &&
+                              navigationLinks[index + 1].submenu &&
+                              link.type !== navigationLinks[index + 1].type)) && (
+                            <div
+                              role="separator"
+                              aria-orientation="horizontal"
+                              className="bg-border -mx-1 my-1 h-px w-full"
+                            />
+                          )}
+                      </NavigationMenuItem>
+                    ))}
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </PopoverContent>
+            </Popover>
+            {/* Main nav */}
+            <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/icon.png"
+                alt="Fight Embedded Logo"
+                width={35}
+                height={35}
+                className="rounded-none"
+              />
+              <h1 className="text-lg font-medium">Fight Embedded</h1>
+            </Link>
+              {/* Navigation menu */}
+              <NavigationMenu viewport={false} className="max-md:hidden">
+                <NavigationMenuList className="gap-2">
+                  {navigationLinks.map((link, index) => (
+                    <NavigationMenuItem key={index}>
+                      {link.submenu ? (
+                        <>
+                          <NavigationMenuTrigger className="text-muted-foreground hover:text-primary bg-transparent px-2 py-1.5 font-medium *:[svg]:-me-0.5 *:[svg]:size-3.5">
+                            {link.label}
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent className="data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16! z-50 p-1">
+                            <ul
+                              className={cn(
+                                link.type === "description"
+                                  ? "min-w-64"
+                                  : "min-w-48"
+                              )}
+                            >
+                              {link.items.map((item, itemIndex) => (
+                                <li key={itemIndex}>
+                                  <Link
+                                    href={item.href || "#"}
+                                    legacyBehavior
+                                    passHref
+                                  >
+                                    <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                                      {/* Display icon if present */}
+                                      {link.type === "icon" && "icon" in item && (
+                                        <div className="flex items-center gap-2">
+                                          {item.icon === "BookOpenIcon" && (
+                                            <BookOpenIcon
+                                              size={16}
+                                              className="text-foreground opacity-60"
+                                              aria-hidden="true"
+                                            />
+                                          )}
+                                          {item.icon === "LifeBuoyIcon" && (
+                                            <LifeBuoyIcon
+                                              size={16}
+                                              className="text-foreground opacity-60"
+                                              aria-hidden="true"
+                                            />
+                                          )}
+                                          {item.icon === "InfoIcon" && (
+                                            <InfoIcon
+                                              size={16}
+                                              className="text-foreground opacity-60"
+                                              aria-hidden="true"
+                                            />
+                                          )}
+                                          <span>{item.label}</span>
+                                        </div>
+                                      )}
+
+                                      {/* Display label with description if present */}
+                                      {link.type === "description" &&
+                                      "description" in item ? (
+                                        <div className="space-y-1">
+                                          <div className="font-medium">
+                                            {item.label}
+                                          </div>
+                                          <p className="text-muted-foreground line-clamp-2 text-xs">
+                                            {item.description}
+                                          </p>
+                                        </div>
+                                      ) : (
+                                        // Display simple label if not icon or description type
+                                        !link.type ||
+                                        (link.type !== "icon" &&
+                                          link.type !== "description" && (
+                                            <span>{item.label}</span>
+                                          ))
+                                      )}
+                                    </NavigationMenuLink>
+                                  </Link>
+                                </li>
                               ))}
                             </ul>
                           </NavigationMenuContent>
-                        )}
-                      </>
-                    ) : (
-                      <NavigationMenuLink asChild>
-                        <Link
-                          href={item.href || "/"}
-                          className={cn(
-                            navigationMenuTriggerStyle(),
-                            "h-9 bg-transparent hover:bg-transparent focus:bg-transparent"
-                          )}
-                        >
-                          {item.label}
+                        </>
+                      ) : (
+                        <Link href={link.href || "#"} legacyBehavior passHref>
+                          <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                            {link.label}
+                          </NavigationMenuLink>
                         </Link>
-                      </NavigationMenuLink>
-                    )}
-                  </NavigationMenuItem>
-                </div>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-
-          <div className="h-9">
-            <ModeToggle />
+                      )}
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
           </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        <div className="md:hidden flex items-center gap-2">
-          <div className="h-9">
+          {/* Right side */}
+          <div className="flex items-center gap-2">
             <ModeToggle />
-          </div>
-          <div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <SheetTitle className="flex items-center gap-2">
-                  <span className="text-sm">Fight Embedded</span>
-                </SheetTitle>
-                <nav className="flex flex-col gap-3 mt-4">
-                  <Link
-                    href="/athletes"
-                    className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                  >
-                    Athletes
-                  </Link>
-
-                  <Link
-                    href="/events"
-                    className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                  >
-                    Events
-                  </Link>
-
-                  <div className="space-y-2">
-                    <h2 className="text-sm font-medium">Weight Divisions</h2>
-                    <div className="pl-2 space-y-2">
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-medium text-muted-foreground">
-                          Men&apos;s
-                        </h3>
-                        <div className="grid grid-cols-2 gap-1">
-                          {divisions.mens.map((division) => (
-                            <Link
-                              key={division.key}
-                              href={division.href}
-                              className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                            >
-                              <span className="block">{division.title}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {division.description}
-                              </span>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-medium text-muted-foreground">
-                          Women&apos;s
-                        </h3>
-                        <div className="grid grid-cols-2 gap-1">
-                          {divisions.womens.map((division) => (
-                            <Link
-                              key={division.key}
-                              href={division.href}
-                              className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                            >
-                              <span className="block">{division.title}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {division.description}
-                              </span>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h2 className="text-sm font-medium">Rankings</h2>
-                    <div className="pl-2 space-y-2">
-                      {rankings.map((ranking) => (
-                        <Link
-                          key={ranking.title}
-                          href={ranking.href}
-                          className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                        >
-                          <span className="block">{ranking.title}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {ranking.description}
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/retired"
-                    className="block select-none rounded-md px-2 py-1.5 text-sm no-underline outline-hidden transition-colors hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent/50 focus:text-accent-foreground"
-                  >
-                    Retired
-                  </Link>
-                </nav>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

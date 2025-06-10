@@ -24,8 +24,8 @@ interface P4PSidebarProps {
 }
 
 const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
-  <li className="flex items-center space-x-1 p-2 hover:bg-accent/50 rounded-md transition-colors">
-    <Badge variant="outline" className="h-5 px-2 text-xs font-medium">
+  <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border">
+    <Badge variant="outline" className="h-5 px-2.5 text-xs font-medium border-2">
       {fighter.poundForPoundRank}.
     </Badge>
     <AthleteAvatar
@@ -34,11 +34,11 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       size="xs"
     />
     <div>
-      <p className="text-sm">{fighter.name}</p>
+      <p className="text-xs font-medium">{fighter.name}</p>
       <div className="flex items-center">
         <Badge
           variant="outline"
-          className="h-5 px-2 text-xs font-normal bg-background border"
+          className="h-5 px-2 text-xs font-normal bg-background border-2"
         >
           <span className="text-green-500 font-medium">{fighter.wins}</span>
           <span className="text-muted-foreground mx-0.5">-</span>
@@ -69,32 +69,32 @@ export function P4PSidebarClient({
         <TabsList className="w-full">
           <TabsTrigger
             value="male"
-            className="px-3 py-1 text-sm data-[state=active]:bg-red-100 dark:data-[state=active]:bg-red-950 data-[state=active]:text-red-700 dark:data-[state=active]:text-red-300 data-[state=active]:shadow-sm transition-all duration-200"
+            className="border-solid data-[state=active]:border-b-0"
           >
             Male
           </TabsTrigger>
           <TabsTrigger
             value="female"
-            className="px-3 py-1 text-sm data-[state=active]:bg-red-100 dark:data-[state=active]:bg-red-950 data-[state=active]:text-red-700 dark:data-[state=active]:text-red-300 data-[state=active]:shadow-sm transition-all duration-200"
+            className=" border-solid data-[state=active]:border-b-0"
           >
             Female
           </TabsTrigger>
         </TabsList>
 
-        <CardTitle className="text-center text-sm font-medium py-2 border-b">
+        <CardTitle className="text-center text-sm p-4 border-b">
           Pound For Pound Rankings
         </CardTitle>
 
-        <CardContent className="p-2">
+        <CardContent className="p-4">
           <TabsContent value="male">
-            <ul className="space-y-2.5">
+            <ul className="space-y-2">
               {maleP4PRankings.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}
             </ul>
           </TabsContent>
           <TabsContent value="female">
-            <ul className="space-y-2.5">
+            <ul className="space-y-2">
               {femaleP4PRankings.map((fighter) => (
                 <FighterCard key={fighter.id} fighter={fighter} />
               ))}

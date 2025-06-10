@@ -55,5 +55,9 @@ function Athletes({
 }
 
 export function RetiredContent({ athletes }: RetiredContentProps) {
-  return <Athletes athletes={athletes} />
+  return (
+    <div className="space-y-4">
+      <Athletes athletes={athletes} />
+    </div>
+  )
 } 
