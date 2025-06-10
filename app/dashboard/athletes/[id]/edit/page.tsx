@@ -64,7 +64,7 @@ export default async function EditAthletePage({ params }: PageProps) {
                   initialData={{
                     ...athleteData,
                     imageUrl: athleteData.imageUrl || undefined,
-                    retired: athleteData.retired || false,
+                    retired: athleteData.retired ?? false,
                   }}
                 />
               </div>

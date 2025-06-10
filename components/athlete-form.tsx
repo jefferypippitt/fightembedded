@@ -11,7 +11,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
@@ -58,9 +57,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ControllerRenderProps } from "react-hook-form";
-import { Switch } from "@/components/ui/switch";
-
-
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type AthleteFormProps = {
   initialData?: z.infer<typeof athleteSchema> & { id: string };
@@ -148,7 +145,6 @@ function CountrySelect({
 export function AthleteForm({ initialData }: AthleteFormProps) {
   const router = useRouter();
   const [imageUrl, setImageUrl] = useState<string>(initialData?.imageUrl || "");
-  const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -171,6 +167,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       rank: initialData?.rank || 0,
       poundForPoundRank: initialData?.poundForPoundRank || 0,
       imageUrl: initialData?.imageUrl || "",
+      retired: Boolean(initialData?.retired),
     },
     resolver: zodResolver(athleteSchema),
   });
@@ -187,6 +184,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           formData.append(key, "0");
         }
       });
+
+      formData.set("retired", data.retired ? "true" : "false");
 
       if (imageUrl) {
         formData.set("imageUrl", imageUrl);
@@ -232,8 +231,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
 
           <div className="flex items-center gap-6">
-            <AthleteAvatar 
-              imageUrl={imageUrl} 
+            <AthleteAvatar
+              imageUrl={imageUrl}
               countryCode={getCountryCode(form.watch("country"))}
               size="md"
             />
@@ -257,7 +256,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                               {isUploading ? (
                                 <>
                                   <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>Uploading {uploadProgress}%</span>
+                                  <span>Uploading...</span>
                                 </>
                               ) : (
                                 <>
@@ -268,15 +267,13 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           );
                         },
                       }}
-                      onUploadProgress={(progress) => {
+                      onUploadProgress={() => {
                         setIsUploading(true);
-                        setUploadProgress(Math.round(progress));
                       }}
                       onClientUploadComplete={(res) => {
                         setIsUploading(false);
-                        setUploadProgress(0);
                         if (res?.[0]) {
-                          const url = res[0].url;
+                          const url = res[0].ufsUrl;
                           setImageUrl(url);
                           field.onChange(url);
                           toast.success("Image uploaded successfully");
@@ -284,7 +281,6 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       }}
                       onUploadError={(error: Error) => {
                         setIsUploading(false);
-                        setUploadProgress(0);
                         toast.error(error.message);
                       }}
                       disabled={isUploading}
@@ -297,217 +293,247 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
         </div>
         {/* Personal Information Section */}
-
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold">Personal Information</h2>
+        <div className="bg-card p-6 rounded-lg border shadow-xs">
+          <div className="flex items-center gap-2 mb-6">
+            <h2 className="text-xl font-semibold">Personal Information</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Name</FormLabel>
-
-                  <FormControl>
-                    <Input
-                      className="h-9"
-                      placeholder="Athlete Name"
-                      {...field}
-                    />
-                  </FormControl>
-
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Gender</FormLabel>
-
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value || ""}
-                  >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Basic Info Group */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Name</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Select gender" />
-                      </SelectTrigger>
+                      <Input
+                        className="h-10"
+                        placeholder="Athlete Name"
+                        {...field}
+                      />
                     </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
 
-                    <SelectContent>
-                      <SelectItem value="MALE">Male</SelectItem>
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">
+                      Gender
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
 
-                      <SelectItem value="FEMALE">Female</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Age</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Age"
-                      className="h-9"
-                      type="number"
-                      min={18}
-                      max={65}
-                      {...field}
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => {
-                        const value =
-                          e.target.value === "" ? 0 : parseInt(e.target.value);
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => <CountrySelect field={field} />}
-            />
-
-            <FormField
-              control={form.control}
-              name="weightDivision"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Weight Division</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value)}
-                    defaultValue={field.value || ""}
-                  >
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Age</FormLabel>
                     <FormControl>
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Select weight division" />
-                      </SelectTrigger>
+                      <Input
+                        placeholder="Age"
+                        className="h-10"
+                        type="number"
+                        min={18}
+                        max={65}
+                        {...field}
+                        value={field.value === 0 ? "" : field.value}
+                        onChange={(e) => {
+                          const value =
+                            e.target.value === ""
+                              ? 0
+                              : parseInt(e.target.value);
+                          field.onChange(value);
+                        }}
+                      />
                     </FormControl>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Mens Divisions</SelectLabel>
-                        {weightClasses.men.map((division) => (
-                          <SelectItem
-                            key={division.slug}
-                            value={`Men's ${division.name}`}
-                          >
-                            {division.name}{" "}
-                            {division.weight && `(${division.weight}lbs)`}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                      <SelectGroup>
-                        <SelectLabel>Womens Divisions</SelectLabel>
-                        {weightClasses.women.map((division) => (
-                          <SelectItem
-                            key={division.slug}
-                            value={`Women's ${division.name}`}
-                          >
-                            {division.name}{" "}
-                            {division.weight && `(${division.weight}lbs)`}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="rank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Rank</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Rank"
-                      className="h-9"
-                      type="number"
-                      min={1}
-                      {...field}
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => {
-                        const value =
-                          e.target.value === "" ? 0 : parseInt(e.target.value);
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+            {/* Division & Country Group */}
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => <CountrySelect field={field} />}
+              />
 
-            <FormField
-              control={form.control}
-              name="poundForPoundRank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">
-                    Pound for Pound Rank
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Pound for Pound Rank"
-                      className="h-9"
-                      type="number"
-                      min={1}
-                      max={15}
-                      {...field}
-                      value={field.value === 0 ? "" : field.value}
-                      onChange={(e) => {
-                        const value =
-                          e.target.value === "" ? 0 : parseInt(e.target.value);
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="weightDivision"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">
+                      Weight Division
+                    </FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value)}
+                      defaultValue={field.value || ""}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select weight division" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Mens Divisions</SelectLabel>
+                          {weightClasses.men.map((division) => (
+                            <SelectItem
+                              key={division.slug}
+                              value={`Men's ${division.name}`}
+                            >
+                              {division.name}{" "}
+                              {division.weight && `(${division.weight}lbs)`}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Womens Divisions</SelectLabel>
+                          {weightClasses.women.map((division) => (
+                            <SelectItem
+                              key={division.slug}
+                              value={`Women's ${division.name}`}
+                            >
+                              {division.name}{" "}
+                              {division.weight && `(${division.weight}lbs)`}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="retired"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
-                  <div className="space-y-0.5">
-                    <FormLabel>Retired Status</FormLabel>
-                    <FormDescription>
-                      Mark if the athlete is retired from competition
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            {/* Rankings & Status Group */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="rank"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Rank
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Rank"
+                          className="h-10"
+                          type="number"
+                          min={1}
+                          {...field}
+                          value={field.value === 0 ? "" : field.value}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? 0
+                                : parseInt(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="poundForPoundRank"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        P4P Rank
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="P4P Rank"
+                          className="h-10"
+                          type="number"
+                          min={1}
+                          max={15}
+                          {...field}
+                          value={field.value === 0 ? "" : field.value}
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? 0
+                                : parseInt(e.target.value);
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="retired"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-sm font-medium">
+                      Fighter Status
+                    </FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={(value) => {
+                          field.onChange(value === "retired");
+                        }}
+                        value={field.value ? "retired" : "active"}
+                        className="flex flex-col space-y-2"
+                      >
+                        <FormItem className="flex items-center gap-3">
+                          <FormControl>
+                            <RadioGroupItem value="active" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Active</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center gap-3">
+                          <FormControl>
+                            <RadioGroupItem value="retired" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Retired</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         </div>
 

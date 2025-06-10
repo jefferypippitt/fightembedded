@@ -71,12 +71,12 @@ export function AthleteAvatar({
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
             <Image
-              src="/placeholder/image-photography-icon.png"
+              src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
-              width={32}
-              height={32}
-              className="h-8 w-8 dark:invert"
-              priority={priority}
+              width={100}
+              height={100}
+              className="h-24 w-24 object-cover"
+         
             />
           </div>
         )}

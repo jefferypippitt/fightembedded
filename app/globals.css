@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "uploadthing/tw/v4";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -181,19 +182,23 @@
 }
 /* UploadThing Button Styles */
 .ut-button {
-  @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground border-2 border-solid px-4 h-9 text-sm font-medium transition-all duration-200 flex items-center gap-2;
+  @apply bg-blue-500 text-white hover:bg-blue-600 px-4 h-9 text-sm font-medium transition-all duration-200 flex items-center gap-2 rounded-md;
 }
 
 .ut-button[data-state="readying"] {
-  @apply opacity-70 cursor-not-allowed;
+  @apply bg-blue-500/50 cursor-not-allowed;
 }
 
 .ut-button[data-state="uploading"] {
-  @apply opacity-70 cursor-not-allowed;
+  @apply bg-blue-500/50 cursor-not-allowed;
 }
 
 .ut-button[data-state="uploading"]::after {
-  @apply bg-secondary/20;
+  @apply bg-blue-500/20;
+}
+
+.ut-allowed-content {
+  @apply text-muted-foreground text-xs mt-2;
 }
 
 @keyframes enterFromRight {
