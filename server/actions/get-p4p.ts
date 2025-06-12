@@ -36,6 +36,9 @@ export const getP4PRankings = unstable_cache(
       femaleP4PRankings,
     };
   },
-  ['p4p-rankings'],
-  { revalidate: 86400 } // Revalidate daily
+  ['p4p-rankings', 'homepage'],
+  { 
+    revalidate: 604800, // Cache for a week (7 days)
+    tags: ['p4p-rankings', 'homepage', 'athletes'] // Tags for cache invalidation
+  }
 );

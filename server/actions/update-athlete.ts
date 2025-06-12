@@ -64,6 +64,7 @@ export async function updateAthlete(
     revalidateTag('all-athletes');
     revalidateTag('athlete-by-id');
     revalidateTag('athletes-by-division');
+    revalidateTag('division-athletes');
     revalidateTag('p4p-rankings');
     revalidateTag('champions');
     revalidateTag('undefeated-athletes');

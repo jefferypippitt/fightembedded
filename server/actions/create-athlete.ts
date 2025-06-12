@@ -60,6 +60,7 @@ export async function createAthlete(
     // Revalidate cache tags to immediately update data
     revalidateTag('all-athletes');
     revalidateTag('athletes-by-division');
+    revalidateTag('division-athletes');
     
     if (validatedData.rank === 1) {
       revalidateTag('champions');

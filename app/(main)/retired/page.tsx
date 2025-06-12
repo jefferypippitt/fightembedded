@@ -1,10 +1,10 @@
 import { getRetiredAthletes } from '@/server/actions/athlete'
-import { RetiredContent } from './retired-content'
 import { Metadata } from "next"
+import { RetiredContent } from './retired-content'
 
 export const metadata: Metadata = {
   title: "Retired Athletes",
-  description: "Browse retired UFC fighters and their career statistics",
+  description: "Browse all retired UFC fighters and their career statistics",
   openGraph: {
     title: "Retired Athletes | Fight Embedded",
     description: "View detailed statistics and career records of retired UFC fighters. Get comprehensive analytics and performance data.",
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RetiredPage() {
-  const athletes = await getRetiredAthletes();
+  const athletes = await getRetiredAthletes()
 
   return (
     <div className="space-y-6">
@@ -30,6 +30,6 @@ export default async function RetiredPage() {
       </div>
       <RetiredContent athletes={athletes} />
     </div>
-  );
+  )
 }
 

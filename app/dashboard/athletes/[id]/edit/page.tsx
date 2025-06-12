@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { AthleteForm } from "@/components/athlete-form";
 import { notFound } from "next/navigation";
-import { getAthlete } from "@/server/actions/get-athlete";
+import { getAthleteForDashboard } from "@/server/actions/get-athlete";
 import { SiteHeader } from "@/components/site-header";
+import { unstable_noStore as noStore } from "next/cache";
 
 interface GenerateMetadataProps {
   params: Promise<{ id: string }>;
@@ -15,7 +16,7 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const athlete = await getAthlete(id);
+    const athlete = await getAthleteForDashboard(id);
     return {
       title: `Edit ${athlete?.name || "Athlete"}`,
       description: `Edit profile for ${athlete?.name || "athlete"}`,
@@ -33,6 +34,9 @@ interface PageProps {
 }
 
 export default async function EditAthletePage({ params }: PageProps) {
+  // Disable caching for this page
+  noStore();
+  
   // Await the params
   const { id } = await params;
 
@@ -41,7 +45,7 @@ export default async function EditAthletePage({ params }: PageProps) {
   }
 
   try {
-    const athlete = await getAthlete(id);
+    const athlete = await getAthleteForDashboard(id);
 
     if (!athlete) {
       return notFound();
@@ -61,6 +65,7 @@ export default async function EditAthletePage({ params }: PageProps) {
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
               <div className="px-4 lg:px-6">
                 <AthleteForm
+                  key={athlete.id} // Add key to force re-render when data changes
                   initialData={{
                     ...athleteData,
                     imageUrl: athleteData.imageUrl || undefined,

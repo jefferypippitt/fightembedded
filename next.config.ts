@@ -1,18 +1,28 @@
-import type { NextConfig } from "next";
+import { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
+const config: NextConfig = {
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'uploadthing.com',
+        hostname: 'i3hmtlzhqt.ufs.sh',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'utfs.io',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploadthing.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
-};
+}
 
-export default nextConfig;
+export default config

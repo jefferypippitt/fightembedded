@@ -6,7 +6,6 @@ import { SearchBar } from '@/components/search-bar'
 import { AthleteComparison } from '@/components/athlete-comparison'
 import type { Athlete } from '@/types/athlete'
 import Link from 'next/link'
-import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { useDebouncedCallback } from 'use-debounce'
 
 interface DivisionContentProps {
@@ -67,24 +66,14 @@ function Athletes({
 }
 
 export function DivisionContent({ athletes }: DivisionContentProps) {
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const router = useRouter()
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
 
-  // Debounced search handler with loading state
+  // Client-side search handler
   const handleSearch = useDebouncedCallback((term: string) => {
     setIsSearching(true)
-    const params = new URLSearchParams(searchParams)
-    
-    if (term) {
-      params.set('query', term)
-    } else {
-      params.delete('query')
-    }
-    
-    router.replace(`${pathname}?${params.toString()}`)
+    setSearchQuery(term)
     setIsSearching(false)
   }, 300)
 
@@ -108,8 +97,19 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
     setSelectedAthletes([])
   }, [])
 
-  // Memoize the current query to prevent unnecessary re-renders
-  const query = useMemo(() => searchParams.get('query') || '', [searchParams])
+  // Filter athletes based on search query
+  const filteredAthletes = useMemo(() => {
+    if (!searchQuery) return athletes
+
+    const searchTerm = searchQuery.toLowerCase()
+    return athletes.filter((athlete) => {
+      return (
+        athlete.name.toLowerCase().includes(searchTerm) ||
+        athlete.country.toLowerCase().includes(searchTerm) ||
+        athlete.weightDivision.toLowerCase().includes(searchTerm)
+      )
+    })
+  }, [athletes, searchQuery])
 
   if (athletes.length === 0) {
     return (
@@ -133,7 +133,7 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div className="w-full sm:w-[400px]">
           <SearchBar 
-            defaultValue={query} 
+            defaultValue={searchQuery} 
             onChange={handleSearch}
             placeholder="Search athletes by name, country, or division..."
             aria-label="Search athletes"
@@ -150,7 +150,7 @@ export function DivisionContent({ athletes }: DivisionContentProps) {
       </div>
 
       <Athletes 
-        athletes={athletes} 
+        athletes={filteredAthletes} 
         selectedAthletes={selectedAthletes}
         onSelect={handleAthleteSelect}
       />

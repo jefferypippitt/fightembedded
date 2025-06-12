@@ -2,8 +2,12 @@ import prisma from "@/lib/prisma";
 import { UFCEvent } from "@/types/event";
 import { EventsDataTable } from "./events-data-table";
 import { SiteHeader } from "@/components/site-header";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function EventsPage() {
+  // Disable caching for dashboard
+  noStore();
+
   const events = await prisma.event.findMany({
     orderBy: {
       date: "desc",

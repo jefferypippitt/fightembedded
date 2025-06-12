@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
+import { unstable_noStore as noStore } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Upcoming Events | Fight Embedded",
@@ -18,6 +18,9 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
+  // Disable caching for this page
+  noStore();
+  
   const events = await getAllUpcomingEvents();
 
   return (
@@ -35,7 +38,7 @@ export default async function EventsPage() {
         <div className="max-w-7xl mx-auto">
           <Table>
             <TableHeader>
-              <TableRow className="hover:bg-red-50 dark:hover:bg-red-950/50">
+              <TableRow>
                 <TableHead className="w-[200px]">Event Name</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Location</TableHead>
@@ -46,7 +49,6 @@ export default async function EventsPage() {
               {events.map((event) => (
                 <TableRow 
                   key={event.id}
-                  className="hover:bg-red-50 dark:hover:bg-red-950/50"
                 >
                   <TableCell className="font-medium">
                     <Badge variant="eventDate">{event.name}</Badge>

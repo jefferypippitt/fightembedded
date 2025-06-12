@@ -1,37 +1,23 @@
-import { getAthletes } from '@/server/actions/athlete'
-import { Metadata } from "next"
 import { AthletesContent } from './athletes-content'
+import { Suspense } from 'react'
+import { AthletesGridSkeleton } from '@/components/athlete-skeleton'
+import { getAthletes } from '@/server/actions/get-athlete'
+import { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Athletes",
-  description: "Browse all UFC fighters and their career statistics",
+  title: "Athletes | Fight Embedded",
+  description: "View all active athletes in the Fight Embedded database.",
 }
 
-export default async function AthletesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ query?: string }>
-}) {
-  const athletes = await getAthletes()
-  const params = await searchParams
-  const query = params.query || ''
-  
-  // Enhanced server-side filtering with better search logic
-  const filteredAthletes = query.trim()
-    ? athletes.filter((athlete) => {
-        const searchTerm = query.toLowerCase().trim()
-        const searchTerms = searchTerm.split(/\s+/)
-        
-        // Check if all search terms are found in any of the searchable fields
-        return searchTerms.every(term => {
-          const nameMatch = athlete.name.toLowerCase().includes(term)
-          const countryMatch = athlete.country.toLowerCase().includes(term)
-          const divisionMatch = athlete.weightDivision.toLowerCase().includes(term)
-          
-          return nameMatch || countryMatch || divisionMatch
-        })
-      })
-    : athletes
+export const dynamic = 'force-dynamic'
 
-  return <AthletesContent athletes={filteredAthletes} />
+export default async function AthletesPage() {
+ 
+  const athletes = await getAthletes()
+
+  return (
+    <Suspense fallback={<AthletesGridSkeleton count={12} />}>
+      <AthletesContent athletes={athletes} />
+    </Suspense>
+  );
 }

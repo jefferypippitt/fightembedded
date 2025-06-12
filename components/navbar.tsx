@@ -38,7 +38,7 @@ const navigationLinks = [
     ],
   },
   {
-    label: "Male Divisions",
+    label: "Men's Divisions",
     submenu: true,
     type: "description",
     items: [
@@ -85,7 +85,7 @@ const navigationLinks = [
     ],
   },
   {
-    label: "Female Divisions",
+    label: "Women's Divisions",
     submenu: true,
     type: "description",
     items: [

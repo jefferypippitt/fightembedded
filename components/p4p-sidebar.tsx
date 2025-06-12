@@ -32,6 +32,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       imageUrl={fighter.imageUrl}
       countryCode={getCountryCode(fighter.country)}
       size="xs"
+      priority={fighter.poundForPoundRank <= 3}
     />
     <div>
       <p className="text-xs font-medium">{fighter.name}</p>

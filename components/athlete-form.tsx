@@ -172,6 +172,31 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
     resolver: zodResolver(athleteSchema),
   });
 
+  // Reset form when initialData changes
+  React.useEffect(() => {
+    if (initialData) {
+      form.reset({
+        ...initialData,
+        winsByKo: initialData.winsByKo ?? 0,
+        winsBySubmission: initialData.winsBySubmission ?? 0,
+        name: initialData.name || "",
+        gender: initialData.gender || undefined,
+        age: initialData.age || 0,
+        country: initialData.country || "",
+        weightDivision: initialData.weightDivision || "",
+        wins: initialData.wins || 0,
+        losses: initialData.losses || 0,
+        draws: initialData.draws || 0,
+        followers: initialData.followers || 0,
+        rank: initialData.rank || 0,
+        poundForPoundRank: initialData.poundForPoundRank || 0,
+        imageUrl: initialData.imageUrl || "",
+        retired: Boolean(initialData.retired),
+      });
+      setImageUrl(initialData.imageUrl || "");
+    }
+  }, [initialData, form]);
+
   async function onSubmit(data: z.infer<typeof athleteSchema>) {
     try {
       setIsSubmitting(true);
@@ -197,8 +222,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
       if (result.status === "success") {
         toast.success(result.message);
-        router.push("/dashboard/athletes");
+        // Force a hard refresh of the page to ensure fresh data
         router.refresh();
+        router.push("/dashboard/athletes");
       } else {
         toast.error(
           result.message ||

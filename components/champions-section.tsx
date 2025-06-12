@@ -1,54 +1,63 @@
-'use client';
-
+import { Athlete } from "@prisma/client";
 import { AthleteCard } from "@/components/athlete-card";
 
-interface Champion {
-  id: string;
-  name: string;
-  gender: "MALE" | "FEMALE";
-  weightDivision: string;
-  country: string;
-  imageUrl: string | null;
-  wins: number;
-  losses: number;
-  draws: number;
-  winsByKo: number;
-  winsBySubmission: number;
-  followers: number;
-  rank: number;
-  age: number;
-  retired: boolean | null;
+interface ChampionsSectionProps {
+  maleChampions: Athlete[];
+  femaleChampions: Athlete[];
 }
 
-interface ChampionsSectionProps {
-  maleChampions: Champion[];
-  femaleChampions: Champion[];
-}
+// Define weight division order (heaviest to lightest)
+const weightDivisionOrder = {
+  "MALE": [
+    "Heavyweight",
+    "Light Heavyweight",
+    "Middleweight",
+    "Welterweight",
+    "Lightweight",
+    "Featherweight",
+    "Bantamweight",
+    "Flyweight"
+  ],
+  "FEMALE": [
+    "Featherweight",
+    "Bantamweight",
+    "Flyweight",
+    "Strawweight"
+  ]
+};
+
+// Helper function to get division weight for sorting
+const getDivisionWeight = (division: string, gender: "MALE" | "FEMALE") => {
+  const order = weightDivisionOrder[gender];
+  const index = order.findIndex(d => 
+    division.toLowerCase().includes(d.toLowerCase())
+  );
+  return index === -1 ? order.length : index; // Put unknown divisions at the end
+};
 
 export default function ChampionsSection({ maleChampions, femaleChampions }: ChampionsSectionProps) {
+  // Sort champions by weight division
+  const sortedMaleChampions = [...maleChampions].sort((a, b) => 
+    getDivisionWeight(a.weightDivision, "MALE") - getDivisionWeight(b.weightDivision, "MALE")
+  );
+
+  const sortedFemaleChampions = [...femaleChampions].sort((a, b) => 
+    getDivisionWeight(a.weightDivision, "FEMALE") - getDivisionWeight(b.weightDivision, "FEMALE")
+  );
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {/* Men's Champions Section */}
       <section>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {maleChampions.map((champion) => (
+          {sortedMaleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}
-              name={champion.name}
-              division={champion.weightDivision}
-              gender={champion.gender}
-              imageUrl={champion.imageUrl || undefined}
-              country={champion.country}
-              wins={champion.wins}
-              losses={champion.losses}
-              draws={champion.draws}
-              winsByKo={champion.winsByKo}
-              winsBySubmission={champion.winsBySubmission}
-              rank={champion.rank}
-              isChampion={champion.rank === 1}
-              retired={champion.retired || false}
-              age={champion.age}
-              followers={champion.followers}
+              athlete={champion}
+              showDivision={true}
+              showStats={true}
+              showFollowers={true}
             />
           ))}
         </div>
@@ -56,25 +65,15 @@ export default function ChampionsSection({ maleChampions, femaleChampions }: Cha
 
       {/* Women's Champions Section */}
       <section>
+       
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {femaleChampions.map((champion) => (
+          {sortedFemaleChampions.map((champion) => (
             <AthleteCard
               key={champion.id}
-              name={champion.name}
-              division={champion.weightDivision}
-              gender={champion.gender}
-              imageUrl={champion.imageUrl || undefined}
-              country={champion.country}
-              wins={champion.wins}
-              losses={champion.losses}
-              draws={champion.draws}
-              winsByKo={champion.winsByKo}
-              winsBySubmission={champion.winsBySubmission}
-              rank={champion.rank}
-              isChampion={champion.rank === 1}
-              retired={champion.retired || false}
-              age={champion.age}
-              followers={champion.followers}
+              athlete={champion}
+              showDivision={true}
+              showStats={true}
+              showFollowers={true}
             />
           ))}
         </div>

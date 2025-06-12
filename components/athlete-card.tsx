@@ -1,8 +1,5 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Athlete } from "@prisma/client";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Medal } from "lucide-react";
@@ -11,22 +8,11 @@ import { getCountryCode } from "@/lib/country-codes";
 import { cn } from "@/lib/utils";
 
 interface AthleteCardProps {
-  name: string;
-  division: string;
-  gender: "MALE" | "FEMALE";
-  imageUrl?: string;
-  country: string;
-  wins?: number;
-  losses?: number;
-  draws?: number;
-  winsByKo?: number;
-  winsBySubmission?: number;
-  rank?: number;
-  poundForPoundRank?: number;
-  isChampion?: boolean;
-  retired?: boolean;
-  age?: number;
-  followers?: number;
+  athlete: Athlete;
+  showDivision?: boolean;
+  showStats?: boolean;
+  showFollowers?: boolean;
+  className?: string;
 }
 
 // Map division names to badge variants
@@ -60,27 +46,22 @@ const getDivisionVariant = (division: string, gender: "MALE" | "FEMALE"): "light
 };
 
 export function AthleteCard({
-  name,
-  division,
-  gender,
-  imageUrl = "/default-avatar.png",
-  country,
-  wins = 0,
-  losses = 0,
-  draws = 0,
-  winsByKo = 0,
-  winsBySubmission = 0,
-  poundForPoundRank = 0,
-  isChampion = false,
-  retired = false,
-  age,
-  followers = 0,
+  athlete,
+  showDivision = true,
+  showStats = true,
+  showFollowers = true,
+  className = "",
 }: AthleteCardProps) {
-  const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
-  const totalFights = wins + losses + draws;
-  const winRate = totalFights > 0 ? (wins / totalFights) * 100 : 0;
-  const koRate = wins > 0 ? (winsByKo / wins) * 100 : 0;
-  const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
+  if (!athlete) {
+    return null;
+  }
+
+  const record = `${athlete.wins}-${athlete.losses}${athlete.draws > 0 ? `-${athlete.draws}` : ""}`;
+  const totalFights = athlete.wins + athlete.losses + athlete.draws;
+  const winRate = totalFights > 0 ? (athlete.wins / totalFights) * 100 : 0;
+  const koRate = athlete.wins > 0 ? (athlete.winsByKo / athlete.wins) * 100 : 0;
+  const submissionRate = athlete.wins > 0 ? (athlete.winsBySubmission / athlete.wins) * 100 : 0;
+  const isChampion = athlete.rank === 1;
 
   return (
     <Card
@@ -91,7 +72,8 @@ export function AthleteCard({
         "shadow-sm hover:shadow-md",
         "transition-all duration-300",
         "hover:border-primary/20 dark:hover:border-primary/20",
-        "p-3"
+        "p-3",
+        className
       )}
     >
       {/* Background gradient on hover */}
@@ -100,7 +82,7 @@ export function AthleteCard({
       <CardContent className="p-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-3">
-          {retired ? (
+          {athlete.retired ? (
             <div className="flex items-center gap-1.5">
               <Badge variant="retired" className="text-[10px] py-0 px-2">
                 Retired
@@ -113,18 +95,18 @@ export function AthleteCard({
                 Champion
               </Badge>
             </div>
-          ) : poundForPoundRank > 0 ? (
+          ) : athlete.poundForPoundRank ? (
             <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-primary/10 text-primary hover:bg-primary/20">
-              P4P #{poundForPoundRank}
+              P4P #{athlete.poundForPoundRank}
             </Badge>
           ) : (
             <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
               Not Ranked
             </Badge>
           )}
-          {age && (
+          {athlete.age && (
             <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
-              Age: {age}
+              Age: {athlete.age}
             </Badge>
           )}
         </div>
@@ -132,19 +114,19 @@ export function AthleteCard({
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
           <AthleteAvatar
-            imageUrl={imageUrl}
-            countryCode={getCountryCode(country)}
+            imageUrl={athlete.imageUrl || '/default-avatar.png'}
+            countryCode={getCountryCode(athlete.country)}
             size="sm"
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
-              retired && "opacity-75"
+              athlete.retired && "opacity-75"
             )}
             priority={isChampion}
           />
 
           <div className="text-center mt-2">
             <h3 className="font-semibold text-sm text-foreground leading-tight">
-              {name}
+              {athlete.name}
             </h3>
             <h4 className="text-[10px] font-medium text-muted-foreground leading-tight">
               {record}
@@ -153,59 +135,65 @@ export function AthleteCard({
         </div>
 
         {/* Division */}
-        <div className="flex items-center justify-center mb-3">
-          <Badge
-            variant={getDivisionVariant(division, gender)}
-            className="text-[10px] py-0 px-2 font-medium"
-          >
-            {division}
-          </Badge>
-        </div>
+        {showDivision && (
+          <div className="flex items-center justify-center mb-3">
+            <Badge
+              variant={getDivisionVariant(athlete.weightDivision, athlete.gender as "MALE" | "FEMALE")}
+              className="text-[10px] py-0 px-2 font-medium"
+            >
+              {athlete.weightDivision}
+            </Badge>
+          </div>
+        )}
 
         {/* Stats with Progress Bars */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>Win Rate</span>
-            <span className="font-medium text-foreground">{winRate.toFixed(1)}%</span>
-          </div>
-          <Progress
-            value={winRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
+        {showStats && (
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>Win Rate</span>
+              <span className="font-medium text-foreground">{winRate.toFixed(1)}%</span>
+            </div>
+            <Progress
+              value={winRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
 
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>KO/TKO</span>
-            <span className="font-medium text-foreground">{koRate.toFixed(1)}%</span>
-          </div>
-          <Progress
-            value={koRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>KO/TKO</span>
+              <span className="font-medium text-foreground">{koRate.toFixed(1)}%</span>
+            </div>
+            <Progress
+              value={koRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
 
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>Submission</span>
-            <span className="font-medium text-foreground">{submissionRate.toFixed(1)}%</span>
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>Submission</span>
+              <span className="font-medium text-foreground">{submissionRate.toFixed(1)}%</span>
+            </div>
+            <Progress
+              value={submissionRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
           </div>
-          <Progress
-            value={submissionRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
-        </div>
+        )}
       </CardContent>
 
-      <CardFooter className="px-0 pt-3 pb-0 border-t border-border/40 dark:border-border/40 relative z-10">
-        <div className="flex items-center justify-between w-full text-[10px]">
-          <div className="flex items-center gap-1">
-            <span className="font-medium text-foreground">{country}</span>
+      {showFollowers && (
+        <CardFooter className="px-0 pt-3 pb-0 border-t border-border/40 dark:border-border/40 relative z-10">
+          <div className="flex items-center justify-between w-full text-[10px]">
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-foreground">{athlete.country}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground">Followers:</span>
+              <span className="font-medium text-foreground">
+                {athlete.followers.toLocaleString()}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Followers:</span>
-            <span className="font-medium text-foreground">
-              {followers.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 }

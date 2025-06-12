@@ -246,6 +246,38 @@ const columns: ColumnDef<Athlete>[] = [
     },
   },
   {
+    accessorKey: "poundForPoundRank",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          P4P Rank
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
+    cell: ({ row }) => {
+      const p4pRank = row.getValue("poundForPoundRank")
+      return p4pRank ? (
+        <Badge
+          variant="outline"
+          className="w-8 h-6 flex items-center justify-center"
+        >
+          {`#${p4pRank}`}
+        </Badge>
+      ) : (
+        <Badge
+          variant="outline"
+          className="w-8 h-6 flex items-center justify-center"
+        >
+          NR
+        </Badge>
+      )
+    },
+  },
+  {
     accessorKey: "weightDivision",
     header: ({ column }) => {
       return (
@@ -374,6 +406,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
   })
 
   const [activeView, setActiveView] = React.useState("athletes")
+  const [selectedGender, setSelectedGender] = React.useState<"ALL" | "MALE" | "FEMALE">("ALL")
 
   const currentData = React.useMemo(() => {
     switch (activeView) {
@@ -381,11 +414,37 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         return undefeatedAthletes
       case "retired":
         return retiredAthletes
+      case "p4p":
+        const p4pAthletes = athletes
+          .filter(athlete => athlete.poundForPoundRank === undefined || (athlete.poundForPoundRank >= 1 && athlete.poundForPoundRank <= 15))
+          .sort((a, b) => {
+            // If both have ranks, sort by rank
+            if (a.poundForPoundRank && b.poundForPoundRank) {
+              return a.poundForPoundRank - b.poundForPoundRank
+            }
+            // If only one has a rank, put the ranked one first
+            if (a.poundForPoundRank) return -1
+            if (b.poundForPoundRank) return 1
+            // If neither has a rank, maintain original order
+            return 0
+          })
+        
+        // Filter by selected gender
+        if (selectedGender !== "ALL") {
+          return p4pAthletes.filter(athlete => athlete.gender === selectedGender)
+        }
+        
+        // Separate male and female athletes for ALL view
+        const maleP4P = p4pAthletes.filter(athlete => athlete.gender === "MALE")
+        const femaleP4P = p4pAthletes.filter(athlete => athlete.gender === "FEMALE")
+        
+        // Return combined array with male athletes first, then female
+        return [...maleP4P, ...femaleP4P]
       case "athletes":
       default:
         return athletes
     }
-  }, [activeView, athletes, undefeatedAthletes, retiredAthletes])
+  }, [activeView, athletes, undefeatedAthletes, retiredAthletes, selectedGender])
 
   const table = useReactTable({
     data: currentData,
@@ -424,12 +483,14 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
             <SelectItem value="athletes">All Athletes</SelectItem>
             <SelectItem value="undefeated">Undefeated</SelectItem>
             <SelectItem value="retired">Retired</SelectItem>
+            <SelectItem value="p4p">P4P Rankings</SelectItem>
           </SelectContent>
         </Select>
         <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <TabsTrigger value="athletes">All Athletes</TabsTrigger>
           <TabsTrigger value="undefeated">Undefeated</TabsTrigger>
           <TabsTrigger value="retired">Retired</TabsTrigger>
+          <TabsTrigger value="p4p">P4P Rankings</TabsTrigger>
         </TabsList>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -459,6 +520,30 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
                     </DropdownMenuCheckboxItem>
                   )
                 })}
+              {activeView === "p4p" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel>P4P Views</DropdownMenuLabel>
+                  <DropdownMenuCheckboxItem
+                    checked={selectedGender === "ALL"}
+                    onCheckedChange={() => setSelectedGender("ALL")}
+                  >
+                    All Genders
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={selectedGender === "MALE"}
+                    onCheckedChange={() => setSelectedGender("MALE")}
+                  >
+                    Male Rankings
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={selectedGender === "FEMALE"}
+                    onCheckedChange={() => setSelectedGender("FEMALE")}
+                  >
+                    Female Rankings
+                  </DropdownMenuCheckboxItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="outline" size="sm" asChild>
@@ -834,23 +919,23 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
                 <span className="sr-only">Go to first page</span>
                 <ChevronsLeft className="h-4 w-4" />
               </Button>
-        <Button
-          variant="outline"
+              <Button
+                variant="outline"
                 className="size-8"
                 size="icon"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              >
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="outline"
+              </Button>
+              <Button
+                variant="outline"
                 className="size-8"
                 size="icon"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              >
                 <span className="sr-only">Go to next page</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
@@ -863,9 +948,175 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
               >
                 <span className="sr-only">Go to last page</span>
                 <ChevronsRight className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="p4p">
+        <div className="flex items-center justify-between py-4">
+          <div className="flex items-center gap-4">
+            <Input
+              placeholder="Filter by name..."
+              value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+              onChange={(event) =>
+                table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+              }
+              className="max-w-sm"
+            />
+            <Select
+              value={selectedGender}
+              onValueChange={(value: "ALL" | "MALE" | "FEMALE") => setSelectedGender(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Genders</SelectItem>
+                <SelectItem value="MALE">Male</SelectItem>
+                <SelectItem value="FEMALE">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-lg border">
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row, index) => {
+                  const athlete = row.original
+                  const isFirstFemale = selectedGender === "ALL" && 
+                    index > 0 && 
+                    athlete.gender === "FEMALE" && 
+                    table.getRowModel().rows[index - 1].original.gender === "MALE"
+                  
+                  return (
+                    <React.Fragment key={row.id}>
+                      {isFirstFemale && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={columns.length}
+                            className="bg-muted/50 py-2 text-center font-medium"
+                          >
+                            Women&apos;s P4P Rankings
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </React.Fragment>
+                  )
+                })
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No P4P ranked athletes found (ranks 1-15).
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        <div className="flex w-full items-center gap-8 lg:w-fit">
+          <div className="hidden items-center gap-2 lg:flex">
+            <Label htmlFor="rows-per-page" className="text-sm font-medium">
+              Rows per page
+            </Label>
+            <Select
+              value={`${table.getState().pagination.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value))
+              }}
+            >
+              <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[10, 20, 30, 40, 50].map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex w-fit items-center justify-center text-sm font-medium">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="hidden h-8 w-8 p-0 lg:flex"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to first page</span>
+              <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="size-8"
+              size="icon"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to next page</span>
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              className="hidden size-8 lg:flex"
+              size="icon"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              <span className="sr-only">Go to last page</span>
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </TabsContent>
     </Tabs>

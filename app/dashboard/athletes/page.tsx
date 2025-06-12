@@ -1,13 +1,13 @@
-import { getAthletes } from "@/server/actions/athlete"
-import { getUndefeatedAthletes } from "@/server/actions/athlete"
-import { getRetiredAthletes } from "@/server/actions/athlete"
+import { getAthletesForDashboard } from "@/server/actions/athlete"
+import { getUndefeatedAthletesForDashboard } from "@/server/actions/athlete"
+import { getRetiredAthletesForDashboard } from "@/server/actions/athlete"
 import { AthletesDataTable } from "./athletes-data-table"
 import { SiteHeader } from "@/components/site-header"
 
 export default async function DashboardAthletesPage() {
-  const athletes = await getAthletes()
-  const undefeatedAthletes = await getUndefeatedAthletes()
-  const retiredAthletes = await getRetiredAthletes()
+  const athletes = await getAthletesForDashboard()
+  const undefeatedAthletes = await getUndefeatedAthletesForDashboard()
+  const retiredAthletes = await getRetiredAthletesForDashboard()
   
   return (
     <div className="flex flex-col gap-6">

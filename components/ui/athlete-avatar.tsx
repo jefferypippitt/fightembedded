@@ -20,6 +20,13 @@ const sizeMap = {
   lg: 'h-32 w-32',
 };
 
+const imageSizes = {
+  xs: 40,
+  sm: 64,
+  md: 96,
+  lg: 128,
+};
+
 export function AthleteAvatar({ 
   imageUrl, 
   countryCode, 
@@ -27,6 +34,8 @@ export function AthleteAvatar({
   className = '',
   priority = false
 }: AthleteAvatarProps) {
+  const imageSize = imageSizes[size];
+
   return (
     <div className="relative">
       {/* Flag Background */}
@@ -35,14 +44,18 @@ export function AthleteAvatar({
           <Image
             src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
             alt={`${countryCode} flag`}
-            width={size === 'xs' ? 40 : size === 'sm' ? 64 : size === 'md' ? 96 : 128}
-            height={size === 'xs' ? 40 : size === 'sm' ? 64 : size === 'md' ? 96 : 128}
+            width={imageSize}
+            height={imageSize}
             className={cn(
               sizeMap[size],
               "rounded-full object-cover opacity-80",
               "absolute inset-0"
             )}
             priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            quality={75}
+            sizes={`${imageSize}px`}
+            fetchPriority={priority ? "high" : "auto"}
           />
         </div>
       )}
@@ -57,7 +70,7 @@ export function AthleteAvatar({
       />
 
       {/* Athlete Image */}
-      <Avatar 
+      <Avatar
         className={`${sizeMap[size]} ring-1 ring-border ${className} relative`}
         style={{ zIndex: 2 }}
       >
@@ -67,16 +80,22 @@ export function AthleteAvatar({
             alt="Profile"
             className="object-cover"
             fetchPriority={priority ? "high" : "auto"}
+            loading={priority ? "eager" : "lazy"}
+            sizes={`${imageSize}px`}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
             <Image
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
-              width={100}
-              height={100}
+              width={imageSize}
+              height={imageSize}
               className="h-24 w-24 object-cover"
-         
+              priority={priority}
+              loading={priority ? "eager" : "lazy"}
+              quality={75}
+              sizes={`${imageSize}px`}
+              fetchPriority={priority ? "high" : "auto"}
             />
           </div>
         )}

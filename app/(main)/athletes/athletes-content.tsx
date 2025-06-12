@@ -4,7 +4,6 @@ import { AthleteListCard } from '@/components/athlete-list-card'
 import type { Athlete } from '@/types/athlete'
 import { SearchBar } from '@/components/search-bar'
 import { AthleteComparison } from '@/components/athlete-comparison'
-import { useSearchParams, usePathname, useRouter } from 'next/navigation'
 import { useState, useCallback, useMemo } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 
@@ -66,49 +65,39 @@ function Athletes({
 }
 
 export function AthletesContent({ athletes }: AthletesContentProps) {
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
-  const [isSearching, setIsSearching] = useState(false)
 
-  // Debounced search handler with loading state
-  const handleSearch = useDebouncedCallback((term: string) => {
-    setIsSearching(true)
-    const params = new URLSearchParams(searchParams)
-    
-    if (term) {
-      params.set('query', term)
-    } else {
-      params.delete('query')
-    }
-    
-    router.replace(`${pathname}?${params.toString()}`)
-    setIsSearching(false)
-  }, 300)
+  // Simplified search with useMemo
+  const filteredAthletes = useMemo(() => {
+    if (!searchQuery.trim()) return athletes
 
+    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/)
+    
+    return athletes.filter((athlete) => 
+      searchTerms.every(term => 
+        athlete.name.toLowerCase().includes(term) ||
+        athlete.country.toLowerCase().includes(term) ||
+        athlete.weightDivision.toLowerCase().includes(term)
+      )
+    )
+  }, [athletes, searchQuery])
+
+  // Simplified debounced search
+  const handleSearch = useDebouncedCallback(
+    (value: string) => setSearchQuery(value),
+    300
+  )
+
+  // Simplified athlete selection
   const handleAthleteSelect = useCallback((athlete: Athlete) => {
-    setSelectedAthletes((current) => {
-      const isSelected = current.some((a) => a.id === athlete.id)
-      
-      if (isSelected) {
-        return current.filter((a) => a.id !== athlete.id)
-      }
-      
-      if (current.length >= 2) {
-        return current
-      }
-      
-      return [...current, athlete]
+    setSelectedAthletes(prev => {
+      const isSelected = prev.some(a => a.id === athlete.id)
+      if (isSelected) return prev.filter(a => a.id !== athlete.id)
+      if (prev.length >= 2) return [prev[1], athlete]
+      return [...prev, athlete]
     })
   }, [])
-
-  const handleClearSelection = useCallback(() => {
-    setSelectedAthletes([])
-  }, [])
-
-  // Memoize the current query to prevent unnecessary re-renders
-  const query = useMemo(() => searchParams.get('query') || '', [searchParams])
 
   return (
     <div className="space-y-6">
@@ -122,24 +111,23 @@ export function AthletesContent({ athletes }: AthletesContentProps) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="w-full sm:w-[400px]">
             <SearchBar 
-              defaultValue={query} 
+              defaultValue={searchQuery} 
               onChange={handleSearch}
               placeholder="Search athletes by name, country, or division..."
               aria-label="Search athletes"
               maxWidth="400px"
-              isLoading={isSearching}
             />
           </div>
           <div className="shrink-0">
             <AthleteComparison 
               selectedAthletes={selectedAthletes}
-              onClearSelection={handleClearSelection}
+              onClearSelection={() => setSelectedAthletes([])}
             />
           </div>
         </div>
 
         <Athletes 
-          athletes={athletes} 
+          athletes={filteredAthletes} 
           selectedAthletes={selectedAthletes}
           onSelect={handleAthleteSelect}
         />

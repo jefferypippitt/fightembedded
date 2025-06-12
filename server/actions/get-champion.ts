@@ -58,6 +58,9 @@ export const getChampions = unstable_cache(
       femaleChampions,
     };
   },
-  ['champions'],
-  { revalidate: 86400 } // Revalidate every day, since champions don't change frequently
+  ['champions', 'homepage'],
+  { 
+    revalidate: 604800, // Cache for a week (7 days)
+    tags: ['champions', 'homepage', 'athletes'] // Tags for cache invalidation
+  }
 );

@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 async function checkAuth() {
   const session = await auth.api.getSession({
@@ -25,6 +26,15 @@ export async function deleteEvent(id: string) {
         id,
       },
     });
+
+    // Revalidate cache tags
+    revalidateTag('events');
+    revalidateTag('upcoming-events');
+    revalidateTag('upcoming-events-preview');
+
+    // Revalidate paths
+    revalidatePath('/events');
+    revalidatePath('/dashboard/events');
 
     return {
       status: "success",
