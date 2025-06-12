@@ -118,8 +118,8 @@ const navigationLinks = [
       },
       {
         href: "/rankings/divisions",
-        label: "Division Rankings",
-        description: "Top 5 athletes by division",
+        label: "Popular Division Rankings",
+        description: "Top 5 athletes by division popularity",
       },
     ],
   },

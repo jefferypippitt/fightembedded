@@ -52,7 +52,6 @@ export function DivisionChart({ division }: DivisionChartProps) {
             data={chartData}
             layout="vertical"
             margin={{
-              left: -20,
             }}
           >
             <XAxis 
@@ -87,7 +86,7 @@ export function DivisionChart({ division }: DivisionChartProps) {
             <Bar 
               dataKey="followers" 
               fill="fill"
-              radius={3} 
+              radius={2} 
             />
           </BarChart>
         </ChartContainer>
