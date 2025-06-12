@@ -87,7 +87,7 @@ export function AthleteListCard({
   const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
 
   // Determine if this athlete's image should be prioritized
-  const isPriorityImage = rank === 1 || rank === 2 || rank === 3;
+  const isPriorityImage = rank === 1 || rank === 2 || rank === 3 || rank === 4 || rank === 5;
 
   return (
     <Card
@@ -139,7 +139,7 @@ export function AthleteListCard({
         </div>
 
         {/* Avatar and Name section */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center mb-3">
           <AthleteAvatar
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}

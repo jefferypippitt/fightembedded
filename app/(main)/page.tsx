@@ -4,6 +4,10 @@ import ChampionsSectionWrapper from "@/components/champions-section-wrapper";
 import EventsSectionWrapper from "@/components/events-section";
 import RankingsSectionWrapper from "@/components/rankings-section";
 
+// Use static rendering for homepage
+export const dynamic = 'force-static'
+export const revalidate = 3600 // Cache for 1 hour
+
 export const metadata: Metadata = {
   title: "Home",
   description:

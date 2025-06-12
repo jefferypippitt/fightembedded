@@ -1,5 +1,3 @@
-'use client';
-
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -40,7 +38,7 @@ export function AthleteAvatar({
     <div className="relative">
       {/* Flag Background */}
       {countryCode && (
-        <div className="relative">
+        <div className="absolute inset-0 z-0">
           <Image
             src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
             alt={`${countryCode} flag`}
@@ -48,40 +46,25 @@ export function AthleteAvatar({
             height={imageSize}
             className={cn(
               sizeMap[size],
-              "rounded-full object-cover opacity-80",
+              "rounded-full object-cover opacity-100",
               "absolute inset-0"
             )}
             priority={priority}
             loading={priority ? "eager" : "lazy"}
-            quality={75}
-            sizes={`${imageSize}px`}
-            fetchPriority={priority ? "high" : "auto"}
+            sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
           />
         </div>
       )}
-      
-      {/* Gradient Overlay for better image visibility */}
-      <div 
-        className={`absolute inset-0 ${sizeMap[size]} rounded-full`}
-        style={{
-          background: 'radial-gradient(circle, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%)',
-          zIndex: 1
-        }}
-      />
 
       {/* Athlete Image */}
       <Avatar
-        className={`${sizeMap[size]} ring-1 ring-border ${className} relative`}
-        style={{ zIndex: 2 }}
+        className={`${sizeMap[size]} ring-1 ring-border ${className} relative z-10`}
       >
         {imageUrl ? (
           <AvatarImage
             src={imageUrl}
             alt="Profile"
             className="object-cover"
-            fetchPriority={priority ? "high" : "auto"}
-            loading={priority ? "eager" : "lazy"}
-            sizes={`${imageSize}px`}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -93,9 +76,7 @@ export function AthleteAvatar({
               className="h-24 w-24 object-cover"
               priority={priority}
               loading={priority ? "eager" : "lazy"}
-              quality={75}
-              sizes={`${imageSize}px`}
-              fetchPriority={priority ? "high" : "auto"}
+              sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
             />
           </div>
         )}

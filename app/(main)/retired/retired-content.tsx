@@ -2,24 +2,44 @@
 
 import { AthleteListCard } from '@/components/athlete-list-card'
 import type { Athlete } from '@/types/athlete'
+import { SearchBar } from '@/components/search-bar'
+import { useState, useMemo } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface RetiredContentProps {
   athletes: Athlete[]
 }
 
 function Athletes({ 
-  athletes
+  athletes,
+  searchQuery
 }: { 
   athletes: Athlete[]
+  searchQuery: string
 }) {
-  if (athletes.length === 0) {
+  // Memoized filtered athletes
+  const filteredAthletes = useMemo(() => {
+    if (!searchQuery.trim()) return athletes
+
+    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/)
+    
+    return athletes.filter((athlete) => 
+      searchTerms.every(term => 
+        athlete.name.toLowerCase().includes(term) ||
+        athlete.country.toLowerCase().includes(term) ||
+        athlete.weightDivision.toLowerCase().includes(term)
+      )
+    )
+  }, [athletes, searchQuery])
+
+  if (filteredAthletes.length === 0) {
     return (
       <div className="text-center space-y-2">
         <p className="text-muted-foreground">
-          No retired athletes found.
+          No retired athletes found matching your search.
         </p>
         <p className="text-sm text-muted-foreground">
-          Check back later for updates.
+          Try adjusting your search terms or check for typos.
         </p>
       </div>
     )
@@ -31,7 +51,7 @@ function Athletes({
       role="grid"
       aria-label="Retired athletes grid"
     >
-      {athletes.map((athlete) => (
+      {filteredAthletes.map((athlete) => (
         <AthleteListCard
           key={athlete.id}
           id={athlete.id}
@@ -55,9 +75,33 @@ function Athletes({
 }
 
 export function RetiredContent({ athletes }: RetiredContentProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+
+  // Debounced search handler
+  const handleSearch = useDebouncedCallback(
+    (value: string) => {
+      setIsSearching(true)
+      setSearchQuery(value)
+      setIsSearching(false)
+    },
+    300
+  )
+
   return (
     <div className="space-y-4">
-      <Athletes athletes={athletes} />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="w-full sm:w-[400px]">
+          <SearchBar 
+            onChange={handleSearch}
+            placeholder="Search retired athletes by name, country, or division..."
+            aria-label="Search retired athletes"
+            maxWidth="400px"
+            isLoading={isSearching}
+          />
+        </div>
+      </div>
+      <Athletes athletes={athletes} searchQuery={searchQuery} />
     </div>
   )
 } 

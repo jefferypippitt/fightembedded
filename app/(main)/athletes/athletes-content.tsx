@@ -67,8 +67,9 @@ function Athletes({
 export function AthletesContent({ athletes }: AthletesContentProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedAthletes, setSelectedAthletes] = useState<Athlete[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
-  // Simplified search with useMemo
+  // Memoized filtered athletes
   const filteredAthletes = useMemo(() => {
     if (!searchQuery.trim()) return athletes
 
@@ -83,13 +84,17 @@ export function AthletesContent({ athletes }: AthletesContentProps) {
     )
   }, [athletes, searchQuery])
 
-  // Simplified debounced search
+  // Debounced search handler
   const handleSearch = useDebouncedCallback(
-    (value: string) => setSearchQuery(value),
+    (value: string) => {
+      setIsSearching(true)
+      setSearchQuery(value)
+      setIsSearching(false)
+    },
     300
   )
 
-  // Simplified athlete selection
+  // Memoized athlete selection handler
   const handleAthleteSelect = useCallback((athlete: Athlete) => {
     setSelectedAthletes(prev => {
       const isSelected = prev.some(a => a.id === athlete.id)
@@ -100,38 +105,30 @@ export function AthletesContent({ athletes }: AthletesContentProps) {
   }, [])
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-center">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-          All UFC Athletes
-        </h1>
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          <div className="w-full sm:w-[400px]">
-            <SearchBar 
-              defaultValue={searchQuery} 
-              onChange={handleSearch}
-              placeholder="Search athletes by name, country, or division..."
-              aria-label="Search athletes"
-              maxWidth="400px"
-            />
-          </div>
-          <div className="shrink-0">
-            <AthleteComparison 
-              selectedAthletes={selectedAthletes}
-              onClearSelection={() => setSelectedAthletes([])}
-            />
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="w-full sm:w-[400px]">
+          <SearchBar 
+            onChange={handleSearch}
+            placeholder="Search athletes by name, country, or division..."
+            aria-label="Search athletes"
+            maxWidth="400px"
+            isLoading={isSearching}
+          />
         </div>
-
-        <Athletes 
-          athletes={filteredAthletes} 
-          selectedAthletes={selectedAthletes}
-          onSelect={handleAthleteSelect}
-        />
+        <div className="shrink-0">
+          <AthleteComparison 
+            selectedAthletes={selectedAthletes}
+            onClearSelection={() => setSelectedAthletes([])}
+          />
+        </div>
       </div>
+
+      <Athletes 
+        athletes={filteredAthletes}
+        selectedAthletes={selectedAthletes}
+        onSelect={handleAthleteSelect}
+      />
     </div>
   )
 } 

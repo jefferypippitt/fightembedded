@@ -62,6 +62,7 @@ export function AthleteCard({
   const koRate = athlete.wins > 0 ? (athlete.winsByKo / athlete.wins) * 100 : 0;
   const submissionRate = athlete.wins > 0 ? (athlete.winsBySubmission / athlete.wins) * 100 : 0;
   const isChampion = athlete.rank === 1;
+  const isPriorityImage = isChampion || athlete.poundForPoundRank !== null;
 
   return (
     <Card
@@ -121,7 +122,7 @@ export function AthleteCard({
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
               athlete.retired && "opacity-75"
             )}
-            priority={isChampion}
+            priority={isPriorityImage}
           />
 
           <div className="text-center mt-2">
