@@ -59,15 +59,18 @@ export function AthleteAvatar({
 
       {/* Athlete Image */}
       <Avatar
-        className={`${sizeMap[size]} ring-1 ring-border ${className} relative z-10`}
+        className={cn(
+          sizeMap[size],
+          "ring-1 ring-border relative z-10 overflow-hidden",
+          className
+        )}
       >
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt="Profile"
-            width={imageSize.desktop}
-            height={imageSize.desktop}
-            className="object-cover rounded-full"
+            fill
+            className="object-cover"
             priority={priority}
             loading="eager"
             quality={100}
@@ -78,9 +81,8 @@ export function AthleteAvatar({
             <Image
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
-              width={imageSize.desktop}
-              height={imageSize.desktop}
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
               priority={priority}
               loading="eager"
               quality={100}
