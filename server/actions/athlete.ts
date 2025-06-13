@@ -237,29 +237,70 @@ export const getUndefeatedAthletes = unstable_cache(
   { revalidate: 3600 } // Revalidate every hour
 );
 
+// Map of division names to their weight order (higher number = heavier)
+const divisionWeights = new Map([
+  // Men's divisions
+  ["Heavyweight", 8],
+  ["Light Heavyweight", 7],
+  ["Middleweight", 6],
+  ["Welterweight", 5],
+  ["Lightweight", 4],
+  ["Featherweight", 3],
+  ["Bantamweight", 2],
+  ["Flyweight", 1],
+  // Women's divisions
+  ["Women's Featherweight", 4],
+  ["Women's Bantamweight", 3],
+  ["Women's Flyweight", 2],
+  ["Women's Strawweight", 1],
+]);
+
 export const getChampions = unstable_cache(
   async () => {
-    try {
-      const champions = await prisma.athlete.findMany({
-        where: {
-          rank: 1,
-          retired: false,
-        },
-        orderBy: {
-          weightDivision: 'asc',
-        },
-        select: athleteSelect,
+    const champions = await prisma.athlete.findMany({
+      where: {
+        rank: 1, // Only get rank 1 athletes (champions)
+      },
+      select: athleteSelect,
+    });
+
+    const maleChampions = champions
+      .filter((champion) => champion.gender === "MALE")
+      .sort((a, b) => {
+        const weightA = divisionWeights.get(a.weightDivision) ?? 999;
+        const weightB = divisionWeights.get(b.weightDivision) ?? 999;
+        
+        // If both divisions are unknown, sort alphabetically
+        if (weightA === 999 && weightB === 999) {
+          return a.weightDivision.localeCompare(b.weightDivision);
+        }
+        
+        return weightB - weightA; // Sort heaviest to lightest
       });
 
-      return champions.map(transformAthlete);
-    } catch {
-      throw new Error('Failed to fetch champions');
-    }
+    const femaleChampions = champions
+      .filter((champion) => champion.gender === "FEMALE")
+      .sort((a, b) => {
+        const weightA = divisionWeights.get(a.weightDivision) ?? 999;
+        const weightB = divisionWeights.get(b.weightDivision) ?? 999;
+        
+        // If both divisions are unknown, sort alphabetically
+        if (weightA === 999 && weightB === 999) {
+          return a.weightDivision.localeCompare(b.weightDivision);
+        }
+        
+        return weightB - weightA; // Sort heaviest to lightest
+      });
+
+    return {
+      maleChampions,
+      femaleChampions,
+    };
   },
-  ['champions'],
+  ['champions', 'homepage'],
   { 
-    revalidate: CACHE_DURATION,
-    tags: [CACHE_TAGS.ATHLETES, CACHE_TAGS.HOMEPAGE]
+    revalidate: 604800, // Cache for a week (7 days)
+    tags: ['champions', 'homepage', 'athletes'] // Tags for cache invalidation
   }
 );
 

@@ -1,5 +1,5 @@
 import { Athlete } from "@prisma/client";
-import { AthleteCard } from "@/components/athlete-card";
+import { AthleteListCard } from "@/components/athlete-list-card";
 
 interface ChampionsSectionProps {
   maleChampions: Athlete[];
@@ -49,15 +49,24 @@ export default function ChampionsSection({ maleChampions, femaleChampions }: Cha
     <div className="space-y-8">
       {/* Men's Champions Section */}
       <section>
-        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {sortedMaleChampions.map((champion) => (
-            <AthleteCard
+            <AthleteListCard
               key={champion.id}
-              athlete={champion}
-              showDivision={true}
-              showStats={true}
-              showFollowers={true}
+              id={champion.id}
+              name={champion.name}
+              weightDivision={champion.weightDivision}
+              imageUrl={champion.imageUrl || undefined}
+              country={champion.country}
+              wins={champion.wins}
+              losses={champion.losses}
+              draws={champion.draws}
+              winsByKo={champion.winsByKo}
+              winsBySubmission={champion.winsBySubmission}
+              rank={champion.rank}
+              followers={champion.followers}
+              age={champion.age}
+              retired={champion.retired ?? false}
             />
           ))}
         </div>
@@ -65,15 +74,24 @@ export default function ChampionsSection({ maleChampions, femaleChampions }: Cha
 
       {/* Women's Champions Section */}
       <section>
-       
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedFemaleChampions.map((champion) => (
-            <AthleteCard
+            <AthleteListCard
               key={champion.id}
-              athlete={champion}
-              showDivision={true}
-              showStats={true}
-              showFollowers={true}
+              id={champion.id}
+              name={champion.name}
+              weightDivision={champion.weightDivision}
+              imageUrl={champion.imageUrl || undefined}
+              country={champion.country}
+              wins={champion.wins}
+              losses={champion.losses}
+              draws={champion.draws}
+              winsByKo={champion.winsByKo}
+              winsBySubmission={champion.winsBySubmission}
+              rank={champion.rank}
+              followers={champion.followers}
+              age={champion.age}
+              retired={champion.retired ?? false}
             />
           ))}
         </div>

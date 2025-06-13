@@ -1,4 +1,4 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import 'flag-icons/css/flag-icons.min.css';
@@ -19,10 +19,10 @@ const sizeMap = {
 };
 
 const imageSizes = {
-  xs: 40,
-  sm: 64,
-  md: 96,
-  lg: 128,
+  xs: 80,
+  sm: 128,
+  md: 192,
+  lg: 256,
 };
 
 export function AthleteAvatar({ 
@@ -50,7 +50,8 @@ export function AthleteAvatar({
               "absolute inset-0"
             )}
             priority={priority}
-            loading={priority ? "eager" : "lazy"}
+            loading="eager"
+            quality={100}
             sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
           />
         </div>
@@ -61,10 +62,16 @@ export function AthleteAvatar({
         className={`${sizeMap[size]} ring-1 ring-border ${className} relative z-10`}
       >
         {imageUrl ? (
-          <AvatarImage
+          <Image
             src={imageUrl}
             alt="Profile"
-            className="object-cover"
+            width={imageSize}
+            height={imageSize}
+            className="object-cover rounded-full"
+            priority={priority}
+            loading="eager"
+            quality={100}
+            sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -75,7 +82,8 @@ export function AthleteAvatar({
               height={imageSize}
               className="h-24 w-24 object-cover"
               priority={priority}
-              loading={priority ? "eager" : "lazy"}
+              loading="eager"
+              quality={100}
               sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
             />
           </div>

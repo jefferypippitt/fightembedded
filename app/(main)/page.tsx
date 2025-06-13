@@ -4,9 +4,9 @@ import ChampionsSectionWrapper from "@/components/champions-section-wrapper";
 import EventsSectionWrapper from "@/components/events-section";
 import RankingsSectionWrapper from "@/components/rankings-section";
 
-// Use static rendering for homepage
-export const dynamic = 'force-static'
-export const revalidate = 604800 // Cache for 1 week
+// Remove static rendering to match athlete page behavior
+// export const dynamic = 'force-static'
+// export const revalidate = 604800 // Cache for 1 week
 
 export const metadata: Metadata = {
   title: "Home",
