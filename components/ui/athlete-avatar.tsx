@@ -12,17 +12,17 @@ interface AthleteAvatarProps {
 }
 
 const sizeMap = {
-  xs: 'h-10 w-10',
-  sm: 'h-16 w-16',
-  md: 'h-24 w-24',
-  lg: 'h-32 w-32',
+  xs: 'h-8 w-8 md:h-10 md:w-10',
+  sm: 'h-12 w-12 md:h-16 md:w-16',
+  md: 'h-20 w-20 md:h-24 md:w-24',
+  lg: 'h-24 w-24 md:h-32 md:w-32',
 };
 
 const imageSizes = {
-  xs: 80,
-  sm: 128,
-  md: 192,
-  lg: 256,
+  xs: { mobile: 64, desktop: 80 },
+  sm: { mobile: 96, desktop: 128 },
+  md: { mobile: 160, desktop: 192 },
+  lg: { mobile: 192, desktop: 256 },
 };
 
 export function AthleteAvatar({ 
@@ -42,8 +42,8 @@ export function AthleteAvatar({
           <Image
             src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
             alt={`${countryCode} flag`}
-            width={imageSize}
-            height={imageSize}
+            width={imageSize.desktop}
+            height={imageSize.desktop}
             className={cn(
               sizeMap[size],
               "rounded-full object-cover opacity-100",
@@ -52,7 +52,7 @@ export function AthleteAvatar({
             priority={priority}
             loading="eager"
             quality={100}
-            sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
+            sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
           />
         </div>
       )}
@@ -65,26 +65,26 @@ export function AthleteAvatar({
           <Image
             src={imageUrl}
             alt="Profile"
-            width={imageSize}
-            height={imageSize}
+            width={imageSize.desktop}
+            height={imageSize.desktop}
             className="object-cover rounded-full"
             priority={priority}
             loading="eager"
             quality={100}
-            sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
+            sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
             <Image
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
-              width={imageSize}
-              height={imageSize}
-              className="h-24 w-24 object-cover"
+              width={imageSize.desktop}
+              height={imageSize.desktop}
+              className="h-full w-full object-cover"
               priority={priority}
               loading="eager"
               quality={100}
-              sizes={`(max-width: 768px) ${imageSize}px, ${imageSize}px`}
+              sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             />
           </div>
         )}
