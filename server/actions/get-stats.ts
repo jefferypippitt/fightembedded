@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { unstable_noStore as noStore } from "next/cache";
 
 export async function getStats() {
-  // Disable caching to ensure fresh data
+  // Disable caching to ensure fresh data for hero section
   noStore();
 
   const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] = await Promise.all([

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 // Use static rendering with shorter revalidation for athletes page
 export const dynamic = 'force-static'
-export const revalidate = 1800 // Cache for 30 minutes
+export const revalidate = 604800 // Cache for 1 week
 
 export default async function AthletesPage() {
   const athletes = await getAthletes()

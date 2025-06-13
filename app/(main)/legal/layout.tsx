@@ -11,7 +11,7 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 font-sans antialiased">
       <div>
         {children}
       </div>

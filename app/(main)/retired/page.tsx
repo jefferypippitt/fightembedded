@@ -4,9 +4,9 @@ import { RetiredContent } from './retired-content'
 import { Suspense } from 'react'
 import { AthletesGridSkeleton } from '@/components/athlete-skeleton'
 
-// Use static rendering for retired page with longer cache
+// Use static rendering with weekly revalidation
 export const dynamic = 'force-static'
-export const revalidate = 86400 // Cache for 24 hours
+export const revalidate = 604800 // Cache for 1 week
 
 export const metadata: Metadata = {
   title: "Retired Athletes",

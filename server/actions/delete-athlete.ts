@@ -40,6 +40,7 @@ export async function deleteAthlete(id: string) {
   revalidateTag('athlete-by-id');
   revalidateTag('athletes-by-division');
   revalidateTag('division-athletes');
+  revalidateTag('homepage');
   
   if (athlete.rank === 1) {
     revalidateTag('champions');

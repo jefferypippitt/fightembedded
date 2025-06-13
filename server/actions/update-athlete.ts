@@ -69,6 +69,7 @@ export async function updateAthlete(
     revalidateTag('champions');
     revalidateTag('undefeated-athletes');
     revalidateTag('retired-athletes');
+    revalidateTag('homepage');
 
     // Revalidate paths
     revalidatePath("/");

@@ -3,6 +3,10 @@ import { DivisionChart } from "./division-chart";
 import { Metadata } from "next";
 import { weightClasses } from "@/data/weight-class";
 
+// Use static rendering with weekly revalidation
+export const dynamic = 'force-static'
+export const revalidate = 604800 // Cache for 1 week
+
 export const metadata: Metadata = {
   title: "Rankings",
   description: "Top 5 Ranked Athletes By Division",

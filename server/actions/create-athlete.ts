@@ -61,6 +61,7 @@ export async function createAthlete(
     revalidateTag('all-athletes');
     revalidateTag('athletes-by-division');
     revalidateTag('division-athletes');
+    revalidateTag('homepage');
     
     if (validatedData.rank === 1) {
       revalidateTag('champions');

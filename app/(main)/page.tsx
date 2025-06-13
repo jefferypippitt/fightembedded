@@ -6,7 +6,7 @@ import RankingsSectionWrapper from "@/components/rankings-section";
 
 // Use static rendering for homepage
 export const dynamic = 'force-static'
-export const revalidate = 3600 // Cache for 1 hour
+export const revalidate = 604800 // Cache for 1 week
 
 export const metadata: Metadata = {
   title: "Home",
@@ -15,18 +15,25 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
+  const [heroSection, championsSection, eventsSection, rankingsSection] = await Promise.all([
+    <HeroSectionWrapper key="hero" />,
+    <ChampionsSectionWrapper key="champions" />,
+    <EventsSectionWrapper key="events" />,
+    <RankingsSectionWrapper key="rankings" />
+  ]);
+
   return (
     <main>
-      <HeroSectionWrapper />
+      {heroSection}
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 sm:gap-3 mt-8">
         <div className="lg:col-span-4 space-y-3 sm:space-y-4 lg:space-y-6 order-last lg:order-first overflow-hidden">
-          <ChampionsSectionWrapper />
-          <EventsSectionWrapper />
+          {championsSection}
+          {eventsSection}
         </div>
 
         <div className="lg:col-span-1 overflow-hidden">
-          <RankingsSectionWrapper />
+          {rankingsSection}
         </div>
       </div>
     </main>

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
+import { unstable_noStore as noStore } from 'next/cache';
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { DotIcon, TrendingUp } from "lucide-react";
@@ -93,6 +94,9 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
 );
 
 export default async function HeroSection() {
+  // Disable caching to ensure fresh data
+  noStore();
+  
   const stats = await getStats();
   const statsData = createStatsData(stats);
 

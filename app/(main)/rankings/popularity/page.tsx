@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   description: "Top 20 Athletes by Popularity",
 };
 
+// Use static rendering with weekly revalidation
+export const dynamic = 'force-static'
+export const revalidate = 604800 // Cache for 1 week
+
 export default async function DivisionRankingsPage() {
   const top20Athletes = await getTop20Athletes();
 
