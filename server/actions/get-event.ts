@@ -20,14 +20,7 @@ export const getUpcomingEvents = unstable_cache(
     try {
       const events = await prisma.event.findMany({
         where: {
-          AND: [
-            { status: "UPCOMING" },
-            {
-              date: {
-                gte: new Date(),
-              },
-            },
-          ],
+          status: "UPCOMING"
         },
         orderBy: {
           date: "asc",

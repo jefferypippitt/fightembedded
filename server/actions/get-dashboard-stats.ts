@@ -100,9 +100,7 @@ export async function getDashboardStats() {
     // Upcoming events
     prisma.event.findMany({
       where: {
-        date: {
-          gte: new Date()
-        }
+        status: "UPCOMING"
       },
       orderBy: {
         date: 'asc'

@@ -21,18 +21,9 @@ export async function getAllUpcomingEvents() {
   noStore();
   
   try {
-    const currentDate = new Date();
-    
     const events = await prisma.event.findMany({
       where: {
-        AND: [
-          { status: "UPCOMING" },
-          {
-            date: {
-              gte: currentDate,
-            },
-          },
-        ],
+        status: "UPCOMING"
       },
       orderBy: {
         date: "asc",
@@ -44,6 +35,7 @@ export async function getAllUpcomingEvents() {
         location: true,
         venue: true,
         mainEvent: true,
+        status: true,
         createdAt: true,
         updatedAt: true
       }
