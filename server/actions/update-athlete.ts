@@ -50,14 +50,17 @@ export async function updateAthlete(
 
     const validatedData = athleteSchema.parse(data);
 
+    // If athlete is being marked as retired, clear their ranks
+    const finalData = {
+      ...validatedData,
+      rank: validatedData.retired ? 0 : (validatedData.rank ?? 0),
+      poundForPoundRank: validatedData.retired ? 0 : (validatedData.poundForPoundRank ?? 0),
+      retired: validatedData.retired,
+    };
+
     const athlete = await prisma.athlete.update({
       where: { id },
-      data: {
-        ...validatedData,
-        rank: validatedData.rank ?? 0,
-        poundForPoundRank: validatedData.poundForPoundRank ?? 0,
-        retired: validatedData.retired,
-      },
+      data: finalData,
     });
 
     // Revalidate cache tags to immediately update data

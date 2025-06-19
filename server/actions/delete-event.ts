@@ -31,10 +31,12 @@ export async function deleteEvent(id: string) {
     revalidateTag('events');
     revalidateTag('upcoming-events');
     revalidateTag('upcoming-events-preview');
+    revalidateTag('homepage');
 
     // Revalidate paths
     revalidatePath('/events');
     revalidatePath('/dashboard/events');
+    revalidatePath('/');
 
     return {
       status: "success",

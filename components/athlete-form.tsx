@@ -172,6 +172,9 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
     resolver: zodResolver(athleteSchema),
   });
 
+  // Watch the retired field to disable rank fields
+  const isRetired = form.watch("retired");
+
   // Reset form when initialData changes
   React.useEffect(() => {
     if (initialData) {
@@ -196,6 +199,14 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       setImageUrl(initialData.imageUrl || "");
     }
   }, [initialData, form]);
+
+  // Clear rank fields when athlete is marked as retired
+  React.useEffect(() => {
+    if (isRetired) {
+      form.setValue("rank", 0);
+      form.setValue("poundForPoundRank", 0);
+    }
+  }, [isRetired, form]);
 
   async function onSubmit(data: z.infer<typeof athleteSchema>) {
     try {
@@ -477,6 +488,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           className="h-10"
                           type="number"
                           min={1}
+                          disabled={isRetired}
                           {...field}
                           value={field.value === 0 ? "" : field.value}
                           onChange={(e) => {
@@ -508,6 +520,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                           type="number"
                           min={1}
                           max={15}
+                          disabled={isRetired}
                           {...field}
                           value={field.value === 0 ? "" : field.value}
                           onChange={(e) => {
@@ -555,6 +568,11 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         </FormItem>
                       </RadioGroup>
                     </FormControl>
+                    {isRetired && (
+                      <p className="text-xs text-muted-foreground">
+                        Rank fields are disabled for retired athletes and will be automatically cleared.
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

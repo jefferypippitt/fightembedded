@@ -31,7 +31,7 @@ export async function getStats() {
     // Get male pound-for-pound rankings
     prisma.athlete.findMany({
       where: {
-        gender: "male",
+        gender: "MALE",
         poundForPoundRank: {
           gt: 0,
         },
@@ -51,7 +51,7 @@ export async function getStats() {
     // Get female pound-for-pound rankings
     prisma.athlete.findMany({
       where: {
-        gender: "female",
+        gender: "FEMALE",
         poundForPoundRank: {
           gt: 0,
         },

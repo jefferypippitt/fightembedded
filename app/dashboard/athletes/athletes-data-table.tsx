@@ -217,7 +217,7 @@ const columns: ColumnDef<Athlete>[] = [
       const athlete = row.original
       return (
         <div className="flex items-center gap-2">
-          {athlete.rank ? (
+          {athlete.rank && !athlete.retired ? (
             <Badge
               variant="outline"
               className="w-8 h-6 flex items-center justify-center"
@@ -237,8 +237,8 @@ const columns: ColumnDef<Athlete>[] = [
       )
     },
     sortingFn: (rowA, rowB) => {
-      const rankA = rowA.original.rank || Number.MAX_SAFE_INTEGER
-      const rankB = rowB.original.rank || Number.MAX_SAFE_INTEGER
+      const rankA = (rowA.original.rank && !rowA.original.retired) ? rowA.original.rank : Number.MAX_SAFE_INTEGER
+      const rankB = (rowB.original.rank && !rowB.original.retired) ? rowB.original.rank : Number.MAX_SAFE_INTEGER
       return rankA - rankB
     },
     filterFn: (row, id, filterValue: string) => {
@@ -259,8 +259,9 @@ const columns: ColumnDef<Athlete>[] = [
       )
     },
     cell: ({ row }) => {
+      const athlete = row.original
       const p4pRank = row.getValue("poundForPoundRank")
-      return p4pRank ? (
+      return p4pRank && !athlete.retired ? (
         <Badge
           variant="outline"
           className="w-8 h-6 flex items-center justify-center"
@@ -416,7 +417,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         return retiredAthletes
       case "p4p":
         const p4pAthletes = athletes
-          .filter(athlete => athlete.poundForPoundRank === undefined || (athlete.poundForPoundRank >= 1 && athlete.poundForPoundRank <= 15))
+          .filter(athlete => !athlete.retired && athlete.poundForPoundRank && athlete.poundForPoundRank >= 1 && athlete.poundForPoundRank <= 15)
           .sort((a, b) => {
             // If both have ranks, sort by rank
             if (a.poundForPoundRank && b.poundForPoundRank) {

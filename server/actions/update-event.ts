@@ -6,7 +6,7 @@ import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
 import { z } from "zod";
 import { ActionResponse, EventInput } from "@/types/event";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { revalidateEvents } from "./get-all-events";
 
 async function checkAuth() {
@@ -47,9 +47,16 @@ export async function updateEvent(
       data: validatedData,
     });
 
+    // Revalidate cache tags to immediately update cached data
+    revalidateTag('events');
+    revalidateTag('upcoming-events');
+    revalidateTag('upcoming-events-preview');
+    revalidateTag('homepage');
+
     // Revalidate events pages
     revalidatePath('/events');
     revalidatePath('/dashboard/events');
+    revalidatePath('/');
     revalidateEvents();
 
     return {
