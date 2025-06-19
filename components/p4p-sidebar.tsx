@@ -5,7 +5,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
-import { Badge } from "@/components/ui/badge";
+
 
 interface Fighter {
   id: string;
@@ -24,35 +24,30 @@ interface P4PSidebarProps {
 }
 
 const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
-  <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border">
-    <Badge variant="outline" className="h-5 px-2.5 text-xs font-medium border-2">
+  <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border h-16">
+    <span className="px-2.5 text-xs font-medium min-w-[2rem]">
       {fighter.poundForPoundRank}.
-    </Badge>
+    </span>
     <AthleteAvatar
       imageUrl={fighter.imageUrl}
       countryCode={getCountryCode(fighter.country)}
       size="xs"
       priority={fighter.poundForPoundRank <= 5}
     />
-    <div>
-      <p className="text-xs font-medium">{fighter.name}</p>
-      <div className="flex items-center">
-        <Badge
-          variant="outline"
-          className="h-5 px-2 text-xs font-normal bg-background border-2"
-        >
-          <span className="text-green-500 font-medium">{fighter.wins}</span>
-          <span className="text-muted-foreground mx-0.5">-</span>
-          <span className="text-red-500 font-medium">{fighter.losses}</span>
-          {fighter.draws > 0 && (
-            <>
-              <span className="text-muted-foreground mx-0.5">-</span>
-              <span className="text-yellow-500 font-medium">
-                {fighter.draws}
-              </span>
-            </>
-          )}
-        </Badge>
+    <div className="flex-1 min-w-0 flex flex-col justify-center">
+      <p className="text-xs font-medium leading-tight">{fighter.name}</p>
+      <div className="text-[10px] text-muted-foreground">
+        <span className="text-green-500">{fighter.wins}</span>
+        <span>-</span>
+        <span className="text-red-500">{fighter.losses}</span>
+        {fighter.draws > 0 && (
+          <>
+            <span>-</span>
+            <span className="text-amber-500">
+              {fighter.draws}
+            </span>
+          </>
+        )}
       </div>
     </div>
   </li>

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
-import { unstable_noStore as noStore } from 'next/cache';
+import { unstable_noStore as noStore } from "next/cache";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { DotIcon, TrendingUp } from "lucide-react";
@@ -44,7 +44,10 @@ const createStatsData = (stats: Stats): StatItem[] => [
 const StatCard = ({ stat }: { stat: StatItem }) => (
   <div className="text-center">
     <div className="flex items-center justify-center space-x-1">
-      <NumberTicker value={stat.value} className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100" />
+      <NumberTicker
+        value={stat.value}
+        className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100"
+      />
       {stat.icon && stat.icon}
     </div>
     <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -64,8 +67,8 @@ const HeroContent = () => (
       </h1>
     </div>
     <p className="text-xs sm:text-sm font-medium max-w-md">
-      Dive into comprehensive profiles, detailed performance stats, and
-      current rankings for every UFC athlete.
+      Discover detailed profiles, performance stats, and current rankings for
+      all UFC athletes.
     </p>
     <div className="mt-1 mb-2 md:mt-2 md:mb-0">
       <Link href="/athletes">
@@ -96,7 +99,7 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
 export default async function HeroSection() {
   // Disable caching to ensure fresh data
   noStore();
-  
+
   const stats = await getStats();
   const statsData = createStatsData(stats);
 
