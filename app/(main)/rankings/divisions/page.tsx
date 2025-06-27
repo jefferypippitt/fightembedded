@@ -28,17 +28,20 @@ export default async function DivisionRankingsPage() {
     divisionWeights.set(`Women's ${div.name}`, div.weight || 0);
   });
 
-  // Sort divisions by weight class order
-  const sortedRankings = [...divisionRankings].sort((a, b) => {
-    const weightA = divisionWeights.get(a.division) ?? 999;
-    const weightB = divisionWeights.get(b.division) ?? 999;
+  // Sort divisions by gender (male to female) and then by weight (heavy to light)
+  const sortedDivisionRankings = divisionRankings.sort((a, b) => {
+    const isMaleA = a.division.startsWith("Men's");
+    const isMaleB = b.division.startsWith("Men's");
     
-    // If both divisions are unknown, sort alphabetically
-    if (weightA === 999 && weightB === 999) {
-      return a.division.localeCompare(b.division);
-    }
+    // First sort by gender (male to female)
+    if (isMaleA && !isMaleB) return -1; // Men's comes before Women's
+    if (!isMaleA && isMaleB) return 1;  // Women's comes after Men's
     
-    return weightB - weightA; // Sort heaviest to lightest
+    // If same gender, sort by weight (heavy to light)
+    const weightA = divisionWeights.get(a.division) || 0;
+    const weightB = divisionWeights.get(b.division) || 0;
+    
+    return weightB - weightA; // Descending order (heavy to light)
   });
 
   return (
@@ -50,10 +53,8 @@ export default async function DivisionRankingsPage() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {sortedRankings.map((division) => (
-          <div key={division.division} className="min-w-0">
-            <DivisionChart division={division} />
-          </div>
+        {sortedDivisionRankings.map((division) => (
+          <DivisionChart key={division.division} division={division} />
         ))}
       </div>
     </div>
