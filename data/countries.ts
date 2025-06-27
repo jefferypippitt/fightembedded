@@ -45,6 +45,7 @@ export const countries = [
   { name: "Cuba" },
   { name: "Cyprus" },
   { name: "Czech Republic" },
+  { name: "Dagestan" },
   { name: "Denmark" },
   { name: "Djibouti" },
   { name: "Dominica" },

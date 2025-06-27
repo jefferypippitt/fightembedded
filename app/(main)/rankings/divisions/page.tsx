@@ -45,11 +45,11 @@ export default async function DivisionRankingsPage() {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-          Top 5 Athletes by Division
+          Top 5 Ranked Athletes by Follower Count
         </h1>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {sortedRankings.map((division) => (
           <div key={division.division} className="min-w-0">
             <DivisionChart division={division} />

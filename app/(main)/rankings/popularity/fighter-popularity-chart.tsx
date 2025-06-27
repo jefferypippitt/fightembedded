@@ -29,11 +29,11 @@ const chartConfig = {
   },
   male: {
     label: "Followers",
-    color: "var(--chart-3)",
+    color: "var(--chart-1)",
   },
   female: {
     label: "Followers",
-    color: "var(--chart-9)",
+    color: "var(--chart-4)",
   },
 } satisfies ChartConfig;
 

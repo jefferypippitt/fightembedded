@@ -60,7 +60,7 @@ interface AthleteQueryOptions {
   weightDivision?: string;
   limit?: number;
   orderBy?: {
-    field: "rank" | "followers" | "name";
+    field: "rank" | "followers" | "name" | "updatedAt";
     direction: "asc" | "desc";
   }[];
 }
@@ -134,9 +134,24 @@ export const getAthletes = unstable_cache(
 
 export const getRetiredAthletes = unstable_cache(
   async (): Promise<Athlete[]> => {
-    return queryAthletes({ retired: true });
+    try {
+      const athletes = await prisma.athlete.findMany({
+        where: {
+          retired: true,
+        },
+        orderBy: [
+          { updatedAt: 'desc' },
+          { name: 'asc' }
+        ],
+        select: athleteSelect,
+      });
+
+      return athletes.map(transformAthlete);
+    } catch {
+      throw new Error("Failed to query retired athletes");
+    }
   },
-  ['retired-athletes', 'all-athletes'], // Share cache with all-athletes
+  ['retired-athletes'],
   { revalidate: 604800 } // Cache for 1 week
 );
 

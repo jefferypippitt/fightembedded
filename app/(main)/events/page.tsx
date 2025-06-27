@@ -14,13 +14,13 @@ import { unstable_noStore as noStore } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Upcoming Events | Fight Embedded",
-  description: "View all upcoming MMA events and fight cards",
+  description: "View all upcoming UFC events",
 };
 
 export default async function EventsPage() {
   // Disable caching for this page
   noStore();
-  
+
   const events = await getAllUpcomingEvents();
 
   return (
@@ -36,48 +36,53 @@ export default async function EventsPage() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Event Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Main Event</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {events.map((event) => (
-                <TableRow 
-                  key={event.id}
-                >
-                  <TableCell className="font-medium">
-                    <Badge variant="eventDate">{event.name}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="coMainEvent">
-                      {format(new Date(event.date), "MMM d, yyyy")}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center">
-                      <span>
-                        <Badge variant="outline">{event.venue}, {event.location}</Badge>
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <p className="text-gray-700 dark:text-gray-100">
-                        <Badge variant="mainEvent">{event.mainEvent}</Badge>
-                      </p>
-                    </div>
-                  </TableCell>
+          <div className="bg-background overflow-hidden rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50 *:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
+                  <TableHead className="h-9 py-2">Event Name</TableHead>
+                  <TableHead className="h-9 py-2">Date</TableHead>
+                  <TableHead className="h-9 py-2">Location</TableHead>
+                  <TableHead className="h-9 py-2">Main Event</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {events.map((event) => (
+                  <TableRow
+                    key={event.id}
+                    className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r"
+                  >
+                    <TableCell className="py-2 font-medium">
+                      <Badge variant="eventDate">{event.name}</Badge>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <Badge variant="coMainEvent">
+                        {format(new Date(event.date), "MMM d, yyyy")}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div className="flex items-center">
+                        <span>
+                          <Badge variant="outline">
+                            {event.venue}, {event.location}
+                          </Badge>
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-2">
+                      <div className="flex items-center gap-2">
+                        <p className="text-gray-700 dark:text-gray-100">
+                          <Badge variant="mainEvent">{event.mainEvent}</Badge>
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </div>
   );
-} 
+}

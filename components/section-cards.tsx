@@ -1,8 +1,13 @@
-import { IconTrendingUp, IconCalendarEvent, IconChartBar, IconFlag, IconStar, IconUsers, IconTrendingDown } from "@tabler/icons-react"
-import { getAllUpcomingEvents } from "@/server/actions/get-all-events"
-import { format } from "date-fns"
+import {
+  IconTrendingUp,
+  IconCalendarEvent,
+  IconFlag,
+  IconTrendingDown,
+} from "@tabler/icons-react";
+import { getAllUpcomingEvents } from "@/server/actions/get-all-events";
+import { format } from "date-fns";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -10,81 +15,82 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
+import { TrendingUpDown } from "lucide-react";
 
 interface DashboardStats {
   totalAthletes: {
-    value: number
-  }
+    value: number;
+  };
   divisionStats: {
-    division: string
-    count: number
-    percentage: string
-  }[]
+    division: string;
+    count: number;
+    percentage: string;
+  }[];
   poundForPoundRankings: {
     male: {
-      name: string
-      weightDivision: string
-      country: string
-      poundForPoundRank: number
-      wins: number
-      losses: number
-      winRate: string
-    } | null
+      name: string;
+      weightDivision: string;
+      country: string;
+      poundForPoundRank: number;
+      wins: number;
+      losses: number;
+      winRate: string;
+    } | null;
     female: {
-      name: string
-      weightDivision: string
-      country: string
-      poundForPoundRank: number
-      wins: number
-      losses: number
-      winRate: string
-    } | null
-  }
+      name: string;
+      weightDivision: string;
+      country: string;
+      poundForPoundRank: number;
+      wins: number;
+      losses: number;
+      winRate: string;
+    } | null;
+  };
   recentAthletes: {
-    name: string
-    weightDivision: string
-    country: string
-    createdAt: string
-  }[]
+    name: string;
+    weightDivision: string;
+    country: string;
+    createdAt: string;
+  }[];
   recentlyRetiredAthletes: {
-    name: string
-    weightDivision: string
-    updatedAt: string
-    wins: number
-    losses: number
-    winRate: string
-  }[]
-  totalEvents: number
+    name: string;
+    weightDivision: string;
+    updatedAt: string;
+    wins: number;
+    losses: number;
+    winRate: string;
+  }[];
+  totalEvents: number;
   topCountries: {
-    country: string
-    count: number
-  }[]
-  totalChampions: number
+    country: string;
+    count: number;
+  }[];
+  totalChampions: number;
   mostFollowedAthlete: {
-    name: string
-    weightDivision: string
-    country: string
-    followers: number
-    wins: number
-    losses: number
-    winRate: string
-  } | null
+    name: string;
+    weightDivision: string;
+    country: string;
+    followers: number;
+    wins: number;
+    losses: number;
+    winRate: string;
+  } | null;
 }
 
 interface SectionCardsProps {
-  stats: DashboardStats
+  stats: DashboardStats;
 }
 
 export async function SectionCards({ stats }: SectionCardsProps) {
-  const events = await getAllUpcomingEvents()
-  const nextEvent = events[0]
+  const events = await getAllUpcomingEvents();
+  const nextEvent = events[0];
 
   // Calculate month-over-month growth
-  const totalAthletes = stats.totalAthletes.value
-  const recentAthletesCount = stats.recentAthletes.length
-  const recentlyRetiredCount = stats.recentlyRetiredAthletes.length
-  const { male, female } = stats.poundForPoundRankings
+  const totalAthletes = stats.totalAthletes.value;
+  const recentAthletesCount = stats.recentAthletes.length;
+  const recentlyRetiredCount = stats.recentlyRetiredAthletes.length;
+  const { male, female } = stats.poundForPoundRankings;
 
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -95,19 +101,14 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.totalEvents.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconCalendarEvent className="size-3.5" />
-              All Time
-            </Badge>
+            <Badge variant="outline">All Time</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Total Events <IconCalendarEvent className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Historical event count
-          </div>
+          <div className="text-muted-foreground">Historical event count</div>
         </CardFooter>
       </Card>
 
@@ -115,21 +116,22 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>Next Event</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {nextEvent ? format(new Date(nextEvent.date), "MMM d, yyyy") : 'No Events'}
+            {nextEvent
+              ? format(new Date(nextEvent.date), "MMM d, yyyy")
+              : "No Events"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconCalendarEvent className="size-3.5" />
-              {nextEvent?.mainEvent || 'TBD'}
-            </Badge>
+            <Badge variant="outline">{nextEvent?.mainEvent || "TBD"}</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {nextEvent?.name || 'No upcoming events'} <IconCalendarEvent className="size-4" />
+            {nextEvent?.name || "No upcoming events"}
           </div>
           <div className="text-muted-foreground">
-            {nextEvent ? `${nextEvent.venue || 'TBD'} • ${nextEvent.location}` : 'Check back soon'}
+            {nextEvent
+              ? `${nextEvent.venue || "TBD"}-${nextEvent.location}`
+              : "Check back soon"}
           </div>
         </CardFooter>
       </Card>
@@ -138,11 +140,10 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>#1 Country</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {stats.topCountries[0]?.country || 'N/A'}
+            {stats.topCountries[0]?.country || "N/A"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconFlag className="size-3.5" />
               {stats.topCountries[0]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -151,9 +152,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Leading nation <IconFlag className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Most represented country
-          </div>
+          <div className="text-muted-foreground">Most represented country</div>
         </CardFooter>
       </Card>
 
@@ -161,11 +160,10 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>#2 Country</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {stats.topCountries[1]?.country || 'N/A'}
+            {stats.topCountries[1]?.country || "N/A"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconFlag className="size-3.5" />
               {stats.topCountries[1]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -174,9 +172,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Second place <IconFlag className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Strong representation
-          </div>
+          <div className="text-muted-foreground">Strong representation</div>
         </CardFooter>
       </Card>
 
@@ -184,11 +180,10 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>#3 Country</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {stats.topCountries[2]?.country || 'N/A'}
+            {stats.topCountries[2]?.country || "N/A"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconFlag className="size-3.5" />
               {stats.topCountries[2]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -197,9 +192,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Third place <IconFlag className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Growing presence
-          </div>
+          <div className="text-muted-foreground">Growing presence</div>
         </CardFooter>
       </Card>
 
@@ -210,19 +203,14 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.totalChampions.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconStar className="size-3.5" />
-              Active
-            </Badge>
+            <Badge variant="outline">Active</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Division Champions <IconStar className="size-4" />
+            Division Champions
           </div>
-          <div className="text-muted-foreground">
-            Across all weight classes
-          </div>
+          <div className="text-muted-foreground">Across all weight classes</div>
         </CardFooter>
       </Card>
 
@@ -230,21 +218,24 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>Most Followed</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {stats.mostFollowedAthlete?.name || 'N/A'}
+            {stats.mostFollowedAthlete?.name || "N/A"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconStar className="size-3.5" />
-              {stats.mostFollowedAthlete?.followers.toLocaleString() || 0} followers
+              {stats.mostFollowedAthlete?.followers.toLocaleString() || 0}{" "}
+              followers
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {stats.mostFollowedAthlete ? `${stats.mostFollowedAthlete.wins} wins, ${stats.mostFollowedAthlete.losses} losses` : 'No data'} <IconStar className="size-4" />
+            {stats.mostFollowedAthlete
+              ? `${stats.mostFollowedAthlete.wins} wins, ${stats.mostFollowedAthlete.losses} losses`
+              : "No data"}
           </div>
           <div className="text-muted-foreground">
-            {stats.mostFollowedAthlete?.weightDivision || 'No division'} division
+            {stats.mostFollowedAthlete?.weightDivision || "No division"}{" "}
+            division
           </div>
         </CardFooter>
       </Card>
@@ -256,15 +247,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {totalAthletes.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <IconUsers className="size-3.5" />
-              {recentAthletesCount} new
-            </Badge>
+            <Badge variant="outline">{recentAthletesCount} new</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Latest: {stats.recentAthletes[0]?.name || 'No recent additions'} <IconUsers className="size-4" />
+            Latest: {stats.recentAthletes[0]?.name || "No recent additions"}
           </div>
           <div className="text-muted-foreground">
             All athletes (active & retired)
@@ -276,21 +264,21 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>Men&apos;s P4P #1</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {male?.name || 'No #1 Ranked'}
+            {male?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconChartBar className="size-3.5" />
-              {male?.winRate || '0'}% WR
+              <TrendingUpDown className="size-3.5" />
+              {male?.winRate || "0"}% WR
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {male ? `${male.wins} wins, ${male.losses} losses` : 'No data'} <IconChartBar className="size-4" />
+            {male ? `${male.wins} wins, ${male.losses} losses` : "No data"}
           </div>
           <div className="text-muted-foreground">
-            {male?.weightDivision || 'No division'} division
+            {male?.weightDivision || "No division"} division
           </div>
         </CardFooter>
       </Card>
@@ -299,21 +287,23 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardHeader>
           <CardDescription>Women&apos;s P4P #1</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            {female?.name || 'No #1 Ranked'}
+            {female?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconChartBar className="size-3.5" />
-              {female?.winRate || '0'}% WR
+              <TrendingUpDown className="size-3.5" />
+              {female?.winRate || "0"}% WR
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {female ? `${female.wins} wins, ${female.losses} losses` : 'No data'} <IconChartBar className="size-4" />
+            {female
+              ? `${female.wins} wins, ${female.losses} losses`
+              : "No data"}
           </div>
           <div className="text-muted-foreground">
-            {female?.weightDivision || 'No division'} division
+            {female?.weightDivision || "No division"} division
           </div>
         </CardFooter>
       </Card>
@@ -333,10 +323,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Latest: {stats.recentlyRetiredAthletes[0]?.name || 'No recent retirements'} <IconTrendingDown className="size-4" />
+            Latest:{" "}
+            {stats.recentlyRetiredAthletes[0]?.name || "No recent retirements"}{" "}
+            <IconTrendingDown className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            {stats.recentlyRetiredAthletes[0]?.winRate || '0'}% win rate
+            {stats.recentlyRetiredAthletes[0]?.winRate || "0"}% win rate
           </div>
         </CardFooter>
       </Card>
@@ -356,13 +348,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Latest: {stats.recentAthletes[0]?.name || 'No recent activity'} <IconTrendingUp className="size-4" />
+            Latest: {stats.recentAthletes[0]?.name || "No recent activity"}{" "}
+            <IconTrendingUp className="size-4" />
           </div>
-          <div className="text-muted-foreground">
-            Recent athlete additions
-          </div>
+          <div className="text-muted-foreground">Recent athlete additions</div>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
