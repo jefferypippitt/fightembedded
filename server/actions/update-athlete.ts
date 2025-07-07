@@ -53,8 +53,10 @@ export async function updateAthlete(
     // If athlete is being marked as retired, clear their ranks
     const finalData = {
       ...validatedData,
-      rank: validatedData.retired ? 0 : (validatedData.rank ?? 0),
-      poundForPoundRank: validatedData.retired ? 0 : (validatedData.poundForPoundRank ?? 0),
+      rank: validatedData.retired ? 0 : validatedData.rank ?? 0,
+      poundForPoundRank: validatedData.retired
+        ? 0
+        : validatedData.poundForPoundRank ?? 0,
       retired: validatedData.retired,
     };
 
@@ -64,15 +66,16 @@ export async function updateAthlete(
     });
 
     // Revalidate cache tags to immediately update data
-    revalidateTag('all-athletes');
-    revalidateTag('athlete-by-id');
-    revalidateTag('athletes-by-division');
-    revalidateTag('division-athletes');
-    revalidateTag('p4p-rankings');
-    revalidateTag('champions');
-    revalidateTag('undefeated-athletes');
-    revalidateTag('retired-athletes');
-    revalidateTag('homepage');
+    revalidateTag("all-athletes");
+    revalidateTag("athlete-by-id");
+    revalidateTag("athletes-by-division");
+    revalidateTag("division-athletes");
+    revalidateTag("p4p-rankings");
+    revalidateTag("champions");
+    revalidateTag("undefeated-athletes");
+    revalidateTag("retired-athletes");
+    revalidateTag("homepage");
+    revalidateTag("rankings");
 
     // Revalidate paths
     revalidatePath("/");
@@ -133,10 +136,10 @@ export async function updateAthleteStatus(
     });
 
     // Revalidate cache tags
-    revalidateTag('all-athletes');
-    revalidateTag('athlete-by-id');
-    revalidateTag('retired-athletes');
-    
+    revalidateTag("all-athletes");
+    revalidateTag("athlete-by-id");
+    revalidateTag("retired-athletes");
+
     // Revalidate paths
     revalidatePath("/retired");
     revalidatePath("/athletes");
