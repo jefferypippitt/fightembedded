@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
   Column,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
   ArrowUpDown,
   ChevronDown,
@@ -27,15 +27,15 @@ import {
   ChevronsRight,
   CircleCheck,
   CircleX,
-} from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-import { Athlete } from "@/types/athlete"
-import { deleteAthlete } from "@/server/actions/delete-athlete"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Athlete } from "@/types/athlete";
+import { deleteAthlete } from "@/server/actions/delete-athlete";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -44,8 +44,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -53,43 +53,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Helper component for the actions cell
 const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleDelete = async () => {
     try {
-      const success = await deleteAthlete(athlete.id)
+      const success = await deleteAthlete(athlete.id);
       if (success) {
-        toast.success("Athlete deleted successfully")
-        router.refresh()
+        toast.success("Athlete deleted successfully");
+        router.refresh();
       } else {
-        toast.error("Failed to delete athlete")
+        toast.error("Failed to delete athlete");
       }
     } catch (error) {
       toast.error(
         error instanceof Error
           ? `Error: ${error.message}`
           : "An unexpected error occurred. Please try again."
-      )
+      );
     }
-  }
+  };
 
   return (
     <DropdownMenu>
@@ -105,9 +100,7 @@ const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-32">
         <DropdownMenuItem asChild>
-          <Link href={`/dashboard/athletes/${athlete.id}/edit`}>
-            Edit
-          </Link>
+          <Link href={`/dashboard/athletes/${athlete.id}/edit`}>Edit</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDelete} className="text-red-600">
@@ -115,14 +108,14 @@ const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 // Helper component for the weight division filter
 const WeightDivisionFilter = ({
   column,
 }: {
-  column: Column<Athlete, unknown>
+  column: Column<Athlete, unknown>;
 }) => {
   const maleDivisions = [
     "Flyweight",
@@ -133,14 +126,13 @@ const WeightDivisionFilter = ({
     "Middleweight",
     "Light Heavyweight",
     "Heavyweight",
-  ]
+  ];
 
   const femaleDivisions = [
     "Women's Strawweight",
     "Women's Flyweight",
     "Women's Bantamweight",
-    "Women's Featherweight",
-  ]
+  ];
 
   return (
     <DropdownMenu>
@@ -157,13 +149,13 @@ const WeightDivisionFilter = ({
             key={division}
             checked={(column.getFilterValue() as string[])?.includes(division)}
             onCheckedChange={(checked) => {
-              const currentFilter = (column.getFilterValue() as string[]) ?? []
+              const currentFilter = (column.getFilterValue() as string[]) ?? [];
               if (checked) {
-                column.setFilterValue([...currentFilter, division])
+                column.setFilterValue([...currentFilter, division]);
               } else {
                 column.setFilterValue(
                   currentFilter.filter((item) => item !== division)
-                )
+                );
               }
             }}
           >
@@ -177,13 +169,13 @@ const WeightDivisionFilter = ({
             key={division}
             checked={(column.getFilterValue() as string[])?.includes(division)}
             onCheckedChange={(checked) => {
-              const currentFilter = (column.getFilterValue() as string[]) ?? []
+              const currentFilter = (column.getFilterValue() as string[]) ?? [];
               if (checked) {
-                column.setFilterValue([...currentFilter, division])
+                column.setFilterValue([...currentFilter, division]);
               } else {
                 column.setFilterValue(
                   currentFilter.filter((item) => item !== division)
-                )
+                );
               }
             }}
           >
@@ -192,15 +184,15 @@ const WeightDivisionFilter = ({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 const columns: ColumnDef<Athlete>[] = [
   {
     id: "rankAndName",
     accessorFn: (row) => ({
       rank: row.rank,
-      name: row.name
+      name: row.name,
     }),
     header: ({ column }) => {
       return (
@@ -211,10 +203,10 @@ const columns: ColumnDef<Athlete>[] = [
           Rank
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const athlete = row.original
+      const athlete = row.original;
       return (
         <div className="flex items-center gap-2">
           {athlete.rank && !athlete.retired ? (
@@ -234,15 +226,23 @@ const columns: ColumnDef<Athlete>[] = [
           )}
           <span>{athlete.name}</span>
         </div>
-      )
+      );
     },
     sortingFn: (rowA, rowB) => {
-      const rankA = (rowA.original.rank && !rowA.original.retired) ? rowA.original.rank : Number.MAX_SAFE_INTEGER
-      const rankB = (rowB.original.rank && !rowB.original.retired) ? rowB.original.rank : Number.MAX_SAFE_INTEGER
-      return rankA - rankB
+      const rankA =
+        rowA.original.rank && !rowA.original.retired
+          ? rowA.original.rank
+          : Number.MAX_SAFE_INTEGER;
+      const rankB =
+        rowB.original.rank && !rowB.original.retired
+          ? rowB.original.rank
+          : Number.MAX_SAFE_INTEGER;
+      return rankA - rankB;
     },
     filterFn: (row, id, filterValue: string) => {
-      return row.original.name.toLowerCase().includes(filterValue.toLowerCase())
+      return row.original.name
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
     },
   },
   {
@@ -256,11 +256,11 @@ const columns: ColumnDef<Athlete>[] = [
           P4P Rank
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const athlete = row.original
-      const p4pRank = row.getValue("poundForPoundRank")
+      const athlete = row.original;
+      const p4pRank = row.getValue("poundForPoundRank");
       return p4pRank && !athlete.retired ? (
         <Badge
           variant="outline"
@@ -275,7 +275,7 @@ const columns: ColumnDef<Athlete>[] = [
         >
           NR
         </Badge>
-      )
+      );
     },
   },
   {
@@ -292,7 +292,7 @@ const columns: ColumnDef<Athlete>[] = [
           </Button>
           <WeightDivisionFilter column={column} />
         </div>
-      )
+      );
     },
     cell: ({ row }) => (
       <Badge variant="outline" className="text-muted-foreground px-1.5">
@@ -300,17 +300,17 @@ const columns: ColumnDef<Athlete>[] = [
       </Badge>
     ),
     filterFn: (row, id, filterValues: string[]) => {
-      if (!filterValues.length) return true
-      const weightDivision = (row.getValue(id) as string).toLowerCase()
+      if (!filterValues.length) return true;
+      const weightDivision = (row.getValue(id) as string).toLowerCase();
       return filterValues.some((filter) => {
-        const normalizedFilter = filter.toLowerCase()
-        if (weightDivision === normalizedFilter) return true
+        const normalizedFilter = filter.toLowerCase();
+        if (weightDivision === normalizedFilter) return true;
         if (weightDivision === normalizedFilter.replace("women's ", ""))
-          return true
-        if (weightDivision === `male ${normalizedFilter}`) return true
-        if (weightDivision === `men's ${normalizedFilter}`) return true
-        return false
-      })
+          return true;
+        if (weightDivision === `male ${normalizedFilter}`) return true;
+        if (weightDivision === `men's ${normalizedFilter}`) return true;
+        return false;
+      });
     },
   },
   {
@@ -324,15 +324,15 @@ const columns: ColumnDef<Athlete>[] = [
           Country
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
     accessorKey: "record",
     header: "Record",
     cell: ({ row }) => {
-      const athlete = row.original
-      return `${athlete.wins}-${athlete.losses}-${athlete.draws}`
+      const athlete = row.original;
+      return `${athlete.wins}-${athlete.losses}-${athlete.draws}`;
     },
   },
   {
@@ -346,7 +346,7 @@ const columns: ColumnDef<Athlete>[] = [
           KO Wins
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -360,14 +360,14 @@ const columns: ColumnDef<Athlete>[] = [
           Sub Wins
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
     accessorKey: "retired",
     header: "Status",
     cell: ({ row }) => {
-      const retired = row.getValue("retired")
+      const retired = row.getValue("retired");
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
           {retired ? (
@@ -377,75 +377,102 @@ const columns: ColumnDef<Athlete>[] = [
           )}
           {retired ? "Retired" : "Active"}
         </Badge>
-      )
+      );
     },
   },
   {
     id: "actions",
     cell: ({ row }) => <ActionsCell athlete={row.original} />,
   },
-]
+];
 
 interface AthletesDataTableProps {
-  athletes: Athlete[]
-  undefeatedAthletes: Athlete[]
-  retiredAthletes: Athlete[]
+  athletes: Athlete[];
+  undefeatedAthletes: Athlete[];
+  retiredAthletes: Athlete[];
 }
 
-export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthletes }: AthletesDataTableProps) {
+export function AthletesDataTable({
+  athletes,
+  undefeatedAthletes,
+  retiredAthletes,
+}: AthletesDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "rankAndName",
       desc: false,
     },
-  ])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
 
-  const [activeView, setActiveView] = React.useState("athletes")
-  const [selectedGender, setSelectedGender] = React.useState<"ALL" | "MALE" | "FEMALE">("ALL")
+  const [activeView, setActiveView] = React.useState("athletes");
+  const [selectedGender, setSelectedGender] = React.useState<
+    "ALL" | "MALE" | "FEMALE"
+  >("ALL");
 
   const currentData = React.useMemo(() => {
     switch (activeView) {
       case "undefeated":
-        return undefeatedAthletes
+        return undefeatedAthletes;
       case "retired":
-        return retiredAthletes
+        return retiredAthletes;
       case "p4p":
         const p4pAthletes = athletes
-          .filter(athlete => !athlete.retired && athlete.poundForPoundRank && athlete.poundForPoundRank >= 1 && athlete.poundForPoundRank <= 15)
+          .filter(
+            (athlete) =>
+              !athlete.retired &&
+              athlete.poundForPoundRank &&
+              athlete.poundForPoundRank >= 1 &&
+              athlete.poundForPoundRank <= 15
+          )
           .sort((a, b) => {
             // If both have ranks, sort by rank
             if (a.poundForPoundRank && b.poundForPoundRank) {
-              return a.poundForPoundRank - b.poundForPoundRank
+              return a.poundForPoundRank - b.poundForPoundRank;
             }
             // If only one has a rank, put the ranked one first
-            if (a.poundForPoundRank) return -1
-            if (b.poundForPoundRank) return 1
+            if (a.poundForPoundRank) return -1;
+            if (b.poundForPoundRank) return 1;
             // If neither has a rank, maintain original order
-            return 0
-          })
-        
+            return 0;
+          });
+
         // Filter by selected gender
         if (selectedGender !== "ALL") {
-          return p4pAthletes.filter(athlete => athlete.gender === selectedGender)
+          return p4pAthletes.filter(
+            (athlete) => athlete.gender === selectedGender
+          );
         }
-        
+
         // Separate male and female athletes for ALL view
-        const maleP4P = p4pAthletes.filter(athlete => athlete.gender === "MALE")
-        const femaleP4P = p4pAthletes.filter(athlete => athlete.gender === "FEMALE")
-        
+        const maleP4P = p4pAthletes.filter(
+          (athlete) => athlete.gender === "MALE"
+        );
+        const femaleP4P = p4pAthletes.filter(
+          (athlete) => athlete.gender === "FEMALE"
+        );
+
         // Return combined array with male athletes first, then female
-        return [...maleP4P, ...femaleP4P]
+        return [...maleP4P, ...femaleP4P];
       case "athletes":
       default:
-        return athletes
+        return athletes;
     }
-  }, [activeView, athletes, undefeatedAthletes, retiredAthletes, selectedGender])
+  }, [
+    activeView,
+    athletes,
+    undefeatedAthletes,
+    retiredAthletes,
+    selectedGender,
+  ]);
 
   const table = useReactTable({
     data: currentData,
@@ -464,10 +491,13 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
       columnVisibility,
       pagination,
     },
-  })
+  });
 
   return (
-    <Tabs defaultValue="athletes" className="w-full flex-col justify-start gap-6">
+    <Tabs
+      defaultValue="athletes"
+      className="w-full flex-col justify-start gap-6"
+    >
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
@@ -519,7 +549,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
               {activeView === "p4p" && (
                 <>
@@ -556,11 +586,16 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         </div>
       </div>
 
-      <TabsContent value="athletes" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <TabsContent
+        value="athletes"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by name..."
-            value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
               table.getColumn("rankAndName")?.setFilterValue(event.target.value)
             }
@@ -569,50 +604,50 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         </div>
 
         <div className="overflow-hidden rounded-lg border">
-        <Table>
+          <Table>
             <TableHeader className="bg-muted sticky top-0 z-10">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No athletes found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No athletes found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
         <div className="flex items-center justify-between px-4">
           <div className="flex w-full items-center gap-8 lg:w-fit">
@@ -623,7 +658,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -689,11 +724,16 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         </div>
       </TabsContent>
 
-      <TabsContent value="undefeated" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <TabsContent
+        value="undefeated"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by name..."
-            value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
               table.getColumn("rankAndName")?.setFilterValue(event.target.value)
             }
@@ -756,7 +796,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -822,11 +862,16 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         </div>
       </TabsContent>
 
-      <TabsContent value="retired" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <TabsContent
+        value="retired"
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by name..."
-            value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
               table.getColumn("rankAndName")?.setFilterValue(event.target.value)
             }
@@ -889,7 +934,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -960,15 +1005,22 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
           <div className="flex items-center gap-4">
             <Input
               placeholder="Filter by name..."
-              value={(table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""}
+              value={
+                (table.getColumn("rankAndName")?.getFilterValue() as string) ??
+                ""
+              }
               onChange={(event) =>
-                table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+                table
+                  .getColumn("rankAndName")
+                  ?.setFilterValue(event.target.value)
               }
               className="max-w-sm"
             />
             <Select
               value={selectedGender}
-              onValueChange={(value: "ALL" | "MALE" | "FEMALE") => setSelectedGender(value)}
+              onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
+                setSelectedGender(value)
+              }
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select gender" />
@@ -1003,12 +1055,14 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row, index) => {
-                  const athlete = row.original
-                  const isFirstFemale = selectedGender === "ALL" && 
-                    index > 0 && 
-                    athlete.gender === "FEMALE" && 
-                    table.getRowModel().rows[index - 1].original.gender === "MALE"
-                  
+                  const athlete = row.original;
+                  const isFirstFemale =
+                    selectedGender === "ALL" &&
+                    index > 0 &&
+                    athlete.gender === "FEMALE" &&
+                    table.getRowModel().rows[index - 1].original.gender ===
+                      "MALE";
+
                   return (
                     <React.Fragment key={row.id}>
                       {isFirstFemale && (
@@ -1032,7 +1086,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
                         ))}
                       </TableRow>
                     </React.Fragment>
-                  )
+                  );
                 })
               ) : (
                 <TableRow>
@@ -1056,7 +1110,7 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
             <Select
               value={`${table.getState().pagination.pageSize}`}
               onValueChange={(value) => {
-                table.setPageSize(Number(value))
+                table.setPageSize(Number(value));
               }}
             >
               <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -1121,5 +1175,5 @@ export function AthletesDataTable({ athletes, undefeatedAthletes, retiredAthlete
         </div>
       </TabsContent>
     </Tabs>
-  )
-} 
+  );
+}

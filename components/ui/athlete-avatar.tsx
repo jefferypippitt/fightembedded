@@ -1,21 +1,21 @@
 import { Avatar } from "@/components/ui/avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import 'flag-icons/css/flag-icons.min.css';
+import "flag-icons/css/flag-icons.min.css";
 
 interface AthleteAvatarProps {
   imageUrl?: string;
   countryCode?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
+  size?: "xs" | "sm" | "md" | "lg";
   className?: string;
   priority?: boolean;
 }
 
 const sizeMap = {
-  xs: 'h-8 w-8 md:h-10 md:w-10',
-  sm: 'h-12 w-12 md:h-16 md:w-16',
-  md: 'h-20 w-20 md:h-24 md:w-24',
-  lg: 'h-24 w-24 md:h-32 md:w-32',
+  xs: "h-8 w-8 md:h-10 md:w-10",
+  sm: "h-12 w-12 md:h-16 md:w-16",
+  md: "h-20 w-20 md:h-24 md:w-24",
+  lg: "h-24 w-24 md:h-32 md:w-32",
 };
 
 const imageSizes = {
@@ -25,12 +25,12 @@ const imageSizes = {
   lg: { mobile: 192, desktop: 256 },
 };
 
-export function AthleteAvatar({ 
-  imageUrl, 
-  countryCode, 
-  size = 'md',
-  className = '',
-  priority = false
+export function AthleteAvatar({
+  imageUrl,
+  countryCode,
+  size = "md",
+  className = "",
+  priority = false,
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
 
@@ -51,7 +51,7 @@ export function AthleteAvatar({
             )}
             priority={priority}
             loading="eager"
-            quality={100}
+            quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
           />
         </div>
@@ -73,7 +73,7 @@ export function AthleteAvatar({
             className="object-cover"
             priority={priority}
             loading="eager"
-            quality={100}
+            quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
           />
         ) : (
@@ -85,7 +85,7 @@ export function AthleteAvatar({
               className="object-cover"
               priority={priority}
               loading="eager"
-              quality={100}
+              quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             />
           </div>
@@ -93,4 +93,4 @@ export function AthleteAvatar({
       </Avatar>
     </div>
   );
-} 
+}
