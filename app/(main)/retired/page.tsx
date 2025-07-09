@@ -1,31 +1,33 @@
-import { getRetiredAthletes } from '@/server/actions/athlete'
-import { Metadata } from "next"
-import { RetiredContent } from './retired-content'
-import { Suspense } from 'react'
-import { AthletesGridSkeleton } from '@/components/athlete-skeleton'
+import { getRetiredAthletes } from "@/server/actions/athlete";
+import { Metadata } from "next";
+import { RetiredContent } from "./retired-content";
+import { Suspense } from "react";
+import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
 
-// Use static rendering with weekly revalidation
-export const dynamic = 'force-static'
-export const revalidate = 604800 // Cache for 1 week
+// Use static rendering with monthly revalidation - retired athletes rarely change
+export const dynamic = "force-static";
+export const revalidate = 2592000; // Cache for 1 month (30 days)
 
 export const metadata: Metadata = {
   title: "Retired Athletes",
   description: "Browse all retired UFC fighters and their career statistics",
   openGraph: {
     title: "Retired Athletes | Fight Embedded",
-    description: "View detailed statistics and career records of retired UFC fighters. Get comprehensive analytics and performance data.",
+    description:
+      "View detailed statistics and career records of retired UFC fighters. Get comprehensive analytics and performance data.",
     type: "website",
     siteName: "Fight Embedded",
   },
   twitter: {
     card: "summary",
     title: "Retired Athletes | Fight Embedded",
-    description: "Complete stats and career records of retired UFC athletes. Access detailed performance metrics and analytics.",
+    description:
+      "Complete stats and career records of retired UFC athletes. Access detailed performance metrics and analytics.",
   },
 };
 
 export default async function RetiredPage() {
-  const athletes = await getRetiredAthletes()
+  const athletes = await getRetiredAthletes();
 
   return (
     <div className="space-y-6">
@@ -38,6 +40,5 @@ export default async function RetiredPage() {
         <RetiredContent athletes={athletes} />
       </Suspense>
     </div>
-  )
+  );
 }
-

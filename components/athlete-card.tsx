@@ -6,6 +6,7 @@ import { Medal } from "lucide-react";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 interface AthleteCardProps {
   athlete: Athlete;
@@ -16,36 +17,68 @@ interface AthleteCardProps {
 }
 
 // Map division names to badge variants
-const getDivisionVariant = (division: string, gender: "MALE" | "FEMALE"): "lightweight" | "welterweight" | "middleweight" | "lightHeavyweight" | "heavyweight" | "featherweight" | "bantamweight" | "flyweight" | "womenFeatherweight" | "womenBantamweight" | "womenFlyweight" | "womenStrawweight" | "default" => {
+const getDivisionVariant = (
+  division: string,
+  gender: "MALE" | "FEMALE"
+):
+  | "lightweight"
+  | "welterweight"
+  | "middleweight"
+  | "lightHeavyweight"
+  | "heavyweight"
+  | "featherweight"
+  | "bantamweight"
+  | "flyweight"
+  | "womenFeatherweight"
+  | "womenBantamweight"
+  | "womenFlyweight"
+  | "womenStrawweight"
+  | "default" => {
   // Remove gender prefix if present
-  const divisionName = division.replace(/^(Men's|Women's)\s+/, '');
-  
+  const divisionName = division.replace(/^(Men's|Women's)\s+/, "");
+
   // Men's divisions
   if (gender === "MALE") {
-    const menDivisions: Record<string, "lightweight" | "welterweight" | "middleweight" | "lightHeavyweight" | "heavyweight" | "featherweight" | "bantamweight" | "flyweight"> = {
-      "Heavyweight": "heavyweight",
+    const menDivisions: Record<
+      string,
+      | "lightweight"
+      | "welterweight"
+      | "middleweight"
+      | "lightHeavyweight"
+      | "heavyweight"
+      | "featherweight"
+      | "bantamweight"
+      | "flyweight"
+    > = {
+      Heavyweight: "heavyweight",
       "Light Heavyweight": "lightHeavyweight",
-      "Middleweight": "middleweight",
-      "Welterweight": "welterweight",
-      "Lightweight": "lightweight",
-      "Featherweight": "featherweight",
-      "Bantamweight": "bantamweight",
-      "Flyweight": "flyweight",
+      Middleweight: "middleweight",
+      Welterweight: "welterweight",
+      Lightweight: "lightweight",
+      Featherweight: "featherweight",
+      Bantamweight: "bantamweight",
+      Flyweight: "flyweight",
     };
     return menDivisions[divisionName] || "default";
   }
-  
+
   // Women's divisions
-  const womenDivisions: Record<string, "womenFeatherweight" | "womenBantamweight" | "womenFlyweight" | "womenStrawweight"> = {
-    "Featherweight": "womenFeatherweight",
-    "Bantamweight": "womenBantamweight",
-    "Flyweight": "womenFlyweight",
-    "Strawweight": "womenStrawweight",
+  const womenDivisions: Record<
+    string,
+    | "womenFeatherweight"
+    | "womenBantamweight"
+    | "womenFlyweight"
+    | "womenStrawweight"
+  > = {
+    Featherweight: "womenFeatherweight",
+    Bantamweight: "womenBantamweight",
+    Flyweight: "womenFlyweight",
+    Strawweight: "womenStrawweight",
   };
   return womenDivisions[divisionName] || "default";
 };
 
-export function AthleteCard({
+function AthleteCardComponent({
   athlete,
   showDivision = true,
   showStats = true,
@@ -56,13 +89,15 @@ export function AthleteCard({
     return null;
   }
 
-  const record = `${athlete.wins}-${athlete.losses}${athlete.draws > 0 ? `-${athlete.draws}` : ""}`;
+  const record = `${athlete.wins}-${athlete.losses}${
+    athlete.draws > 0 ? `-${athlete.draws}` : ""
+  }`;
   const totalFights = athlete.wins + athlete.losses + athlete.draws;
   const winRate = totalFights > 0 ? (athlete.wins / totalFights) * 100 : 0;
   const koRate = athlete.wins > 0 ? (athlete.winsByKo / athlete.wins) * 100 : 0;
-  const submissionRate = athlete.wins > 0 ? (athlete.winsBySubmission / athlete.wins) * 100 : 0;
+  const submissionRate =
+    athlete.wins > 0 ? (athlete.winsBySubmission / athlete.wins) * 100 : 0;
   const isChampion = athlete.rank === 1;
-  const isPriorityImage = isChampion || athlete.poundForPoundRank !== null;
 
   return (
     <Card
@@ -79,7 +114,7 @@ export function AthleteCard({
     >
       {/* Background gradient on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/[0.02] group-hover:to-primary/[0.03] transition-all duration-300" />
-      
+
       <CardContent className="p-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
         <div className="flex justify-between items-center mb-3">
@@ -97,16 +132,25 @@ export function AthleteCard({
               </Badge>
             </div>
           ) : athlete.poundForPoundRank ? (
-            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-primary/10 text-primary hover:bg-primary/20">
+            <Badge
+              variant="secondary"
+              className="text-[10px] py-0 px-2 font-medium bg-primary/10 text-primary hover:bg-primary/20"
+            >
               P4P #{athlete.poundForPoundRank}
             </Badge>
           ) : (
-            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
+            <Badge
+              variant="secondary"
+              className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+            >
               Not Ranked
             </Badge>
           )}
           {athlete.age && (
-            <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80">
+            <Badge
+              variant="secondary"
+              className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+            >
               Age: {athlete.age}
             </Badge>
           )}
@@ -115,14 +159,13 @@ export function AthleteCard({
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
           <AthleteAvatar
-            imageUrl={athlete.imageUrl || '/default-avatar.png'}
+            imageUrl={athlete.imageUrl || "/default-avatar.png"}
             countryCode={getCountryCode(athlete.country)}
             size="sm"
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
               athlete.retired && "opacity-75"
             )}
-            priority={isPriorityImage}
           />
 
           <div className="text-center mt-2">
@@ -139,7 +182,10 @@ export function AthleteCard({
         {showDivision && (
           <div className="flex items-center justify-center mb-3">
             <Badge
-              variant={getDivisionVariant(athlete.weightDivision, athlete.gender as "MALE" | "FEMALE")}
+              variant={getDivisionVariant(
+                athlete.weightDivision,
+                athlete.gender as "MALE" | "FEMALE"
+              )}
               className="text-[10px] py-0 px-2 font-medium"
             >
               {athlete.weightDivision}
@@ -152,7 +198,9 @@ export function AthleteCard({
           <div className="space-y-2">
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>Win Rate</span>
-              <span className="font-medium text-foreground">{winRate.toFixed(1)}%</span>
+              <span className="font-medium text-foreground">
+                {winRate.toFixed(1)}%
+              </span>
             </div>
             <Progress
               value={winRate}
@@ -161,7 +209,9 @@ export function AthleteCard({
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>KO/TKO</span>
-              <span className="font-medium text-foreground">{koRate.toFixed(1)}%</span>
+              <span className="font-medium text-foreground">
+                {koRate.toFixed(1)}%
+              </span>
             </div>
             <Progress
               value={koRate}
@@ -170,7 +220,9 @@ export function AthleteCard({
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>Submission</span>
-              <span className="font-medium text-foreground">{submissionRate.toFixed(1)}%</span>
+              <span className="font-medium text-foreground">
+                {submissionRate.toFixed(1)}%
+              </span>
             </div>
             <Progress
               value={submissionRate}
@@ -184,7 +236,9 @@ export function AthleteCard({
         <CardFooter className="px-0 pt-3 pb-0 border-t border-border/40 dark:border-border/40 relative z-10">
           <div className="flex items-center justify-between w-full text-[10px]">
             <div className="flex items-center gap-1">
-              <span className="font-medium text-foreground">{athlete.country}</span>
+              <span className="font-medium text-foreground">
+                {athlete.country}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground">Followers:</span>
@@ -199,3 +253,5 @@ export function AthleteCard({
   );
 }
 
+// Memoize the component to prevent unnecessary re-renders
+export const AthleteCard = memo(AthleteCardComponent);

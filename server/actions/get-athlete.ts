@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { Athlete } from "@prisma/client";
-import { unstable_cache, unstable_noStore as noStore } from 'next/cache';
+import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 
 export const getAthletesByDivision = unstable_cache(
   async (divisionName: string): Promise<Athlete[]> => {
@@ -23,8 +23,11 @@ export const getAthletesByDivision = unstable_cache(
       throw new Error("Failed to fetch athletes");
     }
   },
-  ['athletes-by-division'],
-  { revalidate: 3600 } // Revalidate every hour
+  ["athletes-by-division"],
+  {
+    revalidate: 3600, // Revalidate every hour
+    tags: ["athletes-by-division"],
+  }
 );
 
 export const getAthlete = unstable_cache(
@@ -39,8 +42,11 @@ export const getAthlete = unstable_cache(
       throw new Error("Failed to fetch athlete");
     }
   },
-  ['athlete-by-id'],
-  { revalidate: 604800 } // Cache for 1 week (7 days in seconds)
+  ["athlete-by-id"],
+  {
+    revalidate: 604800, // Cache for 1 week (7 days in seconds)
+    tags: ["athlete-by-id"],
+  }
 );
 
 export async function getAthleteForDashboard(id: string) {
@@ -58,16 +64,13 @@ export async function getAthleteForDashboard(id: string) {
 
 export const getAthletes = unstable_cache(
   async (): Promise<Athlete[]> => {
-    console.log('🔄 [Base Query] Fetching athletes...')
+    console.log("🔄 [Base Query] Fetching athletes...");
     try {
       const athletes = await prisma.athlete.findMany({
         where: {
           retired: false,
         },
-        orderBy: [
-          { rank: 'asc' },
-          { name: 'asc' }
-        ],
+        orderBy: [{ rank: "asc" }, { name: "asc" }],
         select: {
           id: true,
           name: true,
@@ -90,7 +93,7 @@ export const getAthletes = unstable_cache(
         },
       });
 
-      console.log('✅ [Base Query] Fetched', athletes.length, 'athletes')
+      console.log("✅ [Base Query] Fetched", athletes.length, "athletes");
 
       // Sort athletes to put unranked (rank = 0) at the end
       const sortedAthletes = athletes.sort((a, b) => {
@@ -110,9 +113,9 @@ export const getAthletes = unstable_cache(
       throw new Error("Failed to query athletes");
     }
   },
-  ['all-athletes'],
-  { 
-    revalidate: 604800, // Cache for a week
-    tags: ['athletes', 'homepage'] // Tags for cache invalidation
+  ["all-athletes-data", "athletes-page"],
+  {
+    revalidate: 604800, // Cache for 1 week (7 days)
+    tags: ["athletes", "homepage", "all-athletes-data", "athletes-page"],
   }
 );

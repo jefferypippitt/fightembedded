@@ -6,9 +6,9 @@ import { getAllDivisions } from "@/data/weight-class";
 import { Suspense } from "react";
 import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
 
-// Use static rendering for division pages
-export const dynamic = 'force-static'
-export const revalidate = 604800 // Cache for a week
+// Use static rendering for division pages - following Next.js best practices
+export const dynamic = "force-static";
+export const revalidate = 604800; // Cache for a week
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;

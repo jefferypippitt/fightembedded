@@ -3,15 +3,15 @@
 import prisma from "@/lib/prisma";
 import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 import type { Athlete } from "@/types/athlete";
-import { Athlete as PrismaAthlete } from '@prisma/client';
+import { Athlete as PrismaAthlete } from "@prisma/client";
 
 // Cache duration constants
 const CACHE_DURATION = 604800; // 1 week in seconds
 const CACHE_TAGS = {
-  ATHLETES: 'athletes',
-  DIVISIONS: 'divisions',
-  DIVISION_ATHLETES: 'division-athletes',
-  HOMEPAGE: 'homepage'
+  ATHLETES: "athletes",
+  DIVISIONS: "divisions",
+  DIVISION_ATHLETES: "division-athletes",
+  HOMEPAGE: "homepage",
 } as const;
 
 // Common select fields for athlete queries
@@ -74,7 +74,10 @@ export const queryAthletes = unstable_cache(
         gender,
         weightDivision,
         limit,
-        orderBy = [{ field: "rank", direction: "asc" }, { field: "name", direction: "asc" }],
+        orderBy = [
+          { field: "rank", direction: "asc" },
+          { field: "name", direction: "asc" },
+        ],
       } = options;
 
       const athletes = await prisma.athlete.findMany({
@@ -89,7 +92,9 @@ export const queryAthletes = unstable_cache(
           }),
         },
         ...(limit && { take: limit }),
-        orderBy: orderBy.map(({ field, direction }) => ({ [field]: direction })),
+        orderBy: orderBy.map(({ field, direction }) => ({
+          [field]: direction,
+        })),
         select: athleteSelect,
       });
 
@@ -98,10 +103,10 @@ export const queryAthletes = unstable_cache(
       throw new Error("Failed to query athletes");
     }
   },
-  ['athletes-query'],
-  { 
+  ["athletes-query"],
+  {
     revalidate: 604800, // Cache for a week
-    tags: ['athletes', 'homepage'] // Base tags for all athlete queries
+    tags: ["athletes", "homepage"],
   }
 );
 
@@ -113,10 +118,7 @@ export const getAthletes = unstable_cache(
         where: {
           retired: false,
         },
-        orderBy: [
-          { rank: 'asc' },
-          { name: 'asc' }
-        ],
+        orderBy: [{ rank: "asc" }, { name: "asc" }],
         select: athleteSelect,
       });
 
@@ -125,10 +127,10 @@ export const getAthletes = unstable_cache(
       throw new Error("Failed to query athletes");
     }
   },
-  ['all-athletes'],
-  { 
+  ["all-athletes"],
+  {
     revalidate: CACHE_DURATION,
-    tags: [CACHE_TAGS.ATHLETES, CACHE_TAGS.HOMEPAGE]
+    tags: [CACHE_TAGS.ATHLETES, CACHE_TAGS.HOMEPAGE],
   }
 );
 
@@ -139,10 +141,7 @@ export const getRetiredAthletes = unstable_cache(
         where: {
           retired: true,
         },
-        orderBy: [
-          { updatedAt: 'desc' },
-          { name: 'asc' }
-        ],
+        orderBy: [{ updatedAt: "desc" }, { name: "asc" }],
         select: athleteSelect,
       });
 
@@ -151,8 +150,16 @@ export const getRetiredAthletes = unstable_cache(
       throw new Error("Failed to query retired athletes");
     }
   },
-  ['retired-athletes'],
-  { revalidate: 604800 } // Cache for 1 week
+  ["retired-athletes-data", "retired-page"],
+  {
+    revalidate: 2592000, // Cache for 1 month (30 days) - retired athletes rarely change
+    tags: [
+      CACHE_TAGS.ATHLETES,
+      "retired-athletes",
+      "retired-athletes-data",
+      "retired-page",
+    ],
+  }
 );
 
 export const getTopAthletes = unstable_cache(
@@ -163,44 +170,50 @@ export const getTopAthletes = unstable_cache(
       orderBy: [{ field: "followers", direction: "desc" }],
     });
   },
-  ['top-athletes'],
-  { revalidate: 604800 } // Cache for 1 week
+  ["top-athletes"],
+  {
+    revalidate: CACHE_DURATION,
+    tags: [CACHE_TAGS.ATHLETES, "top-athletes"],
+  }
 );
 
 export const getDivisionAthletes = unstable_cache(
   async (slug: string) => {
     if (!slug) {
-      throw new Error('Invalid division slug');
+      throw new Error("Invalid division slug");
     }
 
     // Parse the slug to get gender and division
-    const [gender, ...rest] = slug.split('-');
-    const divisionSlug = rest.join('-');
+    const [gender, ...rest] = slug.split("-");
+    const divisionSlug = rest.join("-");
     const isWomen = gender === "women";
 
     // Map of slug variations to standard division names
     const menDivisions: Record<string, string> = {
-      'heavyweight': 'Heavyweight',
-      'light-heavyweight': 'Light Heavyweight',
-      'middleweight': 'Middleweight',
-      'welterweight': 'Welterweight',
-      'lightweight': 'Lightweight',
-      'featherweight': 'Featherweight',
-      'bantamweight': 'Bantamweight',
-      'flyweight': 'Flyweight'
+      heavyweight: "Heavyweight",
+      "light-heavyweight": "Light Heavyweight",
+      middleweight: "Middleweight",
+      welterweight: "Welterweight",
+      lightweight: "Lightweight",
+      featherweight: "Featherweight",
+      bantamweight: "Bantamweight",
+      flyweight: "Flyweight",
     };
 
     const womenDivisions: Record<string, string> = {
-      'featherweight': 'Featherweight',
-      'bantamweight': 'Bantamweight',
-      'flyweight': 'Flyweight',
-      'strawweight': 'Strawweight'
+      featherweight: "Featherweight",
+      bantamweight: "Bantamweight",
+      flyweight: "Flyweight",
+      strawweight: "Strawweight",
     };
 
     // Get the standardized division name based on gender
     const divisionMap = isWomen ? womenDivisions : menDivisions;
-    const standardDivision = divisionMap[divisionSlug.toLowerCase()] || divisionSlug;
-    const fullDivisionName = isWomen ? `Women's ${standardDivision}` : `Men's ${standardDivision}`;
+    const standardDivision =
+      divisionMap[divisionSlug.toLowerCase()] || divisionSlug;
+    const fullDivisionName = isWomen
+      ? `Women's ${standardDivision}`
+      : `Men's ${standardDivision}`;
 
     try {
       const athletes = await prisma.athlete.findMany({
@@ -209,10 +222,7 @@ export const getDivisionAthletes = unstable_cache(
           gender: isWomen ? "FEMALE" : "MALE",
           retired: false,
         },
-        orderBy: [
-          { rank: 'asc' },
-          { name: 'asc' }
-        ],
+        orderBy: [{ rank: "asc" }, { name: "asc" }],
         select: athleteSelect,
       });
 
@@ -221,13 +231,17 @@ export const getDivisionAthletes = unstable_cache(
         athletes: sortAthletes(athletes).map(transformAthlete),
       };
     } catch {
-      throw new Error('Failed to fetch division athletes');
+      throw new Error("Failed to fetch division athletes");
     }
   },
-  ['division-athletes', 'division'],
-  { 
+  ["division-athletes", "division"],
+  {
     revalidate: CACHE_DURATION,
-    tags: [CACHE_TAGS.ATHLETES, CACHE_TAGS.DIVISIONS, CACHE_TAGS.DIVISION_ATHLETES]
+    tags: [
+      CACHE_TAGS.ATHLETES,
+      CACHE_TAGS.DIVISIONS,
+      CACHE_TAGS.DIVISION_ATHLETES,
+    ],
   }
 );
 
@@ -240,16 +254,19 @@ export const getUndefeatedAthletes = unstable_cache(
           retired: false,
         },
         orderBy: {
-          wins: 'desc',
+          wins: "desc",
         },
-      })
-      return athletes
+      });
+      return athletes;
     } catch {
-      throw new Error('Failed to fetch undefeated athletes');
+      throw new Error("Failed to fetch undefeated athletes");
     }
   },
-  ['undefeated-athletes'],
-  { revalidate: 3600 } // Revalidate every hour
+  ["undefeated-athletes"],
+  {
+    revalidate: 3600, // Revalidate every hour
+    tags: [CACHE_TAGS.ATHLETES, "undefeated-athletes"],
+  }
 );
 
 // Map of division names to their weight order (higher number = heavier)
@@ -284,12 +301,12 @@ export const getChampions = unstable_cache(
       .sort((a, b) => {
         const weightA = divisionWeights.get(a.weightDivision) ?? 999;
         const weightB = divisionWeights.get(b.weightDivision) ?? 999;
-        
+
         // If both divisions are unknown, sort alphabetically
         if (weightA === 999 && weightB === 999) {
           return a.weightDivision.localeCompare(b.weightDivision);
         }
-        
+
         return weightB - weightA; // Sort heaviest to lightest
       });
 
@@ -298,12 +315,12 @@ export const getChampions = unstable_cache(
       .sort((a, b) => {
         const weightA = divisionWeights.get(a.weightDivision) ?? 999;
         const weightB = divisionWeights.get(b.weightDivision) ?? 999;
-        
+
         // If both divisions are unknown, sort alphabetically
         if (weightA === 999 && weightB === 999) {
           return a.weightDivision.localeCompare(b.weightDivision);
         }
-        
+
         return weightB - weightA; // Sort heaviest to lightest
       });
 
@@ -312,10 +329,16 @@ export const getChampions = unstable_cache(
       femaleChampions,
     };
   },
-  ['champions', 'homepage'],
-  { 
-    revalidate: 604800, // Cache for a week (7 days)
-    tags: ['champions', 'homepage', 'athletes'] // Tags for cache invalidation
+  ["champions-data", "homepage-champions"],
+  {
+    revalidate: 604800, // Cache for 1 week (7 days)
+    tags: [
+      CACHE_TAGS.ATHLETES,
+      CACHE_TAGS.HOMEPAGE,
+      "champions",
+      "champions-data",
+      "homepage-champions",
+    ], // More specific tags to avoid conflicts
   }
 );
 
@@ -333,4 +356,4 @@ export async function getRetiredAthletesForDashboard() {
 export async function getUndefeatedAthletesForDashboard() {
   noStore(); // Disable caching for dashboard
   return getUndefeatedAthletes();
-} 
+}

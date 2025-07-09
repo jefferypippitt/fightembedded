@@ -1,5 +1,5 @@
 "use client";
-import { Suspense } from "react";
+
 import {
   Card,
   CardContent,
@@ -7,8 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { DivisionChartSkeleton } from "./division-chart-skeleton";
 import {
+  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -22,54 +22,58 @@ import {
   CartesianGrid,
 } from "recharts";
 import { DivisionRankings } from "@/server/actions/get-top-5-athletes";
+import { weightClasses } from "@/data/weight-class";
 
-// Helper functions
 const getRankColor = (rank: number): string => {
   const colors = [
-    "var(--chart-1)", // 1st place
-    "var(--chart-2)", // 2nd place
-    "var(--chart-3)", // 3rd place
-    "var(--chart-4)", // 4th place
-    "var(--chart-5)", // 5th place
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
   ];
   return colors[rank - 1] || colors[4];
 };
 
-type ChartDataItem = {
-  name: string;
-  followers: number;
-  rank: number;
-  fill: string;
-};
+const getDivisionWeight = (divisionName: string): string => {
+  const baseDivisionName = divisionName.replace(/^(Men's|Women's)\s+/, "");
 
-const formatAthleteLabel = (
-  value: string,
-  index: number,
-  chartData: ChartDataItem[]
-) => {
-  const athlete = chartData[index];
-  return `${athlete.rank}. ${value}`;
+  const menDivision = weightClasses.men.find(
+    (d) => d.name === baseDivisionName
+  );
+  if (menDivision?.weight) return `${menDivision.weight} lbs`;
+
+  const womenDivision = weightClasses.women.find(
+    (d) => d.name === baseDivisionName
+  );
+  if (womenDivision?.weight) return `${womenDivision.weight} lbs`;
+
+  return "";
 };
 
 const transformAthleteData = (athletes: DivisionRankings["athletes"]) => {
-  const transformedData = athletes.map((athlete) => ({
+  const data = athletes.map((athlete) => ({
     name: athlete.name,
     followers: athlete.followers,
     rank: athlete.rank,
     fill: getRankColor(athlete.rank),
   }));
 
-  // Find the index of the athlete with the most followers
-  const maxFollowersIndex = transformedData.reduce(
+  const maxFollowersIndex = data.reduce(
     (maxIndex, current, currentIndex) =>
-      current.followers > transformedData[maxIndex].followers
-        ? currentIndex
-        : maxIndex,
+      current.followers > data[maxIndex].followers ? currentIndex : maxIndex,
     0
   );
 
-  return { data: transformedData, activeIndex: maxFollowersIndex };
+  return { data, activeIndex: maxFollowersIndex };
 };
+
+const chartConfig = {
+  followers: {
+    label: "Followers",
+    color: "var(--chart-1)",
+  },
+} satisfies ChartConfig;
 
 export function DivisionCharts({
   divisions,
@@ -85,15 +89,19 @@ export function DivisionCharts({
           (d) => d.division === division
         );
         return (
-          <Card key={division}>
-            <CardHeader>
-              <CardTitle>{division}</CardTitle>
-              <CardDescription>Top 5 Ranked Athletes</CardDescription>
+          <Card key={division} className="h-full relative overflow-hidden">
+            <CardHeader className="flex flex-col items-stretch !p-0 sm:flex-row">
+              <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
+                <CardTitle className="text-center text-base sm:text-lg font-mono font-bold">
+                  {division}
+                </CardTitle>
+                <CardDescription className="text-center font-mono text-xs">
+                  {getDivisionWeight(division)}
+                </CardDescription>
+              </div>
             </CardHeader>
-            <CardContent>
-              <Suspense fallback={<DivisionChartSkeleton />}>
-                <DivisionChartData divisionData={divisionData} />
-              </Suspense>
+            <CardContent className="px-2 sm:p-6 relative z-10">
+              <DivisionChartData divisionData={divisionData} />
             </CardContent>
           </Card>
         );
@@ -117,67 +125,72 @@ function DivisionChartData({
     divisionData.athletes
   );
 
-  const chartConfig = {
-    followers: {
-      label: "Followers",
-      color: "var(--chart-1)",
-    },
-    label: {
-      color: "var(--background)",
-    },
-  };
-
-  const yAxisConfig = {
-    dataKey: "name" as const,
-    type: "category" as const,
-    tickLine: false,
-    tickMargin: 10,
-    axisLine: false,
-    width: 140,
-    tick: {
-      fill: "var(--color-foreground)",
-      fontSize: "11px",
-      fontWeight: 500,
-      x: 0,
-    },
-  };
-
   return (
-    <ChartContainer config={chartConfig}>
+    <ChartContainer
+      config={chartConfig}
+      className="aspect-auto h-[300px] w-full"
+    >
       <BarChart
-        accessibilityLayer
         data={chartData}
         layout="vertical"
-        margin={{ right: 16 }}
+        margin={{
+          left: 1,
+          right: 5,
+          top: 1,
+          bottom: 1,
+        }}
       >
         <CartesianGrid horizontal={false} vertical={true} />
-        <YAxis
-          {...yAxisConfig}
-          tickFormatter={(value, index) =>
-            formatAthleteLabel(value, index, chartData)
-          }
+        <XAxis
+          type="number"
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(value) => value.toLocaleString()}
+          tick={{
+            fill: "hsl(var(--foreground))",
+            fontSize: "9px",
+            fontWeight: 400,
+          }}
         />
-        <XAxis dataKey="followers" type="number" hide />
+        <YAxis
+          dataKey="name"
+          type="category"
+          tickLine={false}
+          tickMargin={15}
+          axisLine={false}
+          width={140}
+          interval={0}
+          tick={{
+            fill: "hsl(var(--foreground))",
+            fontSize: "9px",
+            fontWeight: 500,
+            x: 0,
+          }}
+          tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
+        />
         <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent indicator="line" />}
+          cursor={{ fill: "hsl(var(--muted))" }}
+          content={
+            <ChartTooltipContent
+              className="w-[150px] bg-background border shadow-lg text-[10px] font-medium"
+              nameKey="followers"
+            />
+          }
         />
         <Bar
           dataKey="followers"
-          layout="vertical"
-          radius={4}
-          activeIndex={activeIndex} // Highlight the athlete with most followers
-          activeBar={({ ...props }) => {
-            return (
-              <Rectangle
-                {...props}
-                fillOpacity={0.8}
-                stroke={props.payload.fill}
-                strokeDasharray={4}
-                strokeDashoffset={4}
-              />
-            );
-          }}
+          fill="var(--chart-1)"
+          radius={[0, 4, 4, 0]}
+          activeIndex={activeIndex}
+          activeBar={({ ...props }) => (
+            <Rectangle
+              {...props}
+              fillOpacity={0.8}
+              stroke={props.payload.fill}
+              strokeDasharray={4}
+              strokeDashoffset={4}
+            />
+          )}
         />
       </BarChart>
     </ChartContainer>

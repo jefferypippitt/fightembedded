@@ -36,38 +36,50 @@ export async function deleteAthlete(id: string) {
   });
 
   // Revalidate cache tags
-  revalidateTag('all-athletes');
-  revalidateTag('athlete-by-id');
-  revalidateTag('athletes-by-division');
-  revalidateTag('division-athletes');
-  revalidateTag('homepage');
-  
+  revalidateTag("all-athletes");
+  revalidateTag("athlete-by-id");
+  revalidateTag("athletes-by-division");
+  revalidateTag("division-athletes");
+
   if (athlete.rank === 1) {
-    revalidateTag('champions');
+    revalidateTag("champions-data");
+    revalidateTag("homepage-champions");
   }
-  
+
   if (athlete.losses === 0) {
-    revalidateTag('undefeated-athletes');
+    revalidateTag("undefeated-athletes");
   }
-  
+
   if (athlete.retired) {
-    revalidateTag('retired-athletes');
+    revalidateTag("retired-athletes-data");
+    revalidateTag("retired-page");
   }
-  
+
   if (athlete.poundForPoundRank > 0) {
-    revalidateTag('p4p-rankings');
+    revalidateTag("p4p-rankings-data");
+    revalidateTag("homepage-p4p");
+  }
+
+  // Only revalidate homepage if athlete affects homepage sections
+  if (athlete.rank === 1 || athlete.poundForPoundRank > 0) {
+    revalidateTag("homepage");
+    revalidateTag("homepage-stats");
   }
 
   // Revalidate paths
-  revalidatePath("/");
   revalidatePath("/athletes");
   if (athlete.retired) {
     revalidatePath("/retired");
   }
-  revalidatePath("/rankings/divisions");
-  revalidatePath("/rankings/popularity");
-  revalidatePath(`/division/${encodeURIComponent(athlete.weightDivision)}`, "page");
+  if (athlete.rank === 1 || athlete.poundForPoundRank > 0) {
+    revalidatePath("/rankings/divisions");
+    revalidatePath("/rankings/popularity");
+  }
+  revalidatePath(
+    `/division/${encodeURIComponent(athlete.weightDivision)}`,
+    "page"
+  );
   revalidatePath("/dashboard/athletes");
 
   return true;
-} 
+}

@@ -44,15 +44,16 @@ export async function createEvent(formData: FormData): Promise<ActionResponse> {
     });
 
     // Revalidate cache tags to immediately update cached data
-    revalidateTag('events');
-    revalidateTag('upcoming-events');
-    revalidateTag('upcoming-events-preview');
-    revalidateTag('homepage');
+    revalidateTag("events");
+    revalidateTag("upcoming-events");
+    revalidateTag("upcoming-events-preview");
+    revalidateTag("homepage");
+    revalidateTag("homepage-stats");
 
     // Revalidate events pages
-    revalidatePath('/events');
-    revalidatePath('/dashboard/events');
-    revalidatePath('/');
+    revalidatePath("/events");
+    revalidatePath("/dashboard/events");
+    revalidatePath("/");
     revalidateEvents();
 
     return {

@@ -8,7 +8,7 @@ interface ChampionsSectionProps {
 
 // Define weight division order (heaviest to lightest)
 const weightDivisionOrder = {
-  "MALE": [
+  MALE: [
     "Heavyweight",
     "Light Heavyweight",
     "Middleweight",
@@ -16,33 +16,35 @@ const weightDivisionOrder = {
     "Lightweight",
     "Featherweight",
     "Bantamweight",
-    "Flyweight"
-  ],
-  "FEMALE": [
-    "Featherweight",
-    "Bantamweight",
     "Flyweight",
-    "Strawweight"
-  ]
+  ],
+  FEMALE: ["Featherweight", "Bantamweight", "Flyweight", "Strawweight"],
 };
 
 // Helper function to get division weight for sorting
 const getDivisionWeight = (division: string, gender: "MALE" | "FEMALE") => {
   const order = weightDivisionOrder[gender];
-  const index = order.findIndex(d => 
+  const index = order.findIndex((d) =>
     division.toLowerCase().includes(d.toLowerCase())
   );
   return index === -1 ? order.length : index; // Put unknown divisions at the end
 };
 
-export default function ChampionsSection({ maleChampions, femaleChampions }: ChampionsSectionProps) {
+export default function ChampionsSection({
+  maleChampions,
+  femaleChampions,
+}: ChampionsSectionProps) {
   // Sort champions by weight division
-  const sortedMaleChampions = [...maleChampions].sort((a, b) => 
-    getDivisionWeight(a.weightDivision, "MALE") - getDivisionWeight(b.weightDivision, "MALE")
+  const sortedMaleChampions = [...maleChampions].sort(
+    (a, b) =>
+      getDivisionWeight(a.weightDivision, "MALE") -
+      getDivisionWeight(b.weightDivision, "MALE")
   );
 
-  const sortedFemaleChampions = [...femaleChampions].sort((a, b) => 
-    getDivisionWeight(a.weightDivision, "FEMALE") - getDivisionWeight(b.weightDivision, "FEMALE")
+  const sortedFemaleChampions = [...femaleChampions].sort(
+    (a, b) =>
+      getDivisionWeight(a.weightDivision, "FEMALE") -
+      getDivisionWeight(b.weightDivision, "FEMALE")
   );
 
   return (
@@ -64,6 +66,7 @@ export default function ChampionsSection({ maleChampions, femaleChampions }: Cha
               winsByKo={champion.winsByKo}
               winsBySubmission={champion.winsBySubmission}
               rank={champion.rank}
+              poundForPoundRank={champion.poundForPoundRank}
               followers={champion.followers}
               age={champion.age}
               retired={champion.retired ?? false}
@@ -89,6 +92,7 @@ export default function ChampionsSection({ maleChampions, femaleChampions }: Cha
               winsByKo={champion.winsByKo}
               winsBySubmission={champion.winsBySubmission}
               rank={champion.rank}
+              poundForPoundRank={champion.poundForPoundRank}
               followers={champion.followers}
               age={champion.age}
               retired={champion.retired ?? false}

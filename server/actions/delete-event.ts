@@ -28,15 +28,16 @@ export async function deleteEvent(id: string) {
     });
 
     // Revalidate cache tags
-    revalidateTag('events');
-    revalidateTag('upcoming-events');
-    revalidateTag('upcoming-events-preview');
-    revalidateTag('homepage');
+    revalidateTag("events");
+    revalidateTag("upcoming-events");
+    revalidateTag("upcoming-events-preview");
+    revalidateTag("homepage");
+    revalidateTag("homepage-stats");
 
     // Revalidate paths
-    revalidatePath('/events');
-    revalidatePath('/dashboard/events');
-    revalidatePath('/');
+    revalidatePath("/events");
+    revalidatePath("/dashboard/events");
+    revalidatePath("/");
 
     return {
       status: "success",

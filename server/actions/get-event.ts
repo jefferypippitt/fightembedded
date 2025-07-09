@@ -20,7 +20,7 @@ export const getUpcomingEvents = unstable_cache(
     try {
       const events = await prisma.event.findMany({
         where: {
-          status: "UPCOMING"
+          status: "UPCOMING",
         },
         orderBy: {
           date: "asc",
@@ -34,9 +34,9 @@ export const getUpcomingEvents = unstable_cache(
       return [];
     }
   },
-  ['upcoming-events-preview'],
-  { 
-    revalidate: 3600, // Revalidate every hour
-    tags: ['events'] // Tag for cache invalidation
+  ["upcoming-events-preview"],
+  {
+    revalidate: 604800, // Cache for 1 week to match homepage
+    tags: ["events", "homepage"], // Tag for cache invalidation
   }
 );

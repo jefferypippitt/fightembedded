@@ -6,7 +6,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
 
-
 interface Fighter {
   id: string;
   name: string;
@@ -32,7 +31,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
       imageUrl={fighter.imageUrl}
       countryCode={getCountryCode(fighter.country)}
       size="xs"
-      priority={fighter.poundForPoundRank <= 5}
+      priority={true}
     />
     <div className="flex-1 min-w-0 flex flex-col justify-center">
       <p className="text-xs font-medium leading-tight">{fighter.name}</p>
@@ -43,9 +42,7 @@ const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
         {fighter.draws > 0 && (
           <>
             <span>-</span>
-            <span className="text-amber-500">
-              {fighter.draws}
-            </span>
+            <span className="text-amber-500">{fighter.draws}</span>
           </>
         )}
       </div>
@@ -63,21 +60,11 @@ export function P4PSidebarClient({
     <Card className="p-0">
       <Tabs defaultValue="male">
         <TabsList className="w-full">
-          <TabsTrigger
-            value="male"
-            className="border-solid data-[state=active]:border-b-0"
-          >
-            Male
-          </TabsTrigger>
-          <TabsTrigger
-            value="female"
-            className=" border-solid data-[state=active]:border-b-0"
-          >
-            Female
-          </TabsTrigger>
+          <TabsTrigger value="male">Male</TabsTrigger>
+          <TabsTrigger value="female">Female</TabsTrigger>
         </TabsList>
 
-        <CardTitle className="text-center text-sm p-4 border-b">
+        <CardTitle className=" text-center p-4 border-b font-mono">
           Pound For Pound Rankings
         </CardTitle>
 

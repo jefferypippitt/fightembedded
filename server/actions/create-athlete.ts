@@ -48,49 +48,78 @@ export async function createAthlete(
     };
 
     const validatedData = athleteSchema.parse(data);
-    
+
     // If athlete is being created as retired, clear their ranks
     const finalData = {
       ...validatedData,
-      rank: validatedData.retired ? 0 : (validatedData.rank ?? 0),
-      poundForPoundRank: validatedData.retired ? 0 : (validatedData.poundForPoundRank ?? 0),
+      rank: validatedData.retired ? 0 : validatedData.rank ?? 0,
+      poundForPoundRank: validatedData.retired
+        ? 0
+        : validatedData.poundForPoundRank ?? 0,
     };
-    
-    const athlete = await prisma.athlete.create({
-      data: finalData,
-    }) as Athlete;
 
-    // Revalidate cache tags to immediately update data
-    revalidateTag('all-athletes');
-    revalidateTag('athletes-by-division');
-    revalidateTag('division-athletes');
-    revalidateTag('homepage');
-    
-    if (validatedData.rank === 1) {
-      revalidateTag('champions');
+    const athlete = (await prisma.athlete.create({
+      data: finalData,
+    })) as Athlete;
+
+    // Intelligent cache invalidation based on athlete properties
+    const hasImage =
+      validatedData.imageUrl && validatedData.imageUrl.trim() !== "";
+    const isChampion = validatedData.rank === 1;
+    const isUndefeated = validatedData.losses === 0;
+    const isRetired = validatedData.retired;
+    const hasP4PRank = validatedData.poundForPoundRank > 0;
+
+    // Always revalidate basic athlete data
+    revalidateTag("all-athletes");
+    revalidateTag("athletes-by-division");
+    revalidateTag("division-athletes");
+
+    // Only revalidate image-related caches if athlete has an image
+    if (hasImage) {
+      revalidateTag("athlete-images");
+      console.log("🖼️ New athlete with image - revalidating image caches");
     }
-    
-    if (validatedData.losses === 0) {
-      revalidateTag('undefeated-athletes');
+
+    // Only revalidate specific caches based on athlete properties
+    if (isChampion) {
+      revalidateTag("champions-data");
+      revalidateTag("homepage-champions");
     }
-    
-    if (validatedData.retired) {
-      revalidateTag('retired-athletes');
+
+    if (isUndefeated) {
+      revalidateTag("undefeated-athletes");
     }
-    
-    if (validatedData.poundForPoundRank > 0) {
-      revalidateTag('p4p-rankings');
+
+    if (isRetired) {
+      revalidateTag("retired-athletes-data");
+      revalidateTag("retired-page");
+    }
+
+    if (hasP4PRank) {
+      revalidateTag("p4p-rankings-data");
+      revalidateTag("homepage-p4p");
+    }
+
+    // Only revalidate homepage if athlete affects homepage sections
+    if (isChampion || hasP4PRank) {
+      revalidateTag("homepage");
+      revalidateTag("homepage-stats");
     }
 
     // Revalidate paths
-    revalidatePath("/");
     revalidatePath("/athletes");
-    if (validatedData.retired) {
+    if (isRetired) {
       revalidatePath("/retired");
     }
-    revalidatePath("/rankings/divisions");
-    revalidatePath("/rankings/popularity");
-    revalidatePath(`/division/${encodeURIComponent(validatedData.weightDivision)}`, "page");
+    if (isChampion || hasP4PRank) {
+      revalidatePath("/rankings/divisions");
+      revalidatePath("/rankings/popularity");
+    }
+    revalidatePath(
+      `/division/${encodeURIComponent(validatedData.weightDivision)}`,
+      "page"
+    );
     revalidatePath("/dashboard/athletes");
 
     return {

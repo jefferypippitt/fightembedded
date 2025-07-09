@@ -1,8 +1,8 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_cache } from 'next/cache';
-import { revalidateTag } from 'next/cache';
+import { unstable_cache } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 export const getP4PRankings = unstable_cache(
   async () => {
@@ -39,16 +39,16 @@ export const getP4PRankings = unstable_cache(
       femaleP4PRankings,
     };
   },
-  ['p4p-rankings', 'homepage'],
-  { 
+  ["p4p-rankings-data", "homepage-p4p"],
+  {
     revalidate: 604800, // Cache for 1 week (7 days)
-    tags: ['p4p-rankings', 'homepage', 'athletes'] // Tags for cache invalidation
+    tags: ["p4p-rankings", "p4p-rankings-data", "homepage-p4p", "athletes"], // More specific tags
   }
 );
 
 // Function to revalidate the cache
 export async function revalidateP4PRankings() {
-  revalidateTag('p4p-rankings');
-  revalidateTag('homepage');
-  revalidateTag('athletes');
+  revalidateTag("p4p-rankings");
+  revalidateTag("homepage");
+  revalidateTag("athletes");
 }

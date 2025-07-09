@@ -41,7 +41,9 @@ export function FighterPopularityChart({
   maleAthletes,
   femaleAthletes,
 }: FighterPopularityChartProps) {
-  const [activeChart, setActiveChart] = React.useState<"male" | "female">("male");
+  const [activeChart, setActiveChart] = React.useState<"male" | "female">(
+    "male"
+  );
 
   const chartData = React.useMemo(() => {
     return activeChart === "male"
@@ -58,19 +60,19 @@ export function FighterPopularityChart({
   );
 
   return (
-    <Card className="h-full relative overflow-hidden">
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row relative z-10">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-4 py-3 sm:px-6 sm:py-5">
-          <CardTitle className="text-base sm:text-lg font-medium">
-            Total Followers from X and Instagram
+    <Card className="h-full relative overflow-hidden py-0">
+      <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
+          <CardTitle className="text-center text-base sm:text-2xl font-mono font-bold">
+            X and Instagram Followers
           </CardTitle>
         </div>
         <div className="flex">
           {(["male", "female"] as const).map((key) => (
-             <button
-             key={key}
-             data-active={activeChart === key}
-             className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l data-[active=true]:bg-muted/50 sm:border-l sm:border-t-0 sm:px-8 sm:py-6 cursor-pointer"
+            <button
+              key={key}
+              data-active={activeChart === key}
+              className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer"
               onClick={() => setActiveChart(key)}
             >
               <div className="flex items-center mb-1">
@@ -78,7 +80,7 @@ export function FighterPopularityChart({
                   {key === "male" ? "Male" : "Female"} {chartConfig[key].label}
                 </span>
               </div>
-              <span className="text-base sm:text-3xl font-bold leading-none">
+              <span className="text-lg leading-none font-bold sm:text-3xl">
                 {total[key].toLocaleString()}
               </span>
             </button>
@@ -100,22 +102,16 @@ export function FighterPopularityChart({
               bottom: 1,
             }}
           >
-            <CartesianGrid
-              horizontal={false}
-              stroke="hsl(var(--border))"
-              strokeDasharray="4"
-            />
+            <CartesianGrid horizontal={false} vertical={true} />
             <XAxis
               type="number"
               axisLine={false}
               tickLine={false}
               tickFormatter={(value) => value.toLocaleString()}
-              fontSize={10}
-              tickMargin={10}
               tick={{
                 fill: "hsl(var(--foreground))",
-                fontSize: "10px",
-                fontWeight: 500,
+                fontSize: "9px",
+                fontWeight: 400,
               }}
             />
             <YAxis

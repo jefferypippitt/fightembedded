@@ -12,14 +12,14 @@ interface AthleteAvatarProps {
 }
 
 const sizeMap = {
-  xs: "h-8 w-8 md:h-10 md:w-10",
+  xs: "h-10 w-10 md:h-12 md:w-12",
   sm: "h-12 w-12 md:h-16 md:w-16",
   md: "h-20 w-20 md:h-24 md:w-24",
   lg: "h-24 w-24 md:h-32 md:w-32",
 };
 
 const imageSizes = {
-  xs: { mobile: 64, desktop: 80 },
+  xs: { mobile: 80, desktop: 96 },
   sm: { mobile: 96, desktop: 128 },
   md: { mobile: 160, desktop: 192 },
   lg: { mobile: 192, desktop: 256 },
@@ -50,9 +50,10 @@ export function AthleteAvatar({
               "absolute inset-0"
             )}
             priority={priority}
-            loading="eager"
+            loading={priority ? "eager" : "lazy"}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+            unoptimized={true}
           />
         </div>
       )}
@@ -72,9 +73,10 @@ export function AthleteAvatar({
             fill
             className="object-cover"
             priority={priority}
-            loading="eager"
+            loading={priority ? "eager" : "lazy"}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+            unoptimized={true}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -84,9 +86,10 @@ export function AthleteAvatar({
               fill
               className="object-cover"
               priority={priority}
-              loading="eager"
+              loading={priority ? "eager" : "lazy"}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+              unoptimized={true}
             />
           </div>
         )}

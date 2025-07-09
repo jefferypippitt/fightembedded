@@ -1,48 +1,59 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/components/ui/drawer'
-import { Scale } from 'lucide-react'
-import { AthleteListCard } from './athlete-list-card'
-import { Badge } from './ui/badge'
-import { Athlete } from '@/types/athlete'
-import { useState } from 'react'
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Scale } from "lucide-react";
+import { AthleteListCard } from "./athlete-list-card";
+import { Badge } from "./ui/badge";
+import { Athlete } from "@/types/athlete";
+import { useState } from "react";
 
 interface AthleteComparisonProps {
-  selectedAthletes: Athlete[]
-  onClearSelection: () => void
+  selectedAthletes: Athlete[];
+  onClearSelection: () => void;
 }
 
-export function AthleteComparison({ selectedAthletes, onClearSelection }: AthleteComparisonProps) {
-  const [open, setOpen] = useState(false)
-  const canCompare = selectedAthletes.length === 2
+export function AthleteComparison({
+  selectedAthletes,
+  onClearSelection,
+}: AthleteComparisonProps) {
+  const [open, setOpen] = useState(false);
+  const canCompare = selectedAthletes.length === 2;
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
+    setOpen(newOpen);
     if (!newOpen) {
-      onClearSelection()
+      onClearSelection();
     }
-  }
+  };
 
   const handleClose = () => {
-    onClearSelection()
-    setOpen(false)
-  }
+    onClearSelection();
+    setOpen(false);
+  };
 
   return (
     <Drawer open={open} onOpenChange={handleOpenChange}>
       <DrawerTrigger asChild>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
-          className={`gap-2 ${!canCompare ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+          className={`gap-2 ${
+            !canCompare ? "opacity-50 cursor-not-allowed" : "hover:bg-accent"
+          }`}
           onClick={(e) => {
             if (!canCompare) {
-              e.preventDefault()
-              return
+              e.preventDefault();
+              return;
             }
-            setOpen(true)
+            setOpen(true);
           }}
         >
           <Scale className="h-4 w-4" />
@@ -73,6 +84,7 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
                   winsByKo={athlete.winsByKo}
                   winsBySubmission={athlete.winsBySubmission}
                   rank={athlete.rank}
+                  poundForPoundRank={athlete.poundForPoundRank}
                   followers={athlete.followers}
                   age={athlete.age}
                   retired={athlete.retired ?? false}
@@ -80,8 +92,8 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
               ))}
             </div>
             <div className="p-4">
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 size="lg"
                 className="w-full"
                 onClick={handleClose}
@@ -93,5 +105,5 @@ export function AthleteComparison({ selectedAthletes, onClearSelection }: Athlet
         </div>
       </DrawerContent>
     </Drawer>
-  )
-} 
+  );
+}

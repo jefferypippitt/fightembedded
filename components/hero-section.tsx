@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
-import { unstable_noStore as noStore } from "next/cache";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { DotIcon, TrendingUp } from "lucide-react";
@@ -46,11 +45,11 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
     <div className="flex items-center justify-center space-x-1">
       <NumberTicker
         value={stat.value}
-        className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100"
+        className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 font-mono"
       />
       {stat.icon && stat.icon}
     </div>
-    <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
+    <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 font-mono">
       {stat.label}
     </span>
   </div>
@@ -97,9 +96,6 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
 );
 
 export default async function HeroSection() {
-  // Disable caching to ensure fresh data
-  noStore();
-
   const stats = await getStats();
   const statsData = createStatsData(stats);
 

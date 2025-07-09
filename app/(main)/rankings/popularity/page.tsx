@@ -7,9 +7,8 @@ export const metadata: Metadata = {
   description: "Top 20 Athletes by Popularity",
 };
 
-// Use static rendering with weekly revalidation
-export const dynamic = 'force-static'
-export const revalidate = 604800 // Cache for 1 week
+export const dynamic = "force-static";
+export const revalidate = 604800;
 
 export default async function DivisionRankingsPage() {
   const top20Athletes = await getTop20Athletes();
@@ -31,17 +30,16 @@ export default async function DivisionRankingsPage() {
   }));
 
   return (
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-            Top 20 Athletes by Popularity
-          </h1>
-        </div>
-        <FighterPopularityChart
-          maleAthletes={maleChartData}
-          femaleAthletes={femaleChartData}
-        />
+    <div className="space-y-4">
+      <div className="flex justify-center">
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+          Top 20 Athletes by Popularity
+        </h1>
       </div>
-   
+      <FighterPopularityChart
+        maleAthletes={maleChartData}
+        femaleAthletes={femaleChartData}
+      />
+    </div>
   );
 }

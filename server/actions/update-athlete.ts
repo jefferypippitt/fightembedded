@@ -50,6 +50,19 @@ export async function updateAthlete(
 
     const validatedData = athleteSchema.parse(data);
 
+    // Get the current athlete to compare changes
+    const currentAthlete = await prisma.athlete.findUnique({
+      where: { id },
+      select: {
+        imageUrl: true,
+        rank: true,
+        poundForPoundRank: true,
+        retired: true,
+        losses: true,
+        weightDivision: true,
+      },
+    });
+
     // If athlete is being marked as retired, clear their ranks
     const finalData = {
       ...validatedData,
@@ -65,27 +78,78 @@ export async function updateAthlete(
       data: finalData,
     });
 
-    // Revalidate cache tags to immediately update data
+    // Intelligent cache invalidation based on what actually changed
+    const imageChanged = currentAthlete?.imageUrl !== validatedData.imageUrl;
+    const rankChanged = currentAthlete?.rank !== finalData.rank;
+    const p4pRankChanged =
+      currentAthlete?.poundForPoundRank !== finalData.poundForPoundRank;
+    const retiredStatusChanged = currentAthlete?.retired !== finalData.retired;
+    const lossesChanged = currentAthlete?.losses !== finalData.losses;
+    const divisionChanged =
+      currentAthlete?.weightDivision !== finalData.weightDivision;
+
+    // Always revalidate basic athlete data
     revalidateTag("all-athletes");
     revalidateTag("athlete-by-id");
     revalidateTag("athletes-by-division");
-    revalidateTag("division-athletes");
-    revalidateTag("p4p-rankings");
-    revalidateTag("champions");
-    revalidateTag("undefeated-athletes");
-    revalidateTag("retired-athletes");
-    revalidateTag("homepage");
-    revalidateTag("rankings");
 
-    // Revalidate paths
-    revalidatePath("/");
-    revalidatePath("/athletes");
-    revalidatePath("/retired");
-    revalidatePath(`/athlete/${id}`);
-    revalidatePath("/rankings/divisions");
-    revalidatePath("/rankings/popularity");
-    revalidatePath("/division/[slug]", "page");
+    // Only revalidate image-related caches if image actually changed
+    if (imageChanged) {
+      revalidateTag("athlete-images");
+      console.log("🖼️ Image changed - revalidating image caches");
+    }
+
+    // Only revalidate division caches if division changed
+    if (divisionChanged) {
+      revalidateTag("division-athletes");
+      console.log("🏆 Division changed - revalidating division caches");
+    }
+
+    // Only revalidate specific caches based on what changed
+    if (rankChanged || p4pRankChanged) {
+      revalidateTag("p4p-rankings-data");
+      revalidateTag("homepage-p4p");
+      if (finalData.rank === 1 || currentAthlete?.rank === 1) {
+        revalidateTag("champions-data");
+        revalidateTag("homepage-champions");
+      }
+    }
+
+    if (retiredStatusChanged) {
+      revalidateTag("retired-athletes-data");
+      revalidateTag("retired-page");
+    }
+
+    if (
+      lossesChanged &&
+      (finalData.losses === 0 || currentAthlete?.losses === 0)
+    ) {
+      revalidateTag("undefeated-athletes");
+    }
+
+    // Only revalidate homepage if significant changes occurred that affect homepage sections
+    if (rankChanged || p4pRankChanged || retiredStatusChanged) {
+      revalidateTag("homepage");
+      revalidateTag("homepage-stats");
+    }
+
+    // Only revalidate paths if necessary
+    if (retiredStatusChanged) {
+      revalidatePath("/retired");
+    }
+
+    if (rankChanged || p4pRankChanged) {
+      revalidatePath("/rankings/divisions");
+      revalidatePath("/rankings/popularity");
+    }
+
+    if (divisionChanged) {
+      revalidatePath("/division/[slug]", "page");
+    }
+
+    // Always revalidate dashboard and athletes page
     revalidatePath("/dashboard/athletes");
+    revalidatePath("/athletes");
 
     return {
       status: "success",
