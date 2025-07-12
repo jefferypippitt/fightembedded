@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import { getDivisionAthletes } from "@/server/actions/athlete";
 import { DivisionContent } from "./division-content";
 import { getAllDivisions } from "@/data/weight-class";
-import { Suspense } from "react";
-import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
 
 // Use static rendering for division pages - following Next.js best practices
 export const dynamic = "force-static";
@@ -61,9 +59,7 @@ export default async function DivisionPage({ params }: PageProps) {
           {divisionData.name} Division
         </h1>
       </div>
-      <Suspense fallback={<AthletesGridSkeleton count={12} />}>
-        <DivisionContent athletes={divisionData.athletes} />
-      </Suspense>
+      <DivisionContent athletes={divisionData.athletes} />
     </div>
   );
 }

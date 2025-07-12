@@ -21,15 +21,21 @@ const config: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "flagcdn.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
     // Optimize image transformations - use only WebP to reduce transformations
     formats: ["image/webp"],
     // Cache images for 31 days to reduce transformations
     minimumCacheTTL: 2678400, // 31 days cache
     // Reduce device sizes to minimize transformations
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    deviceSizes: [640, 1080, 1920],
     // Reduce image sizes to minimize transformations
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    imageSizes: [64, 128, 256],
     // Use only one quality setting to reduce transformations
     qualities: [75],
     // Disable image optimization for better caching

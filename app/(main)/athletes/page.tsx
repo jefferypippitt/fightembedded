@@ -1,5 +1,3 @@
-import { Suspense } from "react";
-import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
 import { getAthletes } from "@/server/actions/get-athlete";
 import { Metadata } from "next";
 import { AthletesContent } from "./athletes-content";
@@ -24,9 +22,7 @@ export default async function AthletesPage() {
         </h1>
       </div>
 
-      <Suspense fallback={<AthletesGridSkeleton count={12} />}>
-        <AthletesContent athletes={athletes} />
-      </Suspense>
+      <AthletesContent athletes={athletes} />
     </div>
   );
 }

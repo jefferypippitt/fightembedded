@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, memo } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchBar } from "@/components/search-bar";
 import { AthleteComparison } from "@/components/athlete-comparison";
@@ -14,7 +14,7 @@ interface AthletesSearchProps {
   emptyMessage?: string;
 }
 
-function Athletes({
+const Athletes = memo(function Athletes({
   athletes,
   selectedAthletes,
   onSelect,
@@ -68,7 +68,7 @@ function Athletes({
       ))}
     </div>
   );
-}
+});
 
 export function AthletesSearch({
   athletes,

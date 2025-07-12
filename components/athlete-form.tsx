@@ -272,6 +272,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
               imageUrl={imageUrl}
               countryCode={getCountryCode(form.watch("country"))}
               size="md"
+              priority={false}
             />
 
             <FormField
@@ -570,7 +571,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     </FormControl>
                     {isRetired && (
                       <p className="text-xs text-muted-foreground">
-                        Rank fields are disabled for retired athletes and will be automatically cleared.
+                        Rank fields are disabled for retired athletes and will
+                        be automatically cleared.
                       </p>
                     )}
                     <FormMessage />

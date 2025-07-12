@@ -234,7 +234,7 @@ export const getDivisionAthletes = unstable_cache(
       throw new Error("Failed to fetch division athletes");
     }
   },
-  ["division-athletes", "division"],
+  ["division-athletes"],
   {
     revalidate: CACHE_DURATION,
     tags: [

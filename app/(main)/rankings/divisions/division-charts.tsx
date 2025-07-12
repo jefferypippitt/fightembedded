@@ -59,13 +59,14 @@ const transformAthleteData = (athletes: DivisionRankings["athletes"]) => {
     fill: getRankColor(athlete.rank),
   }));
 
-  const maxFollowersIndex = data.reduce(
-    (maxIndex, current, currentIndex) =>
-      current.followers > data[maxIndex].followers ? currentIndex : maxIndex,
-    0
-  );
+  // Sort by rank to ensure consistent ordering (rank 1 first)
+  data.sort((a, b) => a.rank - b.rank);
 
-  return { data, activeIndex: maxFollowersIndex };
+  // Find the athlete with most followers (deterministic calculation)
+  const maxFollowers = Math.max(...data.map(d => d.followers));
+  const activeIndex = data.findIndex(d => d.followers === maxFollowers);
+
+  return { data, activeIndex };
 };
 
 const chartConfig = {

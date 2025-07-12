@@ -1,5 +1,3 @@
-"use client";
-
 import { AthleteListCard } from "@/components/athlete-list-card";
 import type { Athlete } from "@/types/athlete";
 

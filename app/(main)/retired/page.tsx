@@ -1,12 +1,10 @@
 import { getRetiredAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
 import { RetiredContent } from "./retired-content";
-import { Suspense } from "react";
-import { AthletesGridSkeleton } from "@/components/athlete-skeleton";
 
-// Use static rendering with monthly revalidation - retired athletes rarely change
+// Use static rendering with weekly revalidation - same as athletes page
 export const dynamic = "force-static";
-export const revalidate = 2592000; // Cache for 1 month (30 days)
+export const revalidate = 604800; // Cache for 1 week (same as athletes page)
 
 export const metadata: Metadata = {
   title: "Retired Athletes",
@@ -36,9 +34,7 @@ export default async function RetiredPage() {
           Retired Athletes
         </h1>
       </div>
-      <Suspense fallback={<AthletesGridSkeleton count={12} />}>
-        <RetiredContent athletes={athletes} />
-      </Suspense>
+      <RetiredContent athletes={athletes} />
     </div>
   );
 }
