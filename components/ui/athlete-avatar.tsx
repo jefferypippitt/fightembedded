@@ -50,7 +50,6 @@ export function AthleteAvatar({
               "absolute inset-0"
             )}
             priority={priority}
-            loading={priority ? "eager" : "lazy"}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             unoptimized={true}
@@ -73,7 +72,6 @@ export function AthleteAvatar({
             fill
             className="object-cover"
             priority={priority}
-            loading={priority ? "eager" : "lazy"}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             unoptimized={true}
@@ -86,10 +84,8 @@ export function AthleteAvatar({
               fill
               className="object-cover"
               priority={priority}
-              loading={priority ? "eager" : "lazy"}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
-              unoptimized={true}
             />
           </div>
         )}

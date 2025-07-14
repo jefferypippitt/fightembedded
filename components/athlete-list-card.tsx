@@ -22,9 +22,9 @@ export interface AthleteListCardProps {
   age?: number;
   retired?: boolean;
   weightDivision?: string;
+  poundForPoundRank?: number;
   isSelected?: boolean;
   onSelect?: () => void;
-  poundForPoundRank?: number;
 }
 
 // Map division names to badge variants
@@ -122,14 +122,14 @@ function AthleteListCardComponent({
   return (
     <Card
       className={cn(
-        "h-full relative overflow-hidden group",
+        "h-full relative overflow-hidden group cursor-pointer",
         "border-border/40 dark:border-border/40",
         "bg-card dark:bg-card",
         "shadow-sm hover:shadow-md",
         "transition-all duration-300",
         "hover:border-primary/20 dark:hover:border-primary/20",
         "p-3",
-        isSelected && "ring-1 ring-primary"
+        isSelected && "ring-1 ring-green-500/60"
       )}
       onClick={onSelect}
     >
@@ -183,7 +183,7 @@ function AthleteListCardComponent({
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}
             size="sm"
-            priority={true}
+            priority={false}
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
             )}

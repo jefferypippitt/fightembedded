@@ -63,7 +63,7 @@ export function FighterPopularityChart({
     <Card className="h-full relative overflow-hidden py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-          <CardTitle className="text-center text-base sm:text-2xl font-mono font-bold">
+          <CardTitle className="text-center text-base sm:text-2xl font-bold">
             X and Instagram Followers
           </CardTitle>
         </div>
@@ -72,7 +72,7 @@ export function FighterPopularityChart({
             <button
               key={key}
               data-active={activeChart === key}
-              className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer"
+              className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer font-mono"
               onClick={() => setActiveChart(key)}
             >
               <div className="flex items-center mb-1">

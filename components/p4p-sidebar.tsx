@@ -22,33 +22,41 @@ interface P4PSidebarProps {
   femaleP4PRankings: Fighter[];
 }
 
-const FighterCard = React.memo(({ fighter }: { fighter: Fighter }) => (
-  <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border h-16">
-    <span className="px-2.5 text-xs font-medium min-w-[2rem]">
-      {fighter.poundForPoundRank}.
-    </span>
-    <AthleteAvatar
-      imageUrl={fighter.imageUrl}
-      countryCode={getCountryCode(fighter.country)}
-      size="xs"
-      priority={true}
-    />
-    <div className="flex-1 min-w-0 flex flex-col justify-center">
-      <p className="text-xs font-medium leading-tight">{fighter.name}</p>
-      <div className="text-[10px] text-muted-foreground">
-        <span className="text-green-500">{fighter.wins}</span>
-        <span>-</span>
-        <span className="text-red-500">{fighter.losses}</span>
-        {fighter.draws > 0 && (
-          <>
-            <span>-</span>
-            <span className="text-amber-500">{fighter.draws}</span>
-          </>
-        )}
+const FighterCard = React.memo(
+  ({
+    fighter,
+    isPriority = false,
+  }: {
+    fighter: Fighter;
+    isPriority?: boolean;
+  }) => (
+    <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border h-16">
+      <span className="px-2.5 text-xs font-medium min-w-[2rem]">
+        {fighter.poundForPoundRank}.
+      </span>
+      <AthleteAvatar
+        imageUrl={fighter.imageUrl}
+        countryCode={getCountryCode(fighter.country)}
+        size="xs"
+        priority={isPriority}
+      />
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <p className="text-xs font-medium leading-tight">{fighter.name}</p>
+        <div className="text-[10px] text-muted-foreground">
+          <span className="text-green-500">{fighter.wins}</span>
+          <span>-</span>
+          <span className="text-red-500">{fighter.losses}</span>
+          {fighter.draws > 0 && (
+            <>
+              <span>-</span>
+              <span className="text-amber-500">{fighter.draws}</span>
+            </>
+          )}
+        </div>
       </div>
-    </div>
-  </li>
-));
+    </li>
+  )
+);
 
 FighterCard.displayName = "FighterCard";
 
@@ -71,15 +79,23 @@ export function P4PSidebarClient({
         <CardContent className="p-4">
           <TabsContent value="male">
             <ul className="space-y-2">
-              {maleP4PRankings.map((fighter) => (
-                <FighterCard key={fighter.id} fighter={fighter} />
+              {maleP4PRankings.map((fighter, index) => (
+                <FighterCard
+                  key={fighter.id}
+                  fighter={fighter}
+                  isPriority={index < 3}
+                />
               ))}
             </ul>
           </TabsContent>
           <TabsContent value="female">
             <ul className="space-y-2">
-              {femaleP4PRankings.map((fighter) => (
-                <FighterCard key={fighter.id} fighter={fighter} />
+              {femaleP4PRankings.map((fighter, index) => (
+                <FighterCard
+                  key={fighter.id}
+                  fighter={fighter}
+                  isPriority={index < 3}
+                />
               ))}
             </ul>
           </TabsContent>

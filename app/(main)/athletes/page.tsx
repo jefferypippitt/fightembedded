@@ -1,6 +1,6 @@
 import { getAthletes } from "@/server/actions/get-athlete";
 import { Metadata } from "next";
-import { AthletesContent } from "./athletes-content";
+import { AthletesSearch } from "@/components/athletes-search";
 
 export const metadata: Metadata = {
   title: "Athletes | Fight Embedded",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 // Use static rendering with weekly revalidation - following Next.js best practices
 export const dynamic = "force-static";
-export const revalidate = 604800; // Cache for 1 week
+export const revalidate = 604800; // 1 week revalidation
 
 export default async function AthletesPage() {
   const athletes = await getAthletes();
@@ -22,7 +22,7 @@ export default async function AthletesPage() {
         </h1>
       </div>
 
-      <AthletesContent athletes={athletes} />
+      <AthletesSearch athletes={athletes} />
     </div>
   );
 }

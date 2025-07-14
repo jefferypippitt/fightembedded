@@ -162,7 +162,7 @@ function AthleteCardComponent({
             imageUrl={athlete.imageUrl || "/default-avatar.png"}
             countryCode={getCountryCode(athlete.country)}
             size="sm"
-            priority={true}
+            priority={false}
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
               athlete.retired && "opacity-75"

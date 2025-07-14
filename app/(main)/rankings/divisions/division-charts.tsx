@@ -63,8 +63,8 @@ const transformAthleteData = (athletes: DivisionRankings["athletes"]) => {
   data.sort((a, b) => a.rank - b.rank);
 
   // Find the athlete with most followers (deterministic calculation)
-  const maxFollowers = Math.max(...data.map(d => d.followers));
-  const activeIndex = data.findIndex(d => d.followers === maxFollowers);
+  const maxFollowers = Math.max(...data.map((d) => d.followers));
+  const activeIndex = data.findIndex((d) => d.followers === maxFollowers);
 
   return { data, activeIndex };
 };
@@ -93,7 +93,7 @@ export function DivisionCharts({
           <Card key={division} className="h-full relative overflow-hidden">
             <CardHeader className="flex flex-col items-stretch !p-0 sm:flex-row">
               <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-                <CardTitle className="text-center text-base sm:text-lg font-mono font-bold">
+                <CardTitle className="text-center text-base sm:text-lg font-bold">
                   {division}
                 </CardTitle>
                 <CardDescription className="text-center font-mono text-xs">

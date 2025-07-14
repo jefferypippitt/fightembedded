@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDivisionAthletes } from "@/server/actions/athlete";
-import { DivisionContent } from "./division-content";
+import { AthletesSearch } from "@/components/athletes-search";
 import { getAllDivisions } from "@/data/weight-class";
 
 // Use static rendering for division pages - following Next.js best practices
@@ -54,12 +54,13 @@ export default async function DivisionPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-center mb-6">
+      <div className="flex justify-center">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
           {divisionData.name} Division
         </h1>
       </div>
-      <DivisionContent athletes={divisionData.athletes} />
+
+      <AthletesSearch athletes={divisionData.athletes} />
     </div>
   );
 }
