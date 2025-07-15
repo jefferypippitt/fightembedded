@@ -25,6 +25,7 @@ export interface AthleteListCardProps {
   poundForPoundRank?: number;
   isSelected?: boolean;
   onSelect?: () => void;
+  priority?: boolean;
 }
 
 // Map division names to badge variants
@@ -112,6 +113,7 @@ function AthleteListCardComponent({
   weightDivision,
   isSelected,
   onSelect,
+  priority = false,
 }: AthleteListCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -183,7 +185,7 @@ function AthleteListCardComponent({
             imageUrl={imageUrl}
             countryCode={getCountryCode(country)}
             size="sm"
-            priority={false}
+            priority={priority}
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
             )}

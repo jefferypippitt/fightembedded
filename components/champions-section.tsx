@@ -70,6 +70,7 @@ export default function ChampionsSection({
               followers={champion.followers}
               age={champion.age}
               retired={champion.retired ?? false}
+              priority={true}
             />
           ))}
         </div>
@@ -96,6 +97,7 @@ export default function ChampionsSection({
               followers={champion.followers}
               age={champion.age}
               retired={champion.retired ?? false}
+              priority={true}
             />
           ))}
         </div>

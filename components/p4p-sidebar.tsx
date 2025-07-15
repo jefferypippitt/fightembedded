@@ -83,7 +83,7 @@ export function P4PSidebarClient({
                 <FighterCard
                   key={fighter.id}
                   fighter={fighter}
-                  isPriority={index < 3}
+                  isPriority={index < 15}
                 />
               ))}
             </ul>
@@ -94,7 +94,7 @@ export function P4PSidebarClient({
                 <FighterCard
                   key={fighter.id}
                   fighter={fighter}
-                  isPriority={index < 3}
+                  isPriority={index < 15}
                 />
               ))}
             </ul>

@@ -37,7 +37,7 @@ const Athletes = memo(function Athletes({
       role="grid"
       aria-label="Athletes grid"
     >
-      {athletes.map((athlete) => (
+      {athletes.map((athlete, index) => (
         <AthleteListCard
           key={athlete.id}
           id={athlete.id}
@@ -57,6 +57,7 @@ const Athletes = memo(function Athletes({
           retired={athlete.retired ?? false}
           isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
           onSelect={() => onSelect(athlete)}
+          priority={index < 8}
         />
       ))}
     </div>

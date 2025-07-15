@@ -1,6 +1,6 @@
 import { getRetiredAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
-import { RetiredContent } from "./retired-content";
+import { AthletesList } from "@/components/athletes-list";
 
 // Use static rendering with weekly revalidation - same as athletes page
 export const dynamic = "force-static";
@@ -34,7 +34,7 @@ export default async function RetiredPage() {
           Retired Athletes
         </h1>
       </div>
-      <RetiredContent athletes={athletes} />
+      <AthletesList athletes={athletes} emptyMessage="No retired athletes found." />
     </div>
   );
 }

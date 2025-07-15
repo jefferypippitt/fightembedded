@@ -14,6 +14,7 @@ interface AthleteCardProps {
   showStats?: boolean;
   showFollowers?: boolean;
   className?: string;
+  priority?: boolean;
 }
 
 // Map division names to badge variants
@@ -84,6 +85,7 @@ function AthleteCardComponent({
   showStats = true,
   showFollowers = true,
   className = "",
+  priority = false,
 }: AthleteCardProps) {
   if (!athlete) {
     return null;
@@ -162,7 +164,7 @@ function AthleteCardComponent({
             imageUrl={athlete.imageUrl || "/default-avatar.png"}
             countryCode={getCountryCode(athlete.country)}
             size="sm"
-            priority={false}
+            priority={priority}
             className={cn(
               "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300",
               athlete.retired && "opacity-75"

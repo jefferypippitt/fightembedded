@@ -26,7 +26,7 @@ export function AthletesList({
       role="grid"
       aria-label="Athletes grid"
     >
-      {athletes.map((athlete) => (
+      {athletes.map((athlete, index) => (
         <AthleteListCard
           key={athlete.id}
           id={athlete.id}
@@ -44,6 +44,7 @@ export function AthletesList({
           followers={athlete.followers}
           age={athlete.age}
           retired={athlete.retired ?? false}
+          priority={index < 8}
         />
       ))}
     </div>
