@@ -52,6 +52,7 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+            unoptimized={true}
           />
         </div>
       )}
