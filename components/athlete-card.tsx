@@ -161,7 +161,7 @@ function AthleteCardComponent({
         {/* Avatar and Name section */}
         <div className="flex flex-col items-center mb-3">
           <AthleteAvatar
-            imageUrl={athlete.imageUrl || "/default-avatar.png"}
+            imageUrl={athlete.imageUrl || "/images/default-avatar.svg"}
             countryCode={getCountryCode(athlete.country)}
             size="sm"
             priority={priority}

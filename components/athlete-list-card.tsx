@@ -100,7 +100,7 @@ const getDivisionVariant = (
 
 function AthleteListCardComponent({
   name,
-  imageUrl = "/default-avatar.png",
+  imageUrl = "/images/default-avatar.svg",
   country,
   wins = 0,
   losses = 0,

@@ -6,11 +6,14 @@ interface P4PRankingsProps {
   femaleP4PRankings: Athlete[];
 }
 
-export function P4PRankings({ maleP4PRankings, femaleP4PRankings }: P4PRankingsProps) {
+export function P4PRankings({
+  maleP4PRankings,
+  femaleP4PRankings,
+}: P4PRankingsProps) {
   const mapRankings = (rankings: Athlete[]) =>
     rankings.map((fighter) => ({
       ...fighter,
-      imageUrl: fighter.imageUrl || "/images/default-avatar.png",
+      imageUrl: fighter.imageUrl || "/images/default-avatar.svg",
     }));
 
   return (

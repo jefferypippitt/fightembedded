@@ -23,7 +23,7 @@ const sizeMap = {
 
 const imageSizes = {
   xs: { mobile: 80, desktop: 96 },
-  sm: { mobile: 96, desktop: 128 },
+  sm: { mobile: 80, desktop: 128 }, // Reduced mobile size for better performance
   md: { mobile: 160, desktop: 192 },
   lg: { mobile: 192, desktop: 256 },
 };
@@ -37,6 +37,7 @@ export function AthleteAvatar({
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
   const [flagError, setFlagError] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   // Validate country code - allow 2-10 character codes (for special cases like gb-eng, gb-nir, etc.)
   const validCountryCode =
@@ -66,7 +67,7 @@ export function AthleteAvatar({
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             onError={() => setFlagError(true)}
-            unoptimized={true} // Disable optimization for best performance
+            unoptimized={false} // Enable optimization for better mobile performance
           />
         </div>
       )}
@@ -79,7 +80,7 @@ export function AthleteAvatar({
           className
         )}
       >
-        {imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             src={imageUrl}
             alt="Profile"
@@ -88,11 +89,12 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+            onError={() => setImageError(true)}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
             <Image
-              src="/placeholder/SILHOUETTE.avif"
+              src="/images/default-avatar.svg"
               alt="Profile placeholder"
               fill
               className="object-cover"
