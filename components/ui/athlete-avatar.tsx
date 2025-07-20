@@ -1,7 +1,10 @@
+"use client";
+
 import { Avatar } from "@/components/ui/avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import "flag-icons/css/flag-icons.min.css";
+import { useState } from "react";
 
 interface AthleteAvatarProps {
   imageUrl?: string;
@@ -33,15 +36,25 @@ export function AthleteAvatar({
   priority = false,
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
+  const [flagError, setFlagError] = useState(false);
+
+  // Validate country code - allow 2-10 character codes (for special cases like gb-eng, gb-nir, etc.)
+  const validCountryCode =
+    countryCode && countryCode.length >= 2 && countryCode.length <= 10
+      ? countryCode.toLowerCase()
+      : null;
+
+  // Use flagcdn.com only - best quality and performance
+  const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
 
   return (
     <div className="relative">
       {/* Flag Background */}
-      {countryCode && (
+      {validCountryCode && !flagError && (
         <div className="absolute inset-0 z-0">
           <Image
-            src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
-            alt={`${countryCode} flag`}
+            src={flagSrc}
+            alt={`${validCountryCode} flag`}
             width={imageSize.desktop}
             height={imageSize.desktop}
             className={cn(
@@ -52,6 +65,8 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+            onError={() => setFlagError(true)}
+            unoptimized={true} // Disable optimization for best performance
           />
         </div>
       )}

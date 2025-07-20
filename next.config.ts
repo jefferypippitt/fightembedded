@@ -27,6 +27,12 @@ const config: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "countryflags.io",
+        port: "",
+        pathname: "/**",
+      },
     ],
     // Optimize image transformations - use only WebP to reduce transformations
     formats: ["image/webp"],
@@ -42,6 +48,7 @@ const config: NextConfig = {
     unoptimized: false,
     // Add more aggressive caching
     dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
