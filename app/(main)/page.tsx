@@ -9,9 +9,8 @@ export const dynamic = "force-static";
 export const revalidate = 604800; // 1 week
 
 export const metadata: Metadata = {
-  title: "FightEmbedded - UFC Fighter Database & Rankings",
-  description:
-    "Comprehensive UFC fighter database with rankings, statistics, and real-time updates. Explore fighters, divisions, and championship history.",
+  title: "FightEmbedded - UFC Athletes & Events",
+  description: "Explore UFC athletes stats, rankings, and more in one place.",
 };
 
 export default async function Page() {
@@ -25,7 +24,7 @@ export default async function Page() {
           <EventsSectionWrapper />
         </div>
 
-        <div className="lg:col-span-1 overflow-hidden">
+        <div className="lg:col-span-1 overflow-hidden *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
           <RankingsSectionWrapper />
         </div>
       </div>

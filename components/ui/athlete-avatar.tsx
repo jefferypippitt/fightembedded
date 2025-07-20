@@ -52,7 +52,6 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
-            unoptimized={true}
           />
         </div>
       )}
@@ -74,7 +73,6 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
-            unoptimized={true}
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">

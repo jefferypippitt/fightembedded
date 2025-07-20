@@ -65,9 +65,9 @@ export function P4PSidebarClient({
   femaleP4PRankings,
 }: P4PSidebarProps) {
   return (
-    <Card className="p-0">
+    <Card className="@container/card p-0">
       <Tabs defaultValue="male">
-        <TabsList className="w-full">
+        <TabsList className="w-full bg-card border-b">
           <TabsTrigger value="male">Male</TabsTrigger>
           <TabsTrigger value="female">Female</TabsTrigger>
         </TabsList>

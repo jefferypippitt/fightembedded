@@ -33,7 +33,7 @@ const Athletes = memo(function Athletes({
 
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
+      className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs"
       role="grid"
       aria-label="Athletes grid"
     >
@@ -57,7 +57,7 @@ const Athletes = memo(function Athletes({
           retired={athlete.retired ?? false}
           isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
           onSelect={() => onSelect(athlete)}
-          priority={index < 8}
+          priority={index < 10}
         />
       ))}
     </div>
@@ -191,11 +191,41 @@ export function AthletesSearch({
           )}
         </div>
       )}
-      <Athletes
-        athletes={displayAthletes}
-        selectedAthletes={selectedAthletes}
-        onSelect={handleSelect}
-      />
+      {selectedAthletes.length === 2 ? (
+        <div className="space-y-6">
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6 max-w-3xl mx-auto *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+            {selectedAthletes.map((athlete, index) => (
+              <AthleteListCard
+                key={athlete.id}
+                id={athlete.id}
+                name={athlete.name}
+                weightDivision={athlete.weightDivision}
+                imageUrl={athlete.imageUrl || undefined}
+                country={athlete.country}
+                wins={athlete.wins}
+                losses={athlete.losses}
+                draws={athlete.draws}
+                winsByKo={athlete.winsByKo}
+                winsBySubmission={athlete.winsBySubmission}
+                rank={athlete.rank}
+                poundForPoundRank={athlete.poundForPoundRank}
+                followers={athlete.followers}
+                age={athlete.age}
+                retired={athlete.retired ?? false}
+                isSelected={true}
+                onSelect={() => handleSelect(athlete)}
+                priority={index < 2}
+              />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <Athletes
+          athletes={displayAthletes}
+          selectedAthletes={selectedAthletes}
+          onSelect={handleSelect}
+        />
+      )}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export async function generateMetadata({
 
   return {
     title: `${divisionData.name} Division`,
-    description: `View all active fighters in the ${divisionData.name} division.`,
+    description: `View all active UFC athletes in the ${divisionData.name} division.`,
   };
 }
 

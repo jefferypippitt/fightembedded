@@ -3,7 +3,7 @@ import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
 import { getStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
-import { Loader } from "lucide-react";
+import { Dot } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
 import { IconTrendingUp } from "@tabler/icons-react";
 
@@ -71,7 +71,7 @@ const LiveUpdatesBadge = () => (
     variant="outline"
     className="bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-600/20 dark:border-zinc-500/30 text-xs mb-1 md:mb-2"
   >
-    <Loader className="h-4 w-4 animate-spin-slow text-green-500 dark:text-green-400" />
+    <Dot className="h-4 w-4 animate-pulse text-green-500 dark:text-green-400" />
     Live Updates
   </Badge>
 );

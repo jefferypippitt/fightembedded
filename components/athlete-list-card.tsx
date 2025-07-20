@@ -26,6 +26,7 @@ export interface AthleteListCardProps {
   isSelected?: boolean;
   onSelect?: () => void;
   priority?: boolean;
+  disableCursor?: boolean;
 }
 
 // Map division names to badge variants
@@ -114,6 +115,7 @@ function AthleteListCardComponent({
   isSelected,
   onSelect,
   priority = false,
+  disableCursor = false,
 }: AthleteListCardProps) {
   const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
@@ -124,19 +126,20 @@ function AthleteListCardComponent({
   return (
     <Card
       className={cn(
-        "h-full relative overflow-hidden group cursor-pointer",
+        "@container/card h-full relative overflow-hidden group",
         "border-border/40 dark:border-border/40",
-        "bg-card dark:bg-card",
+        "bg-transparent",
         "shadow-sm hover:shadow-md",
         "transition-all duration-300",
         "hover:border-primary/20 dark:hover:border-primary/20",
         "p-3",
+        !disableCursor && "cursor-pointer",
         isSelected && "ring-1 ring-green-500/60"
       )}
       onClick={onSelect}
     >
       {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 to-primary/0 group-hover:from-primary/[0.02] group-hover:to-primary/[0.03] transition-all duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
       <CardContent className="p-0 relative z-10">
         {/* Top Badge - Division and Rank/Champion Status */}
