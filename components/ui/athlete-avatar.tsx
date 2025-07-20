@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import "flag-icons/css/flag-icons.min.css";
 import { useState } from "react";
+import { Flag } from "./flag";
 
 interface AthleteAvatarProps {
   imageUrl?: string;
@@ -12,6 +13,7 @@ interface AthleteAvatarProps {
   size?: "xs" | "sm" | "md" | "lg";
   className?: string;
   priority?: boolean;
+  useSimpleFlag?: boolean; // New prop to use simple flag component
 }
 
 const sizeMap = {
@@ -34,6 +36,7 @@ export function AthleteAvatar({
   size = "md",
   className = "",
   priority = false,
+  useSimpleFlag = false, // Default to false
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
   const [flagError, setFlagError] = useState(false);
@@ -47,28 +50,59 @@ export function AthleteAvatar({
 
   // Use flagcdn.com only - best quality and performance
   const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
+  const fallbackFlagSrc = `https://countryflags.io/${validCountryCode}/flat/64.png`;
 
   return (
     <div className="relative">
       {/* Flag Background */}
       {validCountryCode && !flagError && (
         <div className="absolute inset-0 z-0">
-          <Image
-            src={flagSrc}
-            alt={`${validCountryCode} flag`}
-            width={imageSize.desktop}
-            height={imageSize.desktop}
-            className={cn(
-              sizeMap[size],
-              "rounded-full object-cover opacity-100",
-              "absolute inset-0"
-            )}
-            priority={priority}
-            quality={75}
-            sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
-            onError={() => setFlagError(true)}
-            unoptimized={false} // Enable optimization for better mobile performance
-          />
+          {useSimpleFlag ? (
+            <Flag countryCode={validCountryCode} size={size} />
+          ) : (
+            <Image
+              src={flagSrc}
+              alt={`${validCountryCode} flag`}
+              width={imageSize.desktop}
+              height={imageSize.desktop}
+              className={cn(
+                sizeMap[size],
+                "rounded-full object-cover opacity-100",
+                "absolute inset-0"
+              )}
+              priority={priority}
+              quality={75}
+              sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+              onError={() => setFlagError(true)}
+              unoptimized={true} // Disable optimization for SVG flags to avoid payment limits
+            />
+          )}
+        </div>
+      )}
+
+      {/* Fallback Flag if primary fails */}
+      {validCountryCode && flagError && (
+        <div className="absolute inset-0 z-0">
+          {useSimpleFlag ? (
+            <Flag countryCode={validCountryCode} size={size} />
+          ) : (
+            <Image
+              src={fallbackFlagSrc}
+              alt={`${validCountryCode} flag`}
+              width={imageSize.desktop}
+              height={imageSize.desktop}
+              className={cn(
+                sizeMap[size],
+                "rounded-full object-cover opacity-100",
+                "absolute inset-0"
+              )}
+              priority={priority}
+              quality={75}
+              sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+              onError={() => setFlagError(true)}
+              unoptimized={true} // Disable optimization for fallback flags too
+            />
+          )}
         </div>
       )}
 
@@ -90,6 +124,7 @@ export function AthleteAvatar({
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             onError={() => setImageError(true)}
+            unoptimized={false} // Keep optimization for athlete images
           />
         ) : (
           <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
@@ -101,6 +136,7 @@ export function AthleteAvatar({
               priority={priority}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
+              unoptimized={false}
             />
           </div>
         )}

@@ -34,19 +34,17 @@ const config: NextConfig = {
         pathname: "/**",
       },
     ],
-    // Optimize image transformations - use only WebP to reduce transformations
-    formats: ["image/webp"],
-    // Cache images for 31 days to reduce transformations
-    minimumCacheTTL: 2678400, // 31 days cache
+    // More conservative optimization settings to avoid payment limits
+    formats: ["image/webp", "image/avif"],
+    // Increase cache time to reduce transformations
+    minimumCacheTTL: 31536000, // 1 year cache
     // Reduce device sizes to minimize transformations
-    deviceSizes: [640, 1080, 1920],
+    deviceSizes: [640, 1080],
     // Reduce image sizes to minimize transformations
-    imageSizes: [64, 128, 256],
+    imageSizes: [64, 128],
     // Use only one quality setting to reduce transformations
     qualities: [75],
-    // Disable image optimization for better caching
-    unoptimized: false,
-    // Add more aggressive caching
+    // Enable SVG optimization but be conservative
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
