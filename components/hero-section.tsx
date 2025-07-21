@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import NumberTicker from "./ui/number-ticker";
-import { getStats } from "@/server/actions/get-stats";
+import { getLiveStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { Dot } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
@@ -14,21 +14,21 @@ interface StatItem {
 }
 
 interface Stats {
+  totalAthletes: number;
   activeAthletes: number;
-  weightClasses: number;
-  champions: number;
-  events: number;
+  retiredAthletes: number;
+  totalEvents: number;
 }
 
 const createStatsData = (stats: Stats): StatItem[] => [
   {
-    value: stats.activeAthletes,
-    label: "UFC Athletes",
+    value: stats.totalAthletes,
+    label: "Total Athletes",
     icon: <IconTrendingUp className="h-4 w-4 text-green-500" />,
   },
   {
-    value: stats.events,
-    label: "Events",
+    value: stats.totalEvents,
+    label: "Total Events",
     icon: <IconTrendingUp className="h-4 w-4 text-green-500" />,
   },
 ];
@@ -85,7 +85,7 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
 );
 
 export default async function HeroSection() {
-  const stats = await getStats();
+  const stats = await getLiveStats();
   const statsData = createStatsData(stats);
 
   return (

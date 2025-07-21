@@ -2,10 +2,6 @@ import { getRetiredAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
 import { AthletesList } from "@/components/athletes-list";
 
-// Use static rendering with weekly revalidation - same as athletes page
-export const dynamic = "force-static";
-export const revalidate = 604800; // Cache for 1 week (same as athletes page)
-
 export const metadata: Metadata = {
   title: "Retired Athletes",
   description: "Browse all retired UFC fighters and their career statistics",

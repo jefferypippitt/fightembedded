@@ -63,7 +63,6 @@ export const getTop20Athletes = unstable_cache(
   },
   ["top-20-athletes"],
   {
-    revalidate: 604800, // Cache for 1 week
     tags: ["homepage", "rankings"],
   }
 );

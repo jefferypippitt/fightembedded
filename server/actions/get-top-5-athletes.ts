@@ -65,7 +65,6 @@ export const getTop5Athletes = unstable_cache(
   },
   ["top-5-athletes"],
   {
-    revalidate: 604800, // Cache for 1 week
     tags: ["homepage", "rankings"],
   }
 );

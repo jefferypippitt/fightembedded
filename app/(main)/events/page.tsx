@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getAllUpcomingEvents } from "@/server/actions/get-all-events";
+import { getAllUpcomingEvents } from "@/server/actions/get-event";
 import { format } from "date-fns";
 import {
   Table,
@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { unstable_noStore as noStore } from "next/cache";
 
 export const metadata: Metadata = {
   title: "Upcoming Events | Fight Embedded",
@@ -17,9 +16,6 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
-  // Disable caching for this page
-  noStore();
-
   const events = await getAllUpcomingEvents();
 
   return (

@@ -8,9 +8,6 @@ export const metadata: Metadata = {
   description: "Top 5 Ranked Athletes by Follower Count",
 };
 
-export const dynamic = "force-static";
-export const revalidate = 604800;
-
 export default async function DivisionRankingsPage() {
   const divisions = getAllDivisions().map((division) => division.name);
   const divisionRankings = await getTop5Athletes();

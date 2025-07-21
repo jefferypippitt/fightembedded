@@ -1,8 +1,8 @@
-import { getChampions } from "@/server/actions/athlete";
+import { getLiveChampions } from "@/server/actions/athlete";
 import ChampionsSection from "@/components/champions-section";
 
 export default async function ChampionsSectionWrapper() {
-  const { maleChampions, femaleChampions } = await getChampions();
+  const { maleChampions, femaleChampions } = await getLiveChampions();
 
   return (
     <ChampionsSection
@@ -10,4 +10,4 @@ export default async function ChampionsSectionWrapper() {
       femaleChampions={femaleChampions}
     />
   );
-} 
+}

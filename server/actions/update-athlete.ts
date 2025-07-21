@@ -128,18 +128,12 @@ export async function updateAthlete(
 
     // Only revalidate homepage if significant changes occurred that affect homepage sections
     if (rankChanged || p4pRankChanged || retiredStatusChanged) {
-      revalidateTag("homepage");
       revalidateTag("homepage-stats");
     }
 
-    // Only revalidate paths if necessary
+    // Only revalidate paths for dynamic routes that need it
     if (retiredStatusChanged) {
       revalidatePath("/retired");
-    }
-
-    if (rankChanged || p4pRankChanged) {
-      revalidatePath("/rankings/divisions");
-      revalidatePath("/rankings/popularity");
     }
 
     // Always revalidate division pages when any athlete is updated
@@ -169,10 +163,6 @@ export async function updateAthlete(
       const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
       revalidatePath(`/division/${fullSlug}`, "page");
     }
-
-    // Always revalidate dashboard and athletes page
-    revalidatePath("/dashboard/athletes");
-    revalidatePath("/athletes");
 
     return {
       status: "success",

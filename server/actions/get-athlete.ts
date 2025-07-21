@@ -25,7 +25,6 @@ export const getAthletesByDivision = unstable_cache(
   },
   ["athletes-by-division"],
   {
-    revalidate: 3600, // Revalidate every hour
     tags: ["athletes-by-division"],
   }
 );
@@ -44,7 +43,6 @@ export const getAthlete = unstable_cache(
   },
   ["athlete-by-id"],
   {
-    revalidate: 604800, // Cache for 1 week (7 days in seconds)
     tags: ["athlete-by-id"],
   }
 );
@@ -115,7 +113,6 @@ export const getAthletes = unstable_cache(
   },
   ["all-athletes-data", "athletes-page"],
   {
-    revalidate: 604800, // Cache for 1 week (7 days)
     tags: ["athletes", "homepage", "all-athletes-data", "athletes-page"],
   }
 );

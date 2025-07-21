@@ -7,9 +7,6 @@ export const metadata: Metadata = {
   description: "View all active UFC athletes.",
 };
 
-export const dynamic = "force-static";
-export const revalidate = 604800; // 1 week revalidation
-
 export default async function AthletesPage() {
   const athletes = await getAthletes();
 

@@ -47,12 +47,12 @@ export async function createEvent(formData: FormData): Promise<ActionResponse> {
     revalidateTag("events");
     revalidateTag("upcoming-events");
     revalidateTag("upcoming-events-preview");
+    revalidateTag("all-upcoming-events");
+    revalidateTag("events-page");
     revalidateTag("homepage");
     revalidateTag("homepage-stats");
 
-    // Revalidate events pages
-    revalidatePath("/events");
-    revalidatePath("/dashboard/events");
+    // Revalidate homepage (since events affect homepage stats)
     revalidatePath("/");
     revalidateEvents();
 

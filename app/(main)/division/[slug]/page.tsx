@@ -4,9 +4,6 @@ import { getDivisionAthletes } from "@/server/actions/athlete";
 import { AthletesSearch } from "@/components/athletes-search";
 import { getAllDivisions, getDivisionBySlug } from "@/data/weight-class";
 
-export const dynamic = "force-static";
-export const revalidate = 604800; // 1 week revalidation
-
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;
 }

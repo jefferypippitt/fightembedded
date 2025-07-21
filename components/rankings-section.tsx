@@ -1,8 +1,8 @@
-import { getP4PRankings } from "@/server/actions/get-p4p";
+import { getLiveP4PRankings } from "@/server/actions/get-p4p";
 import { P4PRankings } from "@/components/p4p-rankings";
 
 export default async function RankingsSectionWrapper() {
-  const { maleP4PRankings, femaleP4PRankings } = await getP4PRankings();
+  const { maleP4PRankings, femaleP4PRankings } = await getLiveP4PRankings();
 
   return (
     <P4PRankings
@@ -10,4 +10,4 @@ export default async function RankingsSectionWrapper() {
       femaleP4PRankings={femaleP4PRankings}
     />
   );
-} 
+}

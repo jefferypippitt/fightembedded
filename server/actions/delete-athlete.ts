@@ -62,18 +62,12 @@ export async function deleteAthlete(id: string) {
 
   // Only revalidate homepage if athlete affects homepage sections
   if (athlete.rank === 1 || athlete.poundForPoundRank > 0) {
-    revalidateTag("homepage");
     revalidateTag("homepage-stats");
   }
 
-  // Revalidate paths
-  revalidatePath("/athletes");
+  // Revalidate paths for dynamic routes that need it
   if (athlete.retired) {
     revalidatePath("/retired");
-  }
-  if (athlete.rank === 1 || athlete.poundForPoundRank > 0) {
-    revalidatePath("/rankings/divisions");
-    revalidatePath("/rankings/popularity");
   }
   // Revalidate the specific division path
   const isWomen = athlete.weightDivision.startsWith("Women's");
@@ -84,7 +78,6 @@ export async function deleteAthlete(id: string) {
   const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
   const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
   revalidatePath(`/division/${fullSlug}`, "page");
-  revalidatePath("/dashboard/athletes");
 
   return true;
 }

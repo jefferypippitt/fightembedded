@@ -103,18 +103,12 @@ export async function createAthlete(
 
     // Only revalidate homepage if athlete affects homepage sections
     if (isChampion || hasP4PRank) {
-      revalidateTag("homepage");
       revalidateTag("homepage-stats");
     }
 
-    // Revalidate paths
-    revalidatePath("/athletes");
+    // Revalidate paths (only for dynamic routes that need it)
     if (isRetired) {
       revalidatePath("/retired");
-    }
-    if (isChampion || hasP4PRank) {
-      revalidatePath("/rankings/divisions");
-      revalidatePath("/rankings/popularity");
     }
     // Revalidate the specific division path
     const isWomen = validatedData.weightDivision.startsWith("Women's");
@@ -125,7 +119,6 @@ export async function createAthlete(
     const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
     const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
     revalidatePath(`/division/${fullSlug}`, "page");
-    revalidatePath("/dashboard/athletes");
 
     return {
       status: "success",

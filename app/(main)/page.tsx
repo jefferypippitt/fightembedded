@@ -4,9 +4,6 @@ import ChampionsSectionWrapper from "@/components/champions-section-wrapper";
 import EventsSectionWrapper from "@/components/events-section";
 import RankingsSectionWrapper from "@/components/rankings-section";
 
-export const dynamic = "force-static";
-export const revalidate = 604800; // 1 week
-
 export const metadata: Metadata = {
   title: "FightEmbedded - UFC Athletes & Events",
   description: "Explore UFC athletes stats, rankings, and more in one place.",

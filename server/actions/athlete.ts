@@ -5,8 +5,7 @@ import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 import type { Athlete } from "@/types/athlete";
 import { Athlete as PrismaAthlete } from "@prisma/client";
 
-// Cache duration constants
-const CACHE_DURATION = 604800; // 1 week in seconds
+// Cache tags constants
 const CACHE_TAGS = {
   ATHLETES: "athletes",
   DIVISIONS: "divisions",
@@ -105,7 +104,6 @@ export const queryAthletes = unstable_cache(
   },
   ["athletes-query"],
   {
-    revalidate: 604800, // Cache for a week
     tags: ["athletes", "homepage"],
   }
 );
@@ -129,7 +127,6 @@ export const getAthletes = unstable_cache(
   },
   ["all-athletes"],
   {
-    revalidate: CACHE_DURATION,
     tags: [CACHE_TAGS.ATHLETES, CACHE_TAGS.HOMEPAGE],
   }
 );
@@ -152,7 +149,6 @@ export const getRetiredAthletes = unstable_cache(
   },
   ["retired-athletes-data", "retired-page"],
   {
-    revalidate: 2592000, // Cache for 1 month (30 days) - retired athletes rarely change
     tags: [
       CACHE_TAGS.ATHLETES,
       "retired-athletes",
@@ -172,7 +168,6 @@ export const getTopAthletes = unstable_cache(
   },
   ["top-athletes"],
   {
-    revalidate: CACHE_DURATION,
     tags: [CACHE_TAGS.ATHLETES, "top-athletes"],
   }
 );
@@ -236,7 +231,6 @@ export const getDivisionAthletes = unstable_cache(
   },
   ["division-athletes"],
   {
-    revalidate: CACHE_DURATION,
     tags: [
       CACHE_TAGS.ATHLETES,
       CACHE_TAGS.DIVISIONS,
@@ -264,7 +258,6 @@ export const getUndefeatedAthletes = unstable_cache(
   },
   ["undefeated-athletes"],
   {
-    revalidate: 3600, // Revalidate every hour
     tags: [CACHE_TAGS.ATHLETES, "undefeated-athletes"],
   }
 );
@@ -331,7 +324,6 @@ export const getChampions = unstable_cache(
   },
   ["champions-data", "homepage-champions"],
   {
-    revalidate: 604800, // Cache for 1 week (7 days)
     tags: [
       CACHE_TAGS.ATHLETES,
       CACHE_TAGS.HOMEPAGE,
@@ -341,6 +333,52 @@ export const getChampions = unstable_cache(
     ], // More specific tags to avoid conflicts
   }
 );
+
+// Live champions function for homepage
+export const getLiveChampions = async () => {
+  // Disable caching to ensure fresh data
+  noStore();
+
+  const champions = await prisma.athlete.findMany({
+    where: {
+      rank: 1, // Only get rank 1 athletes (champions)
+    },
+    select: athleteSelect,
+  });
+
+  const maleChampions = champions
+    .filter((champion) => champion.gender === "MALE")
+    .sort((a, b) => {
+      const weightA = divisionWeights.get(a.weightDivision) ?? 999;
+      const weightB = divisionWeights.get(b.weightDivision) ?? 999;
+
+      // If both divisions are unknown, sort alphabetically
+      if (weightA === 999 && weightB === 999) {
+        return a.weightDivision.localeCompare(b.weightDivision);
+      }
+
+      return weightB - weightA; // Sort heaviest to lightest
+    });
+
+  const femaleChampions = champions
+    .filter((champion) => champion.gender === "FEMALE")
+    .sort((a, b) => {
+      const weightA = divisionWeights.get(a.weightDivision) ?? 999;
+      const weightB = divisionWeights.get(b.weightDivision) ?? 999;
+
+      // If both divisions are unknown, sort alphabetically
+      if (weightA === 999 && weightB === 999) {
+        return a.weightDivision.localeCompare(b.weightDivision);
+      }
+
+      return weightB - weightA; // Sort heaviest to lightest
+    });
+
+  return {
+    maleChampions,
+    femaleChampions,
+  };
+};
 
 // Dashboard-specific functions that don't use caching
 export async function getAthletesForDashboard() {
