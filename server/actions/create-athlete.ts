@@ -116,10 +116,15 @@ export async function createAthlete(
       revalidatePath("/rankings/divisions");
       revalidatePath("/rankings/popularity");
     }
-    revalidatePath(
-      `/division/${encodeURIComponent(validatedData.weightDivision)}`,
-      "page"
+    // Revalidate the specific division path
+    const isWomen = validatedData.weightDivision.startsWith("Women's");
+    const divisionName = validatedData.weightDivision.replace(
+      /^(Women's|Men's)\s+/,
+      ""
     );
+    const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
+    const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
+    revalidatePath(`/division/${fullSlug}`, "page");
     revalidatePath("/dashboard/athletes");
 
     return {

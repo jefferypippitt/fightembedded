@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   description: "View all active UFC athletes.",
 };
 
-// Use static rendering with weekly revalidation - following Next.js best practices
 export const dynamic = "force-static";
 export const revalidate = 604800; // 1 week revalidation
 

@@ -4,9 +4,8 @@ import { getDivisionAthletes } from "@/server/actions/athlete";
 import { AthletesSearch } from "@/components/athletes-search";
 import { getAllDivisions, getDivisionBySlug } from "@/data/weight-class";
 
-// Use static rendering for division pages - following Next.js best practices
 export const dynamic = "force-static";
-export const revalidate = 604800; // Cache for a week
+export const revalidate = 604800; // 1 week revalidation
 
 interface GenerateMetadataProps {
   params: Promise<{ slug: string }>;

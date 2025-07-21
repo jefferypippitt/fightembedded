@@ -4,7 +4,6 @@ import ChampionsSectionWrapper from "@/components/champions-section-wrapper";
 import EventsSectionWrapper from "@/components/events-section";
 import RankingsSectionWrapper from "@/components/rankings-section";
 
-// Static rendering with 1-week caching - following Next.js best practices
 export const dynamic = "force-static";
 export const revalidate = 604800; // 1 week
 

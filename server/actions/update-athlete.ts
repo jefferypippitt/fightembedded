@@ -92,17 +92,16 @@ export async function updateAthlete(
     revalidateTag("all-athletes");
     revalidateTag("athlete-by-id");
     revalidateTag("athletes-by-division");
+    revalidateTag("division-athletes"); // Always revalidate division athletes cache
 
     // Only revalidate image-related caches if image actually changed
     if (imageChanged) {
       revalidateTag("athlete-images");
-      console.log("🖼️ Image changed - revalidating image caches");
     }
 
-    // Only revalidate division caches if division changed
+    // Division change handling
     if (divisionChanged) {
-      revalidateTag("division-athletes");
-      console.log("🏆 Division changed - revalidating division caches");
+      // Division changed - additional handling if needed
     }
 
     // Only revalidate specific caches based on what changed
@@ -143,8 +142,32 @@ export async function updateAthlete(
       revalidatePath("/rankings/popularity");
     }
 
-    if (divisionChanged) {
-      revalidatePath("/division/[slug]", "page");
+    // Always revalidate division pages when any athlete is updated
+    revalidatePath("/division/[slug]", "page");
+
+    // Also revalidate the specific division path if we know the division
+    if (currentAthlete?.weightDivision) {
+      // Convert division name to proper slug format
+      const isWomen = currentAthlete.weightDivision.startsWith("Women's");
+      const divisionName = currentAthlete.weightDivision.replace(
+        /^(Women's|Men's)\s+/,
+        ""
+      );
+      const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
+      const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
+      revalidatePath(`/division/${fullSlug}`, "page");
+    }
+
+    // If division changed, also revalidate the new division path
+    if (divisionChanged && finalData.weightDivision) {
+      const isWomen = finalData.weightDivision.startsWith("Women's");
+      const divisionName = finalData.weightDivision.replace(
+        /^(Women's|Men's)\s+/,
+        ""
+      );
+      const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
+      const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
+      revalidatePath(`/division/${fullSlug}`, "page");
     }
 
     // Always revalidate dashboard and athletes page
@@ -194,6 +217,12 @@ export async function updateAthleteStatus(
   retired: boolean
 ): Promise<Athlete> {
   try {
+    // Get athlete data before update to know the division
+    const currentAthlete = await prisma.athlete.findUnique({
+      where: { id: athleteId },
+      select: { weightDivision: true },
+    });
+
     const updatedAthlete = await prisma.athlete.update({
       where: { id: athleteId },
       data: { retired },
@@ -203,11 +232,24 @@ export async function updateAthleteStatus(
     revalidateTag("all-athletes");
     revalidateTag("athlete-by-id");
     revalidateTag("retired-athletes");
+    revalidateTag("division-athletes"); // Always revalidate division athletes cache
 
     // Revalidate paths
     revalidatePath("/retired");
     revalidatePath("/athletes");
     revalidatePath(`/athlete/${athleteId}`);
+
+    // Revalidate division page if we know the division
+    if (currentAthlete?.weightDivision) {
+      const isWomen = currentAthlete.weightDivision.startsWith("Women's");
+      const divisionName = currentAthlete.weightDivision.replace(
+        /^(Women's|Men's)\s+/,
+        ""
+      );
+      const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
+      const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
+      revalidatePath(`/division/${fullSlug}`, "page");
+    }
 
     return updatedAthlete as Athlete;
   } catch (error) {

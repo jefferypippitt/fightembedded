@@ -75,10 +75,15 @@ export async function deleteAthlete(id: string) {
     revalidatePath("/rankings/divisions");
     revalidatePath("/rankings/popularity");
   }
-  revalidatePath(
-    `/division/${encodeURIComponent(athlete.weightDivision)}`,
-    "page"
+  // Revalidate the specific division path
+  const isWomen = athlete.weightDivision.startsWith("Women's");
+  const divisionName = athlete.weightDivision.replace(
+    /^(Women's|Men's)\s+/,
+    ""
   );
+  const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
+  const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
+  revalidatePath(`/division/${fullSlug}`, "page");
   revalidatePath("/dashboard/athletes");
 
   return true;
