@@ -198,7 +198,7 @@ function AthleteListCardComponent({
             <h3 className="font-semibold text-sm text-foreground leading-tight">
               {name}
             </h3>
-            <h4 className="text-[10px] font-medium text-muted-foreground leading-tight font-mono">
+            <h4 className="text-[11px] font-semibold text-foreground leading-tight font-mono mt-1">
               {record}
             </h4>
           </div>

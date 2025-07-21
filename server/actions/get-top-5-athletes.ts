@@ -18,7 +18,11 @@ export const getTop5Athletes = unstable_cache(
     try {
       const divisions = await prisma.athlete.findMany({
         where: {
-          AND: [{ rank: { gt: 0 } }, { rank: { lte: 5 } }],
+          AND: [
+            { rank: { gt: 0 } },
+            { rank: { lte: 5 } },
+            { retired: false }, // Only active athletes
+          ],
         },
         distinct: ["weightDivision"],
         select: {
@@ -28,9 +32,27 @@ export const getTop5Athletes = unstable_cache(
 
       const rankings = await Promise.all(
         divisions.map(async ({ weightDivision }) => {
+          // Group all female divisions under "Women's X" and include both 'X' and 'Women's X' athletes
+          const femaleDivisions = ["Bantamweight", "Flyweight", "Strawweight"];
+          const isFemaleDivision = femaleDivisions.some(
+            (d) => weightDivision === d || weightDivision === `Women's ${d}`
+          );
+          let divisionKey = weightDivision;
+          let divisionWhere: Record<string, unknown> = { weightDivision };
+          if (isFemaleDivision) {
+            const base = weightDivision.replace("Women's ", "");
+            divisionKey = `Women's ${base}`;
+            divisionWhere = {
+              OR: [
+                { weightDivision: base },
+                { weightDivision: `Women's ${base}` },
+              ],
+            };
+          }
+
           const athletes = await prisma.athlete.findMany({
             where: {
-              weightDivision,
+              ...divisionWhere,
               AND: [
                 { rank: { gt: 0 } },
                 { rank: { lte: 5 } },
@@ -50,7 +72,7 @@ export const getTop5Athletes = unstable_cache(
           });
 
           return {
-            division: weightDivision,
+            division: divisionKey,
             athletes,
           };
         })

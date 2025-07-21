@@ -17,24 +17,26 @@ export default function EventCard({
   mainEvent,
 }: EventCardProps) {
   return (
-    <Card className="@container/card w-[340px] h-32 px-4 py-2">
+    <Card className="@container/card w-[340px] h-32 px-2 py-2">
       <CardHeader className="p-0 pb-1">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-base font-medium line-clamp-1">
-            {name}
-          </CardTitle>
-          <Badge variant="date" className="font-mono">
-            {format(date, "MMM d, yyyy")}
-          </Badge>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-base font-medium line-clamp-1">
+              {name}
+            </CardTitle>
+            <Badge variant="date" className="font-mono">
+              {format(date, "MMM d, yyyy")}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mt-4">
+            <MapPin className="h-4 w-4" />
+            <span className="truncate leading-tight">
+              {venue}, {location}
+            </span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0 flex flex-col gap-1.5">
-        <div className="flex items-center gap-1 text-[12px] text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          <span className="truncate">
-            {venue}, {location}
-          </span>
-        </div>
         <div className="flex items-center gap-2">
           <Badge
             variant="mainEvent"

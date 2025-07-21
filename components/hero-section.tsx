@@ -42,7 +42,7 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
       />
       {stat.icon && stat.icon}
     </div>
-    <span className="text-xs xs:text-sm sm:text-base font-medium text-gray-600 dark:text-gray-400">
+    <span className="text-xs xs:text-sm sm:text-base font-medium">
       {stat.label}
     </span>
   </div>

@@ -41,15 +41,15 @@ const FighterCard = React.memo(
         priority={isPriority}
       />
       <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <p className="text-xs font-medium leading-tight">{fighter.name}</p>
-        <div className="text-[10px] text-muted-foreground font-mono">
+        <p className="text-xs font-medium leading-tight mb-1">{fighter.name}</p>
+        <div className="text-xs font-mono font-semibold tracking-tight text-muted-foreground flex gap-1">
           <span className="text-green-500">{fighter.wins}</span>
           <span>-</span>
           <span className="text-red-500">{fighter.losses}</span>
           {fighter.draws > 0 && (
             <>
               <span>-</span>
-              <span className="text-gray-500">{fighter.draws}</span>
+              <span className="text-yellow-500">{fighter.draws}</span>
             </>
           )}
         </div>

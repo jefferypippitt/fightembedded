@@ -60,6 +60,7 @@ export async function updateAthlete(
         retired: true,
         losses: true,
         weightDivision: true,
+        followers: true,
       },
     });
 
@@ -93,6 +94,10 @@ export async function updateAthlete(
     revalidateTag("athlete-by-id");
     revalidateTag("athletes-by-division");
     revalidateTag("division-athletes"); // Always revalidate division athletes cache
+    revalidateTag("top-20-athletes"); // Always revalidate popularity chart
+    revalidateTag("top-5-athletes"); // Always revalidate top 5 athletes chart
+    revalidateTag("athletes-page"); // Ensure dashboard and main athletes page are up to date
+    revalidateTag("all-athletes-data"); // Ensure all cached athlete data is up to date
 
     // Only revalidate image-related caches if image actually changed
     if (imageChanged) {

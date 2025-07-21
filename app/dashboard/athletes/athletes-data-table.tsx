@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { Table as TableType, Row as RowType } from "@tanstack/react-table";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -65,24 +66,13 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 // Helper component for the rank and name cell
 const RankAndNameCell = ({
   athlete,
-  table,
   activeView,
+  table,
 }: {
   athlete: Athlete;
-  table: ReturnType<typeof useReactTable<Athlete>>;
   activeView: string;
+  table: TableType<Athlete>;
 }) => {
-  // Get the current filtered and sorted data
-  const filteredRows = table.getFilteredRowModel().rows;
-
-  // Find the athlete's position in the current filtered view
-  const athleteIndex = filteredRows.findIndex(
-    (filteredRow) => filteredRow.original.id === athlete.id
-  );
-
-  // Calculate the rank within the filtered view (1-based index)
-  const rankInFilteredView = athleteIndex >= 0 ? athleteIndex + 1 : null;
-
   // Check if the athlete has a valid rank in the database
   const hasValidRank =
     athlete.rank !== null &&
@@ -90,15 +80,19 @@ const RankAndNameCell = ({
     athlete.rank > 0 &&
     !athlete.retired;
 
-  // For champions, undefeated, retired views, show the actual rank
-  // For other views, show the position in the filtered view
-  const displayRank = (() => {
-    return activeView === "champions" ||
-      activeView === "undefeated" ||
-      activeView === "retired"
-      ? athlete.rank
-      : rankInFilteredView;
-  })();
+  // For all views except 'athletes', show the actual database rank (athlete.rank)
+  // For 'athletes' view, show the row index (1-based) in the filtered/sorted table
+  let displayRank: number | null = null;
+  if (activeView === "athletes") {
+    // Find the athlete's position in the current filtered/sorted table
+    const tableRows = table.getSortedRowModel().rows;
+    const rowIndex = tableRows.findIndex(
+      (row: RowType<Athlete>) => row.original.id === athlete.id
+    );
+    displayRank = rowIndex !== -1 ? rowIndex + 1 : null;
+  } else if (hasValidRank) {
+    displayRank = typeof athlete.rank === "number" ? athlete.rank : null;
+  }
 
   return (
     <div className="flex items-center gap-2">
@@ -119,8 +113,7 @@ const RankAndNameCell = ({
             NR
           </Badge>
         )
-      ) : // For other views, use regular rank validation
-      hasValidRank ? (
+      ) : displayRank !== null ? (
         <Badge
           variant="outline"
           className="min-w-8 h-6 flex items-center justify-center px-1"
@@ -282,12 +275,18 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         </Button>
       );
     },
-    cell: ({ row, table }) => {
+    cell: ({
+      row,
+      table,
+    }: {
+      row: RowType<Athlete>;
+      table: TableType<Athlete>;
+    }) => {
       return (
         <RankAndNameCell
           athlete={row.original}
-          table={table}
           activeView={activeView}
+          table={table}
         />
       );
     },
@@ -296,21 +295,21 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
       if (rowA.original.retired && !rowB.original.retired) return 1;
       if (!rowA.original.retired && rowB.original.retired) return -1;
 
-      // Handle null/undefined ranks
-      const rankA = rowA.original.rank ?? 0;
-      const rankB = rowB.original.rank ?? 0;
+      // Always put unranked P4P athletes (rank 0, null, undefined) after ranked athletes
+      const p4pRankA = rowA.original.poundForPoundRank ?? 0;
+      const p4pRankB = rowB.original.poundForPoundRank ?? 0;
+      const isRankedA = p4pRankA > 0 && p4pRankA <= 15;
+      const isRankedB = p4pRankB > 0 && p4pRankB <= 15;
+      if (isRankedA && !isRankedB) return -1;
+      if (!isRankedA && isRankedB) return 1;
 
-      // If both are unranked (rank 0 or null), sort by name
-      if (rankA === 0 && rankB === 0) {
+      // If both are unranked, sort by name
+      if (!isRankedA && !isRankedB) {
         return rowA.original.name.localeCompare(rowB.original.name);
       }
 
-      // If only one is unranked, put the ranked one first
-      if (rankA === 0) return 1;
-      if (rankB === 0) return -1;
-
-      // Both are ranked, sort by rank
-      return rankA - rankB;
+      // Both are ranked, sort by P4P rank
+      return p4pRankA - p4pRankB;
     },
     filterFn: (row, id, filterValue: string) => {
       return row.original.name

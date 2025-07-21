@@ -19,8 +19,11 @@ export const getTop20Athletes = unstable_cache(
       // Fetch top 20 male athletes
       const maleAthletes = await prisma.athlete.findMany({
         where: {
-          gender: "MALE",
-          retired: false,
+          AND: [
+            { gender: "MALE" },
+            { retired: false },
+            { followers: { gt: 0 } },
+          ],
         },
         orderBy: {
           followers: "desc",
@@ -37,8 +40,11 @@ export const getTop20Athletes = unstable_cache(
       // Fetch top 20 female athletes
       const femaleAthletes = await prisma.athlete.findMany({
         where: {
-          gender: "FEMALE",
-          retired: false,
+          AND: [
+            { gender: "FEMALE" },
+            { retired: false },
+            { followers: { gt: 0 } },
+          ],
         },
         orderBy: {
           followers: "desc",

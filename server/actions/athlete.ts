@@ -157,7 +157,8 @@ export const getRetiredAthletes = unstable_cache(
         select: athleteSelect,
       });
 
-      return sortAthletes(athletes).map(transformAthlete);
+      // No need to call sortAthletes here; just transform and return
+      return athletes.map(transformAthlete);
     } catch {
       throw new Error("Failed to query retired athletes");
     }
@@ -397,7 +398,12 @@ export const getLiveChampions = async () => {
 // Dashboard-specific functions that don't use caching
 export async function getAthletesForDashboard() {
   noStore(); // Disable caching for dashboard
-  return getAthletes();
+  // Only return active athletes
+  return prisma.athlete.findMany({
+    where: { retired: false },
+    orderBy: [{ rank: "asc" }, { name: "asc" }],
+    select: athleteSelect,
+  });
 }
 
 export async function getRetiredAthletesForDashboard() {
