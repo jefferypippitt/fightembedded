@@ -38,10 +38,25 @@ const athleteSelect = {
 // Helper function to sort athletes
 const sortAthletes = (athletes: PrismaAthlete[]) => {
   return athletes.sort((a, b) => {
-    if (a.rank === 0 && b.rank !== 0) return 1;
-    if (a.rank !== 0 && b.rank === 0) return -1;
-    if (a.rank === b.rank) return a.name.localeCompare(b.name);
-    return a.rank - b.rank;
+    // Handle retired athletes - they should be at the bottom
+    if (a.retired && !b.retired) return 1;
+    if (!a.retired && b.retired) return -1;
+
+    // Handle null/undefined ranks
+    const rankA = a.rank ?? 0;
+    const rankB = b.rank ?? 0;
+
+    // If both are unranked (rank 0 or null), sort by name
+    if (rankA === 0 && rankB === 0) {
+      return a.name.localeCompare(b.name);
+    }
+
+    // If only one is unranked, put the ranked one first
+    if (rankA === 0) return 1;
+    if (rankB === 0) return -1;
+
+    // Both are ranked, sort by rank
+    return rankA - rankB;
   });
 };
 
@@ -142,7 +157,7 @@ export const getRetiredAthletes = unstable_cache(
         select: athleteSelect,
       });
 
-      return athletes.map(transformAthlete);
+      return sortAthletes(athletes).map(transformAthlete);
     } catch {
       throw new Error("Failed to query retired athletes");
     }
@@ -247,11 +262,10 @@ export const getUndefeatedAthletes = unstable_cache(
           losses: 0,
           retired: false,
         },
-        orderBy: {
-          wins: "desc",
-        },
+        orderBy: [{ wins: "desc" }, { name: "asc" }],
+        select: athleteSelect,
       });
-      return athletes;
+      return sortAthletes(athletes).map(transformAthlete);
     } catch {
       throw new Error("Failed to fetch undefeated athletes");
     }
@@ -394,4 +408,65 @@ export async function getRetiredAthletesForDashboard() {
 export async function getUndefeatedAthletesForDashboard() {
   noStore(); // Disable caching for dashboard
   return getUndefeatedAthletes();
+}
+
+export async function getChampionsForDashboard() {
+  noStore(); // Disable caching for dashboard
+  try {
+    const athletes = await prisma.athlete.findMany({
+      where: {
+        rank: 1,
+        retired: false,
+      },
+      orderBy: [{ weightDivision: "asc" }, { name: "asc" }],
+      select: athleteSelect,
+    });
+    return sortAthletes(athletes).map(transformAthlete);
+  } catch {
+    throw new Error("Failed to fetch champions");
+  }
+}
+
+// P4P-specific sorting function
+const sortP4PAthletes = (athletes: PrismaAthlete[]) => {
+  return athletes.sort((a, b) => {
+    // Handle retired athletes - they should be at the bottom
+    if (a.retired && !b.retired) return 1;
+    if (!a.retired && b.retired) return -1;
+
+    // Handle null/undefined P4P ranks
+    const p4pRankA = a.poundForPoundRank ?? 0;
+    const p4pRankB = b.poundForPoundRank ?? 0;
+
+    // If both are unranked in P4P (rank 0 or null), sort by name
+    if (p4pRankA === 0 && p4pRankB === 0) {
+      return a.name.localeCompare(b.name);
+    }
+
+    // If only one is unranked in P4P, put the ranked one first
+    if (p4pRankA === 0) return 1;
+    if (p4pRankB === 0) return -1;
+
+    // Both are ranked in P4P, sort by P4P rank
+    return p4pRankA - p4pRankB;
+  });
+};
+
+export async function getP4PForDashboard() {
+  noStore(); // Disable caching for dashboard
+  try {
+    const athletes = await prisma.athlete.findMany({
+      where: {
+        poundForPoundRank: {
+          gt: 0,
+        },
+        retired: false,
+      },
+      orderBy: [{ poundForPoundRank: "asc" }, { name: "asc" }],
+      select: athleteSelect,
+    });
+    return sortP4PAthletes(athletes).map(transformAthlete);
+  } catch {
+    throw new Error("Failed to fetch P4P athletes");
+  }
 }
