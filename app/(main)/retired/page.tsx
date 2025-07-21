@@ -34,7 +34,11 @@ export default async function RetiredPage() {
           Retired Athletes
         </h1>
       </div>
-      <AthletesList athletes={athletes} emptyMessage="No retired athletes found." />
+      <AthletesList
+        athletes={athletes}
+        emptyMessage="No retired athletes found."
+        disableCursor={true}
+      />
     </div>
   );
 }

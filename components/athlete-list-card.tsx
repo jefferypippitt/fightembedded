@@ -134,7 +134,7 @@ function AthleteListCardComponent({
         "hover:border-primary/20 dark:hover:border-primary/20",
         "p-3",
         !disableCursor && "cursor-pointer",
-        isSelected && "ring-1 ring-green-500/60"
+        isSelected && "ring-1 ring-primary/60"
       )}
       onClick={onSelect}
     >
@@ -159,15 +159,15 @@ function AthleteListCardComponent({
             </div>
           ) : rank ? (
             <Badge
-              variant="secondary"
-              className="text-[10px] py-0 px-2 font-medium bg-primary/10 text-primary hover:bg-primary/20"
+              variant="outline"
+              className="text-[10px] py-0 px-2 font-medium font-mono"
             >
               #{rank}
             </Badge>
           ) : (
             <Badge
-              variant="secondary"
-              className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80"
+              variant="outline"
+              className="text-[10px] py-0 px-2 font-medium font-mono"
             >
               Not Ranked
             </Badge>
@@ -177,7 +177,7 @@ function AthleteListCardComponent({
               variant="secondary"
               className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80"
             >
-              Age: {age}
+              Age: <span className="font-mono">{age}</span>
             </Badge>
           )}
         </div>
@@ -198,7 +198,7 @@ function AthleteListCardComponent({
             <h3 className="font-semibold text-sm text-foreground leading-tight">
               {name}
             </h3>
-            <h4 className="text-[10px] font-medium text-muted-foreground leading-tight">
+            <h4 className="text-[10px] font-medium text-muted-foreground leading-tight font-mono">
               {record}
             </h4>
           </div>
@@ -211,7 +211,7 @@ function AthleteListCardComponent({
               variant={getDivisionVariant(weightDivision)}
               className="text-[10px] py-0 px-2 font-medium"
             >
-              {weightDivision}
+              {weightDivision.replace(/^(Men's|Women's)\s+/, "")}
             </Badge>
           </div>
         )}
@@ -220,7 +220,7 @@ function AthleteListCardComponent({
         <div className="space-y-2">
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Win Rate</span>
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground font-mono">
               {winRate.toFixed(1)}%
             </span>
           </div>
@@ -231,7 +231,7 @@ function AthleteListCardComponent({
 
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>KO/TKO</span>
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground font-mono">
               {koRate.toFixed(1)}%
             </span>
           </div>
@@ -242,7 +242,7 @@ function AthleteListCardComponent({
 
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Submission</span>
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground font-mono">
               {submissionRate.toFixed(1)}%
             </span>
           </div>
@@ -260,7 +260,7 @@ function AthleteListCardComponent({
           </div>
           <div className="flex items-center gap-1">
             <span className="text-muted-foreground">Followers:</span>
-            <span className="font-medium text-foreground">
+            <span className="font-medium text-foreground font-mono">
               {followers.toLocaleString()}
             </span>
           </div>

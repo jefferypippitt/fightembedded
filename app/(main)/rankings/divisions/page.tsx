@@ -19,7 +19,7 @@ export default async function DivisionRankingsPage() {
     <div className="space-y-4">
       <div className="flex justify-center">
         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
-          Top 5 Ranked Athletes by Follower Count
+          Top 5 Ranked Athletes
         </h1>
       </div>
       <DivisionCharts

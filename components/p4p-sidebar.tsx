@@ -30,8 +30,8 @@ const FighterCard = React.memo(
     fighter: Fighter;
     isPriority?: boolean;
   }) => (
-    <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-colors border h-16">
-      <span className="px-2.5 text-xs font-medium min-w-[2rem]">
+    <li className="flex items-center space-x-2 p-2 hover:bg-accent/50 transition-all duration-300 border h-16 rounded-lg shadow-xs hover:shadow-sm">
+      <span className="px-2.5 text-xs min-w-[2rem] font-mono">
         {fighter.poundForPoundRank}.
       </span>
       <AthleteAvatar
@@ -42,14 +42,14 @@ const FighterCard = React.memo(
       />
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <p className="text-xs font-medium leading-tight">{fighter.name}</p>
-        <div className="text-[10px] text-muted-foreground">
+        <div className="text-[10px] text-muted-foreground font-mono">
           <span className="text-green-500">{fighter.wins}</span>
           <span>-</span>
           <span className="text-red-500">{fighter.losses}</span>
           {fighter.draws > 0 && (
             <>
               <span>-</span>
-              <span className="text-amber-500">{fighter.draws}</span>
+              <span className="text-gray-500">{fighter.draws}</span>
             </>
           )}
         </div>
@@ -65,14 +65,14 @@ export function P4PSidebarClient({
   femaleP4PRankings,
 }: P4PSidebarProps) {
   return (
-    <Card className="@container/card p-0">
+    <Card className="p-0">
       <Tabs defaultValue="male">
         <TabsList className="w-full bg-card border-b">
           <TabsTrigger value="male">Male</TabsTrigger>
           <TabsTrigger value="female">Female</TabsTrigger>
         </TabsList>
 
-        <CardTitle className=" text-center p-4 border-b font-mono">
+        <CardTitle className=" text-center p-4 border-b">
           Pound For Pound Rankings
         </CardTitle>
 

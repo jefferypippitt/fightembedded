@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDivisionAthletes } from "@/server/actions/athlete";
 import { AthletesSearch } from "@/components/athletes-search";
-import { getAllDivisions } from "@/data/weight-class";
+import { getAllDivisions, getDivisionBySlug } from "@/data/weight-class";
 
 // Use static rendering for division pages - following Next.js best practices
 export const dynamic = "force-static";
@@ -52,12 +52,20 @@ export default async function DivisionPage({ params }: PageProps) {
   const divisionData = await getDivisionAthletes(slug);
   if (!divisionData) return notFound();
 
+  // Get division weight information
+  const divisionInfo = getDivisionBySlug(slug);
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center space-y-2">
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
           {divisionData.name} Division
         </h1>
+        {divisionInfo?.weight && (
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium font-mono">
+            {divisionInfo.weight} lbs
+          </p>
+        )}
       </div>
 
       <AthletesSearch athletes={divisionData.athletes} />

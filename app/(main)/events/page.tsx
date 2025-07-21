@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { unstable_noStore as noStore } from "next/cache";
 
 export const metadata: Metadata = {
@@ -36,7 +35,7 @@ export default async function EventsPage() {
         </div>
       ) : (
         <div className="max-w-7xl mx-auto">
-          <div className="bg-background overflow-hidden rounded-md border">
+          <div className="overflow-hidden rounded-md border shadow-xs">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50 *:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
@@ -50,31 +49,27 @@ export default async function EventsPage() {
                 {events.map((event) => (
                   <TableRow
                     key={event.id}
-                    className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r"
+                    className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r odd:bg-muted/30"
                   >
-                    <TableCell className="py-2 font-medium">
-                      <Badge variant="eventDate">{event.name}</Badge>
+                    <TableCell className="py-2">
+                      <span className="font-semibold text-primary">
+                        {event.name}
+                      </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <Badge variant="coMainEvent">
+                      <span className="text-sm font-mono text-sky-600 dark:text-sky-400">
                         {format(new Date(event.date), "MMM d, yyyy")}
-                      </Badge>
+                      </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <div className="flex items-center">
-                        <span>
-                          <Badge variant="outline">
-                            {event.venue}, {event.location}
-                          </Badge>
-                        </span>
-                      </div>
+                      <span className="text-sm">
+                        {event.venue}, {event.location}
+                      </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <div className="flex items-center gap-2">
-                        <p className="text-gray-700 dark:text-gray-100">
-                          <Badge variant="mainEvent">{event.mainEvent}</Badge>
-                        </p>
-                      </div>
+                      <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                        {event.mainEvent}
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))}

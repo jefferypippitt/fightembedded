@@ -1,17 +1,21 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
-  IconChartBar,
-  IconDatabase,
-  IconListDetails,
-  IconReport,
+  IconCalendar,
+  IconCalendarCog,
+  IconCalendarWeek,
+  IconDashboard,
+  IconHome,
+  IconSelector,
+  IconUserPlus,
+  IconUserShield,
+} from "@tabler/icons-react";
 
-} from "@tabler/icons-react"
-
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { NavManagement } from "./nav-management"
+import Link from "next/link";
+import { NavMain } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { NavManagement } from "./nav-management";
 import {
   Sidebar,
   SidebarContent,
@@ -20,24 +24,31 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-
+  useSidebar,
+} from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
-    name: string
-    email: string
-    image?: string | null
-  } | null
+    name?: string | null;
+    email: string;
+    image?: string | null;
+  } | null;
 }
 
 function getInitials(name: string) {
   return name
-    .split(' ')
-    .map(part => part[0])
-    .join('')
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
     .toUpperCase()
-    .slice(0, 2)
+    .slice(0, 2);
 }
 
 const data = {
@@ -45,59 +56,105 @@ const data = {
     {
       title: "Create Athlete",
       url: "/dashboard/athletes/new",
-      icon: IconListDetails,
+      icon: IconUserPlus,
     },
     {
       title: "Create Event",
       url: "/dashboard/events/new",
-      icon: IconChartBar,
+      icon: IconCalendar,
     },
   ],
   management: [
     {
       name: "Manage Athletes",
       url: "/dashboard/athletes",
-      icon: IconDatabase,
+      icon: IconUserShield,
     },
     {
       name: "Manage Events",
       url: "/dashboard/events",
-      icon: IconReport,
+      icon: IconCalendarCog,
     },
   ],
+};
+
+function HomeSwitcher() {
+  const { isMobile } = useSidebar();
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center">
+                <IconDashboard className="size-5" />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight">
+                <span className="truncate font-medium">FightEmbedded</span>
+              </div>
+              <IconSelector className="ml-auto" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            align="start"
+            side={isMobile ? "bottom" : "right"}
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="text-muted-foreground text-xs">
+              Navigation
+            </DropdownMenuLabel>
+            <DropdownMenuItem asChild className="gap-2 p-2">
+              <Link href="/">
+                <div className="flex size-6 items-center justify-center rounded-md border">
+                  <IconHome className="size-3.5 shrink-0" />
+                </div>
+                <div className="font-medium">Homepage</div>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="gap-2 p-2">
+              <Link href="/events">
+                <div className="flex size-6 items-center justify-center rounded-md border">
+                  <IconCalendarWeek className="size-3.5 shrink-0" />
+                </div>
+                <div className="font-medium">Events</div>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
 }
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  const userData = user ? {
-    name: user.name || 'Anonymous',
-    email: user.email,
-    avatar: user.image || '/images/default-avatar.svg',
-    initials: getInitials(user.name || 'Anonymous')
-  } : null
+  const userData = user
+    ? {
+        name: user.name || user.email.split("@")[0],
+        email: user.email,
+        avatar: user.image || "",
+        initials: getInitials(user.name || user.email.split("@")[0]),
+      }
+    : null;
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a href="/dashboard">
-                <span className="text-base font-semibold">FightEmbedded</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <HomeSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavManagement items={data.management} />
       </SidebarContent>
       <SidebarFooter>
-        {userData && <NavUser user={{ ...userData, initials: userData.initials }} />}
+        {userData && (
+          <NavUser user={{ ...userData, initials: userData.initials }} />
+        )}
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

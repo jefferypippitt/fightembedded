@@ -99,7 +99,7 @@ export function DivisionCharts({
                 <CardTitle className="text-center text-base sm:text-lg font-bold">
                   {division}
                 </CardTitle>
-                <CardDescription className="text-center font-mono text-xs">
+                <CardDescription className="text-center text-xs font-mono">
                   {getDivisionWeight(division)}
                 </CardDescription>
               </div>
@@ -153,7 +153,6 @@ function DivisionChartData({
           tick={{
             fill: "hsl(var(--foreground))",
             fontSize: "9px",
-            fontWeight: 400,
           }}
         />
         <YAxis
@@ -167,7 +166,6 @@ function DivisionChartData({
           tick={{
             fill: "hsl(var(--foreground))",
             fontSize: "9px",
-            fontWeight: 500,
             x: 0,
           }}
           tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
@@ -176,7 +174,7 @@ function DivisionChartData({
           cursor={{ fill: "hsl(var(--muted))" }}
           content={
             <ChartTooltipContent
-              className="w-[150px] bg-background border shadow-lg text-[10px] font-medium"
+              className="w-[150px] bg-background border text-[10px]"
               nameKey="followers"
             />
           }

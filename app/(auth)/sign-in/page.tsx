@@ -46,6 +46,7 @@ export default function SignIn() {
             form.reset();
           },
           onError: (ctx) => {
+            toast.dismiss();
             toast.error(ctx.error.message);
             form.setError("email", {
               type: "manual",

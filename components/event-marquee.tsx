@@ -13,9 +13,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
     return (
       <section className="space-y-2">
         <div className="flex justify-center">
-          <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-            Upcoming Events
-          </h2>
+          <h2 className="text-2xl font-semibold">Upcoming Events</h2>
         </div>
         <p className="text-neutral-600 dark:text-neutral-400">
           No upcoming events found.
@@ -27,9 +25,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
   return (
     <section className="space-y-4">
       <div className="flex justify-center">
-        <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-          Upcoming Events
-        </h2>
+        <h2 className="text-2xl font-semibold">Upcoming Events</h2>
       </div>
       <div className="w-full max-w-[1200px] mx-auto px-4">
         <Marquee

@@ -23,10 +23,7 @@ export default function EventCard({
           <CardTitle className="text-base font-medium line-clamp-1">
             {name}
           </CardTitle>
-          <Badge
-            variant="eventDate"
-            className="text-[12px] px-1.5 py-0.5 font-medium shrink-0"
-          >
+          <Badge variant="date" className="font-mono">
             {format(date, "MMM d, yyyy")}
           </Badge>
         </div>

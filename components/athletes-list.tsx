@@ -5,12 +5,14 @@ interface AthletesListProps {
   athletes: Athlete[];
   showEmptyMessage?: boolean;
   emptyMessage?: string;
+  disableCursor?: boolean;
 }
 
 export function AthletesList({
   athletes,
   showEmptyMessage = true,
   emptyMessage = "No athletes found.",
+  disableCursor = false,
 }: AthletesListProps) {
   if (athletes.length === 0 && showEmptyMessage) {
     return (
@@ -45,6 +47,7 @@ export function AthletesList({
           age={athlete.age}
           retired={athlete.retired ?? false}
           priority={index < 10}
+          disableCursor={disableCursor}
         />
       ))}
     </div>

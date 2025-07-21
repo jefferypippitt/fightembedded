@@ -72,7 +72,7 @@ export function FighterPopularityChart({
             <button
               key={key}
               data-active={activeChart === key}
-              className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer font-mono"
+              className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer"
               onClick={() => setActiveChart(key)}
             >
               <div className="flex items-center mb-1">
@@ -80,7 +80,7 @@ export function FighterPopularityChart({
                   {key === "male" ? "Male" : "Female"} {chartConfig[key].label}
                 </span>
               </div>
-              <span className="text-lg leading-none font-bold sm:text-3xl">
+              <span className="text-lg leading-none font-bold sm:text-3xl font-mono">
                 {total[key].toLocaleString()}
               </span>
             </button>
@@ -111,7 +111,6 @@ export function FighterPopularityChart({
               tick={{
                 fill: "hsl(var(--foreground))",
                 fontSize: "9px",
-                fontWeight: 400,
               }}
             />
             <YAxis
@@ -133,7 +132,7 @@ export function FighterPopularityChart({
               cursor={{ fill: "hsl(var(--muted))" }}
               content={
                 <ChartTooltipContent
-                  className="w-[150px] bg-background border shadow-lg text-[10px] font-medium"
+                  className="w-[150px] bg-background border shadow-lg text-[10px]"
                   nameKey={activeChart}
                 />
               }
