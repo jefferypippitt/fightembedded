@@ -53,17 +53,17 @@ export default async function EventsPage() {
                       </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <span className="text-sm font-mono text-sky-600 dark:text-sky-400">
+                      <span className="text-sm font-mono text-zinc-600 dark:text-zinc-400">
                         {format(new Date(event.date), "MMM d, yyyy")}
                       </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <span className="text-sm">
+                      <span className="text-sm text-stone-600 dark:text-stone-400">
                         {event.venue}, {event.location}
                       </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {event.mainEvent}
                       </span>
                     </TableCell>

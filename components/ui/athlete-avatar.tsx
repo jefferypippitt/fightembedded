@@ -14,17 +14,17 @@ interface AthleteAvatarProps {
 }
 
 const sizeMap = {
-  xs: "h-10 w-10 md:h-12 md:w-12",
-  sm: "h-12 w-12 md:h-16 md:w-16",
-  md: "h-20 w-20 md:h-24 md:w-24",
-  lg: "h-24 w-24 md:h-32 md:w-32",
+  xs: "h-12 w-12 md:h-12 md:w-12",
+  sm: "h-16 w-16 md:h-16 md:w-16",
+  md: "h-24 w-24 md:h-24 md:w-24",
+  lg: "h-32 w-32 md:h-32 md:w-32",
 };
 
 const imageSizes = {
-  xs: { mobile: 80, desktop: 96 },
-  sm: { mobile: 80, desktop: 128 },
-  md: { mobile: 160, desktop: 192 },
-  lg: { mobile: 192, desktop: 256 },
+  xs: { mobile: 96, desktop: 96 },
+  sm: { mobile: 128, desktop: 128 },
+  md: { mobile: 192, desktop: 192 },
+  lg: { mobile: 256, desktop: 256 },
 };
 
 export function AthleteAvatar({

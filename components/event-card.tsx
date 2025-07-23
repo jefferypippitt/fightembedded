@@ -1,5 +1,4 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { Event } from "@/types/event";
@@ -24,11 +23,11 @@ export default function EventCard({
             <CardTitle className="text-base font-medium line-clamp-1">
               {name}
             </CardTitle>
-            <Badge variant="date" className="font-mono">
+            <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
               {format(date, "MMM d, yyyy")}
-            </Badge>
+            </span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mt-4">
+          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400 text-xs mt-4">
             <MapPin className="h-4 w-4" />
             <span className="truncate leading-tight">
               {venue}, {location}
@@ -38,13 +37,10 @@ export default function EventCard({
       </CardHeader>
       <CardContent className="p-0 flex flex-col gap-1.5">
         <div className="flex items-center gap-2">
-          <Badge
-            variant="mainEvent"
-            className="text-[12px] px-1.5 py-0.5 font-medium shrink-0"
-          >
-            Main Event
-          </Badge>
-          <span className="text-[12px] text-gray-700 dark:text-gray-100 truncate">
+          <span className="text-[12px] font-medium text-gray-700 dark:text-gray-300 shrink-0">
+            Main Event:
+          </span>
+          <span className="text-[12px] text-orange-500 dark:text-yellow-400 truncate">
             {mainEvent}
           </span>
         </div>

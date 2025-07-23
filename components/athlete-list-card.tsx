@@ -4,7 +4,6 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
-import { Medal } from "lucide-react";
 import { memo } from "react";
 
 export interface AthleteListCardProps {
@@ -126,13 +125,13 @@ function AthleteListCardComponent({
   return (
     <Card
       className={cn(
-        "@container/card h-full relative overflow-hidden group",
+        "@container/card h-full relative overflow-hidden group flex flex-col",
         "border-border/40 dark:border-border/40",
         "bg-transparent",
         "shadow-sm hover:shadow-md",
         "transition-all duration-300",
         "hover:border-primary/20 dark:hover:border-primary/20",
-        "p-3",
+        "p-2 sm:p-3",
         !disableCursor && "cursor-pointer",
         isSelected && "ring-1 ring-primary/60"
       )}
@@ -141,131 +140,131 @@ function AthleteListCardComponent({
       {/* Background gradient on hover */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
 
-      <CardContent className="p-0 relative z-10">
-        {/* Top Badge - Division and Rank/Champion Status */}
-        <div className="flex justify-between items-center mb-3">
-          {retired ? (
-            <div className="flex items-center gap-1.5">
-              <Badge variant="retired" className="text-[10px] py-0 px-2">
-                Retired
+      <CardContent className="p-0 relative z-10 flex flex-col h-full">
+        {/* Main content */}
+        <div className="flex-1">
+          {/* Top Badge - Division and Rank/Champion Status */}
+          <div className="flex justify-between items-center mb-2 sm:mb-3">
+            {retired ? (
+              <div className="flex items-center gap-1.5">
+                <Badge variant="retired" className="text-[10px] py-0 px-2">
+                  Retired
+                </Badge>
+              </div>
+            ) : rank === 1 ? (
+              <div className="flex items-center gap-1.5">
+                <Badge variant="champion" className="text-[10px] py-0 px-2">
+                  #1
+                </Badge>
+              </div>
+            ) : rank ? (
+              <Badge
+                variant="outline"
+                className="text-[10px] py-0 px-2 font-medium"
+              >
+                #{rank}
               </Badge>
-            </div>
-          ) : rank === 1 ? (
-            <div className="flex items-center gap-1.5">
-              <Medal className="h-3.5 w-3.5 text-yellow-500" />
-              <Badge variant="champion" className="text-[10px] py-0 px-2">
-                Champion
+            ) : (
+              <Badge variant="nr" className="text-[10px] py-0 px-2 font-medium">
+                Not Ranked
               </Badge>
-            </div>
-          ) : rank ? (
-            <Badge
-              variant="outline"
-              className="text-[10px] py-0 px-2 font-medium font-mono"
-            >
-              #{rank}
-            </Badge>
-          ) : (
-            <Badge
-              variant="outline"
-              className="text-[10px] py-0 px-2 font-medium font-mono"
-            >
-              Not Ranked
-            </Badge>
-          )}
-          {age && (
-            <Badge
-              variant="secondary"
-              className="text-[10px] py-0 px-2 font-medium bg-muted text-muted-foreground hover:bg-muted/80"
-            >
-              Age: <span className="font-mono">{age}</span>
-            </Badge>
-          )}
-        </div>
-
-        {/* Avatar and Name section */}
-        <div className="flex flex-col items-center mb-3">
-          <AthleteAvatar
-            imageUrl={imageUrl}
-            countryCode={getCountryCode(country)}
-            size="sm"
-            priority={priority}
-            className={cn(
-              "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
             )}
-          />
+            {age && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] py-0 px-2 font-medium font-mono"
+              >
+                Age: <span className="font-mono">{age}</span>
+              </Badge>
+            )}
+          </div>
 
-          <div className="text-center mt-2">
-            <h3 className="font-semibold text-sm text-foreground leading-tight">
-              {name}
-            </h3>
-            <h4 className="text-[11px] font-semibold text-foreground leading-tight font-mono mt-1">
-              {record}
-            </h4>
+          {/* Avatar and Name section */}
+          <div className="flex flex-col items-center mb-3 sm:mb-3">
+            <AthleteAvatar
+              imageUrl={imageUrl}
+              countryCode={getCountryCode(country)}
+              size="sm"
+              priority={priority}
+              className={cn(
+                "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
+              )}
+            />
+
+            <div className="text-center mt-2 sm:mt-2">
+              <h3 className="font-semibold text-sm sm:text-sm text-foreground leading-tight">
+                {name}
+              </h3>
+              <h4 className="text-[11px] font-semibold text-foreground leading-tight font-mono mt-1">
+                {record}
+              </h4>
+            </div>
+          </div>
+
+          {/* Division */}
+          {weightDivision && (
+            <div className="flex items-center justify-center mb-3">
+              <Badge
+                variant={getDivisionVariant(weightDivision)}
+                className="text-[10px] py-0 px-2 font-medium"
+              >
+                {weightDivision.replace(/^(Men's|Women's)\s+/, "")}
+              </Badge>
+            </div>
+          )}
+
+          {/* Stats with Progress Bars */}
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>Win Rate</span>
+              <span className="font-medium text-foreground font-mono">
+                {winRate.toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={winRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
+
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>KO/TKO</span>
+              <span className="font-medium text-foreground font-mono">
+                {koRate.toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={koRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
+
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+              <span>Submission</span>
+              <span className="font-medium text-foreground font-mono">
+                {submissionRate.toFixed(1)}%
+              </span>
+            </div>
+            <Progress
+              value={submissionRate}
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+            />
           </div>
         </div>
 
-        {/* Division */}
-        {weightDivision && (
-          <div className="flex items-center justify-center mb-3">
-            <Badge
-              variant={getDivisionVariant(weightDivision)}
-              className="text-[10px] py-0 px-2 font-medium"
-            >
-              {weightDivision.replace(/^(Men's|Women's)\s+/, "")}
-            </Badge>
+        {/* Footer */}
+        <CardFooter className="px-0 pt-2 sm:pt-3 pb-0 border-t border-border/40 dark:border-border/40 mt-auto">
+          <div className="flex items-center justify-between w-full text-[10px]">
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-foreground">{country}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground">Followers:</span>
+              <span className="font-medium text-foreground font-mono">
+                {followers.toLocaleString()}
+              </span>
+            </div>
           </div>
-        )}
-
-        {/* Stats with Progress Bars */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>Win Rate</span>
-            <span className="font-medium text-foreground font-mono">
-              {winRate.toFixed(1)}%
-            </span>
-          </div>
-          <Progress
-            value={winRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
-
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>KO/TKO</span>
-            <span className="font-medium text-foreground font-mono">
-              {koRate.toFixed(1)}%
-            </span>
-          </div>
-          <Progress
-            value={koRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
-
-          <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-            <span>Submission</span>
-            <span className="font-medium text-foreground font-mono">
-              {submissionRate.toFixed(1)}%
-            </span>
-          </div>
-          <Progress
-            value={submissionRate}
-            className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
-          />
-        </div>
+        </CardFooter>
       </CardContent>
-
-      <CardFooter className="px-0 pt-3 pb-0 border-t border-border/40 dark:border-border/40 relative z-10">
-        <div className="flex items-center justify-between w-full text-[10px]">
-          <div className="flex items-center gap-1">
-            <span className="font-medium text-foreground">{country}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="text-muted-foreground">Followers:</span>
-            <span className="font-medium text-foreground font-mono">
-              {followers.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }

@@ -58,7 +58,7 @@ export default async function DivisionPage({ params }: PageProps) {
           {divisionData.name} Division
         </h1>
         {divisionInfo?.weight && (
-          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 font-medium font-mono">
+          <p className="text-sm sm:text-base font-mono text-muted-foreground">
             {divisionInfo.weight} lbs
           </p>
         )}

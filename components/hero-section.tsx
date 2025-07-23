@@ -42,14 +42,14 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
       />
       {stat.icon && stat.icon}
     </div>
-    <span className="text-xs xs:text-sm sm:text-base font-medium">
+    <span className="text-xs xs:text-sm font-medium text-muted-foreground">
       {stat.label}
     </span>
   </div>
 );
 
 const HeroContent = () => (
-  <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-3 md:space-y-4 w-full lg:flex-1">
+  <div className="flex flex-col items-start text-left space-y-3 md:space-y-4 w-full lg:flex-1">
     <div className="space-y-1 w-full">
       <h1 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800 dark:text-gray-100 text-balance">
         Your Ultimate Source for
@@ -60,7 +60,9 @@ const HeroContent = () => (
     </div>
     <div className="mt-1 mb-2 md:mt-2 md:mb-0">
       <Link href="/athletes">
-        <ShinyButton>Explore All Athletes</ShinyButton>
+        <ShinyButton className="text-[10px] sm:text-sm px-2 py-1 sm:px-4 sm:py-2">
+          Explore All Athletes
+        </ShinyButton>
       </Link>
     </div>
   </div>
@@ -77,7 +79,7 @@ const LiveUpdatesBadge = () => (
 );
 
 const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
-  <div className="grid grid-cols-2 gap-2 xs:gap-4 sm:gap-6 w-full max-w-[280px] xs:max-w-[320px]">
+  <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 w-full max-w-[260px] xs:max-w-[280px] sm:max-w-[320px]">
     {statsData.map((stat, index) => (
       <StatCard key={index} stat={stat} />
     ))}
@@ -90,9 +92,9 @@ export default async function HeroSection() {
 
   return (
     <section>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+      <div className="flex flex-row items-center justify-between gap-4 md:gap-6 lg:gap-8">
         <HeroContent />
-        <div className="w-full md:w-auto flex flex-col items-center">
+        <div className="w-auto flex flex-col items-center">
           <LiveUpdatesBadge />
           <div className="mt-3 md:mt-4">
             <StatsGrid statsData={statsData} />

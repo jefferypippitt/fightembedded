@@ -10,19 +10,19 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/30 dark:bg-primary/20 dark:border-primary/30 dark:hover:bg-primary/30",
+          "border border-muted/40 bg-muted/20 text-muted-foreground hover:bg-muted/30 hover:border-muted/50 dark:bg-muted/30 dark:border-muted/50 dark:hover:bg-muted/40",
         secondary:
           "border border-border bg-muted text-muted-foreground hover:bg-muted/80 hover:border-border/80 dark:bg-muted/50 dark:border-border/50 dark:hover:bg-muted/60",
         destructive:
-          "border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:border-destructive/30",
+          "border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:border-destructive/30 dark:bg-destructive/20 dark:border-destructive/30 dark:hover:bg-destructive/30",
         outline:
           "border border-border bg-background text-foreground hover:bg-accent/50 hover:border-border/80 dark:bg-background/50 dark:border-border/50 dark:hover:bg-accent/20",
         // Event badges
         eventDate:
           "border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/40 dark:border-amber-400/30 dark:bg-amber-400/10 dark:hover:bg-amber-400/20 dark:hover:border-amber-400/40",
-        date: "border border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 hover:border-sky-500/40 dark:border-sky-400/30 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:hover:border-sky-400/40",
+        date: "border border-zinc-500/30 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-500/20 hover:border-zinc-500/40 dark:border-zinc-400/30 dark:bg-zinc-400/10 dark:hover:bg-zinc-400/20 dark:hover:border-zinc-400/40",
         mainEvent:
-          "border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20 hover:border-red-500/40 dark:border-red-400/30 dark:bg-red-400/10 dark:hover:bg-red-400/20 dark:hover:border-red-400/40 font-semibold",
+          "border border-gray-500/30 bg-gray-500/10 text-gray-700 dark:text-gray-300 hover:bg-gray-500/20 hover:border-gray-500/40 dark:border-gray-400/30 dark:bg-gray-400/10 dark:hover:bg-gray-400/20 dark:hover:border-gray-400/40 font-semibold",
         // Men's divisions - Cooler colors, progressing from light to heavy
         lightweight:
           "border border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400 dark:border-sky-400/30 dark:bg-sky-400/10",
@@ -50,10 +50,11 @@ const badgeVariants = cva(
           "border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 dark:border-fuchsia-400/30 dark:bg-fuchsia-400/10",
         womenStrawweight:
           "border border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400 dark:border-orange-400/30 dark:bg-orange-400/10",
-        retired:
-          "border border-slate-400/30 bg-slate-100/50 text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 hover:border-slate-500/30 dark:border-slate-600/30 dark:bg-slate-800/20 dark:hover:bg-slate-700/30 dark:hover:border-slate-500/40 font-medium",
+        nr: "border border-muted/40 bg-muted/20 text-muted-foreground hover:bg-muted/30 hover:border-muted/50 dark:bg-muted/30 dark:border-muted/50 dark:hover:bg-muted/40",
         champion:
-          "border border-yellow-400/40 bg-gradient-to-r from-yellow-50 to-amber-50 text-yellow-700 dark:text-yellow-300 dark:border-yellow-600/30 dark:from-yellow-900/30 dark:to-amber-900/30 font-semibold shadow-sm",
+          "border border-yellow-400/40 bg-yellow-50 text-yellow-700 dark:text-yellow-300 dark:border-yellow-600/30 dark:bg-yellow-900/30 font-semibold shadow-sm",
+        retired:
+          "border border-slate-300/50 bg-gradient-to-r from-slate-100 to-gray-100 text-slate-600 dark:text-slate-300 hover:from-slate-200 hover:to-gray-200 dark:border-slate-600/50 dark:from-slate-800/30 dark:to-gray-800/30 dark:hover:from-slate-700/40 dark:hover:to-gray-700/40 font-medium shadow-sm",
       },
     },
     defaultVariants: {
