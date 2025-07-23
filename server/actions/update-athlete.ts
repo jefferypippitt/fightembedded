@@ -98,6 +98,8 @@ export async function updateAthlete(
     revalidateTag("top-5-athletes"); // Always revalidate top 5 athletes chart
     revalidateTag("athletes-page"); // Ensure dashboard and main athletes page are up to date
     revalidateTag("all-athletes-data"); // Ensure all cached athlete data is up to date
+    revalidateTag("athletes"); // For the division page cache
+    revalidateTag("homepage"); // For the athletes page cache
 
     // Only revalidate image-related caches if image actually changed
     if (imageChanged) {
@@ -228,6 +230,8 @@ export async function updateAthleteStatus(
     revalidateTag("athlete-by-id");
     revalidateTag("retired-athletes");
     revalidateTag("division-athletes"); // Always revalidate division athletes cache
+    revalidateTag("athletes"); // For the division page cache
+    revalidateTag("homepage"); // For the athletes page cache
 
     // Revalidate paths
     revalidatePath("/retired");

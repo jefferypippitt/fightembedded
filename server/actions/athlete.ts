@@ -153,7 +153,11 @@ export const getRetiredAthletes = unstable_cache(
         where: {
           retired: true,
         },
-        orderBy: [{ updatedAt: "desc" }, { name: "asc" }],
+        orderBy: [
+          { updatedAt: "desc" }, // Most recently updated (when marked as retired)
+          { createdAt: "desc" }, // Then by when they were created
+          { name: "asc" }, // Finally alphabetically
+        ],
         select: athleteSelect,
       });
 
@@ -474,5 +478,18 @@ export async function getP4PForDashboard() {
     return sortP4PAthletes(athletes).map(transformAthlete);
   } catch {
     throw new Error("Failed to fetch P4P athletes");
+  }
+}
+
+export async function getAthleteForDashboard(id: string) {
+  noStore(); // Disable caching for dashboard
+  try {
+    const athlete = await prisma.athlete.findUnique({
+      where: { id },
+    });
+    return athlete;
+  } catch (error) {
+    console.error("Error fetching athlete:", error);
+    throw new Error("Failed to fetch athlete");
   }
 }

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { AthleteForm } from "@/components/athlete-form";
 import { notFound } from "next/navigation";
-import { getAthleteForDashboard } from "@/server/actions/get-athlete";
+import { getAthleteForDashboard } from "@/server/actions/athlete";
 import { SiteHeader } from "@/components/site-header";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -36,7 +36,7 @@ interface PageProps {
 export default async function EditAthletePage({ params }: PageProps) {
   // Disable caching for this page
   noStore();
-  
+
   // Await the params
   const { id } = await params;
 

@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Retired Athletes",
   description: "Browse all retired UFC fighters and their career statistics",
   openGraph: {
-    title: "Retired Athletes | Fight Embedded",
+    title: "Retired Athletes",
     description:
       "View detailed statistics and career records of retired UFC fighters. Get comprehensive analytics and performance data.",
     type: "website",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Retired Athletes | Fight Embedded",
+    title: "Retired Athletes",
     description:
       "Complete stats and career records of retired UFC athletes. Access detailed performance metrics and analytics.",
   },

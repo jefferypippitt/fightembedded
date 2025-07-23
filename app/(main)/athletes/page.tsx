@@ -1,9 +1,9 @@
-import { getAthletes } from "@/server/actions/get-athlete";
+import { getAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
 import { AthletesSearch } from "@/components/athletes-search";
 
 export const metadata: Metadata = {
-  title: "Athletes | Fight Embedded",
+  title: "Athletes",
   description: "View all active UFC athletes.",
 };
 

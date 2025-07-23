@@ -5,7 +5,7 @@ import EventsSectionWrapper from "@/components/events-section";
 import RankingsSectionWrapper from "@/components/rankings-section";
 
 export const metadata: Metadata = {
-  title: "FightEmbedded - UFC Athletes & Events",
+  title: "UFC Athletes & Events",
   description: "Explore UFC athletes stats, rankings, and more in one place.",
 };
 

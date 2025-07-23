@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 
 export const metadata: Metadata = {
-  title: "Upcoming Events | Fight Embedded",
+  title: "Upcoming Events",
   description: "View all upcoming UFC events",
 };
 

@@ -37,9 +37,15 @@ export async function deleteAthlete(id: string) {
 
   // Revalidate cache tags
   revalidateTag("all-athletes");
+  revalidateTag("all-athletes-data"); // For the athletes page cache
+  revalidateTag("athletes-page"); // For the athletes page cache
   revalidateTag("athlete-by-id");
   revalidateTag("athletes-by-division");
   revalidateTag("division-athletes");
+  revalidateTag("athletes"); // For the division page cache
+  revalidateTag("homepage"); // For the athletes page cache
+  revalidateTag("top-20-athletes"); // Always revalidate popularity chart
+  revalidateTag("top-5-athletes"); // Always revalidate top 5 athletes chart
 
   if (athlete.rank === 1) {
     revalidateTag("champions-data");
