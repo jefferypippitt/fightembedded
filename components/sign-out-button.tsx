@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 export function SignOutButton() {
   return (
     <form action={signOut}>
-      <Button className="w-full justify-start" variant="ghost">
+      <Button className="w-full justify-start cursor-pointer" variant="ghost">
         <IconLogout className="size-4 text-red-500" />
         <span>Sign Out</span>
       </Button>

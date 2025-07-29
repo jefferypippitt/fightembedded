@@ -4,35 +4,21 @@ import * as React from "react";
 import {
   IconCalendar,
   IconCalendarCog,
-  IconCalendarWeek,
-  IconDashboard,
-  IconHome,
-  IconSelector,
+  IconLayoutDashboard,
   IconUserPlus,
   IconUserShield,
 } from "@tabler/icons-react";
 
-import Link from "next/link";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { NavManagement } from "./nav-management";
+import { HomepageSwitcher } from "./homepage-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user?: {
@@ -53,6 +39,11 @@ function getInitials(name: string) {
 
 const data = {
   navMain: [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: IconLayoutDashboard,
+    },
     {
       title: "Create Athlete",
       url: "/dashboard/athletes/new",
@@ -78,59 +69,6 @@ const data = {
   ],
 };
 
-function HomeSwitcher() {
-  const { isMobile } = useSidebar();
-
-  return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="flex aspect-square size-8 items-center justify-center">
-                <IconDashboard className="size-5" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">FightEmbedded</span>
-              </div>
-              <IconSelector className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Navigation
-            </DropdownMenuLabel>
-            <DropdownMenuItem asChild className="gap-2 p-2">
-              <Link href="/">
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  <IconHome className="size-3.5 shrink-0" />
-                </div>
-                <div className="font-medium">Homepage</div>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="gap-2 p-2">
-              <Link href="/events">
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  <IconCalendarWeek className="size-3.5 shrink-0" />
-                </div>
-                <div className="font-medium">Events</div>
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  );
-}
-
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const userData = user
     ? {
@@ -144,7 +82,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <HomeSwitcher />
+        <HomepageSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

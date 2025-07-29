@@ -748,9 +748,9 @@ export function AthletesDataTable({
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/athletes/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="h-4 w-4" />
               <span className="hidden lg:inline">Add Athlete</span>
             </Link>
           </Button>

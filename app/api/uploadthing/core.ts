@@ -41,9 +41,22 @@ export const ourFileRouter = {
       }
     }),
   eventImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
-    .middleware(() => handleAuth())
+    .middleware(async () => {
+      const session = await handleAuth();
+      return { userId: session.user.id };
+    })
     .onUploadComplete(async ({ metadata, file }) => {
-      return { uploadedBy: metadata.user.id, url: file.url };
+      try {
+        return {
+          uploadedBy: metadata.userId,
+          url: file.url,
+          name: file.name,
+          size: file.size,
+        };
+      } catch (err) {
+        console.error("Failed to process upload:", err);
+        throw new UploadThingError("Failed to process upload");
+      }
     }),
 } satisfies FileRouter;
 

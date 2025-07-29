@@ -120,7 +120,7 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Event Name</FormLabel>
                   <FormControl>
-                    <Input className="h-9" placeholder="UFC 300" {...field} />
+                    <Input placeholder="UFC 300" {...field} />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -173,11 +173,7 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Venue</FormLabel>
                   <FormControl>
-                    <Input
-                      className="h-9"
-                      placeholder="T-Mobile Arena"
-                      {...field}
-                    />
+                    <Input placeholder="T-Mobile Arena" {...field} />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -191,11 +187,7 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Location</FormLabel>
                   <FormControl>
-                    <Input
-                      className="h-9"
-                      placeholder="Las Vegas, Nevada"
-                      {...field}
-                    />
+                    <Input placeholder="Las Vegas, Nevada" {...field} />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -209,11 +201,7 @@ export function EventForm({ initialData }: EventFormProps) {
                 <FormItem>
                   <FormLabel className="text-sm">Main Event</FormLabel>
                   <FormControl>
-                    <Input
-                      className="h-9"
-                      placeholder="Fighter 1 vs Fighter 2"
-                      {...field}
-                    />
+                    <Input placeholder="Fighter 1 vs Fighter 2" {...field} />
                   </FormControl>
                   <FormMessage className="text-xs" />
                 </FormItem>
@@ -228,7 +216,7 @@ export function EventForm({ initialData }: EventFormProps) {
                   <FormLabel className="text-sm">Event Status</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="h-9">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select event status" />
                       </SelectTrigger>
                     </FormControl>

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
   Column,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 import {
   ArrowUpDown,
   ChevronDown,
@@ -27,16 +27,16 @@ import {
   ChevronsRight,
   CircleCheck,
   CircleX,
-} from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { format } from "date-fns"
-import { toast } from "sonner"
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { toast } from "sonner";
 
-import { UFCEvent } from "@/types/event"
-import { deleteEvent } from "@/server/actions/delete-event"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { UFCEvent } from "@/types/event";
+import { deleteEvent } from "@/server/actions/delete-event";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -45,8 +45,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -54,44 +54,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 // Helper component for the actions cell
 const ActionsCell = ({ event }: { event: UFCEvent }) => {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleDelete = async () => {
     try {
-      const result = await deleteEvent(event.id)
+      const result = await deleteEvent(event.id);
       if (result.status === "success") {
-        toast.success("Event deleted successfully")
-        router.refresh()
+        toast.success("Event deleted successfully");
+        router.refresh();
       } else {
-        toast.error(result.message || "Failed to delete event")
+        toast.error(result.message || "Failed to delete event");
       }
     } catch (error) {
       toast.error(
         error instanceof Error
           ? `Error: ${error.message}`
           : "An unexpected error occurred. Please try again."
-      )
+      );
     }
-  }
+  };
 
   return (
     <DropdownMenu>
@@ -107,9 +101,7 @@ const ActionsCell = ({ event }: { event: UFCEvent }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-32">
         <DropdownMenuItem asChild>
-          <Link href={`/dashboard/events/${event.id}/edit`}>
-            Edit
-          </Link>
+          <Link href={`/dashboard/events/${event.id}/edit`}>Edit</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleDelete} className="text-red-600">
@@ -117,16 +109,12 @@ const ActionsCell = ({ event }: { event: UFCEvent }) => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 // Helper component for the status filter
-const StatusFilter = ({
-  column,
-}: {
-  column: Column<UFCEvent, unknown>
-}) => {
-  const statuses = ["UPCOMING", "COMPLETED", "CANCELLED"]
+const StatusFilter = ({ column }: { column: Column<UFCEvent, unknown> }) => {
+  const statuses = ["UPCOMING", "COMPLETED", "CANCELLED"];
 
   return (
     <DropdownMenu>
@@ -143,13 +131,13 @@ const StatusFilter = ({
             key={status}
             checked={(column.getFilterValue() as string[])?.includes(status)}
             onCheckedChange={(checked) => {
-              const currentFilter = (column.getFilterValue() as string[]) ?? []
+              const currentFilter = (column.getFilterValue() as string[]) ?? [];
               if (checked) {
-                column.setFilterValue([...currentFilter, status])
+                column.setFilterValue([...currentFilter, status]);
               } else {
                 column.setFilterValue(
                   currentFilter.filter((item) => item !== status)
-                )
+                );
               }
             }}
           >
@@ -158,8 +146,8 @@ const StatusFilter = ({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 const columns: ColumnDef<UFCEvent>[] = [
   {
@@ -173,7 +161,7 @@ const columns: ColumnDef<UFCEvent>[] = [
           Event Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -187,11 +175,11 @@ const columns: ColumnDef<UFCEvent>[] = [
           Date
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
     cell: ({ row }) => {
-      const date = row.getValue("date") as Date
-      return format(date, "MMM d, yyyy")
+      const date = row.getValue("date") as Date;
+      return format(date, "MMM d, yyyy");
     },
   },
   {
@@ -205,7 +193,7 @@ const columns: ColumnDef<UFCEvent>[] = [
           Venue
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -219,7 +207,7 @@ const columns: ColumnDef<UFCEvent>[] = [
           Location
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -233,7 +221,7 @@ const columns: ColumnDef<UFCEvent>[] = [
           Main Event
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      )
+      );
     },
   },
   {
@@ -250,10 +238,10 @@ const columns: ColumnDef<UFCEvent>[] = [
           </Button>
           <StatusFilter column={column} />
         </div>
-      )
+      );
     },
     cell: ({ row }) => {
-      const status = row.getValue("status") as string
+      const status = row.getValue("status") as string;
       return (
         <Badge
           variant="outline"
@@ -269,48 +257,55 @@ const columns: ColumnDef<UFCEvent>[] = [
           {status === "CANCELLED" && <CircleX className="mr-1 h-3 w-3" />}
           {status}
         </Badge>
-      )
+      );
     },
   },
   {
     id: "actions",
     cell: ({ row }) => <ActionsCell event={row.original} />,
   },
-]
+];
 
 interface EventsDataTableProps {
-  events: UFCEvent[]
-  upcomingEvents: UFCEvent[]
-  completedEvents: UFCEvent[]
+  events: UFCEvent[];
+  upcomingEvents: UFCEvent[];
+  completedEvents: UFCEvent[];
 }
 
-export function EventsDataTable({ events, upcomingEvents, completedEvents }: EventsDataTableProps) {
+export function EventsDataTable({
+  events,
+  upcomingEvents,
+  completedEvents,
+}: EventsDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "date",
       desc: true,
     },
-  ])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
 
-  const [activeView, setActiveView] = React.useState("events")
+  const [activeView, setActiveView] = React.useState("events");
 
   const currentData = React.useMemo(() => {
     switch (activeView) {
       case "upcoming":
-        return upcomingEvents
+        return upcomingEvents;
       case "completed":
-        return completedEvents
+        return completedEvents;
       case "events":
       default:
-        return events
+        return events;
     }
-  }, [activeView, events, upcomingEvents, completedEvents])
+  }, [activeView, events, upcomingEvents, completedEvents]);
 
   const table = useReactTable({
     data: currentData,
@@ -329,33 +324,44 @@ export function EventsDataTable({ events, upcomingEvents, completedEvents }: Eve
       columnVisibility,
       pagination,
     },
-  })
+  });
+
+  // Reset filters when changing views
+  React.useEffect(() => {
+    setColumnFilters([]);
+    setPagination({ pageIndex: 0, pageSize: 10 });
+  }, [activeView]);
+
+  const handleViewChange = (value: string) => {
+    setActiveView(value);
+  };
+
+  const getEmptyMessage = () => {
+    switch (activeView) {
+      case "upcoming":
+        return "No upcoming events found.";
+      case "completed":
+        return "No completed events found.";
+      default:
+        return "No events found.";
+    }
+  };
 
   return (
-    <Tabs defaultValue="events" className="w-full flex-col justify-start gap-6">
+    <div className="w-full flex flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
-        </Label>
-        <Select defaultValue="events" onValueChange={setActiveView}>
-          <SelectTrigger
-            className="flex w-fit @4xl/main:hidden"
-            size="sm"
-            id="view-selector"
-          >
-            <SelectValue placeholder="Select a view" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="events">All Events</SelectItem>
-            <SelectItem value="upcoming">Upcoming</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        <TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <TabsTrigger value="events">All Events</TabsTrigger>
-          <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center gap-2">
+          <Select value={activeView} onValueChange={handleViewChange}>
+            <SelectTrigger className="w-fit" size="sm" id="view-selector">
+              <SelectValue placeholder="Select a view" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="events">All Events</SelectItem>
+              <SelectItem value="upcoming">Upcoming</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -382,20 +388,20 @@ export function EventsDataTable({ events, upcomingEvents, completedEvents }: Eve
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  )
+                  );
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/events/new">
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className="h-4 w-4" />
               <span className="hidden lg:inline">Add Event</span>
             </Link>
           </Button>
         </div>
       </div>
 
-      <TabsContent value="events" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
+      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by name..."
@@ -445,7 +451,7 @@ export function EventsDataTable({ events, upcomingEvents, completedEvents }: Eve
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    No events found.
+                    {getEmptyMessage()}
                   </TableCell>
                 </TableRow>
               )}
@@ -462,7 +468,7 @@ export function EventsDataTable({ events, upcomingEvents, completedEvents }: Eve
               <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value))
+                  table.setPageSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
@@ -526,273 +532,7 @@ export function EventsDataTable({ events, upcomingEvents, completedEvents }: Eve
             </div>
           </div>
         </div>
-      </TabsContent>
-
-      <TabsContent value="upcoming" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No upcoming events found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value))
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent value="completed" className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No completed events found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value))
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-    </Tabs>
-  )
-} 
+      </div>
+    </div>
+  );
+}

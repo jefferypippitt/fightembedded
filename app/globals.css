@@ -206,19 +206,19 @@
 }
 /* UploadThing Button Styles */
 .ut-button {
-  @apply bg-blue-500 text-white hover:bg-blue-600 px-4 h-9 text-sm font-medium transition-all duration-200 flex items-center gap-2 rounded-md;
+  @apply bg-black text-white hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/80 px-4 h-9 text-sm font-medium transition-all duration-200 flex items-center gap-2 rounded-md;
 }
 
 .ut-button[data-state="readying"] {
-  @apply bg-blue-500/50 cursor-not-allowed;
+  @apply bg-black/50 dark:bg-white/50 cursor-not-allowed;
 }
 
 .ut-button[data-state="uploading"] {
-  @apply bg-blue-500/50 cursor-not-allowed;
+  @apply bg-black/50 dark:bg-white/50 cursor-not-allowed;
 }
 
 .ut-button[data-state="uploading"]::after {
-  @apply bg-blue-500/20;
+  @apply bg-black/20 dark:bg-white/20;
 }
 
 .ut-allowed-content {
