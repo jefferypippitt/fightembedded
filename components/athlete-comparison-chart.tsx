@@ -35,21 +35,40 @@ export function AthleteComparisonChart({
 
   // Calculate experience factor (age + total fights)
   const getExperienceFactor = (age: number, totalFights: number) => {
-    const ageScore = Math.min(age / 40, 1) * 50; // Max 50 points for age
-    const fightScore = Math.min(totalFights / 30, 1) * 50; // Max 50 points for fights
-    return Math.round(ageScore + fightScore);
+    // Age score: peaks around 30-35, then declines (realistic for MMA)
+    let ageScore = 0;
+    if (age < 20) ageScore = age * 2; // 0-40 points for 18-20
+    else if (age <= 35)
+      ageScore = 40 + (age - 20) * 2; // 40-70 points for 20-35
+    else ageScore = Math.max(70 - (age - 35) * 2, 20); // Decline after 35, min 20
+
+    // Fight score: more fights = more experience, but diminishing returns
+    let fightScore = 0;
+    if (totalFights <= 10) fightScore = totalFights * 3; // 0-30 points
+    else if (totalFights <= 25)
+      fightScore = 30 + (totalFights - 10) * 1.5; // 30-52.5 points
+    else fightScore = Math.min(52.5 + (totalFights - 25) * 0.5, 70); // Diminishing returns, max 70
+
+    return Math.round(Math.min(ageScore + fightScore, 100));
   };
 
   // Calculate activity level (fights per year on average)
   const getActivityLevel = (totalFights: number, age: number) => {
-    // Estimate years active based on age (started around 18-20)
-    const yearsActive = Math.max(age - 18, 1); // Minimum 1 year
+    // More realistic career start age and activity estimation
+    const careerStartAge = Math.min(age - 3, 20); // Assume 3 years of career, min start at 17
+    const yearsActive = Math.max(age - careerStartAge, 1);
     const fightsPerYear = totalFights / yearsActive;
 
-    // Score based on activity: 0-2 fights/year = 0-40, 2-4 = 40-70, 4+ = 70-100
-    if (fightsPerYear <= 2) return Math.round(Math.min(fightsPerYear * 20, 40));
-    if (fightsPerYear <= 4) return Math.round(40 + (fightsPerYear - 2) * 15);
-    return Math.round(Math.min(70 + (fightsPerYear - 4) * 10, 100));
+    // More nuanced scoring based on real MMA activity patterns
+    if (fightsPerYear <= 1)
+      return Math.round(fightsPerYear * 30); // 0-30 points for 0-1 fights/year
+    else if (fightsPerYear <= 2)
+      return Math.round(30 + (fightsPerYear - 1) * 20); // 30-50 points
+    else if (fightsPerYear <= 3)
+      return Math.round(50 + (fightsPerYear - 2) * 15); // 50-65 points
+    else if (fightsPerYear <= 4)
+      return Math.round(65 + (fightsPerYear - 3) * 10); // 65-75 points
+    else return Math.round(Math.min(75 + (fightsPerYear - 4) * 5, 100)); // 75-100 points for 4+ fights/year
   };
 
   // Calculate win rate (overall success percentage)
@@ -62,14 +81,30 @@ export function AthleteComparisonChart({
   // Calculate durability (ability to go the distance)
   const getDurability = (
     wins: number,
+    losses: number,
+    draws: number,
     winsByKo: number,
     winsBySubmission: number
   ) => {
-    if (wins === 0) return 0;
+    const totalFights = wins + losses + draws;
+    if (totalFights === 0) return 0;
+
+    // Calculate decision wins (wins that went to decision)
     const decisionWins = wins - winsByKo - winsBySubmission;
-    const decisionRate = (decisionWins / wins) * 100;
+
+    // Calculate decision losses (losses that went to decision)
+    // We need to estimate decision losses since we don't have that data
+    // Assume a reasonable ratio of decision losses to total losses
+    const estimatedDecisionLosses = Math.round(losses * 0.6); // 60% of losses go to decision
+
+    // Total decisions (wins + losses that went the distance)
+    const totalDecisions = decisionWins + estimatedDecisionLosses;
+
+    // Durability is the percentage of fights that went to decision
+    const durabilityRate = (totalDecisions / totalFights) * 100;
+
     // Higher decision rate = more durable (can go the distance)
-    return Math.round(Math.min(decisionRate, 100));
+    return Math.round(Math.min(durabilityRate, 100));
   };
 
   // Calculate ranking score (based on division rank)
@@ -107,11 +142,15 @@ export function AthleteComparisonChart({
       stat: "Durability",
       athlete1: getDurability(
         athlete1.wins,
+        athlete1.losses,
+        athlete1.draws,
         athlete1.winsByKo,
         athlete1.winsBySubmission
       ),
       athlete2: getDurability(
         athlete2.wins,
+        athlete2.losses,
+        athlete2.draws,
         athlete2.winsByKo,
         athlete2.winsBySubmission
       ),

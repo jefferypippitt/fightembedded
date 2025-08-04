@@ -182,44 +182,61 @@ export function AthletesSearch({
       )}
 
       {selectedAthletes.length === 2 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          {/* Athlete Cards - Left side */}
-          <div className="lg:col-span-2">
-            <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
-              {selectedAthletes.map((athlete, index) => (
-                <AthleteListCard
-                  key={athlete.id}
-                  id={athlete.id}
-                  name={athlete.name}
-                  weightDivision={athlete.weightDivision}
-                  imageUrl={athlete.imageUrl || undefined}
-                  country={athlete.country}
-                  wins={athlete.wins}
-                  losses={athlete.losses}
-                  draws={athlete.draws}
-                  winsByKo={athlete.winsByKo}
-                  winsBySubmission={athlete.winsBySubmission}
-                  rank={athlete.rank}
-                  poundForPoundRank={athlete.poundForPoundRank}
-                  followers={athlete.followers}
-                  age={athlete.age}
-                  retired={athlete.retired ?? false}
-                  isSelected={true}
-                  onSelect={() => handleSelect(athlete)}
-                  priority={index < 2}
-                />
-              ))}
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+          {/* First Athlete Card */}
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+            <AthleteListCard
+              id={selectedAthletes[0].id}
+              name={selectedAthletes[0].name}
+              weightDivision={selectedAthletes[0].weightDivision}
+              imageUrl={selectedAthletes[0].imageUrl || undefined}
+              country={selectedAthletes[0].country}
+              wins={selectedAthletes[0].wins}
+              losses={selectedAthletes[0].losses}
+              draws={selectedAthletes[0].draws}
+              winsByKo={selectedAthletes[0].winsByKo}
+              winsBySubmission={selectedAthletes[0].winsBySubmission}
+              rank={selectedAthletes[0].rank}
+              poundForPoundRank={selectedAthletes[0].poundForPoundRank}
+              followers={selectedAthletes[0].followers}
+              age={selectedAthletes[0].age}
+              retired={selectedAthletes[0].retired ?? false}
+              isSelected={true}
+              onSelect={() => handleSelect(selectedAthletes[0])}
+              priority={true}
+            />
           </div>
 
-          {/* Radar Chart - Right side */}
-          <div className="lg:col-span-1">
-            <div className="lg:h-full">
-              <AthleteComparisonChart
-                athlete1={selectedAthletes[0]}
-                athlete2={selectedAthletes[1]}
-              />
-            </div>
+          {/* Second Athlete Card */}
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+            <AthleteListCard
+              id={selectedAthletes[1].id}
+              name={selectedAthletes[1].name}
+              weightDivision={selectedAthletes[1].weightDivision}
+              imageUrl={selectedAthletes[1].imageUrl || undefined}
+              country={selectedAthletes[1].country}
+              wins={selectedAthletes[1].wins}
+              losses={selectedAthletes[1].losses}
+              draws={selectedAthletes[1].draws}
+              winsByKo={selectedAthletes[1].winsByKo}
+              winsBySubmission={selectedAthletes[1].winsBySubmission}
+              rank={selectedAthletes[1].rank}
+              poundForPoundRank={selectedAthletes[1].poundForPoundRank}
+              followers={selectedAthletes[1].followers}
+              age={selectedAthletes[1].age}
+              retired={selectedAthletes[1].retired ?? false}
+              isSelected={true}
+              onSelect={() => handleSelect(selectedAthletes[1])}
+              priority={true}
+            />
+          </div>
+
+          {/* Radar Chart - Third column */}
+          <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+            <AthleteComparisonChart
+              athlete1={selectedAthletes[0]}
+              athlete2={selectedAthletes[1]}
+            />
           </div>
         </div>
       ) : (

@@ -14,7 +14,7 @@ export default function MainLayout({
           {children}
         </div>
       </main>
-      <Footer className="w-full border-t bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60" />
+      <Footer />
     </div>
   );
 }

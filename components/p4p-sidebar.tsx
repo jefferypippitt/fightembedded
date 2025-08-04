@@ -32,7 +32,7 @@ const FighterCard = React.memo(
   }) => (
     <li className="relative overflow-hidden group flex items-center space-x-2 p-2 hover:bg-accent/50 transition-all duration-300 border h-16 rounded-lg shadow-xs hover:shadow-sm bg-gradient-to-br from-primary/[0.02] to-primary/[0.05]">
       {/* Background gradient */}
-      <span className="px-2.5 text-xs min-w-[2rem] font-mono relative z-10">
+      <span className="px-2.5 text-xs font-mono">
         {fighter.poundForPoundRank}.
       </span>
       <AthleteAvatar
@@ -40,11 +40,10 @@ const FighterCard = React.memo(
         countryCode={getCountryCode(fighter.country)}
         size="xs"
         priority={isPriority}
-        className="relative z-10"
       />
-      <div className="flex-1 min-w-0 flex flex-col justify-center relative z-10">
-        <p className="text-xs font-medium leading-tight mb-1">{fighter.name}</p>
-        <div className="text-xs font-mono font-semibold tracking-tight text-muted-foreground flex gap-1">
+      <div className="flex-1 min-w-0 flex flex-col justify-center">
+        <p className="text-xs font-medium mb-1">{fighter.name}</p>
+        <div className="flex items-center space-x-1 text-[11px] font-mono">
           <span className="text-green-500">{fighter.wins}</span>
           <span>-</span>
           <span className="text-red-500">{fighter.losses}</span>

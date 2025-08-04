@@ -38,11 +38,11 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
     <div className="flex items-center justify-center space-x-1 xs:space-x-2">
       <NumberTicker
         value={stat.value}
-        className="text-base xs:text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 font-mono"
+        className="text-lg xs:text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 font-mono"
       />
       {stat.icon && stat.icon}
     </div>
-    <span className="text-xs xs:text-sm font-medium text-muted-foreground">
+    <span className="text-sm xs:text-sm font-medium text-muted-foreground">
       {stat.label}
     </span>
   </div>
@@ -51,16 +51,16 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
 const HeroContent = () => (
   <div className="flex flex-col items-start text-left space-y-3 md:space-y-4 w-full lg:flex-1">
     <div className="space-y-1 w-full">
-      <h1 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800 dark:text-gray-100 text-balance">
+      <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800 dark:text-gray-100 text-balance">
         Your Ultimate Source for
       </h1>
-      <h1 className="text-xl xs:text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
+      <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
         UFC Athletes and Events
       </h1>
     </div>
     <div className="mt-1 mb-2 md:mt-2 md:mb-0">
       <Link href="/athletes">
-        <ShinyButton className="text-[10px] sm:text-sm px-2 py-1 sm:px-4 sm:py-2">
+        <ShinyButton className="text-sm sm:text-sm px-3 py-2 sm:px-4 sm:py-2">
           Explore All Athletes
         </ShinyButton>
       </Link>

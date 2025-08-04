@@ -116,7 +116,6 @@ function AthleteListCardComponent({
   priority = false,
   disableCursor = false,
 }: AthleteListCardProps) {
-  const record = `${wins}-${losses}${draws > 0 ? `-${draws}` : ""}`;
   const totalFights = wins + losses + draws;
   const winRate = totalFights > 0 ? (wins / totalFights) * 100 : 0;
   const koRate = wins > 0 ? (winsByKo / wins) * 100 : 0;
@@ -129,7 +128,7 @@ function AthleteListCardComponent({
         "border-border/40 dark:border-border/40",
         "bg-transparent",
         "shadow-sm hover:shadow-md",
-        "transition-all duration-300",
+        "transition-shadow duration-200",
         "hover:border-primary/20 dark:hover:border-primary/20",
         "p-2 sm:p-3",
         !disableCursor && "cursor-pointer",
@@ -138,7 +137,7 @@ function AthleteListCardComponent({
       onClick={onSelect}
     >
       {/* Background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
 
       <CardContent className="p-0 relative z-10 flex flex-col h-full">
         {/* Main content */}
@@ -172,7 +171,7 @@ function AthleteListCardComponent({
             {age && (
               <Badge
                 variant="secondary"
-                className="text-[10px] py-0 px-2 font-medium font-mono"
+                className="text-[10px] py-0 px-2 font-medium"
               >
                 Age: <span className="font-mono">{age}</span>
               </Badge>
@@ -186,17 +185,29 @@ function AthleteListCardComponent({
               countryCode={getCountryCode(country)}
               size="sm"
               priority={priority}
-              className={cn(
-                "ring-primary/20 dark:ring-primary/30 group-hover:ring-primary/30 dark:group-hover:ring-primary/40 transition-all duration-300"
-              )}
+              className={cn("ring-primary/20 dark:ring-primary/30")}
             />
 
             <div className="text-center mt-2 sm:mt-2">
               <h3 className="font-semibold text-sm sm:text-sm text-foreground leading-tight">
                 {name}
               </h3>
-              <h4 className="text-[11px] font-semibold text-foreground leading-tight font-mono mt-1">
-                {record}
+              <h4 className="text-[11px] font-mono mt-1 leading-none">
+                <span className="text-green-600 dark:text-green-400 font-mono">
+                  {wins}
+                </span>
+                <span className="text-foreground font-mono">-</span>
+                <span className="text-red-600 dark:text-red-400 font-mono">
+                  {losses}
+                </span>
+                {draws > 0 && (
+                  <>
+                    <span className="text-foreground font-mono">-</span>
+                    <span className="text-yellow-600 dark:text-yellow-400 font-mono">
+                      {draws}
+                    </span>
+                  </>
+                )}
               </h4>
             </div>
           </div>
@@ -223,7 +234,7 @@ function AthleteListCardComponent({
             </div>
             <Progress
               value={winRate}
-              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary"
             />
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
@@ -234,7 +245,7 @@ function AthleteListCardComponent({
             </div>
             <Progress
               value={koRate}
-              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary"
             />
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
@@ -245,13 +256,13 @@ function AthleteListCardComponent({
             </div>
             <Progress
               value={submissionRate}
-              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary [&>div]:group-hover:bg-primary/90 transition-colors duration-300"
+              className="h-1.5 bg-primary/10 dark:bg-primary/20 [&>div]:bg-primary"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <CardFooter className="px-0 pt-2 sm:pt-3 pb-0 border-t border-border/40 dark:border-border/40 mt-auto">
+        <CardFooter className="px-0 pt-4 sm:pt-4">
           <div className="flex items-center justify-between w-full text-[10px]">
             <div className="flex items-center gap-1">
               <span className="font-medium text-foreground">{country}</span>

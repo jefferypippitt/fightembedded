@@ -128,7 +128,7 @@ const navigationLinks = [
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Left side */}
@@ -212,7 +212,8 @@ export default function Navbar() {
                               !navigationLinks[index + 1].submenu) ||
                             (link.submenu &&
                               navigationLinks[index + 1].submenu &&
-                              link.type !== navigationLinks[index + 1].type)) && (
+                              link.type !==
+                                navigationLinks[index + 1].type)) && (
                             <div
                               role="separator"
                               aria-orientation="horizontal"
@@ -227,16 +228,16 @@ export default function Navbar() {
             </Popover>
             {/* Main nav */}
             <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <Image
-                src="/icon.png"
-                alt="Fight Embedded Logo"
-                width={35}
-                height={35}
-                className="rounded-none"
-              />
-              <h1 className="text-lg font-medium">Fight Embedded</h1>
-            </Link>
+              <Link href="/" className="flex items-center gap-2">
+                <Image
+                  src="/icon.png"
+                  alt="Fight Embedded Logo"
+                  width={35}
+                  height={35}
+                  className="rounded-none"
+                />
+                <h1 className="text-lg font-medium">Fight Embedded</h1>
+              </Link>
               {/* Navigation menu */}
               <NavigationMenu viewport={false} className="max-md:hidden">
                 <NavigationMenuList className="gap-2">
@@ -264,32 +265,33 @@ export default function Navbar() {
                                   >
                                     <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
                                       {/* Display icon if present */}
-                                      {link.type === "icon" && "icon" in item && (
-                                        <div className="flex items-center gap-2">
-                                          {item.icon === "BookOpenIcon" && (
-                                            <BookOpenIcon
-                                              size={16}
-                                              className="text-foreground opacity-60"
-                                              aria-hidden="true"
-                                            />
-                                          )}
-                                          {item.icon === "LifeBuoyIcon" && (
-                                            <LifeBuoyIcon
-                                              size={16}
-                                              className="text-foreground opacity-60"
-                                              aria-hidden="true"
-                                            />
-                                          )}
-                                          {item.icon === "InfoIcon" && (
-                                            <InfoIcon
-                                              size={16}
-                                              className="text-foreground opacity-60"
-                                              aria-hidden="true"
-                                            />
-                                          )}
-                                          <span>{item.label}</span>
-                                        </div>
-                                      )}
+                                      {link.type === "icon" &&
+                                        "icon" in item && (
+                                          <div className="flex items-center gap-2">
+                                            {item.icon === "BookOpenIcon" && (
+                                              <BookOpenIcon
+                                                size={16}
+                                                className="text-foreground opacity-60"
+                                                aria-hidden="true"
+                                              />
+                                            )}
+                                            {item.icon === "LifeBuoyIcon" && (
+                                              <LifeBuoyIcon
+                                                size={16}
+                                                className="text-foreground opacity-60"
+                                                aria-hidden="true"
+                                              />
+                                            )}
+                                            {item.icon === "InfoIcon" && (
+                                              <InfoIcon
+                                                size={16}
+                                                className="text-foreground opacity-60"
+                                                aria-hidden="true"
+                                              />
+                                            )}
+                                            <span>{item.label}</span>
+                                          </div>
+                                        )}
 
                                       {/* Display label with description if present */}
                                       {link.type === "description" &&
