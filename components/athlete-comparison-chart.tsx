@@ -29,101 +29,103 @@ export function AthleteComparisonChart({
     wins: number
   ) => {
     if (wins === 0) return 0;
-    const totalFinishes = winsByKo + winsBySubmission;
-    return Math.round((totalFinishes / wins) * 100);
+
+    // Ensure values are non-negative
+    const koWins = Math.max(winsByKo, 0);
+    const submissionWins = Math.max(winsBySubmission, 0);
+    const totalWins = Math.max(wins, 0);
+
+    const totalFinishes = koWins + submissionWins;
+    return Math.round((totalFinishes / totalWins) * 100);
   };
 
-  // Calculate experience factor (age + total fights)
-  const getExperienceFactor = (age: number, totalFights: number) => {
-    // Age score: peaks around 30-35, then declines (realistic for MMA)
-    let ageScore = 0;
-    if (age < 20) ageScore = age * 2; // 0-40 points for 18-20
-    else if (age <= 35)
-      ageScore = 40 + (age - 20) * 2; // 40-70 points for 20-35
-    else ageScore = Math.max(70 - (age - 35) * 2, 20); // Decline after 35, min 20
+  // Calculate versatility (how well-rounded a fighter is based on win methods)
+  const getVersatility = (
+    wins: number,
+    winsByKo: number,
+    winsBySubmission: number
+  ) => {
+    if (wins === 0) return 0;
 
-    // Fight score: more fights = more experience, but diminishing returns
-    let fightScore = 0;
-    if (totalFights <= 10) fightScore = totalFights * 3; // 0-30 points
-    else if (totalFights <= 25)
-      fightScore = 30 + (totalFights - 10) * 1.5; // 30-52.5 points
-    else fightScore = Math.min(52.5 + (totalFights - 25) * 0.5, 70); // Diminishing returns, max 70
+    // Calculate decision wins
+    const decisionWins = wins - winsByKo - winsBySubmission;
 
-    return Math.round(Math.min(ageScore + fightScore, 100));
+    // Calculate percentages of each win method
+    const koPercentage = (winsByKo / wins) * 100;
+    const submissionPercentage = (winsBySubmission / wins) * 100;
+    const decisionPercentage = (decisionWins / wins) * 100;
+
+    // Calculate versatility based on how balanced the fighter is
+    // A perfectly balanced fighter (33.3% each) would get 100
+    // A fighter with 100% in one method would get 0
+    const balanceScore =
+      100 - Math.max(koPercentage, submissionPercentage, decisionPercentage);
+
+    return Math.round(Math.max(Math.min(balanceScore, 100), 0));
   };
 
   // Calculate activity level (fights per year on average)
   const getActivityLevel = (totalFights: number, age: number) => {
-    // More realistic career start age and activity estimation
-    const careerStartAge = Math.min(age - 3, 20); // Assume 3 years of career, min start at 17
+    // Calculate years active (assuming career started at age 18)
+    const careerStartAge = 18;
     const yearsActive = Math.max(age - careerStartAge, 1);
     const fightsPerYear = totalFights / yearsActive;
 
-    // More nuanced scoring based on real MMA activity patterns
-    if (fightsPerYear <= 1)
-      return Math.round(fightsPerYear * 30); // 0-30 points for 0-1 fights/year
-    else if (fightsPerYear <= 2)
-      return Math.round(30 + (fightsPerYear - 1) * 20); // 30-50 points
-    else if (fightsPerYear <= 3)
-      return Math.round(50 + (fightsPerYear - 2) * 15); // 50-65 points
-    else if (fightsPerYear <= 4)
-      return Math.round(65 + (fightsPerYear - 3) * 10); // 65-75 points
-    else return Math.round(Math.min(75 + (fightsPerYear - 4) * 5, 100)); // 75-100 points for 4+ fights/year
+    // Scale: 0-2 fights/year = 0-40, 2-4 fights/year = 40-80, 4+ fights/year = 80-100
+    const scaledActivity = Math.min(fightsPerYear * 25, 100);
+
+    return Math.round(Math.max(Math.min(scaledActivity, 100), 0));
   };
 
-  // Calculate win rate (overall success percentage)
-  const getWinRate = (wins: number, losses: number, draws: number) => {
-    const totalFights = wins + losses + draws;
-    if (totalFights === 0) return 0;
-    return Math.round((wins / totalFights) * 100);
-  };
-
-  // Calculate durability (ability to go the distance)
-  const getDurability = (
+  // Calculate decision wins percentage
+  const getDecision = (
     wins: number,
-    losses: number,
-    draws: number,
     winsByKo: number,
     winsBySubmission: number
   ) => {
-    const totalFights = wins + losses + draws;
-    if (totalFights === 0) return 0;
+    if (wins === 0) return 0;
+
+    // Ensure values are non-negative
+    const totalWins = Math.max(wins, 0);
+    const koWins = Math.max(winsByKo, 0);
+    const submissionWins = Math.max(winsBySubmission, 0);
 
     // Calculate decision wins (wins that went to decision)
-    const decisionWins = wins - winsByKo - winsBySubmission;
+    const decisionWins = Math.max(totalWins - koWins - submissionWins, 0);
 
-    // Calculate decision losses (losses that went to decision)
-    // We need to estimate decision losses since we don't have that data
-    // Assume a reasonable ratio of decision losses to total losses
-    const estimatedDecisionLosses = Math.round(losses * 0.6); // 60% of losses go to decision
+    // Calculate decision win percentage
+    const decisionPercentage = (decisionWins / totalWins) * 100;
 
-    // Total decisions (wins + losses that went the distance)
-    const totalDecisions = decisionWins + estimatedDecisionLosses;
-
-    // Durability is the percentage of fights that went to decision
-    const durabilityRate = (totalDecisions / totalFights) * 100;
-
-    // Higher decision rate = more durable (can go the distance)
-    return Math.round(Math.min(durabilityRate, 100));
+    return Math.round(Math.max(Math.min(decisionPercentage, 100), 0));
   };
 
-  // Calculate ranking score (based on division rank)
-  const getRankingScore = (rank?: number) => {
-    if (!rank || rank === 0) return 0;
-    // Invert the rank so #1 = 100, #2 = 95, #3 = 90, etc.
-    // Top 20 get scores, others get 0
-    if (rank <= 20) {
-      return Math.round(100 - (rank - 1) * 5);
-    }
-    return 0;
+  // Calculate experience (total fights)
+  const getExperience = (wins: number, losses: number, draws: number) => {
+    // Ensure values are non-negative
+    const totalWins = Math.max(wins, 0);
+    const totalLosses = Math.max(losses, 0);
+    const totalDraws = Math.max(draws, 0);
+
+    const totalFights = totalWins + totalLosses + totalDraws;
+
+    // Return total fights (capped at 100 for display)
+    return Math.round(Math.max(Math.min(totalFights, 100), 0));
   };
 
   // Create chart data with normalized values
   const chartData = [
     {
-      stat: "Win Rate",
-      athlete1: getWinRate(athlete1.wins, athlete1.losses, athlete1.draws),
-      athlete2: getWinRate(athlete2.wins, athlete2.losses, athlete2.draws),
+      stat: "Decision",
+      athlete1: getDecision(
+        athlete1.wins,
+        athlete1.winsByKo,
+        athlete1.winsBySubmission
+      ),
+      athlete2: getDecision(
+        athlete2.wins,
+        athlete2.winsByKo,
+        athlete2.winsBySubmission
+      ),
     },
     {
       stat: "Finishing",
@@ -139,36 +141,21 @@ export function AthleteComparisonChart({
       ),
     },
     {
-      stat: "Durability",
-      athlete1: getDurability(
+      stat: "Experience",
+      athlete1: getExperience(athlete1.wins, athlete1.losses, athlete1.draws),
+      athlete2: getExperience(athlete2.wins, athlete2.losses, athlete2.draws),
+    },
+    {
+      stat: "Versatility",
+      athlete1: getVersatility(
         athlete1.wins,
-        athlete1.losses,
-        athlete1.draws,
         athlete1.winsByKo,
         athlete1.winsBySubmission
       ),
-      athlete2: getDurability(
+      athlete2: getVersatility(
         athlete2.wins,
-        athlete2.losses,
-        athlete2.draws,
         athlete2.winsByKo,
         athlete2.winsBySubmission
-      ),
-    },
-    {
-      stat: "Ranking",
-      athlete1: getRankingScore(athlete1.rank),
-      athlete2: getRankingScore(athlete2.rank),
-    },
-    {
-      stat: "Experience",
-      athlete1: getExperienceFactor(
-        athlete1.age,
-        athlete1.wins + athlete1.losses + athlete1.draws
-      ),
-      athlete2: getExperienceFactor(
-        athlete2.age,
-        athlete2.wins + athlete2.losses + athlete2.draws
       ),
     },
     {
