@@ -210,7 +210,7 @@ export function AthleteComparisonChart({
             <PolarAngleAxis
               dataKey="stat"
               tick={{
-                fontSize: "clamp(8px, 1.5vw, 12px)",
+                fontSize: "clamp(12px, 1.5vw, 12px)",
                 fill: "currentColor",
               }}
             />

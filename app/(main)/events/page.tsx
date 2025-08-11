@@ -63,7 +63,7 @@ export default async function EventsPage() {
                       </span>
                     </TableCell>
                     <TableCell className="py-2">
-                      <span className="text-sm font-medium text-orange-500 dark:text-yellow-400">
+                      <span className="text-sm font-medium text-red-600 dark:text-red-400">
                         {event.mainEvent}
                       </span>
                     </TableCell>

@@ -73,7 +73,7 @@ export function P4PSidebarClient({
           <TabsTrigger value="female">Female</TabsTrigger>
         </TabsList>
 
-        <CardTitle className=" text-center p-4 border-b">
+        <CardTitle className="text-center p-4 border-b">
           Pound For Pound Rankings
         </CardTitle>
 

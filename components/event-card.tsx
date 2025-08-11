@@ -40,7 +40,7 @@ export default function EventCard({
           <span className="text-[12px] font-medium text-gray-700 dark:text-gray-300 shrink-0">
             Main Event:
           </span>
-          <span className="text-[12px] text-orange-500 dark:text-yellow-400 truncate">
+          <span className="text-[12px] text-red-600 dark:text-red-400 truncate">
             {mainEvent}
           </span>
         </div>

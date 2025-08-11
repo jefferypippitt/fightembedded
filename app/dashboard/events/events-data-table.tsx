@@ -25,8 +25,6 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  CircleCheck,
-  CircleX,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -64,6 +62,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 
 // Helper component for the actions cell
 const ActionsCell = ({ event }: { event: UFCEvent }) => {
@@ -242,20 +241,31 @@ const columns: ColumnDef<UFCEvent>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+      const colorClass =
+        status === "UPCOMING"
+          ? "bg-green-500 dark:bg-green-400"
+          : status === "COMPLETED"
+          ? "bg-blue-500 dark:bg-blue-400"
+          : "bg-red-500 dark:bg-red-400";
       return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-muted-foreground px-1.5",
-            status === "UPCOMING" && "text-green-500 dark:text-green-400",
-            status === "COMPLETED" && "text-blue-500 dark:text-blue-400",
-            status === "CANCELLED" && "text-red-500 dark:text-red-400"
-          )}
-        >
-          {status === "UPCOMING" && <CircleCheck className="mr-1 h-3 w-3" />}
-          {status === "COMPLETED" && <CircleCheck className="mr-1 h-3 w-3" />}
-          {status === "CANCELLED" && <CircleX className="mr-1 h-3 w-3" />}
-          {status}
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          <span className="relative flex items-center gap-1.5">
+            <span className="relative flex size-2">
+              <span
+                className={cn(
+                  "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                  colorClass
+                )}
+              />
+              <span
+                className={cn(
+                  "relative inline-flex size-2 rounded-full",
+                  colorClass
+                )}
+              />
+            </span>
+            {status}
+          </span>
         </Badge>
       );
     },
@@ -277,6 +287,14 @@ export function EventsDataTable({
   upcomingEvents,
   completedEvents,
 }: EventsDataTableProps) {
+  const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
+  const [view, setView] = useQueryState(
+    "view",
+    parseAsString.withDefault("events")
+  );
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(0));
+  const [size, setSize] = useQueryState("size", parseAsInteger.withDefault(10));
+  const [sortParam, setSortParam] = useQueryState("sort", parseAsString);
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "date",
@@ -288,15 +306,9 @@ export function EventsDataTable({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const [activeView, setActiveView] = React.useState("events");
 
   const currentData = React.useMemo(() => {
-    switch (activeView) {
+    switch (view) {
       case "upcoming":
         return upcomingEvents;
       case "completed":
@@ -305,39 +317,75 @@ export function EventsDataTable({
       default:
         return events;
     }
-  }, [activeView, events, upcomingEvents, completedEvents]);
+  }, [view, events, upcomingEvents, completedEvents]);
 
   const table = useReactTable({
     data: currentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      setSorting(next);
+      const s = next[0];
+      setSortParam(s ? `${s.id}.${s.desc ? "desc" : "asc"}` : null, {
+        history: "replace",
+        shallow: true,
+      });
+    },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      const current = { pageIndex: page, pageSize: size };
+      const next = typeof updater === "function" ? updater(current) : updater;
+      if (next.pageIndex !== page) {
+        setPage(next.pageIndex, { history: "replace", shallow: true });
+      }
+      if (next.pageSize !== size) {
+        setSize(next.pageSize, { history: "replace", shallow: true });
+      }
+    },
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      pagination,
+      pagination: { pageIndex: page, pageSize: size },
     },
   });
 
-  // Reset filters when changing views
+  // Sync the URL query param `q` with the table's name filter
+  React.useEffect(() => {
+    table.getColumn("name")?.setFilterValue(q);
+  }, [q, table]);
+
+  // Reflect URL sort param back into table sorting
+  React.useEffect(() => {
+    if (!sortParam) return;
+    const [id, dir] = sortParam.split(".");
+    if (!id) return;
+    const desc = dir === "desc";
+    setSorting((prev) =>
+      prev[0] && prev[0].id === id && prev[0].desc === desc
+        ? prev
+        : [{ id, desc }]
+    );
+  }, [sortParam]);
+
+  // Reset filters and pagination when changing views
   React.useEffect(() => {
     setColumnFilters([]);
-    setPagination({ pageIndex: 0, pageSize: 10 });
-  }, [activeView]);
+    setPage(0, { history: "replace", shallow: true });
+    setSize(10, { history: "replace", shallow: true });
+  }, [view, setPage, setSize]);
 
   const handleViewChange = (value: string) => {
-    setActiveView(value);
+    setView(value, { history: "replace", shallow: true });
   };
 
   const getEmptyMessage = () => {
-    switch (activeView) {
+    switch (view) {
       case "upcoming":
         return "No upcoming events found.";
       case "completed":
@@ -351,7 +399,7 @@ export function EventsDataTable({
     <div className="w-full flex flex-col justify-start gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex items-center gap-2">
-          <Select value={activeView} onValueChange={handleViewChange}>
+          <Select value={view} onValueChange={handleViewChange}>
             <SelectTrigger className="w-fit" size="sm" id="view-selector">
               <SelectValue placeholder="Select a view" />
             </SelectTrigger>
@@ -405,9 +453,9 @@ export function EventsDataTable({
         <div className="flex items-center py-4">
           <Input
             placeholder="Filter by name..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            value={q}
             onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
+              setQ(event.target.value, { history: "replace", shallow: true })
             }
             className="max-w-sm"
           />

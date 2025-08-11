@@ -24,8 +24,6 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  CircleCheck,
-  CircleX,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -62,6 +60,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 
 // Helper component for the rank and name cell
 const RankAndNameCell = ({
@@ -437,62 +436,13 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
     accessorKey: "gender",
     header: ({ column }) => {
       return (
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Gender
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Filter gender</span>
-                <Filter className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by Gender</DropdownMenuLabel>
-              <DropdownMenuCheckboxItem
-                checked={(column.getFilterValue() as string[])?.includes(
-                  "MALE"
-                )}
-                onCheckedChange={(checked) => {
-                  const currentFilter =
-                    (column.getFilterValue() as string[]) ?? [];
-                  if (checked) {
-                    column.setFilterValue([...currentFilter, "MALE"]);
-                  } else {
-                    column.setFilterValue(
-                      currentFilter.filter((item) => item !== "MALE")
-                    );
-                  }
-                }}
-              >
-                Male
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={(column.getFilterValue() as string[])?.includes(
-                  "FEMALE"
-                )}
-                onCheckedChange={(checked) => {
-                  const currentFilter =
-                    (column.getFilterValue() as string[]) ?? [];
-                  if (checked) {
-                    column.setFilterValue([...currentFilter, "FEMALE"]);
-                  } else {
-                    column.setFilterValue(
-                      currentFilter.filter((item) => item !== "FEMALE")
-                    );
-                  }
-                }}
-              >
-                Female
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Gender
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
     cell: ({ row }) => (
@@ -560,15 +510,30 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
     accessorKey: "retired",
     header: "Status",
     cell: ({ row }) => {
-      const retired = row.getValue("retired");
+      const retired = row.getValue("retired") as boolean;
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {retired ? (
-            <CircleX className="mr-1 h-3 w-3 text-red-500 dark:text-red-400" />
-          ) : (
-            <CircleCheck className="mr-1 h-3 w-3 text-green-500 dark:text-green-400" />
-          )}
-          {retired ? "Retired" : "Active"}
+          <span className="relative flex items-center gap-1.5">
+            <span className="relative flex size-2">
+              <span
+                className={
+                  `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ` +
+                  (retired
+                    ? "bg-red-500 dark:bg-red-400"
+                    : "bg-green-500 dark:bg-green-400")
+                }
+              />
+              <span
+                className={
+                  `relative inline-flex size-2 rounded-full ` +
+                  (retired
+                    ? "bg-red-500 dark:bg-red-400"
+                    : "bg-green-500 dark:bg-green-400")
+                }
+              />
+            </span>
+            {retired ? "Retired" : "Active"}
+          </span>
         </Badge>
       );
     },
@@ -594,6 +559,21 @@ export function AthletesDataTable({
   champions,
   p4pAthletes,
 }: AthletesDataTableProps) {
+  const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
+  const [view, setView] = useQueryState(
+    "view",
+    parseAsString.withDefault("athletes")
+  );
+  const [genderParam, setGenderParam] = useQueryState(
+    "gender",
+    parseAsString.withDefault("ALL")
+  );
+  const selectedGender = ["ALL", "MALE", "FEMALE"].includes(genderParam)
+    ? (genderParam as "ALL" | "MALE" | "FEMALE")
+    : "ALL";
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(0));
+  const [size, setSize] = useQueryState("size", parseAsInteger.withDefault(10));
+  const [sortParam, setSortParam] = useQueryState("sort", parseAsString);
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "rankAndName",
@@ -605,21 +585,11 @@ export function AthletesDataTable({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const [selectedGender, setSelectedGender] = React.useState<
-    "ALL" | "MALE" | "FEMALE"
-  >("ALL");
-
-  const [activeView, setActiveView] = React.useState("athletes");
 
   const currentData = React.useMemo(() => {
     let data: Athlete[] = [];
 
-    switch (activeView) {
+    switch (view) {
       case "undefeated":
         data = undefeatedAthletes;
         break;
@@ -655,13 +625,13 @@ export function AthletesDataTable({
     }
 
     // Apply gender filtering to all views (except Champions which handles it internally)
-    if (activeView !== "champions" && selectedGender !== "ALL") {
+    if (view !== "champions" && selectedGender !== "ALL") {
       data = data.filter((athlete) => athlete.gender === selectedGender);
     }
 
     return data;
   }, [
-    activeView,
+    view,
     athletes,
     undefeatedAthletes,
     retiredAthletes,
@@ -670,26 +640,61 @@ export function AthletesDataTable({
     selectedGender,
   ]);
 
-  const columns = createColumns(activeView);
+  const columns = createColumns(view);
 
   const table = useReactTable({
     data: currentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      setSorting(next);
+      const s = next[0];
+      setSortParam(s ? `${s.id}.${s.desc ? "desc" : "asc"}` : null, {
+        history: "replace",
+        shallow: true,
+      });
+    },
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
+    onPaginationChange: (updater) => {
+      const current = { pageIndex: page, pageSize: size };
+      const next = typeof updater === "function" ? updater(current) : updater;
+      if (next.pageIndex !== page) {
+        setPage(next.pageIndex, { history: "replace", shallow: true });
+      }
+      if (next.pageSize !== size) {
+        setSize(next.pageSize, { history: "replace", shallow: true });
+      }
+    },
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      pagination,
+      pagination: { pageIndex: page, pageSize: size },
     },
   });
+
+  // Sync the URL query param `q` with the table's name filter
+  React.useEffect(() => {
+    table.getColumn("rankAndName")?.setFilterValue(q);
+  }, [q, table]);
+
+  // Reflect URL sort param back into table sorting
+  React.useEffect(() => {
+    if (!sortParam) return;
+    const [id, dir] = sortParam.split(".");
+    if (!id) return;
+    const desc = dir === "desc";
+    setSorting((prev) =>
+      prev[0] && prev[0].id === id && prev[0].desc === desc
+        ? prev
+        : [{ id, desc }]
+    );
+  }, [sortParam]);
 
   // Ensure proper sorting when filters are applied
   React.useEffect(() => {
@@ -700,42 +705,37 @@ export function AthletesDataTable({
       // Ensure the table is sorted by rank when a weight division filter is applied
       if (sorting.length === 0 || sorting[0].id !== "rankAndName") {
         setSorting([{ id: "rankAndName", desc: false }]);
+        setSortParam("rankAndName.asc", { history: "replace", shallow: true });
       }
     }
-  }, [columnFilters, sorting]);
+  }, [columnFilters, sorting, setSortParam]);
 
-  // Update sorting when active view changes
+  // Update sorting when view changes
   React.useEffect(() => {
-    if (activeView === "p4p") {
-      // For P4P view, sort by P4P rank
+    if (view === "p4p") {
       setSorting([{ id: "poundForPoundRank", desc: false }]);
-    } else if (activeView === "champions") {
-      // For champions view, sort by rank
-      setSorting([{ id: "rankAndName", desc: false }]);
-    } else if (activeView === "undefeated") {
-      // For undefeated view, sort by rank
-      setSorting([{ id: "rankAndName", desc: false }]);
-    } else if (activeView === "retired") {
-      // For retired view, sort by rank
-      setSorting([{ id: "rankAndName", desc: false }]);
+      setSortParam("poundForPoundRank.asc", {
+        history: "replace",
+        shallow: true,
+      });
     } else {
-      // For athletes view, sort by rank
       setSorting([{ id: "rankAndName", desc: false }]);
+      setSortParam("rankAndName.asc", { history: "replace", shallow: true });
     }
-  }, [activeView]);
+  }, [view, setSortParam]);
 
   return (
     <Tabs
       defaultValue="athletes"
-      value={activeView}
-      onValueChange={setActiveView}
+      value={view}
+      onValueChange={setView}
       className="w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between px-4 lg:px-6">
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select value={activeView} onValueChange={setActiveView}>
+        <Select value={view} onValueChange={setView}>
           <SelectTrigger className="flex w-fit" size="sm" id="view-selector">
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
@@ -764,18 +764,19 @@ export function AthletesDataTable({
         <div className="flex items-center gap-4 py-4">
           <Input
             placeholder="Filter by name..."
-            value={
-              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
-            }
+            value={q}
             onChange={(event) =>
-              table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+              setQ(event.target.value || null, {
+                history: "replace",
+                shallow: true,
+              })
             }
             className="max-w-sm"
           />
           <Select
             value={selectedGender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setSelectedGender(value)
+              setGenderParam(value, { history: "replace", shallow: true })
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -917,18 +918,19 @@ export function AthletesDataTable({
         <div className="flex items-center gap-4 py-4">
           <Input
             placeholder="Filter by name..."
-            value={
-              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
-            }
+            value={q}
             onChange={(event) =>
-              table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+              setQ(event.target.value || null, {
+                history: "replace",
+                shallow: true,
+              })
             }
             className="max-w-sm"
           />
           <Select
             value={selectedGender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setSelectedGender(value)
+              setGenderParam(value, { history: "replace", shallow: true })
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -1070,18 +1072,19 @@ export function AthletesDataTable({
         <div className="flex items-center gap-4 py-4">
           <Input
             placeholder="Filter by name..."
-            value={
-              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
-            }
+            value={q}
             onChange={(event) =>
-              table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+              setQ(event.target.value || null, {
+                history: "replace",
+                shallow: true,
+              })
             }
             className="max-w-sm"
           />
           <Select
             value={selectedGender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setSelectedGender(value)
+              setGenderParam(value, { history: "replace", shallow: true })
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -1223,18 +1226,19 @@ export function AthletesDataTable({
         <div className="flex items-center gap-4 py-4">
           <Input
             placeholder="Filter by name..."
-            value={
-              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
-            }
+            value={q}
             onChange={(event) =>
-              table.getColumn("rankAndName")?.setFilterValue(event.target.value)
+              setQ(event.target.value || null, {
+                history: "replace",
+                shallow: true,
+              })
             }
             className="max-w-sm"
           />
           <Select
             value={selectedGender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setSelectedGender(value)
+              setGenderParam(value, { history: "replace", shallow: true })
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -1387,7 +1391,7 @@ export function AthletesDataTable({
           <Select
             value={selectedGender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setSelectedGender(value)
+              setGenderParam(value, { history: "replace", shallow: true })
             }
           >
             <SelectTrigger className="w-[180px]">
