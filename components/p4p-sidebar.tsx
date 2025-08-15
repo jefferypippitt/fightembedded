@@ -67,7 +67,7 @@ export function P4PSidebarClient({
 }: P4PSidebarProps) {
   return (
     <Card className="p-0">
-      <Tabs defaultValue="male">
+      <Tabs defaultValue="male" className="h-full flex flex-col">
         <TabsList className="w-full bg-card border-b">
           <TabsTrigger value="male">Male</TabsTrigger>
           <TabsTrigger value="female">Female</TabsTrigger>
@@ -77,9 +77,9 @@ export function P4PSidebarClient({
           Pound For Pound Rankings
         </CardTitle>
 
-        <CardContent className="p-4">
-          <TabsContent value="male">
-            <ul className="space-y-2">
+        <CardContent className="p-4 flex-1 overflow-y-auto">
+          <TabsContent value="male" className="h-full">
+            <ul className="space-y-3">
               {maleP4PRankings.map((fighter, index) => (
                 <FighterCard
                   key={fighter.id}
@@ -89,8 +89,8 @@ export function P4PSidebarClient({
               ))}
             </ul>
           </TabsContent>
-          <TabsContent value="female">
-            <ul className="space-y-2">
+          <TabsContent value="female" className="h-full">
+            <ul className="space-y-3">
               {femaleP4PRankings.map((fighter, index) => (
                 <FighterCard
                   key={fighter.id}

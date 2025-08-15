@@ -84,27 +84,18 @@ export function DivisionCharts({
   divisionRankings: DivisionRankings[];
 }) {
   return (
-    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
       {divisions.map((division) => {
         const divisionData = divisionRankings.find(
           (d) => d.division === division
         );
         return (
-          <Card
-            key={division}
-            className="@container/card h-full relative overflow-hidden"
-          >
-            <CardHeader className="flex flex-col items-stretch !p-0 sm:flex-row">
-              <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-                <CardTitle className="text-center text-base sm:text-lg font-bold">
-                  {division}
-                </CardTitle>
-                <CardDescription className="text-center text-xs font-mono">
-                  {getDivisionWeight(division)}
-                </CardDescription>
-              </div>
+          <Card key={division}>
+            <CardHeader>
+              <CardTitle>{division}</CardTitle>
+              <CardDescription>{getDivisionWeight(division)}</CardDescription>
             </CardHeader>
-            <CardContent className="px-2 sm:p-6 relative z-10">
+            <CardContent>
               <DivisionChartData divisionData={divisionData} />
             </CardContent>
           </Card>
@@ -150,10 +141,6 @@ function DivisionChartData({
           axisLine={false}
           tickLine={false}
           tickFormatter={(value) => value.toLocaleString()}
-          tick={{
-            fill: "hsl(var(--foreground))",
-            fontSize: "9px",
-          }}
         />
         <YAxis
           dataKey="name"
@@ -163,11 +150,6 @@ function DivisionChartData({
           axisLine={false}
           width={140}
           interval={0}
-          tick={{
-            fill: "hsl(var(--foreground))",
-            fontSize: "9px",
-            x: 0,
-          }}
           tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
         />
         <ChartTooltip
