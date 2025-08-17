@@ -18,7 +18,7 @@ interface AthletesSearchProps {
 const SelectedAthleteBadge = memo(
   ({ athlete, onRemove }: { athlete: Athlete; onRemove: () => void }) => (
     <Badge variant="secondary" className="flex items-center gap-1">
-      <span className="truncate sm:text-clip sm:whitespace-normal text-xs sm:text-sm">
+      <span className="truncate sm:text-clip sm:whitespace-normal text-xs">
         {athlete.name}
       </span>
       <Button
@@ -26,10 +26,10 @@ const SelectedAthleteBadge = memo(
         size="icon"
         type="button"
         onClick={onRemove}
-        className="h-3.5 w-3.5 cursor-pointer"
+        className="h-3 w-3 cursor-pointer"
         aria-label={`Remove ${athlete.name}`}
       >
-        <X className="h-3.5 w-3.5" />
+        <X className="h-3 w-3" />
       </Button>
     </Badge>
   )
@@ -209,7 +209,7 @@ const AthletesGrid = memo(
         <>
           {/* Show the selected athlete prominently */}
           <div className="mb-6">
-            <div className="text-sm sm:text-base text-muted-foreground mb-3">
+            <div className="text-xs text-muted-foreground mb-3">
               Selected athlete:
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
@@ -229,7 +229,7 @@ const AthletesGrid = memo(
           {/* Show search results if there's a search query */}
           {searchInput.trim() && (
             <div>
-              <div className="text-xs sm:text-sm text-muted-foreground mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Search results (select another athlete for comparison)
               </div>
               <AthletesList
@@ -245,7 +245,7 @@ const AthletesGrid = memo(
           {/* Show all other athletes if no search query */}
           {!searchInput.trim() && (
             <div>
-              <div className="text-xs sm:text-sm text-muted-foreground mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Select another athlete for comparison:
               </div>
               <AthletesList
@@ -271,7 +271,7 @@ const AthletesGrid = memo(
 
       return (
         <>
-          <div className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 text-center">
+          <div className="text-xs text-muted-foreground mb-3 sm:mb-4 text-center">
             {searchResults.length === 0 && selectedAthletes.length === 0
               ? "No results found"
               : `Showing ${searchResults.length + selectedAthletes.length} of ${
@@ -282,7 +282,7 @@ const AthletesGrid = memo(
           {/* Show selected athletes first if any */}
           {selectedAthletes.length > 0 && (
             <div className="mb-4">
-              <div className="text-xs sm:text-sm text-muted-foreground mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Selected athletes:
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -308,7 +308,7 @@ const AthletesGrid = memo(
           {/* Show search results */}
           {searchResults.length > 0 && (
             <div>
-              <div className="text-xs sm:text-sm text-muted-foreground mb-2">
+              <div className="text-xs text-muted-foreground mb-2">
                 Search results:
               </div>
               <AthletesList

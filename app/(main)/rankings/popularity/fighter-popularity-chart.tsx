@@ -2,7 +2,13 @@
 
 import * as React from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -63,9 +69,12 @@ export function FighterPopularityChart({
     <Card className="@container/card h-full relative overflow-hidden py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-          <CardTitle className="text-center text-base sm:text-2xl font-bold">
-            X and Instagram Followers
+          <CardTitle className="text-base sm:text-2xl font-bold">
+            Total Social Media Followers
           </CardTitle>
+          <CardDescription className="text-xs text-muted-foreground">
+            From X and Instagram
+          </CardDescription>
         </div>
         <div className="flex">
           {(["male", "female"] as const).map((key) => (
