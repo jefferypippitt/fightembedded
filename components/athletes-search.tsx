@@ -8,6 +8,7 @@ import { AthleteListCard } from "@/components/athlete-list-card";
 import { AthleteComparisonChart } from "@/components/athlete-comparison-chart";
 import type { Athlete } from "@/types/athlete";
 import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs";
+import { Input } from "@/components/ui/input";
 
 interface AthletesSearchProps {
   athletes: Athlete[];
@@ -17,8 +18,8 @@ interface AthletesSearchProps {
 // Selected athlete badge component
 const SelectedAthleteBadge = memo(
   ({ athlete, onRemove }: { athlete: Athlete; onRemove: () => void }) => (
-    <Badge variant="secondary" className="flex items-center gap-1">
-      <span className="truncate sm:text-clip sm:whitespace-normal text-xs">
+    <Badge variant="secondary" className="flex items-center gap-2">
+      <span className="truncate sm:text-clip sm:whitespace-normal ">
         {athlete.name}
       </span>
       <Button
@@ -27,7 +28,6 @@ const SelectedAthleteBadge = memo(
         type="button"
         onClick={onRemove}
         className="h-3 w-3 cursor-pointer"
-        aria-label={`Remove ${athlete.name}`}
       >
         <X className="h-3 w-3" />
       </Button>
@@ -54,14 +54,31 @@ const SearchInput = memo(
     selectionLimitReached: boolean;
     placeholder: string;
   }) => (
-    <div className="relative">
-      <div className="flex items-center min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-        {/* Search icon */}
-        <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+    <div className="space-y-3">
+      {/* Search input */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          disabled
+          className="shrink-0 bg-transparent"
+        >
+          <Search className="h-4 w-4" />
+        </Button>
+        <Input
+          type="text"
+          placeholder={placeholder}
+          value={searchInput}
+          onChange={(e) => onSearchChange(e.target.value)}
+          disabled={selectionLimitReached}
+          className="flex-1 text-base sm:text-base placeholder:text-sm"
+        />
+      </div>
 
-        {/* Selected athlete badges */}
-        {selectedAthletes.length > 0 && (
-          <div className="flex items-center gap-2 ml-2 flex-wrap">
+      {/* Selected athlete badges and clear all button */}
+      {selectedAthletes.length > 0 && (
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             {selectedAthletes.map((athlete) => (
               <SelectedAthleteBadge
                 key={athlete.id}
@@ -70,79 +87,20 @@ const SearchInput = memo(
               />
             ))}
           </div>
-        )}
-
-        {/* Text input */}
-        <input
-          type="text"
-          placeholder={selectedAthletes.length > 0 ? "" : placeholder}
-          value={searchInput}
-          onChange={(e) => onSearchChange(e.target.value)}
-          autoComplete="off"
-          disabled={selectionLimitReached}
-          className="flex-1 min-w-0 bg-transparent border-none outline-none placeholder:text-muted-foreground text-sm ml-2"
-        />
-
-        {/* Right-side actions */}
-        <SearchActions
-          searchInput={searchInput}
-          selectedAthletes={selectedAthletes}
-          onClearAll={() => selectedAthletes.forEach(onRemoveAthlete)}
-          onClearSearch={() => onSearchChange("")}
-        />
-      </div>
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => selectedAthletes.forEach(onRemoveAthlete)}
+          >
+            Clear All
+          </Button>
+        </div>
+      )}
     </div>
   )
 );
 
 SearchInput.displayName = "SearchInput";
-
-// Search actions component
-const SearchActions = memo(
-  ({
-    searchInput,
-    selectedAthletes,
-    onClearAll,
-    onClearSearch,
-  }: {
-    searchInput: string;
-    selectedAthletes: Athlete[];
-    onClearAll: () => void;
-    onClearSearch: () => void;
-  }) => {
-    if (!searchInput && selectedAthletes.length === 0) return null;
-
-    return (
-      <div className="flex items-center gap-1 ml-2 flex-shrink-0">
-        {selectedAthletes.length > 0 ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            onClick={onClearAll}
-            className="h-7 w-7 cursor-pointer"
-            title="Clear all selections"
-          >
-            <X className="h-3.5 w-3.5" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            type="button"
-            onClick={onClearSearch}
-            className="h-7 w-7 cursor-pointer"
-            title="Clear search"
-          >
-            <X className="h-3.5 w-3.5" />
-          </Button>
-        )}
-      </div>
-    );
-  }
-);
-
-SearchActions.displayName = "SearchActions";
 
 // Athletes grid component
 const AthletesGrid = memo(
