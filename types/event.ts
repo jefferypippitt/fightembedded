@@ -12,7 +12,7 @@ export type Event = {
   venue: string;
   location: string;
   mainEvent: string;
-  status: "UPCOMING" | "COMPLETED";
+  status: "UPCOMING" | "COMPLETED" | "CANCELLED";
   createdAt: Date;
   updatedAt: Date;
 };

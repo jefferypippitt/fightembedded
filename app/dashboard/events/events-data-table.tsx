@@ -25,7 +25,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -65,14 +64,13 @@ import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 
 // Helper component for the actions cell
 const ActionsCell = ({ event }: { event: Event }) => {
-  const router = useRouter();
-
   const handleDelete = async () => {
     try {
       const result = await deleteEvent(event.id);
       if (result.status === "success") {
         toast.success("Event deleted successfully");
-        router.refresh();
+        // Force a hard refresh to ensure fresh data
+        window.location.reload();
       } else {
         toast.error(result.message || "Failed to delete event");
       }
@@ -112,7 +110,7 @@ const ActionsCell = ({ event }: { event: Event }) => {
 
 // Helper component for the status filter
 const StatusFilter = ({ column }: { column: Column<Event, unknown> }) => {
-  const statuses = ["UPCOMING", "COMPLETED"];
+  const statuses = ["UPCOMING", "COMPLETED", "CANCELLED"];
 
   return (
     <DropdownMenu>
@@ -283,7 +281,9 @@ const createColumns = (): ColumnDef<Event>[] => [
           ? "bg-green-500 dark:bg-green-400"
           : status === "COMPLETED"
           ? "bg-blue-500 dark:bg-blue-400"
-          : "bg-red-500 dark:bg-red-400";
+          : status === "CANCELLED"
+          ? "bg-red-500 dark:bg-red-400"
+          : "bg-gray-500 dark:bg-gray-400";
       return (
         <Badge variant="outline" className="text-muted-foreground px-1.5">
           <span className="relative flex items-center gap-1.5">
@@ -309,8 +309,12 @@ const createColumns = (): ColumnDef<Event>[] => [
       const statusA = rowA.original.status;
       const statusB = rowB.original.status;
 
-      // Custom sorting: UPCOMING first, then COMPLETED
-      const statusOrder: Record<string, number> = { UPCOMING: 1, COMPLETED: 2 };
+      // Custom sorting: UPCOMING first, then COMPLETED, then CANCELLED
+      const statusOrder: Record<string, number> = {
+        UPCOMING: 1,
+        COMPLETED: 2,
+        CANCELLED: 3,
+      };
       return statusOrder[statusA] - statusOrder[statusB];
     },
     filterFn: (row, id, filterValues: string[]) => {
@@ -389,6 +393,14 @@ export function EventsDataTable() {
         },
       ]);
     } else if (view === "completed") {
+      setSort("date.desc");
+      setSorting([
+        {
+          id: "date",
+          desc: true,
+        },
+      ]);
+    } else if (view === "cancelled") {
       setSort("date.desc");
       setSorting([
         {
@@ -511,6 +523,7 @@ export function EventsDataTable() {
             <SelectItem value="events">All Events</SelectItem>
             <SelectItem value="upcoming">Upcoming</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">

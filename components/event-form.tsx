@@ -220,6 +220,7 @@ export function EventForm({ initialData }: EventFormProps) {
                     <SelectContent>
                       <SelectItem value="UPCOMING">Upcoming</SelectItem>
                       <SelectItem value="COMPLETED">Completed</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage className="text-xs" />

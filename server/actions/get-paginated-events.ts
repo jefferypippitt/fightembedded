@@ -3,7 +3,6 @@
 import prisma from "@/lib/prisma";
 import { unstable_noStore as noStore } from "next/cache";
 import { Prisma } from "@prisma/client";
-import type { Event } from "@/types/event";
 
 const eventSelect = {
   id: true,
@@ -44,14 +43,14 @@ export async function getPaginatedEvents(params: {
 
   if (statusFilter && statusFilter.value.length > 0) {
     where.status = {
-      in: statusFilter.value as ("UPCOMING" | "COMPLETED")[],
+      in: statusFilter.value as ("UPCOMING" | "COMPLETED" | "CANCELLED")[],
     };
-  }
-
-  if (view === "upcoming") {
+  } else if (view === "upcoming") {
     where.status = "UPCOMING";
   } else if (view === "completed") {
     where.status = "COMPLETED";
+  } else if (view === "cancelled") {
+    where.status = "CANCELLED";
   }
 
   const sortOrder = sort?.split(".")?.[1] || "desc";
