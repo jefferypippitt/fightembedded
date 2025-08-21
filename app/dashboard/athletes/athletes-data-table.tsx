@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Table as TableType, Row as RowType } from "@tanstack/react-table";
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,7 +11,6 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   Column,
 } from "@tanstack/react-table";
@@ -30,7 +29,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Athlete } from "@/types/athlete";
-import { deleteAthlete } from "@/server/actions/delete-athlete";
+import { deleteAthlete } from "@/server/actions/athlete";
+import { getPaginatedAthletes } from "@/server/actions/get-paginated-athletes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,76 +61,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
-
-// Helper component for the rank and name cell
-const RankAndNameCell = ({
-  athlete,
-  activeView,
-  table,
-}: {
-  athlete: Athlete;
-  activeView: string;
-  table: TableType<Athlete>;
-}) => {
-  // Check if the athlete has a valid rank in the database
-  const hasValidRank =
-    athlete.rank !== null &&
-    athlete.rank !== undefined &&
-    athlete.rank > 0 &&
-    !athlete.retired;
-
-  // For all views except 'athletes', show the actual database rank (athlete.rank)
-  // For 'athletes' view, show the row index (1-based) in the filtered/sorted table
-  let displayRank: number | null = null;
-  if (activeView === "athletes") {
-    // Find the athlete's position in the current filtered/sorted table
-    const tableRows = table.getSortedRowModel().rows;
-    const rowIndex = tableRows.findIndex(
-      (row: RowType<Athlete>) => row.original.id === athlete.id
-    );
-    displayRank = rowIndex !== -1 ? rowIndex + 1 : null;
-  } else if (hasValidRank) {
-    displayRank = typeof athlete.rank === "number" ? athlete.rank : null;
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      {activeView === "p4p" ? (
-        // For P4P view, show the actual division rank, not P4P rank
-        hasValidRank ? (
-          <Badge
-            variant="outline"
-            className="min-w-8 h-6 flex items-center justify-center px-1"
-          >
-            #{athlete.rank}
-          </Badge>
-        ) : (
-          <Badge
-            variant="outline"
-            className="w-8 h-6 flex items-center justify-center"
-          >
-            NR
-          </Badge>
-        )
-      ) : displayRank !== null ? (
-        <Badge
-          variant="outline"
-          className="min-w-8 h-6 flex items-center justify-center px-1"
-        >
-          #{displayRank}
-        </Badge>
-      ) : (
-        <Badge
-          variant="outline"
-          className="w-8 h-6 flex items-center justify-center"
-        >
-          NR
-        </Badge>
-      )}
-      <span>{athlete.name}</span>
-    </div>
-  );
-};
 
 // Helper component for the actions cell
 const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
@@ -186,14 +116,14 @@ const WeightDivisionFilter = ({
   column: Column<Athlete, unknown>;
 }) => {
   const maleDivisions = [
-    "Flyweight",
-    "Bantamweight",
-    "Featherweight",
-    "Lightweight",
-    "Welterweight",
-    "Middleweight",
-    "Light Heavyweight",
-    "Heavyweight",
+    "Men's Flyweight",
+    "Men's Bantamweight",
+    "Men's Featherweight",
+    "Men's Lightweight",
+    "Men's Welterweight",
+    "Men's Middleweight",
+    "Men's Light Heavyweight",
+    "Men's Heavyweight",
   ];
 
   const femaleDivisions = [
@@ -255,14 +185,14 @@ const WeightDivisionFilter = ({
   );
 };
 
-// Move the columns definition inside the component to access activeView
-const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
+// Move the columns definition inside the component
+const createColumns = (): ColumnDef<Athlete>[] => [
   {
-    id: "rankAndName",
-    accessorFn: (row) => ({
-      rank: row.rank,
-      name: row.name,
-    }),
+    id: "rank",
+    accessorFn: (row) => {
+      // Always return the actual rank value for proper sorting
+      return row.rank ?? 0;
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -274,19 +204,15 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         </Button>
       );
     },
-    cell: ({
-      row,
-      table,
-    }: {
-      row: RowType<Athlete>;
-      table: TableType<Athlete>;
-    }) => {
+    cell: ({ row }) => {
+      const rank = row.original.rank;
       return (
-        <RankAndNameCell
-          athlete={row.original}
-          activeView={activeView}
-          table={table}
-        />
+        <Badge
+          variant="outline"
+          className="min-w-8 h-6 flex items-center justify-center px-1"
+        >
+          {rank ? `#${rank}` : "NR"}
+        </Badge>
       );
     },
     sortingFn: (rowA, rowB) => {
@@ -294,21 +220,38 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
       if (rowA.original.retired && !rowB.original.retired) return 1;
       if (!rowA.original.retired && rowB.original.retired) return -1;
 
-      // Always put unranked P4P athletes (rank 0, null, undefined) after ranked athletes
-      const p4pRankA = rowA.original.poundForPoundRank ?? 0;
-      const p4pRankB = rowB.original.poundForPoundRank ?? 0;
-      const isRankedA = p4pRankA > 0 && p4pRankA <= 15;
-      const isRankedB = p4pRankB > 0 && p4pRankB <= 15;
-      if (isRankedA && !isRankedB) return -1;
-      if (!isRankedA && isRankedB) return 1;
+      // Handle null/undefined ranks
+      const rankA = rowA.original.rank ?? 0;
+      const rankB = rowB.original.rank ?? 0;
 
-      // If both are unranked, sort by name
-      if (!isRankedA && !isRankedB) {
+      // If both are unranked (rank 0 or null), sort by name
+      if (rankA === 0 && rankB === 0) {
         return rowA.original.name.localeCompare(rowB.original.name);
       }
 
-      // Both are ranked, sort by P4P rank
-      return p4pRankA - p4pRankB;
+      // If only one is unranked, put the unranked one after the ranked one
+      if (rankA === 0) return 1; // A is unranked, put after B
+      if (rankB === 0) return -1; // B is unranked, put after A
+
+      // Both are ranked, sort by rank (champions first)
+      return rankA - rankB;
+    },
+  },
+  {
+    accessorKey: "name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return <span>{row.getValue("name")}</span>;
     },
     filterFn: (row, id, filterValue: string) => {
       return row.original.name
@@ -336,9 +279,11 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         | null
         | undefined;
 
+      // Show P4P rank only if it's between 1-15
       return p4pRank !== null &&
         p4pRank !== undefined &&
-        p4pRank > 0 &&
+        p4pRank >= 1 &&
+        p4pRank <= 15 &&
         !athlete.retired ? (
         <Badge
           variant="outline"
@@ -364,17 +309,38 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
       const p4pRankA = rowA.original.poundForPoundRank ?? 0;
       const p4pRankB = rowB.original.poundForPoundRank ?? 0;
 
-      // If both are unranked (rank 0 or null), sort by name
-      if (p4pRankA === 0 && p4pRankB === 0) {
+      // Check if athletes are P4P ranked (1-15)
+      const isP4PRankedA = p4pRankA >= 1 && p4pRankA <= 15;
+      const isP4PRankedB = p4pRankB >= 1 && p4pRankB <= 15;
+
+      // If both are P4P ranked, sort by P4P rank (1-15 in ascending order)
+      if (isP4PRankedA && isP4PRankedB) {
+        return p4pRankA - p4pRankB; // This ensures 1, 2, 3... 15 order
+      }
+
+      // If only one is P4P ranked, put the P4P ranked one first
+      if (isP4PRankedA && !isP4PRankedB) return -1;
+      if (!isP4PRankedA && isP4PRankedB) return 1;
+
+      // If neither is P4P ranked, check division ranks
+      const rankA = rowA.original.rank ?? 0;
+      const rankB = rowB.original.rank ?? 0;
+
+      // If both have division ranks, sort by division rank
+      if (rankA > 0 && rankB > 0) {
+        return rankA - rankB;
+      }
+
+      // If only one has division rank, put the ranked one first
+      if (rankA > 0 && rankB === 0) return -1;
+      if (rankA === 0 && rankB > 0) return 1;
+
+      // If both are unranked, sort by name
+      if (rankA === 0 && rankB === 0) {
         return rowA.original.name.localeCompare(rowB.original.name);
       }
 
-      // If only one is unranked, put the ranked one first
-      if (p4pRankA === 0) return 1;
-      if (p4pRankB === 0) return -1;
-
-      // Both are ranked, sort by P4P rank
-      return p4pRankA - p4pRankB;
+      return 0;
     },
   },
   {
@@ -398,6 +364,22 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         {row.getValue("weightDivision")}
       </Badge>
     ),
+    sortingFn: (rowA, rowB) => {
+      // Handle retired athletes - they should be at the bottom
+      if (rowA.original.retired && !rowB.original.retired) return 1;
+      if (!rowA.original.retired && rowB.original.retired) return -1;
+
+      // Sort by weight division
+      const divisionA = rowA.original.weightDivision ?? "";
+      const divisionB = rowB.original.weightDivision ?? "";
+
+      if (divisionA !== divisionB) {
+        return divisionA.localeCompare(divisionB);
+      }
+
+      // If divisions are equal, sort by name
+      return rowA.original.name.localeCompare(rowB.original.name);
+    },
     filterFn: (row, id, filterValues: string[]) => {
       if (!filterValues.length) return true;
       const weightDivision = (row.getValue(id) as string).toLowerCase();
@@ -450,6 +432,22 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         {row.getValue("gender") === "MALE" ? "Male" : "Female"}
       </Badge>
     ),
+    sortingFn: (rowA, rowB) => {
+      // Handle retired athletes - they should be at the bottom
+      if (rowA.original.retired && !rowB.original.retired) return 1;
+      if (!rowA.original.retired && rowB.original.retired) return -1;
+
+      // Sort by gender (MALE first, then FEMALE)
+      const genderA = rowA.original.gender ?? "";
+      const genderB = rowB.original.gender ?? "";
+
+      if (genderA !== genderB) {
+        return genderA.localeCompare(genderB);
+      }
+
+      // If genders are equal, sort by name
+      return rowA.original.name.localeCompare(rowB.original.name);
+    },
     filterFn: (row, id, filterValues: string[]) => {
       if (!filterValues.length) return true;
       const gender = row.getValue(id) as string;
@@ -468,6 +466,22 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    sortingFn: (rowA, rowB) => {
+      // Handle retired athletes - they should be at the bottom
+      if (rowA.original.retired && !rowB.original.retired) return 1;
+      if (!rowA.original.retired && rowB.original.retired) return -1;
+
+      // Sort by country
+      const countryA = rowA.original.country ?? "";
+      const countryB = rowB.original.country ?? "";
+
+      if (countryA !== countryB) {
+        return countryA.localeCompare(countryB);
+      }
+
+      // If countries are equal, sort by name
+      return rowA.original.name.localeCompare(rowB.original.name);
     },
   },
   {
@@ -491,6 +505,22 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
         </Button>
       );
     },
+    sortingFn: (rowA, rowB) => {
+      // Handle retired athletes - they should be at the bottom
+      if (rowA.original.retired && !rowB.original.retired) return 1;
+      if (!rowA.original.retired && rowB.original.retired) return -1;
+
+      // Sort by KO wins
+      const koWinsA = rowA.original.winsByKo ?? 0;
+      const koWinsB = rowB.original.winsByKo ?? 0;
+
+      if (koWinsA !== koWinsB) {
+        return koWinsA - koWinsB;
+      }
+
+      // If KO wins are equal, sort by name
+      return rowA.original.name.localeCompare(rowB.original.name);
+    },
   },
   {
     accessorKey: "winsBySubmission",
@@ -504,6 +534,22 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    sortingFn: (rowA, rowB) => {
+      // Handle retired athletes - they should be at the bottom
+      if (rowA.original.retired && !rowB.original.retired) return 1;
+      if (!rowA.original.retired && rowB.original.retired) return -1;
+
+      // Sort by submission wins
+      const subWinsA = rowA.original.winsBySubmission ?? 0;
+      const subWinsB = rowB.original.winsBySubmission ?? 0;
+
+      if (subWinsA !== subWinsB) {
+        return subWinsA - subWinsB;
+      }
+
+      // If submission wins are equal, sort by name
+      return rowA.original.name.localeCompare(rowB.original.name);
     },
   },
   {
@@ -544,39 +590,35 @@ const createColumns = (activeView: string): ColumnDef<Athlete>[] => [
   },
 ];
 
-interface AthletesDataTableProps {
-  athletes: Athlete[];
-  undefeatedAthletes: Athlete[];
-  retiredAthletes: Athlete[];
-  champions: Athlete[];
-  p4pAthletes: Athlete[];
-}
-
-export function AthletesDataTable({
-  athletes,
-  undefeatedAthletes,
-  retiredAthletes,
-  champions,
-  p4pAthletes,
-}: AthletesDataTableProps) {
+export function AthletesDataTable() {
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
     "view",
     parseAsString.withDefault("athletes")
   );
-  const [genderParam, setGenderParam] = useQueryState(
+  const [gender, setGender] = useQueryState(
     "gender",
     parseAsString.withDefault("ALL")
   );
-  const selectedGender = ["ALL", "MALE", "FEMALE"].includes(genderParam)
-    ? (genderParam as "ALL" | "MALE" | "FEMALE")
-    : "ALL";
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(0));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [size, setSize] = useQueryState("size", parseAsInteger.withDefault(10));
-  const [sortParam, setSortParam] = useQueryState("sort", parseAsString);
+  const [sort, setSort] = useQueryState(
+    "sort",
+    parseAsString.withDefault("rank.asc")
+  );
+
+  const [data, setData] = React.useState<{
+    athletes: Athlete[];
+    total: number;
+  }>({ athletes: [], total: 0 });
+
   const [sorting, setSorting] = React.useState<SortingState>([
     {
-      id: "rankAndName",
+      id: "rank",
+      desc: false,
+    },
+    {
+      id: "name",
       desc: false,
     },
   ]);
@@ -586,143 +628,130 @@ export function AthletesDataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  const currentData = React.useMemo(() => {
-    let data: Athlete[] = [];
-
-    switch (view) {
-      case "undefeated":
-        data = undefeatedAthletes;
-        break;
-      case "retired":
-        data = retiredAthletes;
-        break;
-      case "champions":
-        data = champions;
-
-        // Apply gender filtering for champions
-        if (selectedGender !== "ALL") {
-          data = data.filter((athlete) => athlete.gender === selectedGender);
-        } else {
-          // For ALL view, separate male and female champions
-          const maleChampions = data.filter(
-            (athlete) => athlete.gender === "MALE"
-          );
-          const femaleChampions = data.filter(
-            (athlete) => athlete.gender === "FEMALE"
-          );
-
-          // Return combined array with male champions first, then female
-          data = [...maleChampions, ...femaleChampions];
-        }
-        break;
-      case "p4p":
-        data = p4pAthletes;
-        break;
-      case "athletes":
-      default:
-        data = athletes;
-        break;
+  // Initialize sorting state when component mounts
+  React.useEffect(() => {
+    if (sort && !sorting.length) {
+      const sortParts = sort.split(".");
+      if (sortParts.length === 2) {
+        setSorting([
+          {
+            id: sortParts[0],
+            desc: sortParts[1] === "desc",
+          },
+        ]);
+      }
     }
+  }, [sort, sorting.length]);
 
-    // Apply gender filtering to all views (except Champions which handles it internally)
-    if (view !== "champions" && selectedGender !== "ALL") {
-      data = data.filter((athlete) => athlete.gender === selectedGender);
+  // Reset sorting when view changes to ensure proper default sorting
+  React.useEffect(() => {
+    if (view === "athletes" && !sort) {
+      setSort("rank.asc");
+      setSorting([
+        {
+          id: "rank",
+          desc: false,
+        },
+      ]);
+    } else if (view === "p4p") {
+      // For P4P view, always use poundForPoundRank ascending (1, 2, 3... 15)
+      setSort("poundForPoundRank.asc");
+      setSorting([
+        {
+          id: "poundForPoundRank",
+          desc: false,
+        },
+      ]);
     }
+  }, [view, sort, setSort]);
 
-    return data;
-  }, [
-    view,
-    athletes,
-    undefeatedAthletes,
-    retiredAthletes,
-    champions,
-    p4pAthletes,
-    selectedGender,
-  ]);
+  React.useEffect(() => {
+    const fetchData = async () => {
+      // Transform column filters to the expected format
+      const transformedFilters = columnFilters.map((filter) => ({
+        id: filter.id,
+        value: (() => {
+          if (Array.isArray(filter.value)) {
+            return filter.value.filter(
+              (v): v is string => typeof v === "string"
+            );
+          }
+          if (typeof filter.value === "string") {
+            return [filter.value];
+          }
+          return [];
+        })(),
+      }));
 
-  const columns = createColumns(view);
+      const { athletes, total } = await getPaginatedAthletes({
+        page,
+        pageSize: size,
+        q,
+        view,
+        gender,
+        sort: sort,
+        columnFilters: transformedFilters,
+      });
+      setData({ athletes, total });
+    };
+
+    fetchData();
+  }, [page, size, q, view, gender, sort, columnFilters]);
+
+  const columns = createColumns();
 
   const table = useReactTable({
-    data: currentData,
+    data: data.athletes,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: (updater) => {
-      const next = typeof updater === "function" ? updater(sorting) : updater;
-      setSorting(next);
-      const s = next[0];
-      setSortParam(s ? `${s.id}.${s.desc ? "desc" : "asc"}` : null, {
-        history: "replace",
-        shallow: true,
-      });
-    },
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: (updater) => {
-      const current = { pageIndex: page, pageSize: size };
-      const next = typeof updater === "function" ? updater(current) : updater;
-      if (next.pageIndex !== page) {
-        setPage(next.pageIndex, { history: "replace", shallow: true });
-      }
-      if (next.pageSize !== size) {
-        setSize(next.pageSize, { history: "replace", shallow: true });
-      }
-    },
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    pageCount: Math.ceil(data.total / size),
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      pagination: { pageIndex: page, pageSize: size },
+      pagination: {
+        pageIndex: page - 1,
+        pageSize: size,
+      },
     },
-  });
-
-  // Sync the URL query param `q` with the table's name filter
-  React.useEffect(() => {
-    table.getColumn("rankAndName")?.setFilterValue(q);
-  }, [q, table]);
-
-  // Reflect URL sort param back into table sorting
-  React.useEffect(() => {
-    if (!sortParam) return;
-    const [id, dir] = sortParam.split(".");
-    if (!id) return;
-    const desc = dir === "desc";
-    setSorting((prev) =>
-      prev[0] && prev[0].id === id && prev[0].desc === desc
-        ? prev
-        : [{ id, desc }]
-    );
-  }, [sortParam]);
-
-  // Ensure proper sorting when filters are applied
-  React.useEffect(() => {
-    const weightDivisionFilter = columnFilters.find(
-      (filter) => filter.id === "weightDivision"
-    );
-    if (weightDivisionFilter && weightDivisionFilter.value) {
-      // Ensure the table is sorted by rank when a weight division filter is applied
-      if (sorting.length === 0 || sorting[0].id !== "rankAndName") {
-        setSorting([{ id: "rankAndName", desc: false }]);
-        setSortParam("rankAndName.asc", { history: "replace", shallow: true });
+    onPaginationChange: (updater) => {
+      if (typeof updater === "function") {
+        const newPagination = updater({
+          pageIndex: page - 1,
+          pageSize: size,
+        });
+        setPage(newPagination.pageIndex + 1);
+        setSize(newPagination.pageSize);
       }
-    }
-  }, [columnFilters, sorting, setSortParam]);
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      setSorting(next);
 
-  // Update sorting when view changes
-  React.useEffect(() => {
-    if (view === "p4p") {
-      setSorting([{ id: "poundForPoundRank", desc: false }]);
-      setSortParam("poundForPoundRank.asc", {
-        history: "replace",
-        shallow: true,
-      });
-    } else {
-      setSorting([{ id: "rankAndName", desc: false }]);
-      setSortParam("rankAndName.asc", { history: "replace", shallow: true });
-    }
-  }, [view, setSortParam]);
+      // Create multi-column sort string
+      if (next.length > 0) {
+        const sortString = next
+          .map((s) => `${s.id}.${s.desc ? "desc" : "asc"}`)
+          .join(",");
+        setSort(sortString);
+      } else {
+        setSort(null);
+      }
+    },
+    onColumnFiltersChange: (updater) => {
+      const next =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      setColumnFilters(next);
+      setPage(1); // Reset to first page when changing filters
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    // Remove getSortedRowModel since we're using manual sorting
+    getFilteredRowModel: getFilteredRowModel(),
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+  });
 
   return (
     <Tabs
@@ -735,7 +764,13 @@ export function AthletesDataTable({
         <Label htmlFor="view-selector" className="sr-only">
           View
         </Label>
-        <Select value={view} onValueChange={setView}>
+        <Select
+          value={view}
+          onValueChange={(newView) => {
+            setView(newView);
+            setPage(1); // Reset to first page when changing view
+          }}
+        >
           <SelectTrigger className="flex w-fit" size="sm" id="view-selector">
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
@@ -758,26 +793,25 @@ export function AthletesDataTable({
       </div>
 
       <TabsContent
-        value="athletes"
+        value={view}
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="flex items-center gap-4 py-4">
           <Input
             placeholder="Filter by name..."
             value={q}
-            onChange={(event) =>
-              setQ(event.target.value || null, {
-                history: "replace",
-                shallow: true,
-              })
-            }
+            onChange={(event) => {
+              setQ(event.target.value || null);
+              setPage(1); // Reset to first page when searching
+            }}
             className="max-w-sm"
           />
           <Select
-            value={selectedGender}
-            onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setGenderParam(value, { history: "replace", shallow: true })
-            }
+            value={gender}
+            onValueChange={(value: "ALL" | "MALE" | "FEMALE") => {
+              setGender(value);
+              setPage(1); // Reset to first page when changing gender
+            }}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select gender" />
@@ -843,15 +877,13 @@ export function AthletesDataTable({
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${size}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value));
+                  setSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
+                  <SelectValue placeholder={size} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -863,15 +895,14 @@ export function AthletesDataTable({
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {page} of {table.getPageCount()}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
                 className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => setPage(1)}
+                disabled={page === 1}
               >
                 <span className="sr-only">Go to first page</span>
                 <ChevronsLeft className="h-4 w-4" />
@@ -880,8 +911,8 @@ export function AthletesDataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
               >
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeft className="h-4 w-4" />
@@ -890,8 +921,8 @@ export function AthletesDataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => setPage(page + 1)}
+                disabled={page === table.getPageCount()}
               >
                 <span className="sr-only">Go to next page</span>
                 <ChevronRight className="h-4 w-4" />
@@ -900,623 +931,8 @@ export function AthletesDataTable({
                 variant="outline"
                 className="hidden size-8 lg:flex"
                 size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent
-        value="champions"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <div className="flex items-center gap-4 py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={q}
-            onChange={(event) =>
-              setQ(event.target.value || null, {
-                history: "replace",
-                shallow: true,
-              })
-            }
-            className="max-w-sm"
-          />
-          <Select
-            value={selectedGender}
-            onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setGenderParam(value, { history: "replace", shallow: true })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Genders</SelectItem>
-              <SelectItem value="MALE">Male</SelectItem>
-              <SelectItem value="FEMALE">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
-                  >
-                    No champions found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent
-        value="undefeated"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <div className="flex items-center gap-4 py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={q}
-            onChange={(event) =>
-              setQ(event.target.value || null, {
-                history: "replace",
-                shallow: true,
-              })
-            }
-            className="max-w-sm"
-          />
-          <Select
-            value={selectedGender}
-            onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setGenderParam(value, { history: "replace", shallow: true })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Genders</SelectItem>
-              <SelectItem value="MALE">Male</SelectItem>
-              <SelectItem value="FEMALE">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
-                  >
-                    No undefeated athletes found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent
-        value="retired"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <div className="flex items-center gap-4 py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={q}
-            onChange={(event) =>
-              setQ(event.target.value || null, {
-                history: "replace",
-                shallow: true,
-              })
-            }
-            className="max-w-sm"
-          />
-          <Select
-            value={selectedGender}
-            onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setGenderParam(value, { history: "replace", shallow: true })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Genders</SelectItem>
-              <SelectItem value="MALE">Male</SelectItem>
-              <SelectItem value="FEMALE">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
-                  >
-                    No retired athletes found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
-                <ChevronsRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </TabsContent>
-
-      <TabsContent
-        value="p4p"
-        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
-      >
-        <div className="flex items-center gap-4 py-4">
-          <Input
-            placeholder="Filter by name..."
-            value={
-              (table.getColumn("rankAndName")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("rankAndName")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-          <Select
-            value={selectedGender}
-            onValueChange={(value: "ALL" | "MALE" | "FEMALE") =>
-              setGenderParam(value, { history: "replace", shallow: true })
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Genders</SelectItem>
-              <SelectItem value="MALE">Male</SelectItem>
-              <SelectItem value="FEMALE">Female</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
-                  >
-                    No P4P ranked athletes found (ranks 1-15).
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        <div className="flex items-center justify-between px-4">
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                Rows per page
-              </Label>
-              <Select
-                value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
-              >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 20, 30, 40, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={`${pageSize}`}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
-                <ChevronsLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="size-8"
-                size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="hidden size-8 lg:flex"
-                size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
+                onClick={() => setPage(table.getPageCount())}
+                disabled={page === table.getPageCount()}
               >
                 <span className="sr-only">Go to last page</span>
                 <ChevronsRight className="h-4 w-4" />

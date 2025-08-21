@@ -1,18 +1,11 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_cache, unstable_noStore as noStore } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 
-export const getStats = unstable_cache(
-  async () => {
-    const [
-      activeAthletes,
-      weightClasses,
-      champions,
-      events,
-      maleP4P,
-      femaleP4P,
-    ] = await Promise.all([
+export async function getStats() {
+  const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] =
+    await Promise.all([
       // Count all athletes
       prisma.athlete.count(),
 
@@ -74,22 +67,17 @@ export const getStats = unstable_cache(
       }),
     ]);
 
-    return {
-      activeAthletes,
-      weightClasses,
-      champions,
-      events,
-      poundForPoundRankings: {
-        male: maleP4P,
-        female: femaleP4P,
-      },
-    };
-  },
-  ["stats-data", "homepage-stats"],
-  {
-    tags: ["stats", "homepage", "stats-data", "homepage-stats"],
-  }
-);
+  return {
+    activeAthletes,
+    weightClasses,
+    champions,
+    events,
+    poundForPoundRankings: {
+      male: maleP4P,
+      female: femaleP4P,
+    },
+  };
+}
 
 // Live stats function for hero section
 export const getLiveStats = async () => {

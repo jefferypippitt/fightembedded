@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { getAllUpcomingEvents } from "@/server/actions/get-event";
 import { format } from "date-fns";
 import {
   Table,
@@ -9,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getUpcomingEvents } from "@/server/actions/events";
 
 export const metadata: Metadata = {
   title: "Upcoming Events",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
-  const events = await getAllUpcomingEvents();
+  const events = await getUpcomingEvents();
 
   return (
     <div className="space-y-8">

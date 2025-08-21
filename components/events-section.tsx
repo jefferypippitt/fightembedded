@@ -1,4 +1,4 @@
-import { getLiveUpcomingEvents } from "@/server/actions/get-event";
+import { getLiveUpcomingEvents } from "@/server/actions/events";
 import { EventMarqueeSection } from "@/components/event-marquee";
 
 export default async function EventsSectionWrapper() {

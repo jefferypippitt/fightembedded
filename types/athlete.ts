@@ -29,3 +29,76 @@ export interface Athlete {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// Dashboard stats types that match what getDashboardStats actually returns
+export interface DashboardStats {
+  totalAthletes: {
+    value: number;
+  };
+  recentAthletes: {
+    name: string;
+    weightDivision: string;
+    country: string;
+    createdAt: string;
+  }[];
+  recentlyRetiredAthletes: {
+    name: string;
+    weightDivision: string;
+    country: string;
+    updatedAt: string;
+    wins: number;
+    losses: number;
+    winRate: string;
+  }[];
+  poundForPoundRankings: {
+    male: {
+      name: string;
+      weightDivision: string;
+      country: string;
+      poundForPoundRank: number;
+      wins: number;
+      losses: number;
+      winRate: string;
+    } | null;
+    female: {
+      name: string;
+      weightDivision: string;
+      country: string;
+      poundForPoundRank: number;
+      wins: number;
+      losses: number;
+      winRate: string;
+    } | null;
+  };
+  upcomingEvents: {
+    name: string;
+    date: string;
+    venue: string;
+    location: string;
+  }[];
+  totalEvents: number;
+  topCountries: {
+    country: string;
+    count: number;
+  }[];
+  totalChampions: number;
+  mostFollowedAthlete: {
+    name: string;
+    weightDivision: string;
+    country: string;
+    followers: number;
+    wins: number;
+    losses: number;
+    winRate: string;
+  } | null;
+}
+
+// Division stats type that matches what getDivisionStats returns
+export interface DivisionStats {
+  name: string;
+  slug: string;
+  data: {
+    date: string;
+    count: number;
+  }[];
+}

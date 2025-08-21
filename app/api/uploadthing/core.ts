@@ -40,24 +40,6 @@ export const ourFileRouter = {
         throw new UploadThingError("Failed to process upload");
       }
     }),
-  eventImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
-    .middleware(async () => {
-      const session = await handleAuth();
-      return { userId: session.user.id };
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
-      try {
-        return {
-          uploadedBy: metadata.userId,
-          url: file.url,
-          name: file.name,
-          size: file.size,
-        };
-      } catch (err) {
-        console.error("Failed to process upload:", err);
-        throw new UploadThingError("Failed to process upload");
-      }
-    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

@@ -30,8 +30,6 @@ import {
 } from "@/components/ui/select";
 
 import { toast } from "sonner";
-import { createAthlete } from "@/server/actions/create-athlete";
-import { updateAthlete } from "@/server/actions/update-athlete";
 import { athleteSchema } from "@/schemas/athlete";
 
 import { z } from "zod";
@@ -58,6 +56,8 @@ import {
 } from "@/components/ui/popover";
 import { ControllerRenderProps } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { createAthlete } from "@/server/actions/athlete";
+import { updateAthlete } from "@/server/actions/athlete";
 
 type AthleteFormProps = {
   initialData?: z.infer<typeof athleteSchema> & { id: string };
@@ -263,11 +263,11 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       >
         {/* Add Image Upload Section */}
         <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold">Profile Image</h2>
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-base font-semibold">Profile Image</h2>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <AthleteAvatar
               imageUrl={imageUrl}
               countryCode={getCountryCode(form.watch("country"))}
@@ -331,13 +331,13 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
         </div>
         {/* Personal Information Section */}
-        <div className="bg-card p-6 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-semibold">Personal Information</h2>
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-semibold">Personal Information</h2>
           </div>
 
-          {/* Uniform 4x2 Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Compact 4x2 Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Row 1 */}
             <FormField
               control={form.control}
@@ -557,7 +557,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
           {/* Retired Status Info */}
           {isRetired && (
-            <div className="mt-4">
+            <div className="mt-2">
               <p className="text-xs text-muted-foreground">
                 Rank fields are disabled for retired athletes and will be
                 automatically cleared.
@@ -567,12 +567,12 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
 
         {/* Fight Record Section */}
-        <div className="bg-card p-6 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-semibold">Fight Record</h2>
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-semibold">Fight Record</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <FormField
               control={form.control}
               name="wins"
@@ -651,12 +651,12 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         </div>
 
         {/* Performance Stats Section */}
-        <div className="bg-card p-6 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-semibold">Performance Stats</h2>
+        <div className="bg-card p-4 rounded-lg border shadow-xs">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-semibold">Performance Stats</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <FormField
               control={form.control}
               name="winsByKo"
@@ -734,7 +734,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
           </div>
         </div>
 
-        <div className="flex justify-left">
+        <div className="flex justify-left pt-2">
           <SubmitButton isSubmitting={isSubmitting} />
         </div>
       </form>

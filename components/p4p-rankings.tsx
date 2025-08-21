@@ -1,20 +1,20 @@
 import { P4PSidebarClient } from "./p4p-sidebar";
-import { Athlete } from "@prisma/client";
-
-interface P4PRankingsProps {
-  maleP4PRankings: Athlete[];
-  femaleP4PRankings: Athlete[];
-}
+import { P4PRankingsProps } from "@/types/rankings";
+import { Athlete } from "@/types/athlete";
 
 export function P4PRankings({
   maleP4PRankings,
   femaleP4PRankings,
 }: P4PRankingsProps) {
+  // Helper function to map athlete data for P4P sidebar
   const mapRankings = (rankings: Athlete[]) =>
-    rankings.map((fighter) => ({
-      ...fighter,
-      imageUrl: fighter.imageUrl || "/images/default-avatar.svg",
-    }));
+    rankings
+      .filter((fighter) => fighter.poundForPoundRank !== undefined)
+      .map((fighter) => ({
+        ...fighter,
+        imageUrl: fighter.imageUrl || "/images/default-avatar.svg",
+        poundForPoundRank: fighter.poundForPoundRank!,
+      }));
 
   return (
     <P4PSidebarClient

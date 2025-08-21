@@ -115,11 +115,36 @@ const AthletesGrid = memo(
     onSelect: (athlete: Athlete) => void;
     searchInput: string;
   }) => {
+    // Sort athletes by rank first, then by name for same rank
+    const sortedAthletes = useMemo(() => {
+      return [...athletes].sort((a, b) => {
+        // Handle unranked athletes (rank 0 or undefined)
+        const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
+        const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
+
+        // If both have valid ranks, sort by rank
+        if (aRank !== Infinity && bRank !== Infinity) {
+          return aRank - bRank;
+        }
+
+        // If only one has a valid rank, put the ranked one first
+        if (aRank !== Infinity && bRank === Infinity) {
+          return -1;
+        }
+        if (aRank === Infinity && bRank !== Infinity) {
+          return 1;
+        }
+
+        // If neither has a valid rank, sort by name
+        return a.name.localeCompare(b.name);
+      });
+    }, [athletes]);
+
     const filteredAthletes = useMemo(() => {
-      if (!searchInput.trim()) return athletes;
+      if (!searchInput.trim()) return sortedAthletes;
 
       const searchTerms = searchInput.toLowerCase().trim().split(/\s+/);
-      return athletes.filter((athlete) => {
+      return sortedAthletes.filter((athlete) => {
         const athleteText = [
           athlete.name || "",
           athlete.country || "",
@@ -130,7 +155,7 @@ const AthletesGrid = memo(
 
         return searchTerms.every((term) => athleteText.includes(term));
       });
-    }, [athletes, searchInput]);
+    }, [sortedAthletes, searchInput]);
 
     // Show selected athletes comparison when exactly 2 are selected
     if (selectedAthletes.length === 2) {
@@ -207,7 +232,7 @@ const AthletesGrid = memo(
                 Select another athlete for comparison:
               </div>
               <AthletesList
-                athletes={athletes.filter(
+                athletes={sortedAthletes.filter(
                   (athlete) => athlete.id !== selectedAthletes[0].id
                 )}
                 selectedAthletes={selectedAthletes}
@@ -283,7 +308,7 @@ const AthletesGrid = memo(
     // Show all athletes when no search query
     return (
       <AthletesList
-        athletes={athletes}
+        athletes={sortedAthletes}
         selectedAthletes={selectedAthletes}
         onSelect={onSelect}
       />

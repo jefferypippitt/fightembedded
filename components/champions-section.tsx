@@ -1,50 +1,16 @@
-import { Athlete } from "@prisma/client";
 import { AthleteListCard } from "@/components/athlete-list-card";
-
-interface ChampionsSectionProps {
-  maleChampions: Athlete[];
-  femaleChampions: Athlete[];
-}
-
-// Define weight division order (heaviest to lightest)
-const weightDivisionOrder = {
-  MALE: [
-    "Heavyweight",
-    "Light Heavyweight",
-    "Middleweight",
-    "Welterweight",
-    "Lightweight",
-    "Featherweight",
-    "Bantamweight",
-    "Flyweight",
-  ],
-  FEMALE: ["Featherweight", "Bantamweight", "Flyweight", "Strawweight"],
-};
-
-// Helper function to get division weight for sorting
-const getDivisionWeight = (division: string, gender: "MALE" | "FEMALE") => {
-  const order = weightDivisionOrder[gender];
-  const index = order.findIndex((d) =>
-    division.toLowerCase().includes(d.toLowerCase())
-  );
-  return index === -1 ? order.length : index; // Put unknown divisions at the end
-};
+import { ChampionsSectionProps } from "@/types/rankings";
+import { sortChampionsByDivision } from "@/lib/utils";
 
 export default function ChampionsSection({
   maleChampions,
   femaleChampions,
 }: ChampionsSectionProps) {
-  // Sort champions by weight division
-  const sortedMaleChampions = [...maleChampions].sort(
-    (a, b) =>
-      getDivisionWeight(a.weightDivision, "MALE") -
-      getDivisionWeight(b.weightDivision, "MALE")
-  );
-
-  const sortedFemaleChampions = [...femaleChampions].sort(
-    (a, b) =>
-      getDivisionWeight(a.weightDivision, "FEMALE") -
-      getDivisionWeight(b.weightDivision, "FEMALE")
+  // Sort champions by weight division (heaviest to lightest)
+  const sortedMaleChampions = sortChampionsByDivision(maleChampions, "MALE");
+  const sortedFemaleChampions = sortChampionsByDivision(
+    femaleChampions,
+    "FEMALE"
   );
 
   return (

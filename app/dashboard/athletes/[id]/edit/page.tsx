@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { AthleteForm } from "@/components/athlete-form";
 import { notFound } from "next/navigation";
-import { getAthleteForDashboard } from "@/server/actions/athlete";
+import { getAthlete } from "@/server/actions/athlete";
 import { SiteHeader } from "@/components/site-header";
 import { unstable_noStore as noStore } from "next/cache";
 
@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { id } = await params;
 
   try {
-    const athlete = await getAthleteForDashboard(id);
+    const athlete = await getAthlete(id);
     return {
       title: `Edit ${athlete?.name || "Athlete"}`,
       description: `Edit profile for ${athlete?.name || "athlete"}`,
@@ -45,7 +45,7 @@ export default async function EditAthletePage({ params }: PageProps) {
   }
 
   try {
-    const athlete = await getAthleteForDashboard(id);
+    const athlete = await getAthlete(id);
 
     if (!athlete) {
       return notFound();

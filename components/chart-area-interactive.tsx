@@ -49,9 +49,13 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
         return (gender === "female") === isWomen;
       })
       .map((division, index) => {
+        // Find matching data by slug
         const divisionData = data.find((d) => d.slug === division.slug);
+
         // Get the latest count from the data
         const latestData = divisionData?.data[divisionData.data.length - 1];
+
+        // Extract division name without gender prefix
         const divisionName = division.name.replace(
           `${gender === "male" ? "Men's" : "Women's"} `,
           ""
@@ -67,10 +71,9 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
           "var(--chart-6)", // Featherweight
           "var(--chart-7)", // Bantamweight
           "var(--chart-8)", // Flyweight
-          "var(--chart-9)", // Women's Featherweight
-          "var(--chart-10)", // Women's Bantamweight
-          "var(--chart-11)", // Women's Flyweight
-          "var(--chart-12)", // Women's Strawweight
+          "var(--chart-9)", // Women's Bantamweight
+          "var(--chart-10)", // Women's Flyweight
+          "var(--chart-11)", // Women's Strawweight
         ];
 
         return {

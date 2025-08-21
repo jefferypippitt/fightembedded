@@ -6,21 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
 
-interface Fighter {
-  id: string;
-  name: string;
-  imageUrl: string;
-  poundForPoundRank: number;
-  wins: number;
-  losses: number;
-  draws: number;
-  country: string;
-}
-
-interface P4PSidebarProps {
-  maleP4PRankings: Fighter[];
-  femaleP4PRankings: Fighter[];
-}
+import { Fighter, P4PSidebarProps } from "@/types/rankings";
 
 const FighterCard = React.memo(
   ({

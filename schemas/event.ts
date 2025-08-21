@@ -6,6 +6,5 @@ export const eventSchema = z.object({
   venue: z.string().min(2, "Venue is required"),
   location: z.string().min(2, "Location is required"),
   mainEvent: z.string().min(2, "Main event is required"),
-  status: z.enum(["UPCOMING", "COMPLETED", "CANCELLED"]),
-  imageUrl: z.string().optional(),
+  status: z.enum(["UPCOMING", "COMPLETED"]),
 });

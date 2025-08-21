@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -10,17 +11,14 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   useReactTable,
   Column,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
-  ChevronDown,
   Filter,
   MoreHorizontal,
   PlusCircle,
-  LayoutIcon,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
@@ -31,8 +29,9 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-import { UFCEvent } from "@/types/event";
-import { deleteEvent } from "@/server/actions/delete-event";
+import { Event } from "@/types/event";
+import { deleteEvent } from "@/server/actions/events";
+import { getPaginatedEvents } from "@/server/actions/get-paginated-events";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,11 +60,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 
 // Helper component for the actions cell
-const ActionsCell = ({ event }: { event: UFCEvent }) => {
+const ActionsCell = ({ event }: { event: Event }) => {
   const router = useRouter();
 
   const handleDelete = async () => {
@@ -112,8 +111,8 @@ const ActionsCell = ({ event }: { event: UFCEvent }) => {
 };
 
 // Helper component for the status filter
-const StatusFilter = ({ column }: { column: Column<UFCEvent, unknown> }) => {
-  const statuses = ["UPCOMING", "COMPLETED", "CANCELLED"];
+const StatusFilter = ({ column }: { column: Column<Event, unknown> }) => {
+  const statuses = ["UPCOMING", "COMPLETED"];
 
   return (
     <DropdownMenu>
@@ -148,7 +147,8 @@ const StatusFilter = ({ column }: { column: Column<UFCEvent, unknown> }) => {
   );
 };
 
-const columns: ColumnDef<UFCEvent>[] = [
+// Move the columns definition inside the component
+const createColumns = (): ColumnDef<Event>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -161,6 +161,14 @@ const columns: ColumnDef<UFCEvent>[] = [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      return <span>{row.getValue("name")}</span>;
+    },
+    filterFn: (row, id, filterValue: string) => {
+      return row.original.name
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
     },
   },
   {
@@ -180,6 +188,11 @@ const columns: ColumnDef<UFCEvent>[] = [
       const date = row.getValue("date") as Date;
       return format(date, "MMM d, yyyy");
     },
+    sortingFn: (rowA, rowB) => {
+      const dateA = rowA.original.date;
+      const dateB = rowB.original.date;
+      return dateA.getTime() - dateB.getTime();
+    },
   },
   {
     accessorKey: "venue",
@@ -193,6 +206,14 @@ const columns: ColumnDef<UFCEvent>[] = [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      return <span>{row.getValue("venue")}</span>;
+    },
+    filterFn: (row, id, filterValue: string) => {
+      return row.original.venue
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
     },
   },
   {
@@ -208,6 +229,14 @@ const columns: ColumnDef<UFCEvent>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      return <span>{row.getValue("location")}</span>;
+    },
+    filterFn: (row, id, filterValue: string) => {
+      return row.original.location
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
+    },
   },
   {
     accessorKey: "mainEvent",
@@ -221,6 +250,14 @@ const columns: ColumnDef<UFCEvent>[] = [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      return <span>{row.getValue("mainEvent")}</span>;
+    },
+    filterFn: (row, id, filterValue: string) => {
+      return row.original.mainEvent
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
     },
   },
   {
@@ -252,22 +289,34 @@ const columns: ColumnDef<UFCEvent>[] = [
           <span className="relative flex items-center gap-1.5">
             <span className="relative flex size-2">
               <span
-                className={cn(
-                  "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                className={
+                  `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ` +
                   colorClass
-                )}
+                }
               />
               <span
-                className={cn(
-                  "relative inline-flex size-2 rounded-full",
-                  colorClass
-                )}
+                className={
+                  `relative inline-flex size-2 rounded-full ` + colorClass
+                }
               />
             </span>
             {status}
           </span>
         </Badge>
       );
+    },
+    sortingFn: (rowA, rowB) => {
+      const statusA = rowA.original.status;
+      const statusB = rowB.original.status;
+
+      // Custom sorting: UPCOMING first, then COMPLETED
+      const statusOrder: Record<string, number> = { UPCOMING: 1, COMPLETED: 2 };
+      return statusOrder[statusA] - statusOrder[statusB];
+    },
+    filterFn: (row, id, filterValues: string[]) => {
+      if (!filterValues.length) return true;
+      const status = row.getValue(id) as string;
+      return filterValues.includes(status);
     },
   },
   {
@@ -276,25 +325,24 @@ const columns: ColumnDef<UFCEvent>[] = [
   },
 ];
 
-interface EventsDataTableProps {
-  events: UFCEvent[];
-  upcomingEvents: UFCEvent[];
-  completedEvents: UFCEvent[];
-}
-
-export function EventsDataTable({
-  events,
-  upcomingEvents,
-  completedEvents,
-}: EventsDataTableProps) {
+export function EventsDataTable() {
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
     "view",
     parseAsString.withDefault("events")
   );
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(0));
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [size, setSize] = useQueryState("size", parseAsInteger.withDefault(10));
-  const [sortParam, setSortParam] = useQueryState("sort", parseAsString);
+  const [sort, setSort] = useQueryState(
+    "sort",
+    parseAsString.withDefault("date.desc")
+  );
+
+  const [data, setData] = React.useState<{
+    events: Event[];
+    total: number;
+  }>({ events: [], total: 0 });
+
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "date",
@@ -307,139 +355,165 @@ export function EventsDataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  const currentData = React.useMemo(() => {
-    switch (view) {
-      case "upcoming":
-        return upcomingEvents;
-      case "completed":
-        return completedEvents;
-      case "events":
-      default:
-        return events;
+  // Initialize sorting state when component mounts
+  React.useEffect(() => {
+    if (sort && !sorting.length) {
+      const sortParts = sort.split(".");
+      if (sortParts.length === 2) {
+        setSorting([
+          {
+            id: sortParts[0],
+            desc: sortParts[1] === "desc",
+          },
+        ]);
+      }
     }
-  }, [view, events, upcomingEvents, completedEvents]);
+  }, [sort, sorting.length]);
+
+  // Reset sorting when view changes to ensure proper default sorting
+  React.useEffect(() => {
+    if (view === "events" && !sort) {
+      setSort("date.desc");
+      setSorting([
+        {
+          id: "date",
+          desc: true,
+        },
+      ]);
+    } else if (view === "upcoming") {
+      setSort("date.asc");
+      setSorting([
+        {
+          id: "date",
+          desc: false,
+        },
+      ]);
+    } else if (view === "completed") {
+      setSort("date.desc");
+      setSorting([
+        {
+          id: "date",
+          desc: true,
+        },
+      ]);
+    }
+  }, [view, sort, setSort]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      // Transform column filters to the expected format
+      const transformedFilters = columnFilters.map((filter) => ({
+        id: filter.id,
+        value: (() => {
+          if (Array.isArray(filter.value)) {
+            return filter.value.filter(
+              (v): v is string => typeof v === "string"
+            );
+          }
+          if (typeof filter.value === "string") {
+            return [filter.value];
+          }
+          return [];
+        })(),
+      }));
+
+      const { events, total } = await getPaginatedEvents({
+        page,
+        pageSize: size,
+        q,
+        view,
+        sort: sort,
+        columnFilters: transformedFilters,
+      });
+      setData({ events, total });
+    };
+
+    fetchData();
+  }, [page, size, q, view, sort, columnFilters]);
+
+  const columns = createColumns();
 
   const table = useReactTable({
-    data: currentData,
+    data: data.events,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: (updater) => {
-      const next = typeof updater === "function" ? updater(sorting) : updater;
-      setSorting(next);
-      const s = next[0];
-      setSortParam(s ? `${s.id}.${s.desc ? "desc" : "asc"}` : null, {
-        history: "replace",
-        shallow: true,
-      });
-    },
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: (updater) => {
-      const current = { pageIndex: page, pageSize: size };
-      const next = typeof updater === "function" ? updater(current) : updater;
-      if (next.pageIndex !== page) {
-        setPage(next.pageIndex, { history: "replace", shallow: true });
-      }
-      if (next.pageSize !== size) {
-        setSize(next.pageSize, { history: "replace", shallow: true });
-      }
-    },
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
+    pageCount: Math.ceil(data.total / size),
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      pagination: { pageIndex: page, pageSize: size },
+      pagination: {
+        pageIndex: page - 1,
+        pageSize: size,
+      },
     },
+    onPaginationChange: (updater) => {
+      if (typeof updater === "function") {
+        const newPagination = updater({
+          pageIndex: page - 1,
+          pageSize: size,
+        });
+        setPage(newPagination.pageIndex + 1);
+        setSize(newPagination.pageSize);
+      }
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      setSorting(next);
+
+      // Create multi-column sort string
+      if (next.length > 0) {
+        const sortString = next
+          .map((s) => `${s.id}.${s.desc ? "desc" : "asc"}`)
+          .join(",");
+        setSort(sortString);
+      } else {
+        setSort(null);
+      }
+    },
+    onColumnFiltersChange: (updater) => {
+      const next =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      setColumnFilters(next);
+      setPage(1); // Reset to first page when changing filters
+    },
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    // Remove getSortedRowModel since we're using manual sorting
+    getFilteredRowModel: getFilteredRowModel(),
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
   });
 
-  // Sync the URL query param `q` with the table's name filter
-  React.useEffect(() => {
-    table.getColumn("name")?.setFilterValue(q);
-  }, [q, table]);
-
-  // Reflect URL sort param back into table sorting
-  React.useEffect(() => {
-    if (!sortParam) return;
-    const [id, dir] = sortParam.split(".");
-    if (!id) return;
-    const desc = dir === "desc";
-    setSorting((prev) =>
-      prev[0] && prev[0].id === id && prev[0].desc === desc
-        ? prev
-        : [{ id, desc }]
-    );
-  }, [sortParam]);
-
-  // Reset filters and pagination when changing views
-  React.useEffect(() => {
-    setColumnFilters([]);
-    setPage(0, { history: "replace", shallow: true });
-    setSize(10, { history: "replace", shallow: true });
-  }, [view, setPage, setSize]);
-
-  const handleViewChange = (value: string) => {
-    setView(value, { history: "replace", shallow: true });
-  };
-
-  const getEmptyMessage = () => {
-    switch (view) {
-      case "upcoming":
-        return "No upcoming events found.";
-      case "completed":
-        return "No completed events found.";
-      default:
-        return "No events found.";
-    }
-  };
-
   return (
-    <div className="w-full flex flex-col justify-start gap-6">
+    <Tabs
+      defaultValue="events"
+      value={view}
+      onValueChange={setView}
+      className="w-full flex-col justify-start gap-6"
+    >
       <div className="flex items-center justify-between px-4 lg:px-6">
+        <Label htmlFor="view-selector" className="sr-only">
+          View
+        </Label>
+        <Select
+          value={view}
+          onValueChange={(newView) => {
+            setView(newView);
+            setPage(1); // Reset to first page when changing view
+          }}
+        >
+          <SelectTrigger className="flex w-fit" size="sm" id="view-selector">
+            <SelectValue placeholder="Select a view" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="events">All Events</SelectItem>
+            <SelectItem value="upcoming">Upcoming</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
         <div className="flex items-center gap-2">
-          <Select value={view} onValueChange={handleViewChange}>
-            <SelectTrigger className="w-fit" size="sm" id="view-selector">
-              <SelectValue placeholder="Select a view" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="events">All Events</SelectItem>
-              <SelectItem value="upcoming">Upcoming</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <LayoutIcon className="mr-2 h-4 w-4" />
-                <span className="hidden lg:inline">Customize Columns</span>
-                <span className="lg:hidden">Columns</span>
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
           <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/events/new">
               <PlusCircle className="h-4 w-4" />
@@ -449,14 +523,18 @@ export function EventsDataTable({
         </div>
       </div>
 
-      <div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-        <div className="flex items-center py-4">
+      <TabsContent
+        value={view}
+        className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+      >
+        <div className="flex items-center gap-4 py-4">
           <Input
-            placeholder="Filter by name..."
+            placeholder="Filter by name, venue, location, or main event..."
             value={q}
-            onChange={(event) =>
-              setQ(event.target.value, { history: "replace", shallow: true })
-            }
+            onChange={(event) => {
+              setQ(event.target.value || null);
+              setPage(1); // Reset to first page when searching
+            }}
             className="max-w-sm"
           />
         </div>
@@ -496,10 +574,10 @@ export function EventsDataTable({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={table.getAllColumns().length}
                     className="h-24 text-center"
                   >
-                    {getEmptyMessage()}
+                    No events found.
                   </TableCell>
                 </TableRow>
               )}
@@ -514,15 +592,13 @@ export function EventsDataTable({
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
+                value={`${size}`}
                 onValueChange={(value) => {
-                  table.setPageSize(Number(value));
+                  setSize(Number(value));
                 }}
               >
                 <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
+                  <SelectValue placeholder={size} />
                 </SelectTrigger>
                 <SelectContent side="top">
                   {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -534,15 +610,14 @@ export function EventsDataTable({
               </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {page} of {table.getPageCount()}
             </div>
             <div className="ml-auto flex items-center gap-2 lg:ml-0">
               <Button
                 variant="outline"
                 className="hidden h-8 w-8 p-0 lg:flex"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => setPage(1)}
+                disabled={page === 1}
               >
                 <span className="sr-only">Go to first page</span>
                 <ChevronsLeft className="h-4 w-4" />
@@ -551,8 +626,8 @@ export function EventsDataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
               >
                 <span className="sr-only">Go to previous page</span>
                 <ChevronLeft className="h-4 w-4" />
@@ -561,8 +636,8 @@ export function EventsDataTable({
                 variant="outline"
                 className="size-8"
                 size="icon"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
+                onClick={() => setPage(page + 1)}
+                disabled={page === table.getPageCount()}
               >
                 <span className="sr-only">Go to next page</span>
                 <ChevronRight className="h-4 w-4" />
@@ -571,8 +646,8 @@ export function EventsDataTable({
                 variant="outline"
                 className="hidden size-8 lg:flex"
                 size="icon"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
+                onClick={() => setPage(table.getPageCount())}
+                disabled={page === table.getPageCount()}
               >
                 <span className="sr-only">Go to last page</span>
                 <ChevronsRight className="h-4 w-4" />
@@ -580,7 +655,7 @@ export function EventsDataTable({
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 }

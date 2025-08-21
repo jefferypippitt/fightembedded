@@ -88,12 +88,12 @@ export function AthleteAvatar({
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+          <div className="h-full w-full rounded-full bg-muted/20 flex items-center justify-center">
             <Image
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
               fill
-              className="object-cover"
+              className="object-cover opacity-60"
               priority={priority}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}

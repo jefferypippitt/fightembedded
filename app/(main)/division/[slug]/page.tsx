@@ -51,7 +51,7 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
 
       <AthletesSearchContainer
         athletes={divisionData.athletes}
-        placeholder={`Search ${divisionData.name} division athletes...`}
+        placeholder={`Search active athletes...`}
       />
     </div>
   );

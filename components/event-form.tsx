@@ -21,10 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createEvent } from "@/server/actions/create-event";
-import { updateEvent } from "@/server/actions/update-event";
+import { createEvent, updateEvent } from "@/server/actions/events";
 import { toast } from "sonner";
-import { UFCEvent } from "@/types/event";
+import { Event } from "@/types/event";
 import { useState } from "react";
 import { z } from "zod";
 import { Calendar } from "@/components/ui/calendar";
@@ -38,7 +37,7 @@ import {
 import { cn } from "@/lib/utils";
 
 type EventFormProps = {
-  initialData?: UFCEvent;
+  initialData?: Event;
 };
 
 type EventFormData = z.infer<typeof eventSchema>;
@@ -55,7 +54,6 @@ export function EventForm({ initialData }: EventFormProps) {
         location: initialData.location,
         mainEvent: initialData.mainEvent,
         status: initialData.status || "UPCOMING",
-        imageUrl: initialData.imageUrl || undefined,
       }
     : {
         name: "",
@@ -64,7 +62,6 @@ export function EventForm({ initialData }: EventFormProps) {
         location: "",
         mainEvent: "",
         status: "UPCOMING",
-        imageUrl: undefined,
       };
 
   const form = useForm<EventFormData>({
@@ -106,10 +103,10 @@ export function EventForm({ initialData }: EventFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold">Event Details</h2>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+        <div className="bg-card p-6 rounded-lg border shadow-xs">
+          <div className="flex items-center gap-2 mb-6">
+            <h2 className="text-xl font-semibold">Event Details</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -223,7 +220,6 @@ export function EventForm({ initialData }: EventFormProps) {
                     <SelectContent>
                       <SelectItem value="UPCOMING">Upcoming</SelectItem>
                       <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage className="text-xs" />
@@ -233,7 +229,7 @@ export function EventForm({ initialData }: EventFormProps) {
           </div>
         </div>
 
-        <div className="flex justify-left">
+        <div className="flex justify-left pt-2">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
               ? "Saving..."

@@ -1,28 +1,10 @@
 import { z } from "zod";
 import { eventSchema } from "@/schemas/event";
 
+// Base event schema for form inputs
 export type EventInput = z.infer<typeof eventSchema>;
 
-export type UFCEvent = {
-  id: string;
-  name: string;
-  date: Date;
-  venue: string;
-  location: string;
-  mainEvent: string;
-  imageUrl?: string | null;
-  status: "UPCOMING" | "COMPLETED" | "CANCELLED";
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export type ActionResponse = {
-  status: "success" | "error";
-  message: string;
-  data?: UFCEvent;
-};
-
-// This is the type used for displaying events in the UI
+// Main event type used throughout the application
 export type Event = {
   id: string;
   name: string;
@@ -30,9 +12,17 @@ export type Event = {
   venue: string;
   location: string;
   mainEvent: string;
-  coMainEvent: string | null;
-  imageUrl: string | null;
-  status: "UPCOMING" | "COMPLETED" | "CANCELLED";
+  status: "UPCOMING" | "COMPLETED";
   createdAt: Date;
   updatedAt: Date;
 };
+
+// Generic response type for server actions
+export type ActionResponse<T = unknown> = {
+  status: "success" | "error";
+  message: string;
+  data?: T;
+};
+
+// Alias for backward compatibility
+export type UFCEvent = Event;
