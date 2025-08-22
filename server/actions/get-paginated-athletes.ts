@@ -83,6 +83,22 @@ export async function getPaginatedAthletes(params: {
   const sortColumn =
     sort?.split(".")?.[0] || (view === "p4p" ? "poundForPoundRank" : "rank");
 
+  // Ensure proper default sorting for each view
+  let effectiveSortColumn = sortColumn;
+  if (!sort) {
+    if (view === "p4p") {
+      effectiveSortColumn = "poundForPoundRank";
+    } else if (
+      view === "athletes" ||
+      view === "champions" ||
+      view === "undefeated"
+    ) {
+      effectiveSortColumn = "rank";
+    } else if (view === "retired") {
+      effectiveSortColumn = "name";
+    }
+  }
+
   let athletes;
 
   // Use explicit sorting instead of dynamic keys to avoid Prisma issues
@@ -185,18 +201,23 @@ export async function getPaginatedAthletes(params: {
     });
   } else if (view === "retired") {
     // Retired view - only show retired athletes
+    // For retired athletes, we'll use the rank field to store their retirement order
+    // This allows admins to manually reorder retired athletes for display purposes
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
       orderBy: [
         {
-          name: "asc",
+          rank: "asc", // Sort by retirement order (1, 2, 3...)
+        },
+        {
+          name: "asc", // Fallback to name if ranks are equal
         },
       ],
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "rank") {
+  } else if (effectiveSortColumn === "rank") {
     // For rank sorting, we need to handle 0 values (unranked) specially
     // Get ranked athletes first, then unranked ones
     const rankedAthletes = await prisma.athlete.findMany({
@@ -235,7 +256,7 @@ export async function getPaginatedAthletes(params: {
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     athletes = allAthletes.slice(startIndex, endIndex);
-  } else if (sortColumn === "name") {
+  } else if (effectiveSortColumn === "name") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -247,7 +268,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "weightDivision") {
+  } else if (effectiveSortColumn === "weightDivision") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -262,7 +283,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "winsByKo") {
+  } else if (effectiveSortColumn === "winsByKo") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -277,7 +298,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "winsBySubmission") {
+  } else if (effectiveSortColumn === "winsBySubmission") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -292,7 +313,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "country") {
+  } else if (effectiveSortColumn === "country") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -307,7 +328,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "gender") {
+  } else if (effectiveSortColumn === "gender") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
@@ -322,7 +343,7 @@ export async function getPaginatedAthletes(params: {
       skip: (page - 1) * pageSize,
       take: pageSize,
     });
-  } else if (sortColumn === "poundForPoundRank") {
+  } else if (effectiveSortColumn === "poundForPoundRank") {
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,

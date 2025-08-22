@@ -402,8 +402,14 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
   try {
     const retiredAthletes = await prisma.athlete.findMany({
       where: { retired: true },
-      orderBy: { name: "asc" },
+      orderBy: [
+        { rank: "asc" }, // Sort by retirement order (1, 2, 3...)
+        { name: "asc" }, // Fallback to name if ranks are equal or 0
+      ],
     });
+
+    // If no athletes have retirement order set, they'll be sorted by name
+    // This provides a good default until retirement order is manually set
     return retiredAthletes;
   } catch (error) {
     console.error("Error fetching retired athletes:", error);
@@ -517,7 +523,6 @@ export async function createAthlete(
     // Only revalidate image-related caches if athlete has an image
     if (hasImage) {
       revalidateTag("athlete-images");
-      console.log("🖼️ New athlete with image - revalidating image caches");
     }
 
     // Only revalidate specific caches based on athlete properties
@@ -783,9 +788,14 @@ export async function updateAthleteStatus(
       select: { weightDivision: true },
     });
 
+    const updateData: { retired: boolean; rank?: number } = {
+      retired,
+      ...(retired && { rank: 0 }), // If marking as retired, clear their rank
+    };
+
     const updatedAthlete = await prisma.athlete.update({
       where: { id: athleteId },
-      data: { retired },
+      data: updateData,
     });
 
     // Revalidate cache tags
@@ -891,4 +901,80 @@ export async function deleteAthlete(id: string) {
   revalidatePath(`/division/${fullSlug}`, "page");
 
   return true;
+}
+
+// Update athlete ranks in bulk (for drag and drop reordering)
+export async function updateAthleteRanks(
+  athleteRankUpdates: {
+    id: string;
+    rank?: number;
+    poundForPoundRank?: number;
+  }[]
+): Promise<ActionResponse> {
+  try {
+    await checkAuth();
+
+    // Validate input
+    if (!Array.isArray(athleteRankUpdates) || athleteRankUpdates.length === 0) {
+      return {
+        status: "error",
+        message: "Invalid input: athlete rank updates array is required",
+      };
+    }
+
+    // Update each athlete's rank(s)
+    const updatePromises = athleteRankUpdates.map((update) => {
+      const updateData: {
+        rank?: number;
+        poundForPoundRank?: number;
+      } = {};
+      if (update.rank !== undefined) updateData.rank = update.rank;
+      if (update.poundForPoundRank !== undefined)
+        updateData.poundForPoundRank = update.poundForPoundRank;
+
+      return prisma.athlete.update({
+        where: { id: update.id },
+        data: updateData,
+      });
+    });
+
+    await Promise.all(updatePromises);
+
+    // Revalidate cache tags
+    revalidateTag("all-athletes");
+    revalidateTag("all-athletes-data");
+    revalidateTag("athletes-page");
+    revalidateTag("athletes-by-division");
+    revalidateTag("division-athletes");
+    revalidateTag("athletes");
+    revalidateTag("homepage");
+    revalidateTag("top-20-athletes");
+    revalidateTag("top-5-athletes");
+    revalidateTag("champions-data");
+    revalidateTag("homepage-champions");
+    revalidateTag("p4p-rankings-data");
+    revalidateTag("homepage-p4p");
+    revalidateTag("retired-athletes-data");
+    revalidateTag("retired-page");
+
+    // Revalidate paths
+    revalidatePath("/athletes");
+    revalidatePath("/dashboard/athletes");
+    revalidatePath("/retired");
+
+    return {
+      status: "success",
+      message: "Athlete ranks updated successfully",
+    };
+  } catch (error) {
+    console.error("Update athlete ranks error:", error);
+
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `Error updating athlete ranks: ${error.message}`
+          : "Failed to update athlete ranks",
+    };
+  }
 }

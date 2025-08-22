@@ -13,6 +13,7 @@ import {
   getPaginationRowModel,
   useReactTable,
   Column,
+  Row,
 } from "@tanstack/react-table";
 import {
   ArrowUpDown,
@@ -23,16 +24,45 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  GripVertical,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+// DnD Kit imports
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import { Athlete } from "@/types/athlete";
-import { deleteAthlete } from "@/server/actions/athlete";
+import { deleteAthlete, updateAthleteRanks } from "@/server/actions/athlete";
 import { getPaginatedAthletes } from "@/server/actions/get-paginated-athletes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -61,6 +91,73 @@ import {
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
+import { Switch } from "@/components/ui/switch";
+
+// Drag Handle Component
+const DragHandle = ({
+  attributes,
+  listeners,
+  isDragging,
+}: {
+  attributes: React.HTMLAttributes<HTMLButtonElement>;
+  listeners: unknown;
+  isDragging: boolean;
+}) => {
+  return (
+    <Button
+      {...attributes}
+      {...(listeners as React.HTMLAttributes<HTMLButtonElement>)}
+      variant="ghost"
+      size="icon"
+      className={`text-muted-foreground size-7 hover:bg-transparent cursor-grab active:cursor-grabbing ${
+        isDragging ? "opacity-50" : ""
+      }`}
+    >
+      <GripVertical className="text-muted-foreground size-3" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
+  );
+};
+
+// Draggable Row Component
+const DraggableRow = ({ row }: { row: Row<Athlete> }) => {
+  const {
+    attributes,
+    listeners,
+    transform,
+    transition,
+    setNodeRef,
+    isDragging,
+  } = useSortable({
+    id: row.original.id,
+  });
+
+  return (
+    <TableRow
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      data-dragging={isDragging}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+    >
+      {row.getVisibleCells().map((cell) => (
+        <TableCell key={cell.id}>
+          {cell.column.id === "drag" ? (
+            <DragHandle
+              attributes={attributes}
+              listeners={listeners}
+              isDragging={isDragging}
+            />
+          ) : (
+            flexRender(cell.column.columnDef.cell, cell.getContext())
+          )}
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+};
 
 // Helper component for the actions cell
 const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
@@ -188,6 +285,30 @@ const WeightDivisionFilter = ({
 // Move the columns definition inside the component
 const createColumns = (): ColumnDef<Athlete>[] => [
   {
+    id: "drag",
+    header: () => null,
+    cell: () => null, // This will be handled by DraggableRow
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "displayRank",
+    header: "Position",
+    cell: ({ row }) => {
+      // Show position in the current filtered list
+      const rowIndex = row.index;
+      return (
+        <Badge
+          variant="outline"
+          className="min-w-8 h-6 flex items-center justify-center px-1 bg-primary/10"
+        >
+          {rowIndex + 1}
+        </Badge>
+      );
+    },
+    enableSorting: false,
+  },
+  {
     id: "rank",
     accessorFn: (row) => {
       // Always return the actual rank value for proper sorting
@@ -206,6 +327,22 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     },
     cell: ({ row }) => {
       const rank = row.original.rank;
+      const isRetired = row.original.retired;
+
+      // For retired athletes, show "NR" instead of rank numbers
+      // This makes it clear that these are not active division rankings
+      if (isRetired) {
+        return (
+          <Badge
+            variant="outline"
+            className="min-w-8 h-6 flex items-center justify-center px-1"
+          >
+            NR
+          </Badge>
+        );
+      }
+
+      // For active athletes, show rank as normal
       return (
         <Badge
           variant="outline"
@@ -612,21 +749,31 @@ export function AthletesDataTable() {
     total: number;
   }>({ athletes: [], total: 0 });
 
-  const [sorting, setSorting] = React.useState<SortingState>([
-    {
-      id: "rank",
-      desc: false,
-    },
-    {
-      id: "name",
-      desc: false,
-    },
-  ]);
+  // Add reorder mode state
+  const [isReorderMode, setIsReorderMode] = React.useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
+  const [originalAthletes, setOriginalAthletes] = React.useState<Athlete[]>([]);
+
+  // Dialog state
+  const [showExitDialog, setShowExitDialog] = React.useState(false);
+  const [showViewChangeDialog, setShowViewChangeDialog] = React.useState(false);
+  const [pendingViewChange, setPendingViewChange] = React.useState<
+    string | null
+  >(null);
+
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor)
+  );
 
   // Initialize sorting state when component mounts
   React.useEffect(() => {
@@ -643,9 +790,21 @@ export function AthletesDataTable() {
     }
   }, [sort, sorting.length]);
 
+  // Set initial sort if none exists
+  React.useEffect(() => {
+    if (!sort && !sorting.length) {
+      if (view === "athletes") {
+        setSort("rank.asc");
+      } else if (view === "p4p") {
+        setSort("poundForPoundRank.asc");
+      }
+    }
+  }, [sort, sorting.length, view, setSort]);
+
   // Reset sorting when view changes to ensure proper default sorting
   React.useEffect(() => {
-    if (view === "athletes" && !sort) {
+    if (view === "athletes") {
+      // For All Athletes view, always use rank ascending
       setSort("rank.asc");
       setSorting([
         {
@@ -662,8 +821,35 @@ export function AthletesDataTable() {
           desc: false,
         },
       ]);
+    } else if (view === "champions") {
+      // For Champions view, sort by weight division then name
+      setSort("weightDivision.asc");
+      setSorting([
+        {
+          id: "weightDivision",
+          desc: false,
+        },
+      ]);
+    } else if (view === "undefeated") {
+      // For Undefeated view, sort by rank then name
+      setSort("rank.asc");
+      setSorting([
+        {
+          id: "rank",
+          desc: false,
+        },
+      ]);
+    } else if (view === "retired") {
+      // For Retired view, sort by rank (retirement order)
+      setSort("rank.asc");
+      setSorting([
+        {
+          id: "rank",
+          desc: false,
+        },
+      ]);
     }
-  }, [view, sort, setSort]);
+  }, [view, setSort]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -692,11 +878,56 @@ export function AthletesDataTable() {
         sort: sort,
         columnFilters: transformedFilters,
       });
+
       setData({ athletes, total });
+
+      // Update original athletes whenever data changes (for reorder mode)
+      // This ensures that when filters change, we have the correct baseline
+      if (athletes.length > 0) {
+        setOriginalAthletes([...athletes]);
+        // Only reset reorder mode when filters change, not when entering reorder mode
+        // We'll handle this more carefully
+      }
     };
 
     fetchData();
-  }, [page, size, q, view, gender, sort, columnFilters]);
+  }, [
+    page,
+    size,
+    q,
+    view,
+    gender,
+    sort,
+    columnFilters,
+    // Remove these dependencies that were causing reorder mode to reset
+    // originalAthletes.length,
+    // isReorderMode,
+    // setIsReorderMode,
+    // setHasUnsavedChanges,
+  ]);
+
+  // Separate effect to handle resetting reorder mode when filters change
+  const prevFiltersRef = React.useRef({ q, view, gender, columnFilters });
+
+  React.useEffect(() => {
+    // Only reset reorder mode if filters have actually changed and we're in reorder mode
+    const currentFilters = { q, view, gender, columnFilters };
+    const prevFilters = prevFiltersRef.current;
+
+    const filtersChanged =
+      prevFilters.q !== currentFilters.q ||
+      prevFilters.view !== currentFilters.view ||
+      prevFilters.gender !== currentFilters.gender ||
+      JSON.stringify(prevFilters.columnFilters) !==
+        JSON.stringify(currentFilters.columnFilters);
+
+    if (filtersChanged && isReorderMode) {
+      setIsReorderMode(false);
+      setHasUnsavedChanges(false);
+    }
+
+    prevFiltersRef.current = currentFilters;
+  }, [q, view, gender, columnFilters, isReorderMode]);
 
   const columns = createColumns();
 
@@ -753,6 +984,177 @@ export function AthletesDataTable() {
     manualFiltering: true,
   });
 
+  // Handle drag and drop end
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active && over && active.id !== over.id) {
+      const oldIndex = data.athletes.findIndex(
+        (athlete) => athlete.id === active.id
+      );
+      const newIndex = data.athletes.findIndex(
+        (athlete) => athlete.id === over.id
+      );
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        // Create new array with reordered athletes
+        const newAthletes = arrayMove(data.athletes, oldIndex, newIndex);
+
+        // Update local state immediately for responsive UI
+        setData((prev) => ({ ...prev, athletes: newAthletes }));
+
+        // Mark that we have unsaved changes
+        setHasUnsavedChanges(true);
+      }
+    }
+  };
+
+  // Toggle reorder mode
+  const toggleReorderMode = async (checked: boolean) => {
+    if (checked) {
+      // Entering reorder mode - save current state
+      setOriginalAthletes([...data.athletes]);
+      setIsReorderMode(true);
+      setHasUnsavedChanges(false);
+    } else {
+      // Exiting reorder mode
+      if (hasUnsavedChanges) {
+        // If we have unsaved changes, save them automatically
+        try {
+          await saveAllChanges();
+          // After successful save, exit reorder mode
+          setIsReorderMode(false);
+        } catch (error) {
+          console.error("Failed to auto-save:", error);
+          // If save fails, keep reorder mode active and show error
+          toast.error("Failed to save changes. Please try again.");
+          return; // Don't exit reorder mode if save failed
+        }
+      } else {
+        setIsReorderMode(false);
+      }
+    }
+  };
+
+  // Handle exit reorder mode confirmation
+  const handleExitReorderMode = () => {
+    setIsReorderMode(false);
+    setHasUnsavedChanges(false);
+    // Restore original order
+    setData((prev) => ({ ...prev, athletes: originalAthletes }));
+    setShowExitDialog(false);
+  };
+
+  // Save all changes
+  const saveAllChanges = async () => {
+    if (!hasUnsavedChanges) return;
+
+    try {
+      // Determine which rank field to update based on the current view
+      const isP4PView = view === "p4p";
+      const isRetiredView = view === "retired";
+
+      let rankUpdates;
+
+      if (isRetiredView) {
+        // For retired athletes, we'll use the rank field to store their retirement order
+        // This represents their legacy ranking or display order
+        rankUpdates = data.athletes.map((athlete, index) => {
+          const newRetirementOrder = index + 1;
+
+          return {
+            id: athlete.id,
+            rank: newRetirementOrder,
+          };
+        });
+      } else {
+        // For active athletes (regular and P4P views)
+        rankUpdates = data.athletes
+          .filter((athlete) => !athlete.retired) // Only active athletes
+          .map((athlete, index) => {
+            // Check if this athlete had a rank in the original data
+            const originalAthlete = originalAthletes.find(
+              (oa) => oa.id === athlete.id
+            );
+
+            // For P4P view, check poundForPoundRank; for regular view, check rank
+            const originalRankValue = isP4PView
+              ? originalAthlete?.poundForPoundRank
+              : originalAthlete?.rank;
+
+            // If the athlete was originally unranked (rank = 0 or null), keep them unranked
+            // If they had a rank > 0, give them a new rank based on position
+            const wasOriginallyUnranked =
+              !originalAthlete || !originalRankValue || originalRankValue === 0;
+
+            const newRankValue = wasOriginallyUnranked ? 0 : index + 1;
+
+            // Return the appropriate update object
+            if (isP4PView) {
+              return {
+                id: athlete.id,
+                poundForPoundRank: newRankValue,
+              };
+            } else {
+              return {
+                id: athlete.id,
+                rank: newRankValue,
+              };
+            }
+          })
+          .filter((update) => {
+            const rankValue = isP4PView
+              ? (update as { id: string; poundForPoundRank: number })
+                  .poundForPoundRank
+              : (update as { id: string; rank: number }).rank;
+            return rankValue > 0;
+          }); // Only include athletes that need rank updates
+      }
+
+      if (rankUpdates.length === 0) {
+        toast.info("No rank changes to save");
+        setHasUnsavedChanges(false);
+        return;
+      }
+
+      // Update ranks in the database
+      const result = await updateAthleteRanks(rankUpdates);
+
+      if (result.status === "success") {
+        toast.success(
+          `${
+            isP4PView ? "P4P" : isRetiredView ? "Retired Athlete" : "Athlete"
+          } ranks updated successfully`
+        );
+        setHasUnsavedChanges(false);
+        setOriginalAthletes([...data.athletes]);
+        // Refresh the page to get updated data
+        window.location.reload();
+      } else {
+        toast.error(result.message || "Failed to update athlete ranks");
+      }
+    } catch (error) {
+      console.error("Error updating ranks:", error);
+      toast.error(
+        error instanceof Error
+          ? `Error updating athlete ranks: ${error.message}`
+          : "Error updating athlete ranks"
+      );
+    }
+  };
+
+  // Handle view change confirmation
+  const handleViewChange = () => {
+    if (pendingViewChange) {
+      setIsReorderMode(false);
+      setHasUnsavedChanges(false);
+      setView(pendingViewChange);
+      setPage(1); // Reset to first page when changing view
+      setPendingViewChange(null);
+      setShowViewChangeDialog(false);
+    }
+  };
+
   return (
     <Tabs
       defaultValue="athletes"
@@ -767,8 +1169,14 @@ export function AthletesDataTable() {
         <Select
           value={view}
           onValueChange={(newView) => {
-            setView(newView);
-            setPage(1); // Reset to first page when changing view
+            // Check if we're in reorder mode with unsaved changes
+            if (isReorderMode && hasUnsavedChanges) {
+              setPendingViewChange(newView);
+              setShowViewChangeDialog(true);
+            } else {
+              setView(newView);
+              setPage(1); // Reset to first page when changing view
+            }
           }}
         >
           <SelectTrigger className="flex w-fit" size="sm" id="view-selector">
@@ -783,6 +1191,38 @@ export function AthletesDataTable() {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
+          {/* Reorder Mode Toggle */}
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="reorder-mode"
+              checked={isReorderMode}
+              onCheckedChange={toggleReorderMode}
+              className={
+                isReorderMode
+                  ? view === "p4p"
+                    ? "data-[state=checked]:bg-blue-500"
+                    : view === "retired"
+                    ? "data-[state=checked]:bg-purple-500"
+                    : "data-[state=checked]:bg-orange-500"
+                  : ""
+              }
+            />
+            <Label
+              htmlFor="reorder-mode"
+              className={`text-sm font-medium ${
+                isReorderMode
+                  ? view === "p4p"
+                    ? "text-blue-600 dark:text-blue-400"
+                    : view === "retired"
+                    ? "text-purple-600 dark:text-purple-400"
+                    : "text-orange-600 dark:text-orange-400"
+                  : ""
+              }`}
+            >
+              {isReorderMode ? "Reorder Mode" : "Reorder Mode"}
+            </Label>
+          </div>
+
           <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/athletes/new">
               <PlusCircle className="h-4 w-4" />
@@ -825,49 +1265,107 @@ export function AthletesDataTable() {
         </div>
 
         <div className="overflow-hidden rounded-lg border">
-          <Table>
-            <TableHeader className="bg-muted sticky top-0 z-10">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
+          {/* Reorder Mode Indicator */}
+          {isReorderMode && (
+            <div
+              className={`border-b px-4 py-2 text-sm ${
+                view === "p4p"
+                  ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800"
+                  : view === "retired"
+                  ? "bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800"
+                  : "bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`font-medium ${
+                      view === "p4p"
+                        ? "text-blue-700 dark:text-blue-300"
+                        : view === "retired"
+                        ? "text-purple-700 dark:text-purple-300"
+                        : "text-orange-700 dark:text-orange-300"
+                    }`}
+                  >
+                    {view === "p4p"
+                      ? "P4P Reorder Mode"
+                      : view === "retired"
+                      ? "Retirement Order Mode"
+                      : "Rank Reorder Mode"}{" "}
+                    Active
+                  </span>
+                  {hasUnsavedChanges && (
+                    <Badge
+                      variant="secondary"
+                      className={`text-xs ${
+                        view === "p4p"
+                          ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                          : view === "retired"
+                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                          : "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
+                      }`}
+                    >
+                      Unsaved Changes
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={() => {
+              if (!isReorderMode) {
+                return;
+              }
+            }}
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            <Table>
+              <TableHeader className="bg-muted sticky top-0 z-10">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
                     ))}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns().length}
-                    className="h-24 text-center"
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  <SortableContext
+                    items={table
+                      .getRowModel()
+                      .rows.map((row) => row.original.id)}
+                    strategy={verticalListSortingStrategy}
                   >
-                    No athletes found.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    {table.getRowModel().rows.map((row) => (
+                      <DraggableRow key={row.id} row={row} />
+                    ))}
+                  </SortableContext>
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={table.getAllColumns().length}
+                      className="h-24 text-center"
+                    >
+                      No athletes found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </DndContext>
         </div>
 
         <div className="flex items-center justify-between px-4">
@@ -941,6 +1439,54 @@ export function AthletesDataTable() {
           </div>
         </div>
       </TabsContent>
+
+      {/* Exit Reorder Mode Dialog */}
+      <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Exit Reorder Mode</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes in reorder mode. Are you sure you want to
+              exit reorder mode? All changes will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowExitDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleExitReorderMode}>
+              Exit Reorder Mode
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Change Confirmation Dialog */}
+      <Dialog
+        open={showViewChangeDialog}
+        onOpenChange={setShowViewChangeDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm View Change</DialogTitle>
+            <DialogDescription>
+              You have unsaved changes in reorder mode. Changing the view will
+              discard these changes. Are you sure you want to change the view?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowViewChangeDialog(false)}
+            >
+              Keep Changes
+            </Button>
+            <Button variant="default" onClick={handleViewChange}>
+              Confirm View Change
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tabs>
   );
 }
