@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export interface DivisionRankings {
   division: string;
@@ -12,7 +13,9 @@ export interface DivisionRankings {
   }[];
 }
 
-export async function getTop5Athletes(): Promise<DivisionRankings[]> {
+export async function getTop5Athletes() {
+  noStore(); // Force fresh data - disable all caching
+
   try {
     const divisions = await prisma.athlete.findMany({
       where: {

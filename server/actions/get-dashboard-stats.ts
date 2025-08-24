@@ -4,8 +4,7 @@ import prisma from "@/lib/prisma";
 import { unstable_noStore as noStore } from "next/cache";
 
 export async function getDashboardStats() {
-  // Disable caching to ensure fresh data
-  noStore();
+  noStore(); // Force fresh data - disable all caching
 
   // Get the start of the current week (Monday)
   const now = new Date();

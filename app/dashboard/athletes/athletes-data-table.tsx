@@ -168,7 +168,10 @@ const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
       const success = await deleteAthlete(athlete.id);
       if (success) {
         toast.success("Athlete deleted successfully");
+        // Force immediate refresh for live environment
         router.refresh();
+        // Also reload to ensure all data is fresh
+        window.location.reload();
       } else {
         toast.error("Failed to delete athlete");
       }
@@ -728,6 +731,7 @@ const createColumns = (): ColumnDef<Athlete>[] => [
 ];
 
 export function AthletesDataTable() {
+  const router = useRouter();
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
     "view",
@@ -1045,6 +1049,53 @@ export function AthletesDataTable() {
     setShowExitDialog(false);
   };
 
+  // Add a refresh function to force fresh data
+  const refreshData = React.useCallback(async () => {
+    try {
+      // Transform column filters to the expected format
+      const transformedFilters = columnFilters.map((filter) => ({
+        id: filter.id,
+        value: (() => {
+          if (Array.isArray(filter.value)) {
+            return filter.value.filter(
+              (v): v is string => typeof v === "string"
+            );
+          }
+          if (typeof filter.value === "string") {
+            return [filter.value];
+          }
+          return [];
+        })(),
+      }));
+
+      const { athletes, total } = await getPaginatedAthletes({
+        page,
+        pageSize: size,
+        q,
+        view,
+        gender,
+        sort: sort,
+        columnFilters: transformedFilters,
+      });
+
+      setData({ athletes, total });
+
+      // Update original athletes whenever data changes (for reorder mode)
+      if (athletes.length > 0) {
+        setOriginalAthletes([...athletes]);
+      }
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("Failed to refresh data");
+    }
+  }, [page, size, q, view, gender, sort, columnFilters]);
+
+  // Add refresh button to the UI
+  const handleRefresh = () => {
+    refreshData();
+    toast.success("Data refreshed");
+  };
+
   // Save all changes
   const saveAllChanges = async () => {
     if (!hasUnsavedChanges) return;
@@ -1128,7 +1179,10 @@ export function AthletesDataTable() {
         );
         setHasUnsavedChanges(false);
         setOriginalAthletes([...data.athletes]);
-        // Refresh the page to get updated data
+
+        // Force immediate refresh for live environment
+        router.refresh();
+        // Also reload to ensure all data is fresh
         window.location.reload();
       } else {
         toast.error(result.message || "Failed to update athlete ranks");
@@ -1191,6 +1245,29 @@ export function AthletesDataTable() {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
+          {/* Refresh Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="flex items-center gap-2"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span className="hidden lg:inline">Refresh</span>
+          </Button>
+
           {/* Reorder Mode Toggle */}
           <div className="flex items-center space-x-2">
             <Switch

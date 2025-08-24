@@ -35,7 +35,7 @@ export async function getPaginatedAthletes(params: {
   sort?: string;
   columnFilters?: { id: string; value: string[] }[];
 }) {
-  noStore();
+  noStore(); // Force fresh data - disable all caching
 
   const { page, pageSize, q, view, gender, sort, columnFilters } = params;
 

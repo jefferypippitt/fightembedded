@@ -25,6 +25,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -63,26 +64,13 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 
 // Helper component for the actions cell
-const ActionsCell = ({ event }: { event: Event }) => {
-  const handleDelete = async () => {
-    try {
-      const result = await deleteEvent(event.id);
-      if (result.status === "success") {
-        toast.success("Event deleted successfully");
-        // Force a hard refresh to ensure fresh data
-        window.location.reload();
-      } else {
-        toast.error(result.message || "Failed to delete event");
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? `Error: ${error.message}`
-          : "An unexpected error occurred. Please try again."
-      );
-    }
-  };
-
+const ActionsCell = ({
+  event,
+  onDelete,
+}: {
+  event: Event;
+  onDelete: () => void;
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -100,7 +88,7 @@ const ActionsCell = ({ event }: { event: Event }) => {
           <Link href={`/dashboard/events/${event.id}/edit`}>Edit</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+        <DropdownMenuItem onClick={onDelete} className="text-red-600">
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -145,191 +133,8 @@ const StatusFilter = ({ column }: { column: Column<Event, unknown> }) => {
   );
 };
 
-// Move the columns definition inside the component
-const createColumns = (): ColumnDef<Event>[] => [
-  {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Event Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <span>{row.getValue("name")}</span>;
-    },
-    filterFn: (row, id, filterValue: string) => {
-      return row.original.name
-        .toLowerCase()
-        .includes(filterValue.toLowerCase());
-    },
-  },
-  {
-    accessorKey: "date",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const date = row.getValue("date") as Date;
-      return format(date, "MMM d, yyyy");
-    },
-    sortingFn: (rowA, rowB) => {
-      const dateA = rowA.original.date;
-      const dateB = rowB.original.date;
-      return dateA.getTime() - dateB.getTime();
-    },
-  },
-  {
-    accessorKey: "venue",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Venue
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <span>{row.getValue("venue")}</span>;
-    },
-    filterFn: (row, id, filterValue: string) => {
-      return row.original.venue
-        .toLowerCase()
-        .includes(filterValue.toLowerCase());
-    },
-  },
-  {
-    accessorKey: "location",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Location
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <span>{row.getValue("location")}</span>;
-    },
-    filterFn: (row, id, filterValue: string) => {
-      return row.original.location
-        .toLowerCase()
-        .includes(filterValue.toLowerCase());
-    },
-  },
-  {
-    accessorKey: "mainEvent",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Main Event
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <span>{row.getValue("mainEvent")}</span>;
-    },
-    filterFn: (row, id, filterValue: string) => {
-      return row.original.mainEvent
-        .toLowerCase()
-        .includes(filterValue.toLowerCase());
-    },
-  },
-  {
-    accessorKey: "status",
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Status
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-          <StatusFilter column={column} />
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      const colorClass =
-        status === "UPCOMING"
-          ? "bg-green-500 dark:bg-green-400"
-          : status === "COMPLETED"
-          ? "bg-blue-500 dark:bg-blue-400"
-          : status === "CANCELLED"
-          ? "bg-red-500 dark:bg-red-400"
-          : "bg-gray-500 dark:bg-gray-400";
-      return (
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          <span className="relative flex items-center gap-1.5">
-            <span className="relative flex size-2">
-              <span
-                className={
-                  `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ` +
-                  colorClass
-                }
-              />
-              <span
-                className={
-                  `relative inline-flex size-2 rounded-full ` + colorClass
-                }
-              />
-            </span>
-            {status}
-          </span>
-        </Badge>
-      );
-    },
-    sortingFn: (rowA, rowB) => {
-      const statusA = rowA.original.status;
-      const statusB = rowB.original.status;
-
-      // Custom sorting: UPCOMING first, then COMPLETED, then CANCELLED
-      const statusOrder: Record<string, number> = {
-        UPCOMING: 1,
-        COMPLETED: 2,
-        CANCELLED: 3,
-      };
-      return statusOrder[statusA] - statusOrder[statusB];
-    },
-    filterFn: (row, id, filterValues: string[]) => {
-      if (!filterValues.length) return true;
-      const status = row.getValue(id) as string;
-      return filterValues.includes(status);
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => <ActionsCell event={row.original} />,
-  },
-];
-
 export function EventsDataTable() {
+  const router = useRouter();
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
     "view",
@@ -358,6 +163,260 @@ export function EventsDataTable() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
+  // Add a refresh function to force fresh data
+  const refreshData = React.useCallback(async () => {
+    try {
+      // Transform column filters to the expected format
+      const transformedFilters = columnFilters.map((filter) => ({
+        id: filter.id,
+        value: (() => {
+          if (Array.isArray(filter.value)) {
+            return filter.value.filter(
+              (v): v is string => typeof v === "string"
+            );
+          }
+          if (typeof filter.value === "string") {
+            return [filter.value];
+          }
+          return [];
+        })(),
+      }));
+
+      const { events, total } = await getPaginatedEvents({
+        page,
+        pageSize: size,
+        q,
+        view,
+        sort: sort,
+        columnFilters: transformedFilters,
+      });
+
+      setData({ events, total });
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("Failed to refresh data");
+    }
+  }, [page, size, q, view, sort, columnFilters]);
+
+  // Add refresh button to the UI
+  const handleRefresh = () => {
+    refreshData();
+    toast.success("Data refreshed");
+  };
+
+  // Handle delete event
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      const result = await deleteEvent(eventId);
+      if (result.status === "success") {
+        toast.success("Event deleted successfully");
+        // Force immediate refresh for live environment
+        router.refresh();
+        // Also reload to ensure all data is fresh
+        window.location.reload();
+      } else {
+        toast.error(result.message || "Failed to delete event");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : "An unexpected error occurred. Please try again."
+      );
+    }
+  };
+
+  // Move the columns definition inside the component
+  const createColumns = (): ColumnDef<Event>[] => [
+    {
+      accessorKey: "name",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Event Name
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <span>{row.getValue("name")}</span>;
+      },
+      filterFn: (row, id, filterValue: string) => {
+        return row.original.name
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      },
+    },
+    {
+      accessorKey: "date",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Date
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const date = row.getValue("date") as Date;
+        return format(date, "MMM d, yyyy");
+      },
+      sortingFn: (rowA, rowB) => {
+        const dateA = rowA.original.date;
+        const dateB = rowB.original.date;
+        return dateA.getTime() - dateB.getTime();
+      },
+    },
+    {
+      accessorKey: "venue",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Venue
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <span>{row.getValue("venue")}</span>;
+      },
+      filterFn: (row, id, filterValue: string) => {
+        return row.original.venue
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      },
+    },
+    {
+      accessorKey: "location",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Location
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <span>{row.getValue("location")}</span>;
+      },
+      filterFn: (row, id, filterValue: string) => {
+        return row.original.location
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      },
+    },
+    {
+      accessorKey: "mainEvent",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Main Event
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        return <span>{row.getValue("mainEvent")}</span>;
+      },
+      filterFn: (row, id, filterValue: string) => {
+        return row.original.mainEvent
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      },
+    },
+    {
+      accessorKey: "status",
+      header: ({ column }) => {
+        return (
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+            >
+              Status
+              <ArrowUpDown className="ml-2 h-4" />
+            </Button>
+            <StatusFilter column={column} />
+          </div>
+        );
+      },
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const colorClass =
+          status === "UPCOMING"
+            ? "bg-green-500 dark:bg-green-400"
+            : status === "COMPLETED"
+            ? "bg-blue-500 dark:bg-blue-400"
+            : status === "CANCELLED"
+            ? "bg-red-500 dark:bg-red-400"
+            : "bg-gray-500 dark:bg-gray-400";
+        return (
+          <Badge variant="outline" className="text-muted-foreground px-1.5">
+            <span className="relative flex items-center gap-1.5">
+              <span className="relative flex size-2">
+                <span
+                  className={
+                    `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ` +
+                    colorClass
+                  }
+                />
+                <span
+                  className={
+                    `relative inline-flex size-2 rounded-full ` + colorClass
+                  }
+                />
+              </span>
+              {status}
+            </span>
+          </Badge>
+        );
+      },
+      sortingFn: (rowA, rowB) => {
+        const statusA = rowA.original.status;
+        const statusB = rowB.original.status;
+
+        // Custom sorting: UPCOMING first, then COMPLETED, then CANCELLED
+        const statusOrder: Record<string, number> = {
+          UPCOMING: 1,
+          COMPLETED: 2,
+          CANCELLED: 3,
+        };
+        return statusOrder[statusA] - statusOrder[statusB];
+      },
+      filterFn: (row, id, filterValues: string[]) => {
+        if (!filterValues.length) return true;
+        const status = row.getValue(id) as string;
+        return filterValues.includes(status);
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => (
+        <ActionsCell
+          event={row.original}
+          onDelete={() => handleDeleteEvent(row.original.id)}
+        />
+      ),
+    },
+  ];
 
   // Initialize sorting state when component mounts
   React.useEffect(() => {
@@ -527,6 +586,29 @@ export function EventsDataTable() {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
+          {/* Refresh Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            className="flex items-center gap-2"
+          >
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span className="hidden lg:inline">Refresh</span>
+          </Button>
+
           <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/events/new">
               <PlusCircle className="h-4 w-4" />

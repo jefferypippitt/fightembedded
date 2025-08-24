@@ -1,11 +1,27 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
+import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+
+// Authentication helper
+async function checkAuth() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+}
 
 export async function createEvent(formData: FormData) {
   try {
+    noStore(); // Force fresh data
+    await checkAuth();
     const rawData = Object.fromEntries(formData.entries());
 
     const data = {
@@ -38,6 +54,8 @@ export async function createEvent(formData: FormData) {
 
 export async function updateEvent(id: string, formData: FormData) {
   try {
+    noStore(); // Force fresh data
+    await checkAuth();
     const rawData = Object.fromEntries(formData.entries());
 
     const data = {
@@ -73,6 +91,8 @@ export async function updateEvent(id: string, formData: FormData) {
 
 export async function deleteEvent(id: string) {
   try {
+    noStore(); // Force fresh data
+    await checkAuth();
     // Get event details before deletion for cache invalidation
     const eventToDelete = await prisma.event.findUnique({
       where: { id },
@@ -99,6 +119,7 @@ export async function deleteEvent(id: string) {
 
 export async function getEvent(id: string) {
   try {
+    noStore(); // Force fresh data
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
   } catch (error) {
@@ -109,6 +130,7 @@ export async function getEvent(id: string) {
 
 export async function getLiveUpcomingEvents() {
   try {
+    noStore(); // Force fresh data
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -142,6 +164,7 @@ export async function getLiveUpcomingEvents() {
 
 export async function getUpcomingEvents() {
   try {
+    noStore(); // Force fresh data
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -168,6 +191,20 @@ export async function getUpcomingEvents() {
     return events;
   } catch (error) {
     console.error("Error fetching upcoming events:", error);
+    return [];
+  }
+}
+
+// Get all events
+export async function getAllEvents() {
+  try {
+    noStore(); // Force fresh data
+    const events = await prisma.event.findMany({
+      orderBy: { date: "desc" },
+    });
+    return events;
+  } catch (error) {
+    console.error("Error fetching all events:", error);
     return [];
   }
 }

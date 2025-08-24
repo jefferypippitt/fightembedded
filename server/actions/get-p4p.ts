@@ -4,6 +4,8 @@ import prisma from "@/lib/prisma";
 import { unstable_noStore as noStore } from "next/cache";
 
 export async function getP4PRankings() {
+  noStore(); // Force fresh data - disable all caching
+
   const maleP4PRankings = await prisma.athlete.findMany({
     where: {
       gender: "MALE",

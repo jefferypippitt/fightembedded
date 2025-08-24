@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 export interface Athlete {
   id: string;
@@ -9,10 +10,9 @@ export interface Athlete {
   gender: string;
 }
 
-export async function getTop20Athletes(): Promise<{
-  maleAthletes: Athlete[];
-  femaleAthletes: Athlete[];
-}> {
+export async function getTop20Athletes() {
+  noStore(); // Force fresh data - disable all caching
+
   try {
     // Fetch top 20 male athletes
     const maleAthletes = await prisma.athlete.findMany({
