@@ -134,9 +134,8 @@ export async function getLiveUpcomingEvents() {
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
-        date: {
-          gte: new Date(), // Only future events
-        },
+        // Removed date filter to show all UPCOMING events regardless of date
+        // Events will only be hidden when status is changed to COMPLETED or CANCELLED
       },
       orderBy: {
         date: "asc", // Show earliest upcoming events first
@@ -168,9 +167,8 @@ export async function getUpcomingEvents() {
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
-        date: {
-          gte: new Date(), // Only future events
-        },
+        // Removed date filter to show all UPCOMING events regardless of date
+        // Events will only be hidden when status is changed to COMPLETED or CANCELLED
       },
       orderBy: {
         date: "asc", // Show earliest upcoming events first
