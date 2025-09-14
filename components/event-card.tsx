@@ -23,7 +23,7 @@ export default function EventCard({
             <CardTitle className="text-base font-medium line-clamp-1">
               {name}
             </CardTitle>
-            <span className="text-xs font-mono text-zinc-600 dark:text-zinc-400">
+            <span className="text-xs  text-zinc-600 dark:text-zinc-400">
               {format(date, "MMM d, yyyy")}
             </span>
           </div>

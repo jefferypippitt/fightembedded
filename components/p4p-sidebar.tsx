@@ -18,9 +18,7 @@ const FighterCard = React.memo(
   }) => (
     <li className="relative overflow-hidden group flex items-center space-x-2 p-2 hover:bg-accent/50 transition-all duration-300 border h-16 rounded-lg shadow-xs hover:shadow-sm bg-gradient-to-br from-primary/[0.02] to-primary/[0.05]">
       {/* Background gradient */}
-      <span className="px-2.5 text-xs font-mono">
-        {fighter.poundForPoundRank}.
-      </span>
+      <span className="px-2.5 text-xs ">{fighter.poundForPoundRank}.</span>
       <AthleteAvatar
         imageUrl={fighter.imageUrl}
         countryCode={getCountryCode(fighter.country)}
@@ -29,14 +27,20 @@ const FighterCard = React.memo(
       />
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <p className="text-xs font-medium mb-1">{fighter.name}</p>
-        <div className="flex items-center space-x-1 text-[11px] font-mono">
-          <span className="text-green-500">{fighter.wins}</span>
-          <span>-</span>
-          <span className="text-red-500">{fighter.losses}</span>
+        <div className="flex items-center text-[10px] space-x-0.5">
+          <span className="text-green-500 tabular-nums font-medium">
+            {fighter.wins}
+          </span>
+          <span className="text-muted-foreground">-</span>
+          <span className="text-red-500 tabular-nums font-medium">
+            {fighter.losses}
+          </span>
           {fighter.draws > 0 && (
             <>
-              <span>-</span>
-              <span className="text-yellow-500">{fighter.draws}</span>
+              <span className="text-muted-foreground">-</span>
+              <span className="text-yellow-500 tabular-nums font-medium">
+                {fighter.draws}
+              </span>
             </>
           )}
         </div>

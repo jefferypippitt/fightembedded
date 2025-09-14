@@ -89,7 +89,7 @@ export function FighterPopularityChart({
                   {key === "male" ? "Male" : "Female"} {chartConfig[key].label}
                 </span>
               </div>
-              <span className="text-lg leading-none font-bold sm:text-3xl font-mono">
+              <span className="text-lg leading-none font-bold sm:text-3xl ">
                 {total[key].toLocaleString()}
               </span>
             </button>

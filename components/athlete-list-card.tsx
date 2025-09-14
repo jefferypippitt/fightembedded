@@ -173,7 +173,7 @@ function AthleteListCardComponent({
                 variant="secondary"
                 className="text-[10px] py-0 px-2 font-medium"
               >
-                Age: <span className="font-mono">{age}</span>
+                Age: <span className="">{age}</span>
               </Badge>
             )}
           </div>
@@ -192,18 +192,18 @@ function AthleteListCardComponent({
               <h3 className="font-semibold text-sm sm:text-sm text-foreground leading-tight">
                 {name}
               </h3>
-              <h4 className="text-[11px] font-mono mt-1 leading-none">
-                <span className="text-green-600 dark:text-green-400 font-mono">
+              <h4 className="text-[11px] mt-1 leading-none flex items-center justify-center space-x-0.5">
+                <span className="text-green-600 dark:text-green-400 tabular-nums font-medium">
                   {wins}
                 </span>
-                <span className="text-foreground font-mono">-</span>
-                <span className="text-red-600 dark:text-red-400 font-mono">
+                <span className="text-muted-foreground">-</span>
+                <span className="text-red-600 dark:text-red-400 tabular-nums font-medium">
                   {losses}
                 </span>
                 {draws > 0 && (
                   <>
-                    <span className="text-foreground font-mono">-</span>
-                    <span className="text-yellow-600 dark:text-yellow-400 font-mono">
+                    <span className="text-muted-foreground">-</span>
+                    <span className="text-yellow-600 dark:text-yellow-400 tabular-nums font-medium">
                       {draws}
                     </span>
                   </>
@@ -228,7 +228,7 @@ function AthleteListCardComponent({
           <div className="space-y-1.5 sm:space-y-2">
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>Win Rate</span>
-              <span className="font-medium text-foreground font-mono">
+              <span className="font-medium text-foreground ">
                 {winRate.toFixed(1)}%
               </span>
             </div>
@@ -239,7 +239,7 @@ function AthleteListCardComponent({
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>KO/TKO</span>
-              <span className="font-medium text-foreground font-mono">
+              <span className="font-medium text-foreground ">
                 {koRate.toFixed(1)}%
               </span>
             </div>
@@ -250,7 +250,7 @@ function AthleteListCardComponent({
 
             <div className="flex justify-between items-center text-[10px] text-muted-foreground">
               <span>Submission</span>
-              <span className="font-medium text-foreground font-mono">
+              <span className="font-medium text-foreground ">
                 {submissionRate.toFixed(1)}%
               </span>
             </div>
@@ -269,7 +269,7 @@ function AthleteListCardComponent({
             </div>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground">Followers:</span>
-              <span className="font-medium text-foreground font-mono">
+              <span className="font-medium text-foreground ">
                 {followers.toLocaleString()}
               </span>
             </div>

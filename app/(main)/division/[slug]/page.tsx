@@ -41,7 +41,7 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
         <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
           {divisionData.name} Division
         </h1>
-        <p className="text-sm sm:text-base font-mono text-muted-foreground">
+        <p className="text-sm sm:text-base  text-muted-foreground">
           {(() => {
             const division = getDivisionBySlug(slug);
             return division?.weight ? `${division.weight} lbs` : "";

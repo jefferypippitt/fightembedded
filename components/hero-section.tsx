@@ -38,7 +38,7 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
     <div className="flex items-center justify-center space-x-1 xs:space-x-2">
       <NumberTicker
         value={stat.value}
-        className="text-lg xs:text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 font-mono"
+        className="text-lg xs:text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 "
       />
       {stat.icon && stat.icon}
     </div>
