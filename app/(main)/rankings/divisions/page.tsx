@@ -32,6 +32,14 @@ const getDivisionWeight = (divisionName: string): string => {
   return "";
 };
 
+function ChartLoadingSpinner() {
+  return (
+    <div className="h-[300px] w-full flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
+}
+
 export default function DivisionRankingsPage() {
   const divisions = getAllDivisions();
 
@@ -52,7 +60,7 @@ export default function DivisionRankingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Suspense fallback={<div className="h-[300px] w-full" />}>
+              <Suspense fallback={<ChartLoadingSpinner />}>
                 <DivisionChartDataWrapper divisionName={division.name} />
               </Suspense>
             </CardContent>

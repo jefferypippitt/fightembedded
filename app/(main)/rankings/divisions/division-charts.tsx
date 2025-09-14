@@ -124,8 +124,8 @@ export function DivisionChartData({
   const maxNameLength = Math.max(
     ...chartData.map((athlete) => athlete.name.length)
   );
-  // More conservative width calculation for mobile
-  const yAxisWidth = Math.min(Math.max(100, maxNameLength * 5 + 20), 160);
+  // More conservative width calculation for mobile with smaller font
+  const yAxisWidth = Math.min(Math.max(120, maxNameLength * 4.5 + 30), 180);
 
   return (
     <ChartContainer
@@ -160,7 +160,7 @@ export function DivisionChartData({
           interval={0}
           tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
           className="text-xs sm:text-sm"
-          tick={{ fontSize: 12 }}
+          tick={{ fontSize: 10 }}
         />
         <ChartTooltip
           cursor={{ fill: "hsl(var(--muted))" }}
