@@ -105,7 +105,7 @@ export function DivisionCharts({
   );
 }
 
-function DivisionChartData({
+export function DivisionChartData({
   divisionData,
 }: {
   divisionData?: DivisionRankings;
@@ -120,24 +120,32 @@ function DivisionChartData({
     divisionData.athletes
   );
 
+  // Calculate responsive width based on longest athlete name
+  const maxNameLength = Math.max(
+    ...chartData.map((athlete) => athlete.name.length)
+  );
+  // More conservative width calculation for mobile
+  const yAxisWidth = Math.min(Math.max(100, maxNameLength * 5 + 20), 160);
+
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[300px] w-full"
+      className="aspect-auto h-[300px] w-full overflow-x-auto"
     >
       <BarChart
         data={chartData}
         layout="vertical"
         margin={{
-          left: 1,
-          right: 5,
-          top: 1,
-          bottom: 1,
+          left: 0,
+          right: 0,
+          top: 5,
+          bottom: 5,
         }}
       >
         <CartesianGrid horizontal={false} vertical={true} />
         <XAxis
           type="number"
+          tickMargin={10}
           axisLine={false}
           tickLine={false}
           tickFormatter={(value) => value.toLocaleString()}
@@ -146,11 +154,13 @@ function DivisionChartData({
           dataKey="name"
           type="category"
           tickLine={false}
-          tickMargin={15}
+          tickMargin={10}
           axisLine={false}
-          width={140}
+          width={yAxisWidth}
           interval={0}
           tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
+          className="text-xs sm:text-sm"
+          tick={{ fontSize: 12 }}
         />
         <ChartTooltip
           cursor={{ fill: "hsl(var(--muted))" }}
