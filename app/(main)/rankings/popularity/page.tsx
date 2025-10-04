@@ -27,7 +27,7 @@ export default async function DivisionRankingsPage() {
   }));
 
   return (
-    <div className="space-y-4 *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+    <div className="space-y-4">
       <div className="flex justify-center">
         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
           Top 20 Athletes by Popularity

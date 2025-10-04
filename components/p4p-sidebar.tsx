@@ -16,33 +16,35 @@ const FighterCard = React.memo(
     fighter: Fighter;
     isPriority?: boolean;
   }) => (
-    <li className="relative overflow-hidden group flex items-center space-x-2 p-2 hover:bg-accent/50 transition-all duration-300 border h-16 rounded-lg shadow-xs hover:shadow-sm bg-gradient-to-br from-primary/[0.02] to-primary/[0.05]">
-      {/* Background gradient */}
-      <span className="px-2.5 text-xs ">{fighter.poundForPoundRank}.</span>
-      <AthleteAvatar
-        imageUrl={fighter.imageUrl}
-        countryCode={getCountryCode(fighter.country)}
-        size="xs"
-        priority={isPriority}
-      />
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <p className="text-xs font-medium mb-1">{fighter.name}</p>
-        <div className="flex items-center text-[10px] space-x-0.5">
-          <span className="text-green-500 tabular-nums font-medium">
-            {fighter.wins}
-          </span>
-          <span className="text-muted-foreground">-</span>
-          <span className="text-red-500 tabular-nums font-medium">
-            {fighter.losses}
-          </span>
-          {fighter.draws > 0 && (
-            <>
-              <span className="text-muted-foreground">-</span>
-              <span className="text-yellow-500 tabular-nums font-medium">
-                {fighter.draws}
-              </span>
-            </>
-          )}
+    <li className="relative overflow-hidden group transition-all duration-300 border h-16 rounded-sm shadow-sm ring-1 ring-primary/10">
+      {/* Content wrapper with relative positioning */}
+      <div className="relative h-full flex items-center space-x-2 p-2">
+        <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
+        <AthleteAvatar
+          imageUrl={fighter.imageUrl}
+          countryCode={getCountryCode(fighter.country)}
+          size="xs"
+          priority={isPriority}
+        />
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <p className="text-xs font-medium mb-1">{fighter.name}</p>
+          <h4 className="text-[10px] leading-none flex items-center space-x-0.5">
+            <span className="text-green-600 dark:text-green-400 tabular-nums font-medium">
+              {fighter.wins}
+            </span>
+            <span className="text-muted-foreground">-</span>
+            <span className="text-red-600 dark:text-red-400 tabular-nums font-medium">
+              {fighter.losses}
+            </span>
+            {fighter.draws > 0 && (
+              <>
+                <span className="text-muted-foreground">-</span>
+                <span className="text-yellow-600 dark:text-yellow-400 tabular-nums font-medium">
+                  {fighter.draws}
+                </span>
+              </>
+            )}
+          </h4>
         </div>
       </div>
     </li>
@@ -58,9 +60,19 @@ export function P4PSidebarClient({
   return (
     <Card className="p-0">
       <Tabs defaultValue="male" className="h-full flex flex-col">
-        <TabsList className="w-full bg-card border-b">
-          <TabsTrigger value="male">Male</TabsTrigger>
-          <TabsTrigger value="female">Female</TabsTrigger>
+        <TabsList className="w-full bg-transparent border-b shadow-sm">
+          <TabsTrigger
+            value="male"
+            className="data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
+          >
+            Male
+          </TabsTrigger>
+          <TabsTrigger
+            value="female"
+            className="data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
+          >
+            Female
+          </TabsTrigger>
         </TabsList>
 
         <CardTitle className="text-center p-4 border-b">

@@ -72,7 +72,7 @@ export function AthleteAvatar({
       <Avatar
         className={cn(
           sizeMap[size],
-          "ring-1 ring-border relative z-10 overflow-hidden",
+          "ring-border relative z-10 overflow-hidden",
           className
         )}
       >

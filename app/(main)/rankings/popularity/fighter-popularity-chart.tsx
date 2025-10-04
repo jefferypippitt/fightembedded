@@ -35,11 +35,11 @@ const chartConfig = {
   },
   male: {
     label: "Followers",
-    color: "var(--chart-1)",
+    color: "hsl(0, 72%, 51%)",
   },
   female: {
     label: "Followers",
-    color: "var(--chart-4)",
+    color: "hsl(330, 72%, 65%)",
   },
 } satisfies ChartConfig;
 

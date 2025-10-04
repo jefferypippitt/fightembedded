@@ -12,11 +12,11 @@ const badgeVariants = cva(
         default:
           "border border-muted/40 bg-muted/20 text-muted-foreground hover:bg-muted/30 hover:border-muted/50 dark:bg-muted/30 dark:border-muted/50 dark:hover:bg-muted/40",
         secondary:
-          "border border-border bg-muted text-muted-foreground hover:bg-muted/80 hover:border-border/80 dark:bg-muted/50 dark:border-border/50 dark:hover:bg-muted/60",
+          "border border-slate-500/30 bg-slate-500/10 text-slate-700 dark:text-slate-400 dark:border-slate-400/30 dark:bg-slate-400/10",
         destructive:
           "border border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:border-destructive/30 dark:bg-destructive/20 dark:border-destructive/30 dark:hover:bg-destructive/30",
         outline:
-          "border border-border bg-background text-foreground hover:bg-accent/50 hover:border-border/80 dark:bg-background/50 dark:border-border/50 dark:hover:bg-accent/20",
+          "border border-border bg-muted text-muted-foreground dark:bg-muted/50 dark:border-border/50",
         // Event badges
         eventDate:
           "border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/40 dark:border-amber-400/30 dark:bg-amber-400/10 dark:hover:bg-amber-400/20 dark:hover:border-amber-400/40",
@@ -50,11 +50,11 @@ const badgeVariants = cva(
           "border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 dark:border-fuchsia-400/30 dark:bg-fuchsia-400/10",
         womenStrawweight:
           "border border-orange-500/30 bg-orange-500/10 text-orange-600 dark:text-orange-400 dark:border-orange-400/30 dark:bg-orange-400/10",
-        nr: "border border-slate-300/50 bg-gradient-to-r from-slate-100 to-orange-100 text-slate-600 dark:text-slate-300 dark:border-slate-600/50 dark:from-slate-800/30 dark:to-orange-800/30",
+        nr: "border border-zinc-500/30 bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 dark:border-zinc-400/30 dark:bg-zinc-400/10",
         champion:
           "border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 dark:border-amber-400/30 dark:bg-amber-400/10",
         retired:
-          "border border-stone-300/50 bg-gradient-to-r from-stone-100 to-red-100 text-stone-600 dark:text-stone-300 dark:border-stone-600/50 dark:from-stone-800/30 dark:to-red-800/30",
+          "border border-stone-500/30 bg-stone-500/10 text-stone-600 dark:text-stone-400 dark:border-stone-400/30 dark:bg-stone-400/10",
       },
     },
     defaultVariants: {

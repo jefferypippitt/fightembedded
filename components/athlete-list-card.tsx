@@ -164,8 +164,11 @@ function AthleteListCardComponent({
                 #{rank}
               </Badge>
             ) : (
-              <Badge variant="nr" className="text-[10px] py-0 px-2 font-medium">
-                Not Ranked
+              <Badge
+                variant="default"
+                className="text-[10px] py-0 px-2 font-medium"
+              >
+                NR
               </Badge>
             )}
             {age && (
