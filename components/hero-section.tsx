@@ -52,10 +52,10 @@ const HeroContent = () => (
   <div className="flex flex-col items-start text-left space-y-3 md:space-y-4 w-full lg:flex-1">
     <div className="space-y-1 w-full">
       <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800 dark:text-gray-100 text-balance">
-        Your Ultimate Source for
+        Your Ultimate Source For
       </h1>
       <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
-        UFC Athletes and Events
+        UFC Athletes & Events
       </h1>
     </div>
     <div className="mt-1 mb-2 md:mt-2 md:mb-0">

@@ -1,10 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
-export async function getCountryStats() {
-  noStore(); // Force fresh data - disable all caching
+export const getCountryStats = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   const countries = await prisma.athlete.groupBy({
     by: ["country"],
@@ -24,4 +24,4 @@ export async function getCountryStats() {
     count: country._count.country,
     trend: "up", // You might want to calculate this based on historical data
   }));
-}
+});

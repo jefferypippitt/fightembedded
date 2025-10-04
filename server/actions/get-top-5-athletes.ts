@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
 export interface DivisionRankings {
   division: string;
@@ -13,9 +13,8 @@ export interface DivisionRankings {
   }[];
 }
 
-export async function getTop5Athletes() {
-  noStore(); // Force fresh data - disable all caching
-
+// Cache the function per request - prevents refetching on same request
+export const getTop5Athletes = cache(async () => {
   try {
     const divisions = await prisma.athlete.findMany({
       where: {
@@ -85,4 +84,4 @@ export async function getTop5Athletes() {
     console.error("Error fetching top 5 athletes:", error);
     throw new Error("Failed to fetch top 5 athletes");
   }
-}
+});

@@ -1,10 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
-export async function getDashboardStats() {
-  noStore(); // Force fresh data - disable all caching
+export const getDashboardStats = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   // Get the start of the current week (Monday)
   const now = new Date();
@@ -252,4 +252,4 @@ export async function getDashboardStats() {
     totalChampions,
     mostFollowedAthlete: formattedMostFollowedAthlete,
   };
-}
+});

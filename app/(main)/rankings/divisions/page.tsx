@@ -1,47 +1,22 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
-import { getAllDivisions, weightClasses } from "@/data/weight-class";
 import { getTop5Athletes } from "@/server/actions/get-top-5-athletes";
-import { DivisionChartData } from "./division-charts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { DivisionRankingsGrid } from "./division-charts";
 
 export const metadata: Metadata = {
   title: "Division Rankings",
-  description: "Top 5 Ranked Athletes by Follower Count",
+  description: "Top 5 Ranked Athletes by Division",
 };
 
-const getDivisionWeight = (divisionName: string): string => {
-  const baseDivisionName = divisionName.replace(/^(Men's|Women's)\s+/, "");
+export default async function DivisionRankingsPage() {
+  const divisionRankings = await getTop5Athletes();
 
-  const menDivision = weightClasses.men.find(
-    (d) => d.name === baseDivisionName
+  // Separate male and female divisions
+  const maleDivisions = divisionRankings.filter(
+    (division) => !division.division.startsWith("Women's")
   );
-  if (menDivision?.weight) return `${menDivision.weight} lbs`;
-
-  const womenDivision = weightClasses.women.find(
-    (d) => d.name === baseDivisionName
+  const femaleDivisions = divisionRankings.filter((division) =>
+    division.division.startsWith("Women's")
   );
-  if (womenDivision?.weight) return `${womenDivision.weight} lbs`;
-
-  return "";
-};
-
-function ChartLoadingSpinner() {
-  return (
-    <div className="h-[300px] w-full flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
-}
-
-export default function DivisionRankingsPage() {
-  const divisions = getAllDivisions();
 
   return (
     <div className="space-y-4">
@@ -50,36 +25,10 @@ export default function DivisionRankingsPage() {
           Top 5 Ranked Athletes
         </h1>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {divisions.map((division) => (
-          <Card key={division.name}>
-            <CardHeader>
-              <CardTitle>{division.name}</CardTitle>
-              <CardDescription>
-                {getDivisionWeight(division.name)}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Suspense fallback={<ChartLoadingSpinner />}>
-                <DivisionChartDataWrapper divisionName={division.name} />
-              </Suspense>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <DivisionRankingsGrid
+        maleDivisions={maleDivisions}
+        femaleDivisions={femaleDivisions}
+      />
     </div>
   );
-}
-
-async function DivisionChartDataWrapper({
-  divisionName,
-}: {
-  divisionName: string;
-}) {
-  const divisionRankings = await getTop5Athletes();
-  const divisionData = divisionRankings.find(
-    (d) => d.division === divisionName
-  );
-
-  return <DivisionChartData divisionData={divisionData} />;
 }

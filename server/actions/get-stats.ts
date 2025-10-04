@@ -1,10 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
-export async function getStats() {
-  noStore(); // Force fresh data - disable all caching
+export const getStats = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] =
     await Promise.all([
@@ -79,12 +79,11 @@ export async function getStats() {
       female: femaleP4P,
     },
   };
-}
+});
 
 // Live stats function for hero section
-export const getLiveStats = async () => {
-  // Disable caching to ensure fresh data
-  noStore();
+export const getLiveStats = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   const [
     totalAthletes,
@@ -165,4 +164,4 @@ export const getLiveStats = async () => {
       female: femaleP4P,
     },
   };
-};
+});

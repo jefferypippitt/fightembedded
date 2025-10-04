@@ -2,10 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { getAllDivisions } from "@/data/weight-class";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
-export async function getDivisionStats() {
-  noStore(); // Force fresh data - disable all caching
+export const getDivisionStats = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   // Get all divisions
   const divisions = getAllDivisions();
@@ -66,4 +66,4 @@ export async function getDivisionStats() {
   });
 
   return divisionStats;
-}
+});

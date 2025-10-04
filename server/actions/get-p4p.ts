@@ -1,10 +1,10 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 
-export async function getP4PRankings() {
-  noStore(); // Force fresh data - disable all caching
+export const getP4PRankings = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   const maleP4PRankings = await prisma.athlete.findMany({
     where: {
@@ -38,12 +38,11 @@ export async function getP4PRankings() {
     maleP4PRankings,
     femaleP4PRankings,
   };
-}
+});
 
 // Live P4P rankings function for homepage
-export async function getLiveP4PRankings() {
-  // Disable caching to ensure fresh data
-  noStore();
+export const getLiveP4PRankings = cache(async () => {
+  // Cached - only revalidates when revalidatePath() is called
 
   const maleP4PRankings = await prisma.athlete.findMany({
     where: {
@@ -77,4 +76,4 @@ export async function getLiveP4PRankings() {
     maleP4PRankings,
     femaleP4PRankings,
   };
-}
+});

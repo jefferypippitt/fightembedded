@@ -4,7 +4,8 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
-import { revalidatePath, unstable_noStore as noStore } from "next/cache";
+import { revalidatePath } from "next/cache";
+import { cache } from "react";
 
 // Authentication helper
 async function checkAuth() {
@@ -20,7 +21,6 @@ async function checkAuth() {
 
 export async function createEvent(formData: FormData) {
   try {
-    noStore(); // Force fresh data
     await checkAuth();
     const rawData = Object.fromEntries(formData.entries());
 
@@ -54,7 +54,6 @@ export async function createEvent(formData: FormData) {
 
 export async function updateEvent(id: string, formData: FormData) {
   try {
-    noStore(); // Force fresh data
     await checkAuth();
     const rawData = Object.fromEntries(formData.entries());
 
@@ -91,7 +90,6 @@ export async function updateEvent(id: string, formData: FormData) {
 
 export async function deleteEvent(id: string) {
   try {
-    noStore(); // Force fresh data
     await checkAuth();
     // Get event details before deletion for cache invalidation
     const eventToDelete = await prisma.event.findUnique({
@@ -117,20 +115,20 @@ export async function deleteEvent(id: string) {
   }
 }
 
-export async function getEvent(id: string) {
+export const getEvent = cache(async (id: string) => {
   try {
-    noStore(); // Force fresh data
+    // Cached - only revalidates when revalidatePath() is called
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
   } catch (error) {
     console.error(`Failed to fetch event ${id}:`, error);
     return null;
   }
-}
+});
 
-export async function getLiveUpcomingEvents() {
+export const getLiveUpcomingEvents = cache(async () => {
   try {
-    noStore(); // Force fresh data
+    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -159,11 +157,11 @@ export async function getLiveUpcomingEvents() {
     console.error("Error fetching upcoming events:", error);
     return [];
   }
-}
+});
 
-export async function getUpcomingEvents() {
+export const getUpcomingEvents = cache(async () => {
   try {
-    noStore(); // Force fresh data
+    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -191,12 +189,12 @@ export async function getUpcomingEvents() {
     console.error("Error fetching upcoming events:", error);
     return [];
   }
-}
+});
 
 // Get all events
-export async function getAllEvents() {
+export const getAllEvents = cache(async () => {
   try {
-    noStore(); // Force fresh data
+    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       orderBy: { date: "desc" },
     });
@@ -205,4 +203,4 @@ export async function getAllEvents() {
     console.error("Error fetching all events:", error);
     return [];
   }
-}
+});
