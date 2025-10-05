@@ -1,9 +1,5 @@
-"use client";
-
-import { Avatar } from "@/components/ui/avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 interface AthleteAvatarProps {
   imageUrl?: string;
@@ -14,28 +10,26 @@ interface AthleteAvatarProps {
 }
 
 const sizeMap = {
-  xs: "h-12 w-12 md:h-12 md:w-12",
-  sm: "h-16 w-16 md:h-16 md:w-16",
-  md: "h-24 w-24 md:h-24 md:w-24",
-  lg: "h-32 w-32 md:h-32 md:w-32",
+  xs: "h-12 w-12",
+  sm: "h-14 w-14",
+  md: "h-16 w-16",
+  lg: "h-28 w-28",
 };
 
 const imageSizes = {
-  xs: { mobile: 96, desktop: 96 },
-  sm: { mobile: 128, desktop: 128 },
-  md: { mobile: 192, desktop: 192 },
-  lg: { mobile: 256, desktop: 256 },
+  xs: { mobile: 48, desktop: 48 },
+  sm: { mobile: 56, desktop: 56 },
+  md: { mobile: 64, desktop: 64 },
+  lg: { mobile: 112, desktop: 112 },
 };
 
 export function AthleteAvatar({
   imageUrl,
   countryCode,
   size = "md",
-  className = "",
   priority = false,
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
-  const [imageError, setImageError] = useState(false);
 
   // Validate country code
   const validCountryCode =
@@ -46,20 +40,15 @@ export function AthleteAvatar({
   const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
 
   return (
-    <div className="relative">
+    <div className={cn("relative overflow-hidden rounded-sm", sizeMap[size])}>
       {/* Flag Background */}
       {validCountryCode && (
         <div className="absolute inset-0 z-0">
           <Image
             src={flagSrc}
             alt={`${validCountryCode} flag`}
-            width={imageSize.desktop}
-            height={imageSize.desktop}
-            className={cn(
-              sizeMap[size],
-              "rounded-full object-cover opacity-100",
-              "absolute inset-0"
-            )}
+            fill
+            className="object-cover opacity-85"
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
@@ -68,15 +57,9 @@ export function AthleteAvatar({
         </div>
       )}
 
-      {/* Athlete Image */}
-      <Avatar
-        className={cn(
-          sizeMap[size],
-          "ring-border relative z-10 overflow-hidden",
-          className
-        )}
-      >
-        {imageUrl && !imageError ? (
+      {/* Athlete Image - Direct positioning without Avatar wrapper */}
+      <div className="absolute inset-0 z-10">
+        {imageUrl ? (
           <Image
             src={imageUrl}
             alt="Profile"
@@ -85,22 +68,21 @@ export function AthleteAvatar({
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
-            onError={() => setImageError(true)}
           />
         ) : (
-          <div className="h-full w-full rounded-full bg-muted/20 flex items-center justify-center">
+          <div className="h-full w-full bg-muted/20 flex items-center justify-center">
             <Image
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
               fill
-              className="object-cover opacity-60"
+              className="object-cover opacity-85"
               priority={priority}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             />
           </div>
         )}
-      </Avatar>
+      </div>
     </div>
   );
 }
