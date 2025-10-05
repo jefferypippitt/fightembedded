@@ -319,13 +319,15 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     },
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Rank
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Rank
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -336,23 +338,27 @@ const createColumns = (): ColumnDef<Athlete>[] => [
       // This makes it clear that these are not active division rankings
       if (isRetired) {
         return (
-          <Badge
-            variant="outline"
-            className="min-w-8 h-6 flex items-center justify-center px-1"
-          >
-            NR
-          </Badge>
+          <div className="flex justify-center">
+            <Badge
+              variant="outline"
+              className="min-w-8 h-6 flex items-center justify-center px-1"
+            >
+              NR
+            </Badge>
+          </div>
         );
       }
 
       // For active athletes, show rank as normal
       return (
-        <Badge
-          variant="outline"
-          className="min-w-8 h-6 flex items-center justify-center px-1"
-        >
-          {rank ? `#${rank}` : "NR"}
-        </Badge>
+        <div className="flex justify-center">
+          <Badge
+            variant="outline"
+            className="min-w-8 h-6 flex items-center justify-center px-1"
+          >
+            {rank ? `#${rank}` : "NR"}
+          </Badge>
+        </div>
       );
     },
     sortingFn: (rowA, rowB) => {
@@ -403,13 +409,15 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "poundForPoundRank",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          P4P Rank
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            P4P Rank
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
     cell: ({ row }) => {
@@ -420,24 +428,28 @@ const createColumns = (): ColumnDef<Athlete>[] => [
         | undefined;
 
       // Show P4P rank only if it's between 1-15
-      return p4pRank !== null &&
-        p4pRank !== undefined &&
-        p4pRank >= 1 &&
-        p4pRank <= 15 &&
-        !athlete.retired ? (
-        <Badge
-          variant="outline"
-          className="min-w-8 h-6 flex items-center justify-center px-1"
-        >
-          {`#${p4pRank}`}
-        </Badge>
-      ) : (
-        <Badge
-          variant="outline"
-          className="w-8 h-6 flex items-center justify-center"
-        >
-          NR
-        </Badge>
+      return (
+        <div className="flex justify-center">
+          {p4pRank !== null &&
+          p4pRank !== undefined &&
+          p4pRank >= 1 &&
+          p4pRank <= 15 &&
+          !athlete.retired ? (
+            <Badge
+              variant="outline"
+              className="min-w-8 h-6 flex items-center justify-center px-1"
+            >
+              {`#${p4pRank}`}
+            </Badge>
+          ) : (
+            <Badge
+              variant="outline"
+              className="w-8 h-6 flex items-center justify-center"
+            >
+              NR
+            </Badge>
+          )}
+        </div>
       );
     },
     sortingFn: (rowA, rowB) => {
@@ -487,7 +499,7 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "weightDivision",
     header: ({ column }) => {
       return (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-center space-x-2">
           <Button
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -500,9 +512,11 @@ const createColumns = (): ColumnDef<Athlete>[] => [
       );
     },
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.getValue("weightDivision")}
-      </Badge>
+      <div className="flex justify-center">
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {row.getValue("weightDivision")}
+        </Badge>
+      </div>
     ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
@@ -558,19 +572,23 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "gender",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Gender
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Gender
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.getValue("gender") === "MALE" ? "Male" : "Female"}
-      </Badge>
+      <div className="flex justify-center">
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {row.getValue("gender") === "MALE" ? "Male" : "Female"}
+        </Badge>
+      </div>
     ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
@@ -598,15 +616,20 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "country",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Country
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Country
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.getValue("country")}</div>
+    ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
       if (rowA.original.retired && !rowB.original.retired) return 1;
@@ -636,15 +659,20 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "winsByKo",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          KO Wins
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            KO Wins
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.getValue("winsByKo")}</div>
+    ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
       if (rowA.original.retired && !rowB.original.retired) return 1;
@@ -666,15 +694,22 @@ const createColumns = (): ColumnDef<Athlete>[] => [
     accessorKey: "winsBySubmission",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Sub Wins
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Sub Wins
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       );
     },
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {row.getValue("winsBySubmission")}
+      </div>
+    ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
       if (rowA.original.retired && !rowB.original.retired) return 1;

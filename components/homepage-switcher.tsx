@@ -1,54 +1,43 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Home, Calendar, User } from "lucide-react";
-import Link from "next/link";
+import { Check, ChevronsUpDown, GalleryVerticalEnd } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import { IconUserShield } from "@tabler/icons-react";
 
 const navigationItems = [
   {
     name: "Homepage",
     url: "/",
-    logo: Home,
   },
   {
     name: "Athletes",
     url: "/athletes",
-    logo: User,
   },
   {
     name: "Retired",
     url: "/retired",
-    logo: IconUserShield,
   },
   {
     name: "Events",
     url: "/events",
-    logo: Calendar,
   },
 ];
 
 export function HomepageSwitcher() {
-  const { isMobile } = useSidebar();
-  const [activeItem, setActiveItem] = React.useState(navigationItems[0]);
-
-  if (!activeItem) {
-    return null;
-  }
+  const router = useRouter();
+  const [selectedItem, setSelectedItem] = React.useState(navigationItems[0]);
 
   return (
     <SidebarMenu>
@@ -57,35 +46,34 @@ export function HomepageSwitcher() {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">FightEmbedded</span>
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <GalleryVerticalEnd className="size-4" />
+              </div>
+              <div className="flex flex-col gap-0.5 leading-none">
+                <span className="font-medium">FightEmbedded</span>
+                <span className="">{selectedItem.name}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-(--radix-dropdown-menu-trigger-width)"
             align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Navigation
-            </DropdownMenuLabel>
             {navigationItems.map((item) => (
               <DropdownMenuItem
                 key={item.name}
-                asChild
-                className="gap-2 p-2 cursor-pointer"
+                onSelect={() => {
+                  setSelectedItem(item);
+                  router.push(item.url);
+                }}
               >
-                <Link href={item.url} onClick={() => setActiveItem(item)}>
-                  <div className="flex size-6 items-center justify-center rounded-md border">
-                    <item.logo className="size-3.5 shrink-0" />
-                  </div>
-                  {item.name}
-                </Link>
+                {item.name}{" "}
+                {item.name === selectedItem.name && (
+                  <Check className="ml-auto" />
+                )}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

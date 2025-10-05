@@ -48,9 +48,7 @@ export default async function EventsPage() {
                     className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r odd:bg-muted/30"
                   >
                     <TableCell className="py-2">
-                      <span className="font-semibold text-primary">
-                        {event.name}
-                      </span>
+                      <span className="font-semibold">{event.name}</span>
                     </TableCell>
                     <TableCell className="py-2">
                       <span className="text-sm  text-zinc-600 dark:text-zinc-400">
