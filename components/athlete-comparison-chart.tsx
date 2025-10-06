@@ -183,7 +183,7 @@ export function AthleteComparisonChart({
   } satisfies ChartConfig;
 
   return (
-    <Card className="bg-gradient-to-t from-primary/5 to-card dark:bg-card h-full">
+    <Card className="h-full">
       <CardContent>
         <ChartContainer
           config={chartConfig}

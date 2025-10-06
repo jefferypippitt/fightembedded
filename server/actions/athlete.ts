@@ -8,6 +8,7 @@ import { z } from "zod";
 import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cache } from "react";
+import { weightClasses } from "@/data/weight-class";
 
 // Authentication helper
 async function checkAuth() {
@@ -142,7 +143,7 @@ export const getAthletesByDivision = cache(
 export const getDivisionAthletes = cache(
   async (
     slug: string
-  ): Promise<{ name: string; athletes: Athlete[] } | null> => {
+  ): Promise<{ name: string; weight?: number; athletes: Athlete[] } | null> => {
     try {
       // Parse the slug to get gender and division
       const [gender, ...rest] = slug.split("-");
@@ -208,8 +209,13 @@ export const getDivisionAthletes = cache(
         return a.name.localeCompare(b.name);
       });
 
+      // Find the weight for this division
+      const divisions = isWomen ? weightClasses.women : weightClasses.men;
+      const divisionData = divisions.find((d) => d.name === standardDivision);
+
       return {
         name: fullDivisionName,
+        weight: divisionData?.weight,
         athletes,
       };
     } catch (error) {

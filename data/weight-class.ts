@@ -21,6 +21,7 @@ export const weightClasses: WeightClasses = {
     { name: "Flyweight", slug: "flyweight", weight: 125 },
   ],
   women: [
+    { name: "Featherweight", slug: "featherweight", weight: 145 },
     { name: "Bantamweight", slug: "bantamweight", weight: 135 },
     { name: "Flyweight", slug: "flyweight", weight: 125 },
     { name: "Strawweight", slug: "strawweight", weight: 115 },

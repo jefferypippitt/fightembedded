@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AthletesSearchContainer } from "@/components/athletes-search";
 import { getDivisionAthletes } from "@/server/actions/athlete";
-import { getDivisionBySlug } from "@/data/weight-class";
 
 interface DivisionPageProps {
   params: Promise<{ slug: string }>;
@@ -37,21 +36,11 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col items-center space-y-2">
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
-          {divisionData.name} Division
-        </h1>
-        <p className="text-sm sm:text-base  text-muted-foreground">
-          {(() => {
-            const division = getDivisionBySlug(slug);
-            return division?.weight ? `${division.weight} lbs` : "";
-          })()}
-        </p>
-      </div>
-
       <AthletesSearchContainer
         athletes={divisionData.athletes}
         placeholder={`Search active athletes...`}
+        title={`${divisionData.name} Division`}
+        weight={divisionData.weight}
       />
     </div>
   );

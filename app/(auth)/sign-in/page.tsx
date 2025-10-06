@@ -65,7 +65,9 @@ export default function SignIn() {
   return (
     <div className="max-w-[400px] mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+          Welcome back
+        </h1>
         <p className="text-sm text-muted-foreground mt-2">
           Enter your credentials to access your account
         </p>

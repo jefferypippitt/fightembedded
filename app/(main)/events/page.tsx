@@ -21,7 +21,7 @@ export default async function EventsPage() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-center">
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
           UFC Fight Schedule
         </h1>
       </div>

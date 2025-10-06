@@ -29,7 +29,7 @@ export default async function DivisionRankingsPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-center">
-        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
           Top 20 Athletes by Popularity
         </h1>
       </div>
