@@ -73,7 +73,10 @@ export const getTop5Athletes = cache(async () => {
 
         return {
           division: divisionKey,
-          athletes,
+          athletes: athletes.map((athlete) => ({
+            ...athlete,
+            rank: athlete.rank ?? 0,
+          })),
         };
       })
     );

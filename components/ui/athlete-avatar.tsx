@@ -27,6 +27,7 @@ export function AthleteAvatar({
   imageUrl,
   countryCode,
   size = "md",
+  className,
   priority = false,
 }: AthleteAvatarProps) {
   const imageSize = imageSizes[size];
@@ -40,7 +41,13 @@ export function AthleteAvatar({
   const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
 
   return (
-    <div className={cn("relative overflow-hidden rounded-sm", sizeMap[size])}>
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-sm",
+        sizeMap[size],
+        className
+      )}
+    >
       {/* Flag Background */}
       {validCountryCode && (
         <div className="absolute inset-0 z-0">

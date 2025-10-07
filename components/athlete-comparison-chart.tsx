@@ -142,8 +142,16 @@ export function AthleteComparisonChart({
     },
     {
       stat: "Experience",
-      athlete1: getExperience(athlete1.wins, athlete1.losses, athlete1.draws),
-      athlete2: getExperience(athlete2.wins, athlete2.losses, athlete2.draws),
+      athlete1: getExperience(
+        athlete1.wins,
+        athlete1.losses,
+        athlete1.draws ?? 0
+      ),
+      athlete2: getExperience(
+        athlete2.wins,
+        athlete2.losses,
+        athlete2.draws ?? 0
+      ),
     },
     {
       stat: "Versatility",
@@ -161,11 +169,11 @@ export function AthleteComparisonChart({
     {
       stat: "Activity",
       athlete1: getActivityLevel(
-        athlete1.wins + athlete1.losses + athlete1.draws,
+        athlete1.wins + athlete1.losses + (athlete1.draws ?? 0),
         athlete1.age
       ),
       athlete2: getActivityLevel(
-        athlete2.wins + athlete2.losses + athlete2.draws,
+        athlete2.wins + athlete2.losses + (athlete2.draws ?? 0),
         athlete2.age
       ),
     },

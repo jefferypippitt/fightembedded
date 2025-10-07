@@ -13,6 +13,7 @@ export function P4PRankings({
       .map((fighter) => ({
         ...fighter,
         imageUrl: fighter.imageUrl || "/images/default-avatar.svg",
+        draws: fighter.draws ?? 0,
         poundForPoundRank: fighter.poundForPoundRank!,
       }));
 

@@ -80,7 +80,7 @@ const AthletesGrid = memo(
       if (!searchInput.trim()) return sortedAthletes;
 
       const searchTerms = searchInput.toLowerCase().trim().split(/\s+/);
-      return sortedAthletes.filter((athlete) => {
+      return sortedAthletes.filter((athlete: Athlete) => {
         const athleteText = [
           athlete.name || "",
           athlete.country || "",
@@ -103,6 +103,9 @@ const AthletesGrid = memo(
                 <AthleteListCard
                   {...athlete}
                   imageUrl={athlete.imageUrl || undefined}
+                  draws={athlete.draws ?? undefined}
+                  rank={athlete.rank ?? undefined}
+                  poundForPoundRank={athlete.poundForPoundRank ?? undefined}
                   retired={athlete.retired ?? false}
                   isSelected={true}
                   onSelect={() => onSelect(athlete)}
@@ -129,6 +132,11 @@ const AthletesGrid = memo(
                   <AthleteListCard
                     {...selectedAthletes[0]}
                     imageUrl={selectedAthletes[0].imageUrl || undefined}
+                    draws={selectedAthletes[0].draws ?? undefined}
+                    rank={selectedAthletes[0].rank ?? undefined}
+                    poundForPoundRank={
+                      selectedAthletes[0].poundForPoundRank ?? undefined
+                    }
                     retired={selectedAthletes[0].retired ?? false}
                     isSelected={true}
                     onSelect={() => onSelect(selectedAthletes[0])}
@@ -245,6 +253,9 @@ const AthletesList = memo(
             key={athlete.id}
             {...athlete}
             imageUrl={athlete.imageUrl || undefined}
+            draws={athlete.draws ?? undefined}
+            rank={athlete.rank ?? undefined}
+            poundForPoundRank={athlete.poundForPoundRank ?? undefined}
             retired={athlete.retired ?? false}
             isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
             onSelect={() => onSelect(athlete)}

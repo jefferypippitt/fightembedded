@@ -46,15 +46,15 @@ export const getAllAthletes = cache(async (): Promise<Athlete[]> => {
     // Sort athletes by rank first, then by name for same rank
     athletes.sort((a, b) => {
       // If both have ranks, sort by rank
-      if (a.rank !== undefined && b.rank !== undefined) {
+      if (a.rank !== null && b.rank !== null) {
         return a.rank - b.rank;
       }
 
       // If only one has a rank, put the ranked one first
-      if (a.rank !== undefined && b.rank === undefined) {
+      if (a.rank !== null && b.rank === null) {
         return -1;
       }
-      if (a.rank === undefined && b.rank !== undefined) {
+      if (a.rank === null && b.rank !== null) {
         return 1;
       }
 
@@ -80,15 +80,15 @@ export const getAthletes = cache(async (): Promise<Athlete[]> => {
     // Sort athletes by rank first, then by name for same rank
     athletes.sort((a, b) => {
       // If both have ranks, sort by rank
-      if (a.rank !== undefined && b.rank !== undefined) {
+      if (a.rank !== null && b.rank !== null) {
         return a.rank - b.rank;
       }
 
       // If only one has a rank, put the ranked one first
-      if (a.rank !== undefined && b.rank === undefined) {
+      if (a.rank !== null && b.rank === null) {
         return -1;
       }
-      if (a.rank === undefined && b.rank !== undefined) {
+      if (a.rank === null && b.rank !== null) {
         return 1;
       }
 
@@ -115,15 +115,15 @@ export const getAthletesByDivision = cache(
       // Sort athletes by rank first, then by name for same rank
       athletes.sort((a, b) => {
         // If both have ranks, sort by rank
-        if (a.rank !== undefined && b.rank !== undefined) {
+        if (a.rank !== null && b.rank !== null) {
           return a.rank - b.rank;
         }
 
         // If only one has a rank, put the ranked one first
-        if (a.rank !== undefined && b.rank === undefined) {
+        if (a.rank !== null && b.rank === null) {
           return -1;
         }
-        if (a.rank === undefined && b.rank !== undefined) {
+        if (a.rank === null && b.rank !== null) {
           return 1;
         }
 
@@ -911,13 +911,16 @@ export async function deleteAthlete(id: string) {
       revalidateTag("retired-page");
     }
 
-    if (athlete.poundForPoundRank > 0) {
+    if (athlete.poundForPoundRank && athlete.poundForPoundRank > 0) {
       revalidateTag("p4p-rankings-data");
       revalidateTag("homepage-p4p");
     }
 
     // Revalidate rankings pages if athlete has rank
-    if (athlete.rank > 0 || athlete.poundForPoundRank > 0) {
+    if (
+      (athlete.rank && athlete.rank > 0) ||
+      (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
+    ) {
       revalidatePath("/rankings/divisions");
     }
 
@@ -927,7 +930,10 @@ export async function deleteAthlete(id: string) {
     }
 
     // Only revalidate homepage if athlete affects homepage sections
-    if (athlete.rank === 1 || athlete.poundForPoundRank > 0) {
+    if (
+      athlete.rank === 1 ||
+      (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
+    ) {
       revalidateTag("homepage-stats");
     }
 

@@ -38,11 +38,11 @@ export function AthletesList({
           country={athlete.country}
           wins={athlete.wins}
           losses={athlete.losses}
-          draws={athlete.draws}
+          draws={athlete.draws ?? undefined}
           winsByKo={athlete.winsByKo}
           winsBySubmission={athlete.winsBySubmission}
-          rank={athlete.rank}
-          poundForPoundRank={athlete.poundForPoundRank}
+          rank={athlete.rank ?? undefined}
+          poundForPoundRank={athlete.poundForPoundRank ?? undefined}
           followers={athlete.followers}
           age={athlete.age}
           retired={athlete.retired ?? false}

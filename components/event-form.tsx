@@ -1,18 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/schemas/event";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+  FieldError,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -102,39 +103,38 @@ export function EventForm({ initialData }: EventFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-        <div className="bg-card p-6 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-xl font-semibold">Event Details</h2>
-          </div>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Event Details</FieldLegend>
+          <FieldDescription>Basic information about the event</FieldDescription>
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="name">Event Name</FieldLabel>
+                    <Input id="name" placeholder="UFC 300" {...field} />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Event Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="UFC 300" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel className="text-sm">Event Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
+              <Controller
+                control={form.control}
+                name="date"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="date">Event Date</FieldLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <Button
-                          variant={"outline"}
+                          id="date"
+                          variant="outline"
                           className={cn(
                             "w-full pl-3 text-left font-normal h-9",
                             !field.value && "text-muted-foreground"
@@ -147,90 +147,100 @@ export function EventForm({ initialData }: EventFormProps) {
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="venue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Venue</FormLabel>
-                  <FormControl>
-                    <Input placeholder="T-Mobile Arena" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+              <Controller
+                control={form.control}
+                name="venue"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="venue">Venue</FieldLabel>
+                    <Input id="venue" placeholder="T-Mobile Arena" {...field} />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Las Vegas, Nevada" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+              <Controller
+                control={form.control}
+                name="location"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="location">Location</FieldLabel>
+                    <Input
+                      id="location"
+                      placeholder="Las Vegas, Nevada"
+                      {...field}
+                    />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="mainEvent"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Main Event</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Fighter 1 vs Fighter 2" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+              <Controller
+                control={form.control}
+                name="mainEvent"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="mainEvent">Main Event</FieldLabel>
+                    <Input
+                      id="mainEvent"
+                      placeholder="Fighter 1 vs Fighter 2"
+                      {...field}
+                    />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Event Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-full">
+              <Controller
+                control={form.control}
+                name="status"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="status">Event Status</FieldLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger id="status" className="w-full">
                         <SelectValue placeholder="Select event status" />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="UPCOMING">Upcoming</SelectItem>
-                      <SelectItem value="COMPLETED">Completed</SelectItem>
-                      <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                      <SelectContent>
+                        <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                        <SelectItem value="COMPLETED">Completed</SelectItem>
+                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </FieldSet>
 
-        <div className="flex justify-left pt-2">
+        <Field orientation="horizontal">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
               ? "Saving..."
@@ -238,8 +248,8 @@ export function EventForm({ initialData }: EventFormProps) {
               ? "Update Event"
               : "Create Event"}
           </Button>
-        </div>
-      </form>
-    </Form>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

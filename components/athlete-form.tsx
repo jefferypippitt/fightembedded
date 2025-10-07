@@ -2,16 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+  FieldError,
+} from "@/components/ui/field";
 
 import { Input } from "@/components/ui/input";
 import { UploadButton } from "@/utils/uploadthing";
@@ -82,63 +84,64 @@ type FormValues = z.infer<typeof athleteSchema> & { id?: string };
 
 function CountrySelect({
   field,
+  error,
 }: {
   field: ControllerRenderProps<FormValues, "country">;
+  error?: string;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(field.value || "");
 
   return (
-    <FormItem className="flex flex-col">
-      <FormLabel className="text-sm">Country</FormLabel>
-      <FormControl>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between h-9"
-            >
-              {value
-                ? countries.find((country) => country.name === value)?.name
-                : "Select country..."}
-              <ChevronsUpDown className="opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
-            <Command>
-              <CommandInput placeholder="Search country..." className="h-9" />
-              <CommandList>
-                <CommandEmpty>No country found.</CommandEmpty>
-                <CommandGroup>
-                  {countries.map((country) => (
-                    <CommandItem
-                      key={country.name}
-                      value={country.name}
-                      onSelect={(currentValue) => {
-                        setValue(currentValue === value ? "" : currentValue);
-                        field.onChange(currentValue);
-                        setOpen(false);
-                      }}
-                    >
-                      {country.name}
-                      <Check
-                        className={cn(
-                          "ml-auto",
-                          value === country.name ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </FormControl>
-      <FormMessage className="text-xs" />
-    </FormItem>
+    <Field>
+      <FieldLabel htmlFor="country-select">Country</FieldLabel>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            id="country-select"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full justify-between h-9"
+          >
+            {value
+              ? countries.find((country) => country.name === value)?.name
+              : "Select country..."}
+            <ChevronsUpDown className="opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-full p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Search country..." className="h-9" />
+            <CommandList>
+              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandGroup>
+                {countries.map((country) => (
+                  <CommandItem
+                    key={country.name}
+                    value={country.name}
+                    onSelect={(currentValue) => {
+                      setValue(currentValue === value ? "" : currentValue);
+                      field.onChange(currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    {country.name}
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        value === country.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+      {error && <FieldError>{error}</FieldError>}
+    </Field>
   );
 }
 
@@ -255,137 +258,131 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form
-        ref={formRef}
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-2"
-      >
-        {/* Add Image Upload Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <h2 className="text-base font-semibold">Profile Image</h2>
-          </div>
+    <form ref={formRef} onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Profile Image</FieldLegend>
+          <FieldDescription>
+            Upload a profile image for the athlete
+          </FieldDescription>
+          <Controller
+            control={form.control}
+            name="imageUrl"
+            render={({ field, fieldState }) => (
+              <Field>
+                <div className="flex flex-col items-start gap-4">
+                  <AthleteAvatar
+                    className="border-2 border-dotted border-foreground/40"
+                    imageUrl={imageUrl}
+                    countryCode={getCountryCode(form.watch("country"))}
+                    size="lg"
+                    priority={false}
+                  />
+                  <UploadButton
+                    endpoint="athleteImage"
+                    appearance={{
+                      button: "ut-button",
+                      allowedContent: "hidden",
+                    }}
+                    content={{
+                      button() {
+                        return (
+                          <>
+                            {isUploading ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span>Uploading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Choose file</span>
+                              </>
+                            )}
+                          </>
+                        );
+                      },
+                    }}
+                    onUploadProgress={() => {
+                      setIsUploading(true);
+                    }}
+                    onClientUploadComplete={(res) => {
+                      setIsUploading(false);
+                      if (res?.[0]) {
+                        const url = res[0].ufsUrl;
+                        setImageUrl(url);
+                        field.onChange(url);
+                        toast.success("Image uploaded successfully");
+                      }
+                    }}
+                    onUploadError={(error: Error) => {
+                      setIsUploading(false);
+                      toast.error(error.message);
+                    }}
+                    disabled={isUploading}
+                  />
+                </div>
+                {fieldState.error && (
+                  <FieldError>{fieldState.error.message}</FieldError>
+                )}
+              </Field>
+            )}
+          />
+        </FieldSet>
+        <FieldSeparator />
+        <FieldSet>
+          <FieldLegend>Personal Information</FieldLegend>
+          <FieldDescription>
+            Basic information about the athlete
+          </FieldDescription>
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Controller
+                control={form.control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="name">Name</FieldLabel>
+                    <Input id="name" placeholder="Athlete Name" {...field} />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-          <div className="flex items-center gap-4">
-            <AthleteAvatar
-              imageUrl={imageUrl}
-              countryCode={getCountryCode(form.watch("country"))}
-              size="md"
-              priority={false}
-            />
-
-            <FormField
-              control={form.control}
-              name="imageUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <UploadButton
-                      endpoint="athleteImage"
-                      appearance={{
-                        button: "ut-button",
-                        allowedContent: "hidden",
-                      }}
-                      content={{
-                        button() {
-                          return (
-                            <>
-                              {isUploading ? (
-                                <>
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>Uploading...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>Choose file</span>
-                                </>
-                              )}
-                            </>
-                          );
-                        },
-                      }}
-                      onUploadProgress={() => {
-                        setIsUploading(true);
-                      }}
-                      onClientUploadComplete={(res) => {
-                        setIsUploading(false);
-                        if (res?.[0]) {
-                          const url = res[0].ufsUrl;
-                          setImageUrl(url);
-                          field.onChange(url);
-                          toast.success("Image uploaded successfully");
-                        }
-                      }}
-                      onUploadError={(error: Error) => {
-                        setIsUploading(false);
-                        toast.error(error.message);
-                      }}
-                      disabled={isUploading}
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-        {/* Personal Information Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-semibold">Personal Information</h2>
-          </div>
-
-          {/* Compact 4x2 Grid Layout */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Row 1 */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Athlete Name" {...field} />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Gender</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value || ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
+              <Controller
+                control={form.control}
+                name="gender"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="gender">Gender</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || ""}
+                    >
+                      <SelectTrigger id="gender" className="w-full">
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="MALE">Male</SelectItem>
-                      <SelectItem value="FEMALE">Female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                      <SelectContent>
+                        <SelectItem value="MALE">Male</SelectItem>
+                        <SelectItem value="FEMALE">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Age</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="age"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="age">Age</FieldLabel>
                     <Input
+                      id="age"
                       placeholder="Age"
                       type="number"
                       min={18}
@@ -398,21 +395,19 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="retired"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="text-sm font-medium">
-                    Fighter Status
-                  </FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="retired"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel>Fighter Status</FieldLabel>
                     <RadioGroup
                       onValueChange={(value) => {
                         field.onChange(value === "retired");
@@ -420,93 +415,94 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                       value={field.value ? "retired" : "active"}
                       className="flex flex-col space-y-1"
                     >
-                      <FormItem className="flex items-center gap-2">
-                        <FormControl>
-                          <RadioGroupItem value="active" />
-                        </FormControl>
-                        <FormLabel className="font-normal text-sm">
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="active" id="active" />
+                        <FieldLabel htmlFor="active" className="font-normal">
                           Active
-                        </FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center gap-2">
-                        <FormControl>
-                          <RadioGroupItem value="retired" />
-                        </FormControl>
-                        <FormLabel className="font-normal text-sm">
+                        </FieldLabel>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="retired" id="retired" />
+                        <FieldLabel htmlFor="retired" className="font-normal">
                           Retired
-                        </FormLabel>
-                      </FormItem>
+                        </FieldLabel>
+                      </div>
                     </RadioGroup>
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            {/* Row 2 */}
-            <FormField
-              control={form.control}
-              name="country"
-              render={({ field }) => <CountrySelect field={field} />}
-            />
+              <Controller
+                control={form.control}
+                name="country"
+                render={({ field, fieldState }) => (
+                  <CountrySelect
+                    field={field}
+                    error={fieldState.error?.message}
+                  />
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="weightDivision"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">
-                    Weight Division
-                  </FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value)}
-                    defaultValue={field.value || ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
+              <Controller
+                control={form.control}
+                name="weightDivision"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="weightDivision">
+                      Weight Division
+                    </FieldLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value)}
+                      defaultValue={field.value || ""}
+                    >
+                      <SelectTrigger id="weightDivision" className="w-full">
                         <SelectValue placeholder="Select weight division" />
                       </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Mens Divisions</SelectLabel>
-                        {weightClasses.men.map((division) => (
-                          <SelectItem
-                            key={division.slug}
-                            value={`Men's ${division.name}`}
-                          >
-                            {division.name}{" "}
-                            {division.weight && `(${division.weight}lbs)`}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                      <SelectGroup>
-                        <SelectLabel>Womens Divisions</SelectLabel>
-                        {weightClasses.women.map((division) => (
-                          <SelectItem
-                            key={division.slug}
-                            value={`Women's ${division.name}`}
-                          >
-                            {division.name}{" "}
-                            {division.weight && `(${division.weight}lbs)`}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Mens Divisions</SelectLabel>
+                          {weightClasses.men.map((division) => (
+                            <SelectItem
+                              key={division.slug}
+                              value={`Men's ${division.name}`}
+                            >
+                              {division.name}{" "}
+                              {division.weight && `(${division.weight}lbs)`}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                        <SelectGroup>
+                          <SelectLabel>Womens Divisions</SelectLabel>
+                          {weightClasses.women.map((division) => (
+                            <SelectItem
+                              key={division.slug}
+                              value={`Women's ${division.name}`}
+                            >
+                              {division.name}{" "}
+                              {division.weight && `(${division.weight}lbs)`}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="rank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">Rank</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="rank"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="rank">Rank</FieldLabel>
                     <Input
+                      id="rank"
                       placeholder="Rank"
                       type="number"
                       min={1}
@@ -519,22 +515,23 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="poundForPoundRank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium">
-                    P4P Rank
-                  </FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="poundForPoundRank"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="poundForPoundRank">
+                      P4P Rank
+                    </FieldLabel>
                     <Input
+                      id="poundForPoundRank"
                       placeholder="P4P Rank"
                       type="number"
                       min={1}
@@ -548,39 +545,38 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Retired Status Info */}
-          {isRetired && (
-            <div className="mt-2">
-              <p className="text-xs text-muted-foreground">
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+            {isRetired && (
+              <FieldDescription>
                 Rank fields are disabled for retired athletes and will be
                 automatically cleared.
-              </p>
-            </div>
-          )}
-        </div>
+              </FieldDescription>
+            )}
+          </FieldGroup>
+        </FieldSet>
 
-        {/* Fight Record Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-semibold">Fight Record</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FormField
-              control={form.control}
-              name="wins"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Wins</FormLabel>
-                  <FormControl>
+        <FieldSeparator />
+        <FieldSet>
+          <FieldLegend>Fight Record</FieldLegend>
+          <FieldDescription>
+            Win-loss-draw record for the athlete
+          </FieldDescription>
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Controller
+                control={form.control}
+                name="wins"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="wins">Wins</FieldLabel>
                     <Input
+                      id="wins"
                       placeholder="Wins"
                       type="number"
                       min={0}
@@ -592,20 +588,21 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="losses"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Losses</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="losses"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="losses">Losses</FieldLabel>
                     <Input
+                      id="losses"
                       placeholder="Losses"
                       type="number"
                       min={0}
@@ -617,20 +614,21 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="draws"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Draws</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="draws"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="draws">Draws</FieldLabel>
                     <Input
+                      id="draws"
                       placeholder="Draws"
                       type="number"
                       min={0}
@@ -642,29 +640,32 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </FieldSet>
 
-        {/* Performance Stats Section */}
-        <div className="bg-card p-4 rounded-lg border shadow-xs">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-semibold">Performance Stats</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FormField
-              control={form.control}
-              name="winsByKo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Wins by KO/TKO</FormLabel>
-                  <FormControl>
+        <FieldSeparator />
+        <FieldSet>
+          <FieldLegend>Performance Stats</FieldLegend>
+          <FieldDescription>
+            Detailed statistics about wins and social following
+          </FieldDescription>
+          <FieldGroup>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Controller
+                control={form.control}
+                name="winsByKo"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="winsByKo">Wins by KO/TKO</FieldLabel>
                     <Input
+                      id="winsByKo"
                       placeholder="Enter KO/TKO wins"
                       type="number"
                       min={0}
@@ -676,20 +677,23 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="winsBySubmission"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Wins by Submission</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="winsBySubmission"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="winsBySubmission">
+                      Wins by Submission
+                    </FieldLabel>
                     <Input
+                      id="winsBySubmission"
                       placeholder="Enter submission wins"
                       type="number"
                       min={0}
@@ -701,20 +705,21 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="followers"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm">Followers</FormLabel>
-                  <FormControl>
+              <Controller
+                control={form.control}
+                name="followers"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="followers">Followers</FieldLabel>
                     <Input
+                      id="followers"
                       placeholder="Followers"
                       type="number"
                       min={0}
@@ -726,18 +731,20 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                         field.onChange(value);
                       }}
                     />
-                  </FormControl>
-                  <FormMessage className="text-xs" />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+            </div>
+          </FieldGroup>
+        </FieldSet>
 
-        <div className="flex justify-left pt-2">
+        <Field orientation="horizontal">
           <SubmitButton isSubmitting={isSubmitting} />
-        </div>
-      </form>
-    </Form>
+        </Field>
+      </FieldGroup>
+    </form>
   );
 }

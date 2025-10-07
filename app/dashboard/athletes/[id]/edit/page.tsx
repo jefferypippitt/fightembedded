@@ -69,6 +69,9 @@ export default async function EditAthletePage({ params }: PageProps) {
                   initialData={{
                     ...athleteData,
                     imageUrl: athleteData.imageUrl || undefined,
+                    draws: athleteData.draws ?? 0,
+                    rank: athleteData.rank ?? 0,
+                    poundForPoundRank: athleteData.poundForPoundRank ?? 0,
                     retired: athleteData.retired ?? false,
                   }}
                 />

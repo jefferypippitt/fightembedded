@@ -16,11 +16,11 @@ export interface Athlete {
   country: string;
   wins: number;
   losses: number;
-  draws: number;
+  draws: number | null;
   winsByKo: number;
   winsBySubmission: number;
-  rank?: number;
-  poundForPoundRank?: number;
+  rank: number | null;
+  poundForPoundRank: number | null;
   followers: number;
   age: number;
   retired: boolean | null;
@@ -55,7 +55,7 @@ export interface DashboardStats {
       name: string;
       weightDivision: string;
       country: string;
-      poundForPoundRank: number;
+      poundForPoundRank: number | null;
       wins: number;
       losses: number;
       winRate: string;
@@ -64,7 +64,7 @@ export interface DashboardStats {
       name: string;
       weightDivision: string;
       country: string;
-      poundForPoundRank: number;
+      poundForPoundRank: number | null;
       wins: number;
       losses: number;
       winRate: string;

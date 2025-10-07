@@ -1,7 +1,7 @@
 export type WeightDivision = {
   name: string;
   slug: string;
-  weight?: number; 
+  weight?: number;
 };
 
 export type WeightClasses = {
@@ -21,7 +21,6 @@ export const weightClasses: WeightClasses = {
     { name: "Flyweight", slug: "flyweight", weight: 125 },
   ],
   women: [
-    { name: "Featherweight", slug: "featherweight", weight: 145 },
     { name: "Bantamweight", slug: "bantamweight", weight: 135 },
     { name: "Flyweight", slug: "flyweight", weight: 125 },
     { name: "Strawweight", slug: "strawweight", weight: 115 },
@@ -29,26 +28,31 @@ export const weightClasses: WeightClasses = {
 };
 
 // Helper functions for division handling
-export const generateDivisionSlug = (division: WeightDivision, isWomen = false): string => {
+export const generateDivisionSlug = (
+  division: WeightDivision,
+  isWomen = false
+): string => {
   return `${isWomen ? "women" : "men"}-${division.slug}`;
 };
 
-export const parseDivisionSlug = (slug: string): { 
+export const parseDivisionSlug = (
+  slug: string
+): {
   gender: "men" | "women";
   divisionSlug: string;
   isValid: boolean;
 } => {
-  const [gender, ...rest] = slug.split('-');
-  const divisionSlug = rest.join('-');
+  const [gender, ...rest] = slug.split("-");
+  const divisionSlug = rest.join("-");
   const isWomen = gender === "women";
-  
+
   const validDivisions = isWomen ? weightClasses.women : weightClasses.men;
-  const isValid = validDivisions.some(d => d.slug === divisionSlug);
+  const isValid = validDivisions.some((d) => d.slug === divisionSlug);
 
   return {
     gender: isWomen ? "women" : "men",
     divisionSlug,
-    isValid
+    isValid,
   };
 };
 
@@ -56,24 +60,28 @@ export const getDivisionBySlug = (slug: string): WeightDivision | null => {
   const { gender, divisionSlug, isValid } = parseDivisionSlug(slug);
   if (!isValid) return null;
 
-  const divisions = gender === "women" ? weightClasses.women : weightClasses.men;
-  return divisions.find(d => d.slug === divisionSlug) || null;
+  const divisions =
+    gender === "women" ? weightClasses.women : weightClasses.men;
+  return divisions.find((d) => d.slug === divisionSlug) || null;
 };
 
-export const getFullDivisionName = (division: WeightDivision, isWomen: boolean): string => {
+export const getFullDivisionName = (
+  division: WeightDivision,
+  isWomen: boolean
+): string => {
   return `${isWomen ? "Women's" : "Men's"} ${division.name}`;
 };
 
 export const getAllDivisions = (): Array<{ slug: string; name: string }> => {
-  const menDivisions = weightClasses.men.map(division => ({
+  const menDivisions = weightClasses.men.map((division) => ({
     slug: generateDivisionSlug(division, false),
-    name: getFullDivisionName(division, false)
+    name: getFullDivisionName(division, false),
   }));
 
-  const womenDivisions = weightClasses.women.map(division => ({
+  const womenDivisions = weightClasses.women.map((division) => ({
     slug: generateDivisionSlug(division, true),
-    name: getFullDivisionName(division, true)
+    name: getFullDivisionName(division, true),
   }));
 
   return [...menDivisions, ...womenDivisions];
-}; 
+};

@@ -212,7 +212,7 @@ function AthleteListCardComponent({
               Retired
             </span>
           ) : rank === 1 ? (
-            <span className="text-[12px] font-medium text-amber-600 dark:text-amber-500">
+            <span className="text-[12px] font-bold bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-400 dark:to-amber-400 bg-clip-text text-transparent">
               #1
             </span>
           ) : rank ? (
