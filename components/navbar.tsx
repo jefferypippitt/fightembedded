@@ -230,13 +230,15 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 <Image
-                  src="/icon.png"
+                  src="/fightembedded-logo.png"
                   alt="Fight Embedded Logo"
-                  width={35}
-                  height={35}
-                  className="rounded-none"
+                  width={40}
+                  height={40}
+                  className="logo-image dark:invert"
                 />
-                <h1 className="text-lg font-medium">Fight Embedded</h1>
+                <h1 className="text-lg font-medium tracking-tighter">
+                  Fight Embedded
+                </h1>
               </Link>
               {/* Navigation menu */}
               <NavigationMenu viewport={false} className="max-md:hidden">
