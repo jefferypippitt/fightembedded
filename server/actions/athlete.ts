@@ -336,7 +336,7 @@ export async function getP4PRankings(): Promise<{
   }
 }
 
-// Get live P4P rankings (no cache, for homepage)
+// Get live P4P rankings (with Next.js cache and tags for proper revalidation)
 export async function getLiveP4PRankings(): Promise<{
   maleP4PRankings: Athlete[];
   femaleP4PRankings: Athlete[];
@@ -1018,6 +1018,7 @@ export async function updateAthleteRanks(
     revalidateTag("retired-page");
 
     // Revalidate paths
+    revalidatePath("/"); // Homepage - critical for P4P rankings display
     revalidatePath("/athletes");
     revalidatePath("/dashboard/athletes");
     revalidatePath("/retired");

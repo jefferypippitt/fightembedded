@@ -1173,7 +1173,22 @@ export function AthletesDataTable() {
             const wasOriginallyUnranked =
               !originalAthlete || !originalRankValue || originalRankValue === 0;
 
-            const newRankValue = wasOriginallyUnranked ? 0 : index + 1;
+            // For P4P view, only ranks 1-15 are valid P4P ranks
+            // Athletes beyond position 15 should have their P4P rank set to 0
+            let newRankValue;
+            if (isP4PView) {
+              if (wasOriginallyUnranked) {
+                newRankValue = 0;
+              } else if (index < 15) {
+                // Only first 15 positions get P4P ranks
+                newRankValue = index + 1;
+              } else {
+                // Athletes beyond position 15 lose their P4P rank
+                newRankValue = 0;
+              }
+            } else {
+              newRankValue = wasOriginallyUnranked ? 0 : index + 1;
+            }
 
             // Return the appropriate update object
             if (isP4PView) {
@@ -1189,11 +1204,21 @@ export function AthletesDataTable() {
             }
           })
           .filter((update) => {
-            const rankValue = isP4PView
-              ? (update as { id: string; poundForPoundRank: number })
-                  .poundForPoundRank
-              : (update as { id: string; rank: number }).rank;
-            return rankValue > 0;
+            // For P4P view, we need to include updates that set rank to 0
+            // (to remove P4P ranking from athletes moved beyond position 15)
+            if (isP4PView) {
+              const originalAthlete = originalAthletes.find(
+                (oa) => oa.id === update.id
+              );
+              const hadP4PRank =
+                originalAthlete?.poundForPoundRank &&
+                originalAthlete.poundForPoundRank > 0;
+              // Include if athlete had P4P rank before (even if new rank is 0)
+              return hadP4PRank;
+            } else {
+              const rankValue = (update as { id: string; rank: number }).rank;
+              return rankValue > 0;
+            }
           }); // Only include athletes that need rank updates
       }
 
@@ -1213,12 +1238,12 @@ export function AthletesDataTable() {
           } ranks updated successfully`
         );
         setHasUnsavedChanges(false);
-        setOriginalAthletes([...data.athletes]);
 
-        // Force immediate refresh for live environment
+        // Refresh data from server to get updated rankings
+        await refreshData();
+
+        // Force Next.js to refetch all server components
         router.refresh();
-        // Also reload to ensure all data is fresh
-        window.location.reload();
       } else {
         toast.error(result.message || "Failed to update athlete ranks");
       }
