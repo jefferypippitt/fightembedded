@@ -74,12 +74,8 @@ export async function updateEvent(id: string, formData: FormData) {
 
     // Revalidate dashboard events
     revalidatePath("/dashboard/events");
-
-    // Revalidate public events pages if the updated event is upcoming
-    if (validatedData.status === "UPCOMING") {
-      revalidatePath("/events");
-      revalidatePath("/");
-    }
+    revalidatePath("/events");
+    revalidatePath("/");
 
     return { status: "success", message: "Event updated successfully", event };
   } catch (error) {
@@ -91,22 +87,13 @@ export async function updateEvent(id: string, formData: FormData) {
 export async function deleteEvent(id: string) {
   try {
     await checkAuth();
-    // Get event details before deletion for cache invalidation
-    const eventToDelete = await prisma.event.findUnique({
-      where: { id },
-      select: { status: true },
-    });
 
     await prisma.event.delete({ where: { id } });
 
     // Revalidate dashboard events
     revalidatePath("/dashboard/events");
-
-    // Revalidate public events pages if the deleted event was upcoming
-    if (eventToDelete?.status === "UPCOMING") {
-      revalidatePath("/events");
-      revalidatePath("/");
-    }
+    revalidatePath("/events");
+    revalidatePath("/");
 
     return { status: "success", message: "Event deleted successfully" };
   } catch (error) {
