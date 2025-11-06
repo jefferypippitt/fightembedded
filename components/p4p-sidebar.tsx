@@ -1,11 +1,31 @@
 "use client";
 
-import { memo } from "react";
+import { Fragment, memo } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
 import { Fighter, P4PSidebarProps } from "@/types/rankings";
+import PrefetchLink from "@/components/prefetch-link";
+import { getAllDivisions } from "@/data/weight-class";
+
+const divisionSlugMap = getAllDivisions().reduce<Record<string, string>>(
+  (acc, division) => {
+    acc[division.name.toLowerCase()] = division.slug;
+    return acc;
+  },
+  {}
+);
+
+const getDivisionHref = (fighter: Fighter): string => {
+  const divisionName = fighter.weightDivision?.toLowerCase();
+  if (!divisionName) return "/athletes";
+
+  const slug = divisionSlugMap[divisionName];
+  if (!slug) return "/athletes";
+
+  return `/division/${slug}`;
+};
 
 interface FighterCardProps {
   fighter: Fighter;
@@ -18,37 +38,46 @@ const FighterCard = memo(function FighterCard({
 }: FighterCardProps) {
   const countryCode = getCountryCode(fighter.country);
 
+  const href = getDivisionHref(fighter);
+
   return (
-    <li className="relative overflow-hidden group transition-all duration-300 border h-16 rounded-sm shadow-xs bg-gradient-to-bl from-primary/5 to-card dark:bg-card">
-      <div className="relative h-full flex items-center gap-2 p-2">
-        <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
-        <AthleteAvatar
-          imageUrl={fighter.imageUrl}
-          countryCode={countryCode}
-          size="xs"
-          priority={isPriority}
-        />
-        <div className="flex-1 min-w-0 flex flex-col justify-center">
-          <p className="text-xs font-medium mb-1">{fighter.name}</p>
-          <div className="text-[10px] flex items-center gap-0.5">
-            <span className="text-green-600 dark:text-green-400 tabular-nums font-medium">
-              {fighter.wins}
-            </span>
-            <span className="text-muted-foreground">-</span>
-            <span className="text-red-600 dark:text-red-400 tabular-nums font-medium">
-              {fighter.losses}
-            </span>
-            {fighter.draws > 0 && (
-              <>
-                <span className="text-muted-foreground">-</span>
-                <span className="text-neutral-600 dark:text-neutral-400 tabular-nums">
-                  {fighter.draws}
-                </span>
-              </>
-            )}
+    <li>
+      <PrefetchLink
+        href={href}
+        className="relative block h-16 overflow-hidden rounded-sm border bg-gradient-to-bl from-primary/5 to-card transition-all duration-300 shadow-xs group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 dark:bg-card"
+      >
+        <div className="relative flex h-full items-center gap-2 p-2">
+          <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
+          <AthleteAvatar
+            imageUrl={fighter.imageUrl}
+            countryCode={countryCode}
+            size="xs"
+            priority={isPriority}
+          />
+          <div className="flex min-w-0 flex-1 flex-col justify-center">
+            <p className="mb-1 text-xs font-medium line-clamp-1">
+              {fighter.name}
+            </p>
+            <div className="flex items-center gap-0.5 text-[10px]">
+              <span className="font-medium text-green-600 tabular-nums dark:text-green-400">
+                {fighter.wins}
+              </span>
+              <span className="text-muted-foreground">-</span>
+              <span className="font-medium text-red-600 tabular-nums dark:text-red-400">
+                {fighter.losses}
+              </span>
+              {fighter.draws > 0 && (
+                <Fragment>
+                  <span className="text-muted-foreground">-</span>
+                  <span className="text-neutral-600 tabular-nums dark:text-neutral-400">
+                    {fighter.draws}
+                  </span>
+                </Fragment>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </PrefetchLink>
     </li>
   );
 });

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,6 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Icon } from "@tabler/icons-react";
+import PrefetchLink from "@/components/prefetch-link";
 
 export function NavMain({
   items,
@@ -28,10 +28,10 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.url}>
+                <PrefetchLink href={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </Link>
+                </PrefetchLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

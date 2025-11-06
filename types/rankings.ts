@@ -28,6 +28,8 @@ export interface Fighter {
   losses: number;
   draws: number;
   country: string;
+  weightDivision: string;
+  gender?: string;
 }
 
 // P4P Sidebar Props

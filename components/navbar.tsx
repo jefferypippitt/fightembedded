@@ -1,7 +1,6 @@
 "use client";
 
 import { BookOpenIcon, InfoIcon, LifeBuoyIcon } from "lucide-react";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +18,9 @@ import {
 } from "@/components/ui/popover";
 import { ModeToggle } from "./theme-toggle";
 import Image from "next/image";
+import PrefetchLink from "@/components/prefetch-link";
+import { useCallback, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -129,6 +131,53 @@ const navigationLinks = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
+  const prefetchedSet = useRef(new Set<string>());
+
+  const prefetchRoute = useCallback(
+    (href?: string | null) => {
+      if (!href) return;
+      if (prefetchedSet.current.has(href)) return;
+
+      prefetchedSet.current.add(href);
+
+      try {
+        const maybePromise = router.prefetch(href);
+        void Promise.resolve(maybePromise).catch(() => {
+          prefetchedSet.current.delete(href);
+        });
+      } catch {
+        prefetchedSet.current.delete(href);
+      }
+    },
+    [router]
+  );
+
+  const prefetchGroup = useCallback(
+    (hrefs: Array<string | undefined>) => {
+      hrefs.forEach((href) => prefetchRoute(href));
+    },
+    [prefetchRoute]
+  );
+
+  const navigationLinksWithPrefetchTargets = useMemo(() => {
+    return navigationLinks.map((link) => {
+      if (!link.submenu) {
+        return {
+          ...link,
+          prefetchTargets: link.href ? [link.href] : [],
+        };
+      }
+
+      const targets =
+        link.items?.map((item) => item.href ?? "").filter(Boolean) ?? [];
+      return {
+        ...link,
+        prefetchTargets: targets,
+      };
+    });
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -184,12 +233,12 @@ export default function Navbar() {
                               {link.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
                                   <NavigationMenuLink asChild>
-                                    <Link
+                                    <PrefetchLink
                                       href={item.href || "#"}
                                       className="py-1.5"
                                     >
                                       {item.label}
-                                    </Link>
+                                    </PrefetchLink>
                                   </NavigationMenuLink>
                                 </li>
                               ))}
@@ -197,12 +246,12 @@ export default function Navbar() {
                           </>
                         ) : (
                           <NavigationMenuLink asChild>
-                            <Link
+                            <PrefetchLink
                               href={link.href || "#"}
                               className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
                             >
                               {link.label}
-                            </Link>
+                            </PrefetchLink>
                           </NavigationMenuLink>
                         )}
                         {/* Add separator between different types of items */}
@@ -232,7 +281,7 @@ export default function Navbar() {
             </Popover>
             {/* Main nav */}
             <div className="flex items-center gap-6">
-              <Link href="/" className="flex items-center gap-2">
+              <PrefetchLink href="/" className="flex items-center gap-2">
                 <Image
                   src="/fightembedded-logo.png"
                   alt="Fight Embedded Logo"
@@ -243,15 +292,21 @@ export default function Navbar() {
                 <h1 className="text-lg font-medium tracking-tighter">
                   Fight Embedded
                 </h1>
-              </Link>
+              </PrefetchLink>
               {/* Navigation menu */}
               <NavigationMenu viewport={false} className="max-md:hidden">
                 <NavigationMenuList className="gap-2">
-                  {navigationLinks.map((link, index) => (
+                  {navigationLinksWithPrefetchTargets.map((link, index) => (
                     <NavigationMenuItem key={index}>
                       {link.submenu ? (
                         <>
-                          <NavigationMenuTrigger className="text-muted-foreground hover:text-primary bg-transparent px-2 py-1.5 font-medium *:[svg]:-me-0.5 *:[svg]:size-3.5">
+                          <NavigationMenuTrigger
+                            className="text-muted-foreground hover:text-primary bg-transparent px-2 py-1.5 font-medium *:[svg]:-me-0.5 *:[svg]:size-3.5"
+                            onPointerEnter={() =>
+                              prefetchGroup(link.prefetchTargets)
+                            }
+                            onFocus={() => prefetchGroup(link.prefetchTargets)}
+                          >
                             {link.label}
                           </NavigationMenuTrigger>
                           <NavigationMenuContent className="data-[motion=from-end]:slide-in-from-right-16! data-[motion=from-start]:slide-in-from-left-16! data-[motion=to-end]:slide-out-to-right-16! data-[motion=to-start]:slide-out-to-left-16! z-50 p-1">
@@ -265,7 +320,7 @@ export default function Navbar() {
                               {link.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
                                   <NavigationMenuLink asChild>
-                                    <Link
+                                    <PrefetchLink
                                       href={item.href || "#"}
                                       className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
                                     >
@@ -317,7 +372,7 @@ export default function Navbar() {
                                             <span>{item.label}</span>
                                           ))
                                       )}
-                                    </Link>
+                                    </PrefetchLink>
                                   </NavigationMenuLink>
                                 </li>
                               ))}
@@ -326,12 +381,12 @@ export default function Navbar() {
                         </>
                       ) : (
                         <NavigationMenuLink asChild>
-                          <Link
+                          <PrefetchLink
                             href={link.href || "#"}
                             className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
                           >
                             {link.label}
-                          </Link>
+                          </PrefetchLink>
                         </NavigationMenuLink>
                       )}
                     </NavigationMenuItem>
