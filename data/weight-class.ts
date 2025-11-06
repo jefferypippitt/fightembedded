@@ -36,13 +36,28 @@ export const generateDivisionSlug = (
 };
 
 export const parseDivisionSlug = (
-  slug: string
+  slug: string | null | undefined
 ): {
   gender: "men" | "women";
   divisionSlug: string;
   isValid: boolean;
 } => {
+  if (!slug) {
+    return {
+      gender: "men",
+      divisionSlug: "",
+      isValid: false,
+    };
+  }
+
   const [gender, ...rest] = slug.split("-");
+  if (!gender || rest.length === 0) {
+    return {
+      gender: "men",
+      divisionSlug: "",
+      isValid: false,
+    };
+  }
   const divisionSlug = rest.join("-");
   const isWomen = gender === "women";
 
@@ -56,7 +71,9 @@ export const parseDivisionSlug = (
   };
 };
 
-export const getDivisionBySlug = (slug: string): WeightDivision | null => {
+export const getDivisionBySlug = (
+  slug: string | null | undefined
+): WeightDivision | null => {
   const { gender, divisionSlug, isValid } = parseDivisionSlug(slug);
   if (!isValid) return null;
 

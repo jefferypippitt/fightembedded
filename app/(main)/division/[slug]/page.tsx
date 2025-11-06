@@ -5,9 +5,15 @@ import {
   AthletesSearchContainer,
   AthletesSearchInput,
 } from "@/components/athletes-search";
-import { getDivisionAthletes } from "@/server/actions/athlete";
 import { Badge } from "@/components/ui/badge";
 import { AthletesList } from "@/components/athletes-list";
+import {
+  getAllDivisions,
+  getDivisionBySlug,
+  getFullDivisionName,
+  parseDivisionSlug,
+} from "@/data/weight-class";
+import { getDivisionAthletes } from "@/server/actions/athlete";
 
 interface DivisionPageProps {
   params: Promise<{ slug: string }>;
@@ -18,28 +24,48 @@ export async function generateMetadata({
 }: DivisionPageProps): Promise<Metadata> {
   "use cache";
   const { slug } = await params;
-  const divisionData = await getDivisionAthletes(slug);
+  const divisionInfo = getDivisionBySlug(slug);
+  const { gender, isValid } = parseDivisionSlug(slug);
 
-  if (!divisionData) {
+  if (!divisionInfo || !isValid) {
     return {
       title: "Division Not Found",
       description: "The requested division could not be found.",
     };
   }
 
+  const fullName = getFullDivisionName(divisionInfo, gender === "women");
+
   return {
-    title: `${divisionData.name} Division - UFC Athletes`,
-    description: `View all ${divisionData.name} division athletes, rankings, and statistics.`,
+    title: `${fullName} Division - UFC Athletes`,
+    description: `View all ${fullName} division athletes, rankings, and statistics.`,
   };
 }
 
-async function DivisionContent({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  "use cache";
-  const { slug } = await params;
+export function generateStaticParams() {
+  return getAllDivisions().map((division) => ({ slug: division.slug }));
+}
+
+function DivisionSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="space-y-4">
+        <div className="h-10 w-48 animate-pulse rounded-md bg-muted" />
+        <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function DivisionContent({ slug }: { slug: string }) {
   const divisionData = await getDivisionAthletes(slug);
 
   if (!divisionData) {
@@ -47,60 +73,67 @@ async function DivisionContent({
   }
 
   return (
-    <section className="container space-y-10 py-10">
-      <header className="space-y-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <p className="text-sm font-semibold text-primary uppercase tracking-wide">
-              Division Overview
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <h1 className="text-balance text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">
-                {divisionData.name}
-              </h1>
-              {divisionData.weight && (
-                <Badge variant="outline" className="font-mono">
-                  {divisionData.weight} lbs
-                </Badge>
-              )}
-            </div>
-            <p className="text-sm sm:text-base text-muted-foreground text-balance">
-              Explore the rankings, records, and profiles of every athlete
-              actively competing in the {divisionData.name.toLowerCase()}.
-            </p>
-          </div>
-          <div className="w-full sm:max-w-xs lg:max-w-sm">
-            <Suspense fallback={null}>
-              <AthletesSearchInput
-                className="w-full"
-                athletes={divisionData.athletes}
-              />
-            </Suspense>
-          </div>
-        </div>
-      </header>
-      <div className="space-y-8">
-        <Suspense fallback={null}>
-          <AthletesSearchContainer athletes={divisionData.athletes} />
-        </Suspense>
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Full Roster
-          </h2>
-          <AthletesList
-            athletes={divisionData.athletes}
-            emptyMessage="No athletes found in this division."
-          />
-        </div>
+    <div className="space-y-8">
+      <div className="w-full sm:max-w-xs lg:max-w-sm">
+        <AthletesSearchInput
+          className="w-full"
+          athletes={divisionData.athletes}
+        />
       </div>
-    </section>
+      <AthletesSearchContainer athletes={divisionData.athletes} />
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+          Full Roster
+        </h2>
+        <AthletesList
+          athletes={divisionData.athletes}
+          emptyMessage="No athletes found in this division."
+        />
+      </div>
+    </div>
   );
 }
 
-export default function DivisionPage({ params }: DivisionPageProps) {
+export default async function DivisionPage({ params }: DivisionPageProps) {
+  const { slug } = await params;
+  const parseResult = parseDivisionSlug(slug);
+  const divisionInfo = getDivisionBySlug(slug);
+
+  if (!divisionInfo || !parseResult.isValid) {
+    notFound();
+  }
+
+  const fullName = getFullDivisionName(
+    divisionInfo,
+    parseResult.gender === "women"
+  );
+
   return (
-    <Suspense fallback={null}>
-      <DivisionContent params={params} />
-    </Suspense>
+    <section className="container space-y-10 py-10">
+      <header className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Division Overview
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+              {fullName}
+            </h1>
+            {divisionInfo.weight && (
+              <Badge variant="outline" className="font-mono">
+                {divisionInfo.weight} lbs
+              </Badge>
+            )}
+          </div>
+          <p className="text-balance text-sm text-muted-foreground sm:text-base">
+            Explore the rankings, records, and profiles of every athlete
+            actively competing in the {fullName.toLowerCase()}.
+          </p>
+        </div>
+      </header>
+      <Suspense fallback={<DivisionSkeleton />}>
+        <DivisionContent slug={slug} />
+      </Suspense>
+    </section>
   );
 }
