@@ -7,7 +7,7 @@ import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import { weightClasses } from "@/data/weight-class";
 
 // Authentication helper
@@ -23,9 +23,13 @@ async function checkAuth() {
 }
 
 // Get single athlete by ID
-export const getAthlete = cache(async (id: string): Promise<Athlete | null> => {
+export async function getAthlete(id: string): Promise<Athlete | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("athlete-by-id");
+  cacheTag(`athlete-${id}`);
+
   try {
-    // Cached - only revalidates when revalidatePath() is called
     const athlete = await prisma.athlete.findUnique({
       where: { id },
     });
@@ -34,10 +38,13 @@ export const getAthlete = cache(async (id: string): Promise<Athlete | null> => {
     console.error("Error fetching athlete:", error);
     throw new Error("Failed to fetch athlete");
   }
-});
+}
 
 // Get all athletes
-export const getAllAthletes = cache(async (): Promise<Athlete[]> => {
+export async function getAllAthletes(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("all-athletes");
   try {
     const athletes = await prisma.athlete.findMany({
       orderBy: [{ rank: "asc" }, { name: "asc" }],
@@ -67,10 +74,13 @@ export const getAllAthletes = cache(async (): Promise<Athlete[]> => {
     console.error("Error fetching all athletes:", error);
     return [];
   }
-});
+}
 
 // Get active athletes (for main athletes page)
-export const getAthletes = cache(async (): Promise<Athlete[]> => {
+export async function getAthletes(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("athletes");
   try {
     const athletes = await prisma.athlete.findMany({
       where: { retired: false },
@@ -101,131 +111,139 @@ export const getAthletes = cache(async (): Promise<Athlete[]> => {
     console.error("Error fetching active athletes:", error);
     return [];
   }
-});
+}
 
 // Get athletes by division
-export const getAthletesByDivision = cache(
-  async (division: string): Promise<Athlete[]> => {
-    try {
-      const athletes = await prisma.athlete.findMany({
-        where: { weightDivision: division },
-        orderBy: { rank: "asc" },
-      });
+export async function getAthletesByDivision(
+  division: string
+): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("athletes-by-division");
+  cacheTag(`division-${division}`);
 
-      // Sort athletes by rank first, then by name for same rank
-      athletes.sort((a, b) => {
-        // If both have ranks, sort by rank
-        if (a.rank !== null && b.rank !== null) {
-          return a.rank - b.rank;
-        }
+  try {
+    const athletes = await prisma.athlete.findMany({
+      where: { weightDivision: division },
+      orderBy: { rank: "asc" },
+    });
 
-        // If only one has a rank, put the ranked one first
-        if (a.rank !== null && b.rank === null) {
-          return -1;
-        }
-        if (a.rank === null && b.rank !== null) {
-          return 1;
-        }
+    // Sort athletes by rank first, then by name for same rank
+    athletes.sort((a, b) => {
+      // If both have ranks, sort by rank
+      if (a.rank !== null && b.rank !== null) {
+        return a.rank - b.rank;
+      }
 
-        // If neither has a rank, sort by name
-        return a.name.localeCompare(b.name);
-      });
+      // If only one has a rank, put the ranked one first
+      if (a.rank !== null && b.rank === null) {
+        return -1;
+      }
+      if (a.rank === null && b.rank !== null) {
+        return 1;
+      }
 
-      return athletes;
-    } catch (error) {
-      console.error("Error fetching athletes by division:", error);
-      return [];
-    }
+      // If neither has a rank, sort by name
+      return a.name.localeCompare(b.name);
+    });
+
+    return athletes;
+  } catch (error) {
+    console.error("Error fetching athletes by division:", error);
+    return [];
   }
-);
+}
 
 // Get division athletes by slug (for division pages)
-export const getDivisionAthletes = cache(
-  async (
-    slug: string
-  ): Promise<{ name: string; weight?: number; athletes: Athlete[] } | null> => {
-    try {
-      // Parse the slug to get gender and division
-      const [gender, ...rest] = slug.split("-");
-      const divisionSlug = rest.join("-");
-      const isWomen = gender === "women";
+export async function getDivisionAthletes(
+  slug: string
+): Promise<{ name: string; weight?: number; athletes: Athlete[] } | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("division-athletes");
+  cacheTag(`division-slug-${slug}`);
 
-      // Map of slug variations to standard division names
-      const menDivisions: Record<string, string> = {
-        heavyweight: "Heavyweight",
-        "light-heavyweight": "Light Heavyweight",
-        middleweight: "Middleweight",
-        welterweight: "Welterweight",
-        lightweight: "Lightweight",
-        featherweight: "Featherweight",
-        bantamweight: "Bantamweight",
-        flyweight: "Flyweight",
-      };
+  try {
+    // Parse the slug to get gender and division
+    const [gender, ...rest] = slug.split("-");
+    const divisionSlug = rest.join("-");
+    const isWomen = gender === "women";
 
-      const womenDivisions: Record<string, string> = {
-        featherweight: "Featherweight",
-        bantamweight: "Bantamweight",
-        flyweight: "Flyweight",
-        strawweight: "Strawweight",
-      };
+    // Map of slug variations to standard division names
+    const menDivisions: Record<string, string> = {
+      heavyweight: "Heavyweight",
+      "light-heavyweight": "Light Heavyweight",
+      middleweight: "Middleweight",
+      welterweight: "Welterweight",
+      lightweight: "Lightweight",
+      featherweight: "Featherweight",
+      bantamweight: "Bantamweight",
+      flyweight: "Flyweight",
+    };
 
-      // Get the standardized division name based on gender
-      const divisionMap = isWomen ? womenDivisions : menDivisions;
-      const standardDivision =
-        divisionMap[divisionSlug.toLowerCase()] || divisionSlug;
-      const fullDivisionName = isWomen
-        ? `Women's ${standardDivision}`
-        : `Men's ${standardDivision}`;
+    const womenDivisions: Record<string, string> = {
+      featherweight: "Featherweight",
+      bantamweight: "Bantamweight",
+      flyweight: "Flyweight",
+      strawweight: "Strawweight",
+    };
 
-      const athletes = await prisma.athlete.findMany({
-        where: {
-          weightDivision: fullDivisionName,
-          gender: isWomen ? "FEMALE" : "MALE",
-          retired: false,
-        },
-        orderBy: [{ rank: "asc" }, { name: "asc" }],
-      });
+    // Get the standardized division name based on gender
+    const divisionMap = isWomen ? womenDivisions : menDivisions;
+    const standardDivision =
+      divisionMap[divisionSlug.toLowerCase()] || divisionSlug;
+    const fullDivisionName = isWomen
+      ? `Women's ${standardDivision}`
+      : `Men's ${standardDivision}`;
 
-      // Sort athletes by rank first, then by name for same rank
-      athletes.sort((a, b) => {
-        // Handle unranked athletes (rank 0 or undefined)
-        const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
-        const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
+    const athletes = await prisma.athlete.findMany({
+      where: {
+        weightDivision: fullDivisionName,
+        gender: isWomen ? "FEMALE" : "MALE",
+        retired: false,
+      },
+      orderBy: [{ rank: "asc" }, { name: "asc" }],
+    });
 
-        // If both have valid ranks, sort by rank
-        if (aRank !== Infinity && bRank !== Infinity) {
-          return aRank - bRank;
-        }
+    // Sort athletes by rank first, then by name for same rank
+    athletes.sort((a, b) => {
+      // Handle unranked athletes (rank 0 or undefined)
+      const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
+      const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
 
-        // If only one has a valid rank, put the ranked one first
-        if (aRank !== Infinity && bRank === Infinity) {
-          return -1;
-        }
-        if (aRank === Infinity && bRank !== Infinity) {
-          return 1;
-        }
+      // If both have valid ranks, sort by rank
+      if (aRank !== Infinity && bRank !== Infinity) {
+        return aRank - bRank;
+      }
 
-        // If neither has a valid rank, sort by name
-        return a.name.localeCompare(b.name);
-      });
+      // If only one has a valid rank, put the ranked one first
+      if (aRank !== Infinity && bRank === Infinity) {
+        return -1;
+      }
+      if (aRank === Infinity && bRank !== Infinity) {
+        return 1;
+      }
 
-      // Find the weight for this division
-      const divisions = isWomen ? weightClasses.women : weightClasses.men;
-      const divisionData = divisions.find((d) => d.name === standardDivision);
+      // If neither has a valid rank, sort by name
+      return a.name.localeCompare(b.name);
+    });
 
-      return {
-        name: fullDivisionName,
-        weight: divisionData?.weight,
-        athletes,
-      };
-    } catch (error) {
-      console.error("Error fetching division athletes:", error);
-      return null;
-    }
+    // Find the weight for this division
+    const divisions = isWomen ? weightClasses.women : weightClasses.men;
+    const divisionData = divisions.find((d) => d.name === standardDivision);
+
+    return {
+      name: fullDivisionName,
+      weight: divisionData?.weight,
+      athletes,
+    };
+  } catch (error) {
+    console.error("Error fetching division athletes:", error);
+    return null;
   }
-);
+}
 
-// Get top 20 athletes by followers (always fresh)
+// Get top 20 athletes by followers
 export async function getTop20Athletes(): Promise<{
   maleAthletes: {
     id: string;
@@ -240,6 +258,11 @@ export async function getTop20Athletes(): Promise<{
     gender: string;
   }[];
 }> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("top-20-athletes");
+  cacheTag("athlete-popularity");
+
   try {
     // Fetch top 20 male athletes
     const maleAthletes = await prisma.athlete.findMany({
@@ -289,8 +312,13 @@ export async function getTop20Athletes(): Promise<{
   }
 }
 
-// Get top 5 athletes by followers (always fresh)
+// Get top 5 athletes by followers
 export async function getTop5Athletes(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("top-5-athletes");
+  cacheTag("athlete-popularity");
+
   try {
     const athletes = await prisma.athlete.findMany({
       where: { retired: false },
@@ -304,11 +332,15 @@ export async function getTop5Athletes(): Promise<Athlete[]> {
   }
 }
 
-// Get pound-for-pound rankings (always fresh)
+// Get pound-for-pound rankings
 export async function getP4PRankings(): Promise<{
   male: Athlete[];
   female: Athlete[];
 }> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("p4p-rankings-data");
+
   try {
     const [male, female] = await Promise.all([
       prisma.athlete.findMany({
@@ -341,6 +373,11 @@ export async function getLiveP4PRankings(): Promise<{
   maleP4PRankings: Athlete[];
   femaleP4PRankings: Athlete[];
 }> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("p4p-rankings-data");
+  cacheTag("homepage-p4p");
+
   try {
     const [male, female] = await Promise.all([
       prisma.athlete.findMany({
@@ -368,8 +405,12 @@ export async function getLiveP4PRankings(): Promise<{
   }
 }
 
-// Get champions (always fresh)
+// Get champions
 export async function getChampions(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("champions-data");
+
   try {
     const champions = await prisma.athlete.findMany({
       where: { rank: 1, retired: false },
@@ -382,11 +423,16 @@ export async function getChampions(): Promise<Athlete[]> {
   }
 }
 
-// Get live champions (no cache, for homepage)
+// Get live champions (for homepage)
 export async function getLiveChampions(): Promise<{
   maleChampions: Athlete[];
   femaleChampions: Athlete[];
 }> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("champions-data");
+  cacheTag("homepage-champions");
+
   try {
     const champions = await prisma.athlete.findMany({
       where: { rank: 1, retired: false },
@@ -408,7 +454,10 @@ export async function getLiveChampions(): Promise<{
 }
 
 // Get retired athletes
-export const getRetiredAthletes = cache(async (): Promise<Athlete[]> => {
+export async function getRetiredAthletes(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("retired-athletes-data");
   try {
     const retiredAthletes = await prisma.athlete.findMany({
       where: { retired: true },
@@ -425,10 +474,14 @@ export const getRetiredAthletes = cache(async (): Promise<Athlete[]> => {
     console.error("Error fetching retired athletes:", error);
     return [];
   }
-});
+}
 
-// Get undefeated athletes (always fresh)
+// Get undefeated athletes
 export async function getUndefeatedAthletes(): Promise<Athlete[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("undefeated-athletes");
+
   try {
     const undefeatedAthletes = await prisma.athlete.findMany({
       where: { losses: 0, retired: false },
@@ -441,10 +494,14 @@ export async function getUndefeatedAthletes(): Promise<Athlete[]> {
   }
 }
 
-// Get country statistics (always fresh)
+// Get country statistics
 export async function getCountryStats(): Promise<
   { country: string; count: number }[]
 > {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("country-stats");
+
   try {
     const stats = await prisma.athlete.groupBy({
       by: ["country"],
@@ -521,62 +578,62 @@ export async function createAthlete(
     const hasP4PRank = (validatedData.poundForPoundRank ?? 0) > 0;
 
     // Always revalidate basic athlete data
-    revalidateTag("all-athletes");
-    revalidateTag("all-athletes-data");
-    revalidateTag("athletes-page");
-    revalidateTag("athletes-by-division");
-    revalidateTag("division-athletes");
-    revalidateTag("athletes");
-    revalidateTag("homepage");
-    revalidateTag("top-20-athletes");
-    revalidateTag("top-5-athletes");
+    revalidateTag("all-athletes", "max");
+    revalidateTag("all-athletes-data", "max");
+    revalidateTag("athletes-page", "max");
+    revalidateTag("athletes-by-division", "max");
+    revalidateTag("division-athletes", "max");
+    revalidateTag("athletes", "max");
+    revalidateTag("homepage", "max");
+    revalidateTag("top-20-athletes", "max");
+    revalidateTag("top-5-athletes", "max");
 
     // Only revalidate image-related caches if athlete has an image
     if (hasImage) {
-      revalidateTag("athlete-images");
+      revalidateTag("athlete-images", "max");
     }
 
     // Only revalidate specific caches based on athlete properties
     if (isChampion) {
-      revalidateTag("champions-data");
-      revalidateTag("homepage-champions");
+      revalidateTag("champions-data", "max");
+      revalidateTag("homepage-champions", "max");
     }
 
     if (isUndefeated) {
-      revalidateTag("undefeated-athletes");
+      revalidateTag("undefeated-athletes", "max");
     }
 
     if (isRetired) {
-      revalidateTag("retired-athletes-data");
-      revalidateTag("retired-page");
+      revalidateTag("retired-athletes-data", "max");
+      revalidateTag("retired-page", "max");
     }
 
     if (hasP4PRank) {
-      revalidateTag("p4p-rankings-data");
-      revalidateTag("homepage-p4p");
+      revalidateTag("p4p-rankings-data", "max");
+      revalidateTag("homepage-p4p", "max");
     }
 
     // Revalidate rankings pages if athlete has rank
     if (hasRank || hasP4PRank) {
-      revalidatePath("/rankings/divisions");
+      revalidatePath("/rankings/divisions", "page");
     }
 
     // Always revalidate popularity rankings (based on followers)
-    revalidatePath("/rankings/popularity");
+    revalidatePath("/rankings/popularity", "page");
 
     // Only revalidate homepage if athlete affects homepage sections
     if (isChampion || hasP4PRank) {
-      revalidateTag("homepage-stats");
+      revalidateTag("homepage-stats", "max");
     }
 
     // Revalidate paths (only for dynamic routes that need it)
     if (isRetired) {
-      revalidatePath("/retired");
+      revalidatePath("/retired", "page");
     }
 
     // Revalidate main pages
-    revalidatePath("/athletes");
-    revalidatePath("/"); // Homepage
+    revalidatePath("/athletes", "page");
+    revalidatePath("/", "page"); // Homepage
 
     // Revalidate the specific division path
     const isWomen = validatedData.weightDivision.startsWith("Women's");
@@ -686,30 +743,31 @@ export async function updateAthlete(
       currentAthlete?.weightDivision !== finalData.weightDivision;
 
     // Always revalidate basic athlete data
-    revalidateTag("all-athletes");
-    revalidateTag("athlete-by-id");
-    revalidateTag("athletes-by-division");
-    revalidateTag("division-athletes");
-    revalidateTag("top-20-athletes");
-    revalidateTag("top-5-athletes");
-    revalidateTag("athletes-page");
-    revalidateTag("all-athletes-data");
-    revalidateTag("athletes");
-    revalidateTag("homepage");
+    revalidateTag("all-athletes", "max");
+    revalidateTag("athlete-by-id", "max");
+    revalidateTag(`athlete-${id}`, "max");
+    revalidateTag("athletes-by-division", "max");
+    revalidateTag("division-athletes", "max");
+    revalidateTag("top-20-athletes", "max");
+    revalidateTag("top-5-athletes", "max");
+    revalidateTag("athletes-page", "max");
+    revalidateTag("all-athletes-data", "max");
+    revalidateTag("athletes", "max");
+    revalidateTag("homepage", "max");
 
     // Only revalidate image-related caches if image actually changed
     if (imageChanged) {
-      revalidateTag("athlete-images");
+      revalidateTag("athlete-images", "max");
     }
 
     // Only revalidate specific caches based on what changed
     if (rankChanged || p4pRankChanged) {
-      revalidateTag("p4p-rankings-data");
-      revalidateTag("homepage-p4p");
-      revalidatePath("/rankings/divisions"); // Revalidate division rankings page
+      revalidateTag("p4p-rankings-data", "max");
+      revalidateTag("homepage-p4p", "max");
+      revalidatePath("/rankings/divisions", "page"); // Revalidate division rankings page
       if (finalData.rank === 1 || currentAthlete?.rank === 1) {
-        revalidateTag("champions-data");
-        revalidateTag("homepage-champions");
+        revalidateTag("champions-data", "max");
+        revalidateTag("homepage-champions", "max");
       }
     }
 
@@ -717,34 +775,34 @@ export async function updateAthlete(
     const followersChanged =
       currentAthlete?.followers !== validatedData.followers;
     if (followersChanged) {
-      revalidatePath("/rankings/popularity");
+      revalidatePath("/rankings/popularity", "page");
     }
 
     if (retiredStatusChanged) {
-      revalidateTag("retired-athletes-data");
-      revalidateTag("retired-page");
+      revalidateTag("retired-athletes-data", "max");
+      revalidateTag("retired-page", "max");
     }
 
     if (
       lossesChanged &&
       (finalData.losses === 0 || currentAthlete?.losses === 0)
     ) {
-      revalidateTag("undefeated-athletes");
+      revalidateTag("undefeated-athletes", "max");
     }
 
     // Only revalidate homepage if significant changes occurred that affect homepage sections
     if (rankChanged || p4pRankChanged || retiredStatusChanged) {
-      revalidateTag("homepage-stats");
+      revalidateTag("homepage-stats", "max");
     }
 
     // Only revalidate paths for dynamic routes that need it
     if (retiredStatusChanged) {
-      revalidatePath("/retired");
+      revalidatePath("/retired", "page");
     }
 
     // Revalidate main pages
-    revalidatePath("/athletes");
-    revalidatePath("/"); // Homepage
+    revalidatePath("/athletes", "page");
+    revalidatePath("/", "page"); // Homepage
 
     // Always revalidate division pages when any athlete is updated
     revalidatePath("/division/[slug]", "page");
@@ -834,17 +892,18 @@ export async function updateAthleteStatus(
     });
 
     // Revalidate cache tags
-    revalidateTag("all-athletes");
-    revalidateTag("athlete-by-id");
-    revalidateTag("retired-athletes");
-    revalidateTag("division-athletes");
-    revalidateTag("athletes");
-    revalidateTag("homepage");
+    revalidateTag("all-athletes", "max");
+    revalidateTag("athlete-by-id", "max");
+    revalidateTag(`athlete-${athleteId}`, "max");
+    revalidateTag("retired-athletes-data", "max");
+    revalidateTag("division-athletes", "max");
+    revalidateTag("athletes", "max");
+    revalidateTag("homepage", "max");
 
     // Revalidate paths
-    revalidatePath("/retired");
-    revalidatePath("/athletes");
-    revalidatePath(`/athlete/${athleteId}`);
+    revalidatePath("/retired", "page");
+    revalidatePath("/athletes", "page");
+    revalidatePath(`/athlete/${athleteId}`, "page");
 
     // Revalidate division page if we know the division
     if (currentAthlete?.weightDivision) {
@@ -886,34 +945,35 @@ export async function deleteAthlete(id: string) {
     });
 
     // Revalidate cache tags
-    revalidateTag("all-athletes");
-    revalidateTag("all-athletes-data");
-    revalidateTag("athletes-page");
-    revalidateTag("athlete-by-id");
-    revalidateTag("athletes-by-division");
-    revalidateTag("division-athletes");
-    revalidateTag("athletes");
-    revalidateTag("homepage");
-    revalidateTag("top-20-athletes");
-    revalidateTag("top-5-athletes");
+    revalidateTag("all-athletes", "max");
+    revalidateTag("all-athletes-data", "max");
+    revalidateTag("athletes-page", "max");
+    revalidateTag("athlete-by-id", "max");
+    revalidateTag(`athlete-${id}`, "max");
+    revalidateTag("athletes-by-division", "max");
+    revalidateTag("division-athletes", "max");
+    revalidateTag("athletes", "max");
+    revalidateTag("homepage", "max");
+    revalidateTag("top-20-athletes", "max");
+    revalidateTag("top-5-athletes", "max");
 
     if (athlete.rank === 1) {
-      revalidateTag("champions-data");
-      revalidateTag("homepage-champions");
+      revalidateTag("champions-data", "max");
+      revalidateTag("homepage-champions", "max");
     }
 
     if (athlete.losses === 0) {
-      revalidateTag("undefeated-athletes");
+      revalidateTag("undefeated-athletes", "max");
     }
 
     if (athlete.retired) {
-      revalidateTag("retired-athletes-data");
-      revalidateTag("retired-page");
+      revalidateTag("retired-athletes-data", "max");
+      revalidateTag("retired-page", "max");
     }
 
     if (athlete.poundForPoundRank && athlete.poundForPoundRank > 0) {
-      revalidateTag("p4p-rankings-data");
-      revalidateTag("homepage-p4p");
+      revalidateTag("p4p-rankings-data", "max");
+      revalidateTag("homepage-p4p", "max");
     }
 
     // Revalidate rankings pages if athlete has rank
@@ -921,12 +981,12 @@ export async function deleteAthlete(id: string) {
       (athlete.rank && athlete.rank > 0) ||
       (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
     ) {
-      revalidatePath("/rankings/divisions");
+      revalidatePath("/rankings/divisions", "page");
     }
 
     // Revalidate popularity rankings (athlete had followers)
     if (athlete.followers > 0) {
-      revalidatePath("/rankings/popularity");
+      revalidatePath("/rankings/popularity", "page");
     }
 
     // Only revalidate homepage if athlete affects homepage sections
@@ -934,17 +994,17 @@ export async function deleteAthlete(id: string) {
       athlete.rank === 1 ||
       (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
     ) {
-      revalidateTag("homepage-stats");
+      revalidateTag("homepage-stats", "max");
     }
 
     // Revalidate paths for dynamic routes that need it
     if (athlete.retired) {
-      revalidatePath("/retired");
+      revalidatePath("/retired", "page");
     }
 
     // Revalidate main pages
-    revalidatePath("/athletes");
-    revalidatePath("/"); // Homepage
+    revalidatePath("/athletes", "page");
+    revalidatePath("/", "page"); // Homepage
 
     // Revalidate the specific division path
     const isWomen = athlete.weightDivision.startsWith("Women's");
@@ -1000,29 +1060,89 @@ export async function updateAthleteRanks(
 
     await Promise.all(updatePromises);
 
+    // Fetch affected athletes to get their division information for cache revalidation
+    const affectedAthleteIds = athleteRankUpdates.map((update) => update.id);
+    const affectedAthletes = await prisma.athlete.findMany({
+      where: { id: { in: affectedAthleteIds } },
+      select: { weightDivision: true, gender: true },
+    });
+
+    // Generate division slugs for affected divisions
+    const affectedDivisions = new Set<string>();
+    affectedAthletes.forEach((athlete) => {
+      if (athlete.weightDivision && athlete.gender) {
+        // Convert division name to slug format
+        const isWomen = athlete.gender === "FEMALE";
+        const divisionName = athlete.weightDivision.replace(
+          /^(Men's|Women's)\s+/,
+          ""
+        );
+
+        // Map division names to slugs
+        const menDivisions: Record<string, string> = {
+          Heavyweight: "heavyweight",
+          "Light Heavyweight": "light-heavyweight",
+          Middleweight: "middleweight",
+          Welterweight: "welterweight",
+          Lightweight: "lightweight",
+          Featherweight: "featherweight",
+          Bantamweight: "bantamweight",
+          Flyweight: "flyweight",
+        };
+
+        const womenDivisions: Record<string, string> = {
+          Featherweight: "featherweight",
+          Bantamweight: "bantamweight",
+          Flyweight: "flyweight",
+          Strawweight: "strawweight",
+        };
+
+        const divisionMap = isWomen ? womenDivisions : menDivisions;
+        const slug =
+          divisionMap[divisionName] ||
+          divisionName.toLowerCase().replace(/\s+/g, "-");
+        const fullSlug = `${isWomen ? "women" : "men"}-${slug}`;
+        affectedDivisions.add(fullSlug);
+      }
+    });
+
     // Revalidate cache tags
-    revalidateTag("all-athletes");
-    revalidateTag("all-athletes-data");
-    revalidateTag("athletes-page");
-    revalidateTag("athletes-by-division");
-    revalidateTag("division-athletes");
-    revalidateTag("athletes");
-    revalidateTag("homepage");
-    revalidateTag("top-20-athletes");
-    revalidateTag("top-5-athletes");
-    revalidateTag("champions-data");
-    revalidateTag("homepage-champions");
-    revalidateTag("p4p-rankings-data");
-    revalidateTag("homepage-p4p");
-    revalidateTag("retired-athletes-data");
-    revalidateTag("retired-page");
+    revalidateTag("all-athletes", "max");
+    revalidateTag("all-athletes-data", "max");
+    revalidateTag("athletes-page", "max");
+    revalidateTag("athletes-by-division", "max");
+    revalidateTag("division-athletes", "max");
+    revalidateTag("athletes", "max");
+    revalidateTag("paginated-athletes", "max"); // Critical for dashboard data table
+    revalidateTag("homepage", "max");
+    revalidateTag("top-20-athletes", "max");
+    revalidateTag("top-5-athletes", "max");
+    revalidateTag("champions-data", "max");
+    revalidateTag("homepage-champions", "max");
+    revalidateTag("p4p-rankings-data", "max");
+    revalidateTag("homepage-p4p", "max");
+    revalidateTag("retired-athletes-data", "max");
+    revalidateTag("retired-page", "max");
+
+    // Revalidate specific division cache tags
+    affectedDivisions.forEach((slug) => {
+      revalidateTag(`division-slug-${slug}`, "max");
+      // Also revalidate the generic division tag for backward compatibility
+      const divisionName = slug.split("-").slice(1).join("-");
+      revalidateTag(`division-${divisionName}`, "max");
+    });
 
     // Revalidate paths
-    revalidatePath("/"); // Homepage - critical for P4P rankings display
-    revalidatePath("/athletes");
-    revalidatePath("/dashboard/athletes");
-    revalidatePath("/retired");
-    revalidatePath("/rankings/divisions"); // Revalidate division rankings page
+    revalidatePath("/", "page"); // Homepage - critical for P4P rankings display
+    revalidatePath("/athletes", "page");
+    revalidatePath("/dashboard/athletes", "page");
+    revalidatePath("/retired", "page");
+    revalidatePath("/rankings/divisions", "page"); // Revalidate division rankings page
+
+    // Revalidate specific division paths
+    affectedDivisions.forEach((slug) => {
+      revalidatePath(`/division/${slug}`, "page");
+    });
 
     return {
       status: "success",

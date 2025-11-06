@@ -1,10 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
-export const getCountryStats = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getCountryStats() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("country-stats");
 
   const countries = await prisma.athlete.groupBy({
     by: ["country"],
@@ -24,4 +26,4 @@ export const getCountryStats = cache(async () => {
     count: country._count.country,
     trend: "up", // You might want to calculate this based on historical data
   }));
-});
+}

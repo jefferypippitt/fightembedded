@@ -97,77 +97,9 @@ const getDivisionVariant = (
   return "default";
 };
 
-// AthleteImage component for full image display
-interface AthleteImageProps {
-  imageUrl?: string;
-  countryCode?: string;
-  priority?: boolean;
-}
-
-function AthleteImage({
-  imageUrl,
-  countryCode,
-  priority = false,
-}: AthleteImageProps) {
-  // Validate country code
-  const validCountryCode =
-    countryCode && countryCode.length >= 2 && countryCode.length <= 10
-      ? countryCode.toLowerCase()
-      : null;
-
-  const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
-
-  return (
-    <>
-      {/* Flag Background - Semi-transparent */}
-      {validCountryCode && (
-        <div className="absolute inset-0">
-          <Image
-            src={flagSrc}
-            alt={`${validCountryCode} flag`}
-            fill
-            className="object-cover opacity-85"
-            priority={priority}
-            quality={75}
-            sizes="(max-width: 768px) 200px, 250px"
-            unoptimized={true}
-          />
-        </div>
-      )}
-
-      {/* Athlete Image - Centered and properly sized */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative w-16 h-16 sm:w-18 sm:h-18 overflow-hidden rounded-md">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt="Athlete"
-              fill
-              className="object-cover"
-              priority={priority}
-              quality={75}
-              sizes="(max-width: 768px) 64px, 72px"
-            />
-          ) : (
-            <Image
-              src="/placeholder/SILHOUETTE.avif"
-              alt="Athlete placeholder"
-              fill
-              className="object-cover opacity-85"
-              priority={priority}
-              quality={75}
-              sizes="(max-width: 768px) 64px, 72px"
-            />
-          )}
-        </div>
-      </div>
-    </>
-  );
-}
-
 function AthleteListCardComponent({
   name,
-  imageUrl = "/images/default-avatar.svg",
+  imageUrl,
   country,
   wins = 0,
   losses = 0,
@@ -184,10 +116,14 @@ function AthleteListCardComponent({
   priority = false,
   disableCursor = false,
 }: AthleteListCardProps) {
+  // Calculate stats
   const totalFights = wins + losses + draws;
   const winRate = totalFights > 0 ? (wins / totalFights) * 100 : 0;
   const koRate = wins > 0 ? (winsByKo / wins) * 100 : 0;
   const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
+
+  // Get country code for flag
+  const countryCode = getCountryCode(country);
 
   return (
     <Card
@@ -211,10 +147,6 @@ function AthleteListCardComponent({
             <span className="text-[12px] font-medium text-red-500">
               Retired
             </span>
-          ) : rank === 1 ? (
-            <span className="text-[12px] font-bold bg-gradient-to-r from-yellow-500 to-amber-500 dark:from-yellow-400 dark:to-amber-400 bg-clip-text text-transparent">
-              #1
-            </span>
           ) : rank ? (
             <span className="text-[12px] font-medium">#{rank}</span>
           ) : (
@@ -233,18 +165,45 @@ function AthleteListCardComponent({
         {/* Border line that extends across full card width */}
         <div className="border-b border-border/40 -mx-2 sm:-mx-3 mb-3"></div>
 
-        {/* Full Image Section */}
-        <div className="relative h-16 sm:h-16 mb-3 overflow-hidden rounded-sm">
-          <AthleteImage
-            imageUrl={imageUrl}
-            countryCode={getCountryCode(country)}
-            priority={priority}
-          />
+        {/* Banner with Flag Background and Athlete Image */}
+        <div className="relative h-14 w-full mb-3 overflow-hidden rounded-sm bg-muted/20">
+          {/* Flag Background */}
+          {countryCode && (
+            <>
+              <Image
+                src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
+                alt={`${country} flag`}
+                fill
+                className="object-cover opacity-80"
+                priority={priority}
+                quality={75}
+                sizes="(max-width: 640px) 280px, 320px"
+                unoptimized
+              />
+              {/* Vignette effect on flag */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.35)_100%)]" />
+            </>
+          )}
+
+          {/* Centered Athlete Image */}
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="relative size-20 overflow-hidden rounded-md brightness-100">
+              <Image
+                src={imageUrl || "/placeholder/SILHOUETTE.avif"}
+                alt={imageUrl ? name : "Athlete placeholder"}
+                fill
+                className="object-cover object-top brightness-100"
+                priority={priority}
+                quality={85}
+                sizes="80px"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Name and Record section */}
         <div className="text-center mb-3">
-          <h3 className="font-semibold text-sm sm:text-sm text-foreground leading-tight">
+          <h3 className="font-semibold text-sm text-foreground leading-tight">
             {name}
           </h3>
           <h4 className="text-[11px] mt-1 leading-none flex items-center justify-center space-x-0.5">
@@ -280,7 +239,7 @@ function AthleteListCardComponent({
         <div className="space-y-1.5 sm:space-y-2">
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Win Rate</span>
-            <span className="font-medium text-foreground ">
+            <span className="font-medium text-foreground">
               {winRate.toFixed(1)}%
             </span>
           </div>
@@ -291,7 +250,7 @@ function AthleteListCardComponent({
 
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>KO/TKO</span>
-            <span className="font-medium text-foreground ">
+            <span className="font-medium text-foreground">
               {koRate.toFixed(1)}%
             </span>
           </div>
@@ -302,7 +261,7 @@ function AthleteListCardComponent({
 
           <div className="flex justify-between items-center text-[10px] text-muted-foreground">
             <span>Submission</span>
-            <span className="font-medium text-foreground ">
+            <span className="font-medium text-foreground">
               {submissionRate.toFixed(1)}%
             </span>
           </div>
@@ -313,14 +272,12 @@ function AthleteListCardComponent({
         </div>
 
         {/* Footer */}
-        <CardFooter className="px-0 pt-4 sm:pt-4">
+        <CardFooter className="px-0 pt-4">
           <div className="flex items-center justify-between w-full text-[10px]">
-            <div className="flex items-center gap-1">
-              <span className="font-medium text-foreground">{country}</span>
-            </div>
+            <span className="font-medium text-foreground">{country}</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground">Followers:</span>
-              <span className="font-medium text-foreground ">
+              <span className="font-medium text-foreground">
                 {followers.toLocaleString()}
               </span>
             </div>

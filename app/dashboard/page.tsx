@@ -4,7 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
 import { getDivisionStats } from "@/server/actions/get-division-stats";
 
-export default async function Page() {
+export default async function DashboardOverviewPage() {
+  "use cache";
   const [dashboardStats, divisionStats] = await Promise.all([
     getDashboardStats(),
     getDivisionStats(),

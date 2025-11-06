@@ -1,3 +1,5 @@
+"use client";
+
 import { BookOpenIcon, InfoIcon, LifeBuoyIcon } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -181,25 +183,27 @@ export default function Navbar() {
                             <ul>
                               {link.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
-                                  <Link
-                                    href={item.href || "#"}
-                                    legacyBehavior
-                                    passHref
-                                  >
-                                    <NavigationMenuLink className="py-1.5">
+                                  <NavigationMenuLink asChild>
+                                    <Link
+                                      href={item.href || "#"}
+                                      className="py-1.5"
+                                    >
                                       {item.label}
-                                    </NavigationMenuLink>
-                                  </Link>
+                                    </Link>
+                                  </NavigationMenuLink>
                                 </li>
                               ))}
                             </ul>
                           </>
                         ) : (
-                          <Link href={link.href || "#"} legacyBehavior passHref>
-                            <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href={link.href || "#"}
+                              className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
+                            >
                               {link.label}
-                            </NavigationMenuLink>
-                          </Link>
+                            </Link>
+                          </NavigationMenuLink>
                         )}
                         {/* Add separator between different types of items */}
                         {index < navigationLinks.length - 1 &&
@@ -260,12 +264,11 @@ export default function Navbar() {
                             >
                               {link.items.map((item, itemIndex) => (
                                 <li key={itemIndex}>
-                                  <Link
-                                    href={item.href || "#"}
-                                    legacyBehavior
-                                    passHref
-                                  >
-                                    <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                                  <NavigationMenuLink asChild>
+                                    <Link
+                                      href={item.href || "#"}
+                                      className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
+                                    >
                                       {/* Display icon if present */}
                                       {link.type === "icon" &&
                                         "icon" in item && (
@@ -314,19 +317,22 @@ export default function Navbar() {
                                             <span>{item.label}</span>
                                           ))
                                       )}
-                                    </NavigationMenuLink>
-                                  </Link>
+                                    </Link>
+                                  </NavigationMenuLink>
                                 </li>
                               ))}
                             </ul>
                           </NavigationMenuContent>
                         </>
                       ) : (
-                        <Link href={link.href || "#"} legacyBehavior passHref>
-                          <NavigationMenuLink className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium">
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href={link.href || "#"}
+                            className="text-muted-foreground hover:text-primary px-2 py-1.5 font-medium"
+                          >
                             {link.label}
-                          </NavigationMenuLink>
-                        </Link>
+                          </Link>
+                        </NavigationMenuLink>
                       )}
                     </NavigationMenuItem>
                   ))}

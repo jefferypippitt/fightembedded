@@ -55,23 +55,25 @@ export function AthleteAvatar({
             src={flagSrc}
             alt={`${validCountryCode} flag`}
             fill
-            className="object-cover opacity-85"
+            className="object-cover opacity-80"
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             unoptimized={true}
           />
+          {/* Vignette effect on flag */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.35)_100%)]" />
         </div>
       )}
 
-      {/* Athlete Image - Direct positioning without Avatar wrapper */}
-      <div className="absolute inset-0 z-10">
+      {/* Athlete Image */}
+      <div className="absolute inset-0 z-10 brightness-100">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt="Profile"
             fill
-            className="object-cover"
+            className="object-cover brightness-100"
             priority={priority}
             quality={75}
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
@@ -82,7 +84,7 @@ export function AthleteAvatar({
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
               fill
-              className="object-cover opacity-85"
+              className="object-cover opacity-85 brightness-100"
               priority={priority}
               quality={75}
               sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}

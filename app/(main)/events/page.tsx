@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { format } from "date-fns";
 import {
   Table,
+  TableCaption,
   TableBody,
   TableCell,
   TableHead,
@@ -16,60 +17,71 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
+  "use cache";
   const events = await getUpcomingEvents();
 
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-center">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+        <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
           UFC Fight Schedule
         </h1>
       </div>
       {events.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="py-12 text-center">
           <p className="text-muted-foreground">No upcoming events scheduled</p>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto">
-          <div className="overflow-hidden rounded-md border shadow-xs">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50 *:border-border hover:bg-transparent [&>:not(:last-child)]:border-r">
-                  <TableHead className="h-9 py-2">Event Name</TableHead>
-                  <TableHead className="h-9 py-2">Date</TableHead>
-                  <TableHead className="h-9 py-2">Location</TableHead>
-                  <TableHead className="h-9 py-2">Main Event</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {events.map((event) => (
-                  <TableRow
-                    key={event.id}
-                    className="*:border-border hover:bg-transparent [&>:not(:last-child)]:border-r odd:bg-muted/30"
-                  >
-                    <TableCell className="py-2">
-                      <span className="font-semibold">{event.name}</span>
+        <div className="container mx-auto max-w-5xl border">
+          <Table>
+            <TableCaption className="bg-muted/40 p-2 text-center">
+              A list of upcoming events
+            </TableCaption>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="sm:w-72">Event</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead className="text-right">Main Event</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {events.map((event) => {
+                const eventDate = new Date(event.date);
+
+                return (
+                  <TableRow key={event.id}>
+                    <TableCell className="font-medium leading-tight">
+                      {event.name}
                     </TableCell>
-                    <TableCell className="py-2">
-                      <span className="text-sm  text-zinc-600 dark:text-zinc-400">
-                        {format(new Date(event.date), "MMM d, yyyy")}
-                      </span>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium tabular-nums">
+                          {format(eventDate, "MMM d, yyyy")}
+                        </span>
+                        <span className="text-xs text-muted-foreground tabular-nums">
+                          {format(eventDate, "EEEE")}
+                        </span>
+                      </div>
                     </TableCell>
-                    <TableCell className="py-2">
-                      <span className="text-sm text-stone-600 dark:text-stone-400">
-                        {event.venue}, {event.location}
-                      </span>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">
+                          {event.venue}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {event.location}
+                        </span>
+                      </div>
                     </TableCell>
-                    <TableCell className="py-2">
-                      <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                        {event.mainEvent}
-                      </span>
+                    <TableCell className="text-right text-sm font-medium leading-tight text-red-500">
+                      {event.mainEvent}
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                );
+              })}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

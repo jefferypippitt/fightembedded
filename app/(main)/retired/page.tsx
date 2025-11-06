@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RetiredPage() {
+  "use cache";
   const athletes = await getRetiredAthletes();
 
   return (

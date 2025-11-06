@@ -1,10 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
-export const getStats = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getStats() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("stats");
 
   const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] =
     await Promise.all([
@@ -79,11 +81,14 @@ export const getStats = cache(async () => {
       female: femaleP4P,
     },
   };
-});
+}
 
 // Live stats function for hero section
-export const getLiveStats = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getLiveStats() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("stats");
+  cacheTag("live-stats");
 
   const [
     totalAthletes,
@@ -164,4 +169,4 @@ export const getLiveStats = cache(async () => {
       female: femaleP4P,
     },
   };
-});
+}

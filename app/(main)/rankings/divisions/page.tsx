@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function DivisionRankingsPage() {
+  "use cache";
   const divisionRankings = await getTop5Athletes();
 
   // Separate male and female divisions

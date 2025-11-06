@@ -1,7 +1,14 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AthletesSearchContainer } from "@/components/athletes-search";
+import { Suspense } from "react";
+import {
+  AthletesSearchContainer,
+  AthletesSearchInput,
+} from "@/components/athletes-search";
 import { getDivisionAthletes } from "@/server/actions/athlete";
+import { Badge } from "@/components/ui/badge";
+import { AthletesGridSkeleton } from "@/components/athletes-grid-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface DivisionPageProps {
   params: Promise<{ slug: string }>;
@@ -10,6 +17,7 @@ interface DivisionPageProps {
 export async function generateMetadata({
   params,
 }: DivisionPageProps): Promise<Metadata> {
+  "use cache";
   const { slug } = await params;
   const divisionData = await getDivisionAthletes(slug);
 
@@ -26,7 +34,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function DivisionPage({ params }: DivisionPageProps) {
+async function DivisionContent({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  "use cache";
   const { slug } = await params;
   const divisionData = await getDivisionAthletes(slug);
 
@@ -36,12 +49,49 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
 
   return (
     <div className="space-y-6">
-      <AthletesSearchContainer
-        athletes={divisionData.athletes}
-        placeholder={`Search active athletes...`}
-        title={`${divisionData.name} Division`}
-        weight={divisionData.weight}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+            {divisionData.name} Division
+          </h1>
+          {divisionData.weight && (
+            <Badge variant="outline" className="font-mono">
+              {divisionData.weight} lbs
+            </Badge>
+          )}
+        </div>
+        <Suspense
+          fallback={
+            <Skeleton className="w-full sm:w-80 lg:w-96 h-10 rounded-md" />
+          }
+        >
+          <AthletesSearchInput
+            className="w-full sm:w-80 lg:w-96"
+            athletes={divisionData.athletes}
+          />
+        </Suspense>
+      </div>
+      <Suspense fallback={<AthletesGridSkeleton count={8} />}>
+        <AthletesSearchContainer athletes={divisionData.athletes} />
+      </Suspense>
     </div>
+  );
+}
+
+export default function DivisionPage({ params }: DivisionPageProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="w-full sm:w-80 lg:w-96 h-10 rounded-md" />
+          </div>
+          <AthletesGridSkeleton count={8} />
+        </div>
+      }
+    >
+      <DivisionContent params={params} />
+    </Suspense>
   );
 }

@@ -1,10 +1,12 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
-export const getDashboardStats = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getDashboardStats() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("dashboard-stats");
 
   // Get the start of the current week (Monday)
   const now = new Date();
@@ -252,4 +254,4 @@ export const getDashboardStats = cache(async () => {
     totalChampions,
     mostFollowedAthlete: formattedMostFollowedAthlete,
   };
-});
+}

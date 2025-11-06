@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo, memo, Suspense } from "react";
-import { Search, X } from "lucide-react";
+import { useCallback, useMemo, memo, useState, useEffect } from "react";
+import { Search, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { AthleteListCard } from "@/components/athlete-list-card";
@@ -16,9 +16,6 @@ import {
 
 interface AthletesSearchProps {
   athletes: Athlete[];
-  placeholder?: string;
-  title?: string;
-  weight?: number;
 }
 
 // Selected athlete button component
@@ -259,7 +256,7 @@ const AthletesList = memo(
             retired={athlete.retired ?? false}
             isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
             onSelect={() => onSelect(athlete)}
-            priority={index < 10}
+            priority={index < 15}
           />
         ))}
       </div>
@@ -270,12 +267,7 @@ const AthletesList = memo(
 AthletesList.displayName = "AthletesList";
 
 // Client component that handles search state
-function AthletesSearchClient({
-  athletes,
-  placeholder,
-  title,
-  weight,
-}: AthletesSearchProps) {
+function AthletesSearchClient({ athletes }: AthletesSearchProps) {
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString
@@ -296,15 +288,6 @@ function AthletesSearchClient({
         .filter((a): a is Athlete => Boolean(a))
         .slice(0, 2),
     [selectedNames, athletes]
-  );
-
-  const selectionLimitReached = selectedAthletes.length >= 2;
-
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchQuery(value);
-    },
-    [setSearchQuery]
   );
 
   const handleSelect = useCallback(
@@ -335,62 +318,31 @@ function AthletesSearchClient({
 
   return (
     <div className="space-y-6">
-      {/* Header with title and search input */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">
-              {title || "All UFC Athletes"}
-            </h1>
-            {weight && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-medium bg-transparent border border-muted-foreground/20 text-muted-foreground">
-                {weight} lbs
-              </span>
-            )}
-          </div>
-          <div className="w-full sm:w-80 lg:w-96">
-            <InputGroup>
-              <InputGroupInput
-                type="text"
-                placeholder={placeholder ?? ""}
-                value={searchQuery ?? ""}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                disabled={selectionLimitReached}
-                className="text-base sm:text-base placeholder:text-sm"
-              />
-              <InputGroupAddon>
-                <Search className="h-4 w-4" />
-              </InputGroupAddon>
-            </InputGroup>
-          </div>
-        </div>
-
-        {/* Selected athletes display - under title */}
-        {selectedAthletes.length > 0 && (
-          <div className="flex justify-start">
+      {/* Selected athletes display */}
+      {selectedAthletes.length > 0 && (
+        <div className="flex justify-start">
+          <ButtonGroup>
             <ButtonGroup>
-              <ButtonGroup>
-                {selectedAthletes.map((athlete) => (
-                  <SelectedAthleteButton
-                    key={athlete.id}
-                    athlete={athlete}
-                    onRemove={() => handleRemoveAthlete(athlete)}
-                  />
-                ))}
-              </ButtonGroup>
-              <ButtonGroup>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => selectedAthletes.forEach(handleRemoveAthlete)}
-                >
-                  Clear All
-                </Button>
-              </ButtonGroup>
+              {selectedAthletes.map((athlete) => (
+                <SelectedAthleteButton
+                  key={athlete.id}
+                  athlete={athlete}
+                  onRemove={() => handleRemoveAthlete(athlete)}
+                />
+              ))}
             </ButtonGroup>
-          </div>
-        )}
-      </div>
+            <ButtonGroup>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => selectedAthletes.forEach(handleRemoveAthlete)}
+              >
+                Clear All
+              </Button>
+            </ButtonGroup>
+          </ButtonGroup>
+        </div>
+      )}
 
       <AthletesGrid
         athletes={athletes}
@@ -402,29 +354,88 @@ function AthletesSearchClient({
   );
 }
 
-// Main search container - Server Component
-export function AthletesSearchContainer({
-  athletes,
-  placeholder = "Search athletes by name, country, or division...",
-  title,
-  weight,
-}: AthletesSearchProps) {
-  return (
-    <Suspense
-      fallback={
-        <div className="text-center py-4">
-          <div className="text-sm text-muted-foreground">Loading search...</div>
-        </div>
-      }
-    >
-      <AthletesSearchClient
-        athletes={athletes}
-        placeholder={placeholder}
-        title={title}
-        weight={weight}
-      />
-    </Suspense>
+export function AthletesSearchInput({
+  placeholder = "Search active athletes...",
+  className,
+  athletes = [],
+}: {
+  placeholder?: string;
+  className?: string;
+  athletes?: Athlete[];
+}) {
+  const [searchQuery, setSearchQuery] = useQueryState(
+    "q",
+    parseAsString
+      .withDefault("")
+      .withOptions({ shallow: true, clearOnDefault: true, history: "replace" })
   );
+  const [selectedNames] = useQueryState(
+    "sel",
+    parseAsArrayOf(parseAsString)
+      .withDefault([])
+      .withOptions({ shallow: true, clearOnDefault: true, history: "replace" })
+  );
+
+  const selectionLimitReached = selectedNames.length >= 2;
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Show spinner when typing
+  useEffect(() => {
+    if (searchQuery?.trim()) {
+      setIsSearching(true);
+      const timer = setTimeout(() => {
+        setIsSearching(false);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setIsSearching(false);
+    }
+  }, [searchQuery]);
+
+  // Calculate filtered results count
+  const filteredCount = useMemo(() => {
+    if (!searchQuery?.trim()) return athletes.length;
+
+    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
+    return athletes.filter((athlete: Athlete) => {
+      const athleteText = [
+        athlete.name || "",
+        athlete.country || "",
+        athlete.weightDivision || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return searchTerms.every((term) => athleteText.includes(term));
+    }).length;
+  }, [athletes, searchQuery]);
+
+  return (
+    <InputGroup className={className}>
+      <InputGroupInput
+        type="text"
+        placeholder={placeholder}
+        value={searchQuery ?? ""}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        disabled={selectionLimitReached}
+        className="text-base sm:text-base placeholder:text-sm"
+      />
+      <InputGroupAddon>
+        {isSearching ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Search className="h-4 w-4" />
+        )}
+      </InputGroupAddon>
+      <InputGroupAddon align="inline-end">
+        {`${filteredCount} ${filteredCount === 1 ? "result" : "results"}`}
+      </InputGroupAddon>
+    </InputGroup>
+  );
+}
+
+export function AthletesSearchContainer({ athletes }: AthletesSearchProps) {
+  return <AthletesSearchClient athletes={athletes} />;
 }
 
 // Main export

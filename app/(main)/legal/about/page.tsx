@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
+import { LastUpdatedDate } from "@/components/last-updated-date";
 
 export const metadata: Metadata = {
   title: "About Fight Embedded",
@@ -13,7 +15,10 @@ export default function AboutPage() {
           About Fight Embedded
         </h1>
         <p className="text-sm text-muted-foreground">
-          Last updated: {new Date().toLocaleDateString()}
+          Last updated:{" "}
+          <Suspense fallback={<span>—</span>}>
+            <LastUpdatedDate />
+          </Suspense>
         </p>
       </div>
 

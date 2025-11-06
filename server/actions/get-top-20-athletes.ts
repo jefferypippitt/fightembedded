@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
 export interface Athlete {
   id: string;
@@ -10,8 +10,10 @@ export interface Athlete {
   gender: string;
 }
 
-export const getTop20Athletes = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getTop20Athletes() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("top-20-athletes");
 
   try {
     // Fetch top 20 male athletes
@@ -60,4 +62,4 @@ export const getTop20Athletes = cache(async () => {
     console.error("Error fetching top athletes:", error);
     throw new Error("Failed to fetch top athletes");
   }
-});
+}

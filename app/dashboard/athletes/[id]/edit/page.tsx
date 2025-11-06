@@ -3,7 +3,6 @@ import { AthleteForm } from "@/components/athlete-form";
 import { notFound } from "next/navigation";
 import { getAthlete } from "@/server/actions/athlete";
 import { SiteHeader } from "@/components/site-header";
-import { unstable_noStore as noStore } from "next/cache";
 
 interface GenerateMetadataProps {
   params: Promise<{ id: string }>;
@@ -12,7 +11,7 @@ interface GenerateMetadataProps {
 export async function generateMetadata({
   params,
 }: GenerateMetadataProps): Promise<Metadata> {
-  // Await the params
+  "use cache";
   const { id } = await params;
 
   try {
@@ -29,60 +28,58 @@ export async function generateMetadata({
   }
 }
 
-interface PageProps {
+export default async function EditAthletePage({
+  params,
+}: {
   params: Promise<{ id: string }>;
-}
-
-export default async function EditAthletePage({ params }: PageProps) {
-  // Disable caching for this page
-  noStore();
-
-  // Await the params
+}) {
   const { id } = await params;
 
   if (!id) {
     notFound();
   }
 
+  let athlete;
+
   try {
-    const athlete = await getAthlete(id);
+    athlete = await getAthlete(id);
+  } catch (error) {
+    console.error("Error loading athlete for edit:", error);
+    notFound();
+  }
 
-    if (!athlete) {
-      return notFound();
-    }
+  if (!athlete) {
+    notFound();
+  }
 
-    // Cast the athlete data to match form types
-    const athleteData = {
-      ...athlete,
-      gender: athlete.gender as "MALE" | "FEMALE",
-    };
+  const athleteName = athlete.name || "Athlete";
+  const athleteData = {
+    ...athlete,
+    gender: athlete.gender as "MALE" | "FEMALE",
+  };
 
-    return (
-      <>
-        <SiteHeader title={`Edit ${athlete.name}`} />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-2 py-2 md:gap-2 md:py-2">
-              <div className="px-4 lg:px-6">
-                <AthleteForm
-                  key={athlete.id} // Add key to force re-render when data changes
-                  initialData={{
-                    ...athleteData,
-                    imageUrl: athleteData.imageUrl || undefined,
-                    draws: athleteData.draws ?? 0,
-                    rank: athleteData.rank ?? 0,
-                    poundForPoundRank: athleteData.poundForPoundRank ?? 0,
-                    retired: athleteData.retired ?? false,
-                  }}
-                />
-              </div>
+  return (
+    <>
+      <SiteHeader title={`Edit Athlete › ${athleteName}`} />
+      <div className="flex flex-1 flex-col">
+        <div className="@container/main flex flex-1 flex-col gap-2">
+          <div className="flex flex-col gap-2 py-2 md:gap-2 md:py-2">
+            <div className="px-4 lg:px-6">
+              <AthleteForm
+                key={athlete.id}
+                initialData={{
+                  ...athleteData,
+                  imageUrl: athleteData.imageUrl || undefined,
+                  draws: athleteData.draws ?? 0,
+                  rank: athleteData.rank ?? 0,
+                  poundForPoundRank: athleteData.poundForPoundRank ?? 0,
+                  retired: athleteData.retired ?? false,
+                }}
+              />
             </div>
           </div>
         </div>
-      </>
-    );
-  } catch (error) {
-    console.error("Error preparing edit form:", error);
-    return notFound();
-  }
+      </div>
+    </>
+  );
 }

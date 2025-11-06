@@ -53,8 +53,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Athlete } from "@/types/athlete";
 import { deleteAthlete, updateAthleteRanks } from "@/server/actions/athlete";
 import { getPaginatedAthletes } from "@/server/actions/get-paginated-athletes";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -92,6 +92,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { Switch } from "@/components/ui/switch";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 // Drag Handle Component
 const DragHandle = ({
@@ -120,7 +121,17 @@ const DragHandle = ({
 };
 
 // Draggable Row Component
-const DraggableRow = ({ row }: { row: Row<Athlete> }) => {
+const DraggableRow = ({
+  row,
+  isReorderMode,
+  originalPosition,
+  currentIndex,
+}: {
+  row: Row<Athlete>;
+  isReorderMode: boolean;
+  originalPosition: number | undefined;
+  currentIndex: number;
+}) => {
   const {
     attributes,
     listeners,
@@ -131,6 +142,12 @@ const DraggableRow = ({ row }: { row: Row<Athlete> }) => {
   } = useSortable({
     id: row.original.id,
   });
+
+  // Calculate position change for visual indicator
+  const positionChange =
+    isReorderMode && originalPosition !== undefined
+      ? originalPosition - currentIndex
+      : 0;
 
   return (
     <TableRow
@@ -150,6 +167,39 @@ const DraggableRow = ({ row }: { row: Row<Athlete> }) => {
               listeners={listeners}
               isDragging={isDragging}
             />
+          ) : cell.column.id === "displayRank" ? (
+            // Add position change indicator to position column
+            <div className="flex items-center gap-2">
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              {isReorderMode && positionChange !== 0 && (
+                <span
+                  className={`flex items-center text-xs font-semibold ${
+                    positionChange > 0
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
+                  }`}
+                  title={
+                    positionChange > 0
+                      ? `Moved up ${positionChange} position${
+                          positionChange > 1 ? "s" : ""
+                        }`
+                      : `Moved down ${Math.abs(positionChange)} position${
+                          Math.abs(positionChange) > 1 ? "s" : ""
+                        }`
+                  }
+                >
+                  {positionChange > 0 ? (
+                    <span className="flex items-center gap-0.5">
+                      ↑ {Math.abs(positionChange)}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-0.5">
+                      ↓ {Math.abs(positionChange)}
+                    </span>
+                  )}
+                </span>
+              )}
+            </div>
           ) : (
             flexRender(cell.column.columnDef.cell, cell.getContext())
           )}
@@ -297,18 +347,7 @@ const createColumns = (): ColumnDef<Athlete>[] => [
   {
     id: "displayRank",
     header: "Position",
-    cell: ({ row }) => {
-      // Show position in the current filtered list
-      const rowIndex = row.index;
-      return (
-        <Badge
-          variant="outline"
-          className="min-w-8 h-6 flex items-center justify-center px-1 bg-primary/10"
-        >
-          {rowIndex + 1}
-        </Badge>
-      );
-    },
+    cell: ({ row }) => row.index + 1,
     enableSorting: false,
   },
   {
@@ -765,7 +804,32 @@ const createColumns = (): ColumnDef<Athlete>[] => [
   },
 ];
 
-export function AthletesDataTable() {
+interface AthletesDataTableProps {
+  initialData?: {
+    athletes: Athlete[];
+    total: number;
+  };
+}
+
+export function AthletesDataTable({ initialData }: AthletesDataTableProps) {
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="flex justify-center py-8">
+        <LoadingSpinner size="lg" text="Loading athletes..." />
+      </div>
+    );
+  }
+
+  return <AthletesDataTableClient initialData={initialData} />;
+}
+
+function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
   const router = useRouter();
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
@@ -776,6 +840,10 @@ export function AthletesDataTable() {
     "gender",
     parseAsString.withDefault("ALL")
   );
+  const [division, setDivision] = useQueryState(
+    "division",
+    parseAsString.withDefault("ALL")
+  );
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [size, setSize] = useQueryState("size", parseAsInteger.withDefault(10));
   const [sort, setSort] = useQueryState(
@@ -783,15 +851,20 @@ export function AthletesDataTable() {
     parseAsString.withDefault("rank.asc")
   );
 
+  // Initialize with server-provided data to prevent flash of "no athletes found"
   const [data, setData] = React.useState<{
     athletes: Athlete[];
     total: number;
-  }>({ athletes: [], total: 0 });
+  }>(initialData || { athletes: [], total: 0 });
 
   // Add reorder mode state
   const [isReorderMode, setIsReorderMode] = React.useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
   const [originalAthletes, setOriginalAthletes] = React.useState<Athlete[]>([]);
+  // Track original positions for visual indicators (athleteId -> originalIndex)
+  const [originalPositions, setOriginalPositions] = React.useState<
+    Map<string, number>
+  >(new Map());
 
   // Dialog state
   const [showExitDialog, setShowExitDialog] = React.useState(false);
@@ -806,6 +879,30 @@ export function AthletesDataTable() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
+  // Sync division query state with columnFilters
+  React.useEffect(() => {
+    if (division === "ALL") {
+      // Remove weightDivision filter if division is "ALL"
+      setColumnFilters((prev) =>
+        prev.filter((filter) => filter.id !== "weightDivision")
+      );
+    } else {
+      // Set weightDivision filter based on division selector
+      setColumnFilters((prev) => {
+        const otherFilters = prev.filter(
+          (filter) => filter.id !== "weightDivision"
+        );
+        return [
+          ...otherFilters,
+          {
+            id: "weightDivision",
+            value: [division],
+          },
+        ];
+      });
+    }
+  }, [division]);
 
   // DnD sensors
   const sensors = useSensors(
@@ -890,6 +987,9 @@ export function AthletesDataTable() {
     }
   }, [view, setSort]);
 
+  // Track if we've done the initial mount
+  const isInitialMount = React.useRef(true);
+
   React.useEffect(() => {
     const fetchData = async () => {
       // Transform column filters to the expected format
@@ -907,6 +1007,28 @@ export function AthletesDataTable() {
           return [];
         })(),
       }));
+
+      // Skip fetch on initial mount if we have initialData and params match
+      if (
+        isInitialMount.current &&
+        initialData &&
+        page === 1 &&
+        size === 10 &&
+        q === "" &&
+        view === "athletes" &&
+        gender === "ALL" &&
+        sort === "rank.asc" &&
+        columnFilters.length === 0
+      ) {
+        isInitialMount.current = false;
+        // Use initialData and only update originalAthletes
+        if (initialData.athletes.length > 0) {
+          setOriginalAthletes([...initialData.athletes]);
+        }
+        return;
+      }
+
+      isInitialMount.current = false;
 
       const { athletes, total } = await getPaginatedAthletes({
         page,
@@ -938,6 +1060,7 @@ export function AthletesDataTable() {
     gender,
     sort,
     columnFilters,
+    initialData,
     // Remove these dependencies that were causing reorder mode to reset
     // originalAthletes.length,
     // isReorderMode,
@@ -946,27 +1069,35 @@ export function AthletesDataTable() {
   ]);
 
   // Separate effect to handle resetting reorder mode when filters change
-  const prevFiltersRef = React.useRef({ q, view, gender, columnFilters });
+  const prevFiltersRef = React.useRef({
+    q,
+    view,
+    gender,
+    division,
+    columnFilters,
+  });
 
   React.useEffect(() => {
     // Only reset reorder mode if filters have actually changed and we're in reorder mode
-    const currentFilters = { q, view, gender, columnFilters };
+    const currentFilters = { q, view, gender, division, columnFilters };
     const prevFilters = prevFiltersRef.current;
 
     const filtersChanged =
       prevFilters.q !== currentFilters.q ||
       prevFilters.view !== currentFilters.view ||
       prevFilters.gender !== currentFilters.gender ||
+      prevFilters.division !== currentFilters.division ||
       JSON.stringify(prevFilters.columnFilters) !==
         JSON.stringify(currentFilters.columnFilters);
 
     if (filtersChanged && isReorderMode) {
       setIsReorderMode(false);
       setHasUnsavedChanges(false);
+      setOriginalPositions(new Map()); // Clear position tracking when filters change
     }
 
     prevFiltersRef.current = currentFilters;
-  }, [q, view, gender, columnFilters, isReorderMode]);
+  }, [q, view, gender, division, columnFilters, isReorderMode]);
 
   const columns = createColumns();
 
@@ -1044,15 +1175,31 @@ export function AthletesDataTable() {
 
         // Mark that we have unsaved changes
         setHasUnsavedChanges(true);
+
+        // Note: originalPositions stays the same - we compare against original positions
       }
     }
   };
 
+  // Calculate number of athletes that changed position
+  const changedCount = React.useMemo(() => {
+    if (!isReorderMode || originalPositions.size === 0) return 0;
+    return data.athletes.filter((athlete, index) => {
+      const originalPos = originalPositions.get(athlete.id);
+      return originalPos !== undefined && originalPos !== index;
+    }).length;
+  }, [data.athletes, originalPositions, isReorderMode]);
+
   // Toggle reorder mode
   const toggleReorderMode = async (checked: boolean) => {
     if (checked) {
-      // Entering reorder mode - save current state
+      // Entering reorder mode - save current state and positions
       setOriginalAthletes([...data.athletes]);
+      const positionsMap = new Map<string, number>();
+      data.athletes.forEach((athlete, index) => {
+        positionsMap.set(athlete.id, index);
+      });
+      setOriginalPositions(positionsMap);
       setIsReorderMode(true);
       setHasUnsavedChanges(false);
     } else {
@@ -1079,6 +1226,7 @@ export function AthletesDataTable() {
   const handleExitReorderMode = () => {
     setIsReorderMode(false);
     setHasUnsavedChanges(false);
+    setOriginalPositions(new Map()); // Clear position tracking
     // Restore original order
     setData((prev) => ({ ...prev, athletes: originalAthletes }));
     setShowExitDialog(false);
@@ -1124,12 +1272,6 @@ export function AthletesDataTable() {
       toast.error("Failed to refresh data");
     }
   }, [page, size, q, view, gender, sort, columnFilters]);
-
-  // Add refresh button to the UI
-  const handleRefresh = () => {
-    refreshData();
-    toast.success("Data refreshed");
-  };
 
   // Save all changes
   const saveAllChanges = async () => {
@@ -1204,17 +1346,16 @@ export function AthletesDataTable() {
             }
           })
           .filter((update) => {
-            // For P4P view, we need to include updates that set rank to 0
-            // (to remove P4P ranking from athletes moved beyond position 15)
+            // For P4P view, include all updates (even if rank becomes 0)
+            // This ensures athletes moved beyond position 15 lose their P4P rank
             if (isP4PView) {
               const originalAthlete = originalAthletes.find(
                 (oa) => oa.id === update.id
               );
-              const hadP4PRank =
-                originalAthlete?.poundForPoundRank &&
-                originalAthlete.poundForPoundRank > 0;
-              // Include if athlete had P4P rank before (even if new rank is 0)
-              return hadP4PRank;
+              const currentRank = update.poundForPoundRank ?? 0;
+              const originalRank = originalAthlete?.poundForPoundRank ?? 0;
+              // Include if rank changed (either up, down, or removed)
+              return currentRank !== originalRank;
             } else {
               const rankValue = (update as { id: string; rank: number }).rank;
               return rankValue > 0;
@@ -1232,18 +1373,26 @@ export function AthletesDataTable() {
       const result = await updateAthleteRanks(rankUpdates);
 
       if (result.status === "success") {
-        toast.success(
-          `${
-            isP4PView ? "P4P" : isRetiredView ? "Retired Athlete" : "Athlete"
-          } ranks updated successfully`
-        );
+        // Clear position tracking after save
+        setOriginalPositions(new Map());
         setHasUnsavedChanges(false);
 
         // Refresh data from server to get updated rankings
         await refreshData();
 
-        // Force Next.js to refetch all server components
+        // Force Next.js to refetch all server components (including homepage)
+        // Note: router.refresh() only refreshes the current route.
+        // The homepage cache is invalidated via revalidateTag/revalidatePath in updateAthleteRanks.
+        // When you navigate to the homepage, it will fetch fresh data.
         router.refresh();
+
+        toast.success(
+          `${
+            isP4PView ? "P4P" : isRetiredView ? "Retired Athlete" : "Athlete"
+          } ranks updated successfully. ${
+            isP4PView ? "Homepage P4P rankings will refresh on next visit." : ""
+          }`
+        );
       } else {
         toast.error(result.message || "Failed to update athlete ranks");
       }
@@ -1289,6 +1438,10 @@ export function AthletesDataTable() {
               setShowViewChangeDialog(true);
             } else {
               setView(newView);
+              // Reset division when switching views (division filter only applies to "athletes" view)
+              if (newView !== "athletes") {
+                setDivision("ALL");
+              }
               setPage(1); // Reset to first page when changing view
             }
           }}
@@ -1305,29 +1458,6 @@ export function AthletesDataTable() {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
-          {/* Refresh Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            className="flex items-center gap-2"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            <span className="hidden lg:inline">Refresh</span>
-          </Button>
-
           {/* Reorder Mode Toggle */}
           <div className="flex items-center space-x-2">
             <Switch
@@ -1387,6 +1517,22 @@ export function AthletesDataTable() {
             value={gender}
             onValueChange={(value: "ALL" | "MALE" | "FEMALE") => {
               setGender(value);
+              // Reset division when gender changes if current division doesn't match
+              if (value === "ALL") {
+                setDivision("ALL");
+              } else if (
+                value === "MALE" &&
+                division &&
+                division.startsWith("Women's")
+              ) {
+                setDivision("ALL");
+              } else if (
+                value === "FEMALE" &&
+                division &&
+                division.startsWith("Men's")
+              ) {
+                setDivision("ALL");
+              }
               setPage(1); // Reset to first page when changing gender
             }}
           >
@@ -1399,6 +1545,64 @@ export function AthletesDataTable() {
               <SelectItem value="FEMALE">Female</SelectItem>
             </SelectContent>
           </Select>
+          {/* Division Selector - only show when not in P4P or Retired view */}
+          {view === "athletes" && (
+            <Select
+              value={division}
+              onValueChange={(value: string) => {
+                setDivision(value);
+                setPage(1); // Reset to first page when changing division
+              }}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select division" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Divisions</SelectItem>
+                {gender === "MALE" || gender === "ALL" ? (
+                  <>
+                    <SelectItem value="Men's Flyweight">
+                      Men's Flyweight
+                    </SelectItem>
+                    <SelectItem value="Men's Bantamweight">
+                      Men's Bantamweight
+                    </SelectItem>
+                    <SelectItem value="Men's Featherweight">
+                      Men's Featherweight
+                    </SelectItem>
+                    <SelectItem value="Men's Lightweight">
+                      Men's Lightweight
+                    </SelectItem>
+                    <SelectItem value="Men's Welterweight">
+                      Men's Welterweight
+                    </SelectItem>
+                    <SelectItem value="Men's Middleweight">
+                      Men's Middleweight
+                    </SelectItem>
+                    <SelectItem value="Men's Light Heavyweight">
+                      Men's Light Heavyweight
+                    </SelectItem>
+                    <SelectItem value="Men's Heavyweight">
+                      Men's Heavyweight
+                    </SelectItem>
+                  </>
+                ) : null}
+                {gender === "FEMALE" || gender === "ALL" ? (
+                  <>
+                    <SelectItem value="Women's Strawweight">
+                      Women's Strawweight
+                    </SelectItem>
+                    <SelectItem value="Women's Flyweight">
+                      Women's Flyweight
+                    </SelectItem>
+                    <SelectItem value="Women's Bantamweight">
+                      Women's Bantamweight
+                    </SelectItem>
+                  </>
+                ) : null}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <div className="overflow-hidden rounded-lg border">
@@ -1431,7 +1635,7 @@ export function AthletesDataTable() {
                       : "Rank Reorder Mode"}{" "}
                     Active
                   </span>
-                  {hasUnsavedChanges && (
+                  {hasUnsavedChanges && changedCount > 0 && (
                     <Badge
                       variant="secondary"
                       className={`text-xs ${
@@ -1442,7 +1646,7 @@ export function AthletesDataTable() {
                           : "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300"
                       }`}
                     >
-                      Unsaved Changes
+                      {changedCount} Change{changedCount !== 1 ? "s" : ""}
                     </Badge>
                   )}
                 </div>
@@ -1486,8 +1690,16 @@ export function AthletesDataTable() {
                       .rows.map((row) => row.original.id)}
                     strategy={verticalListSortingStrategy}
                   >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
+                    {table.getRowModel().rows.map((row, index) => (
+                      <DraggableRow
+                        key={row.id}
+                        row={row}
+                        isReorderMode={isReorderMode}
+                        originalPosition={originalPositions.get(
+                          row.original.id
+                        )}
+                        currentIndex={index}
+                      />
                     ))}
                   </SortableContext>
                 ) : (

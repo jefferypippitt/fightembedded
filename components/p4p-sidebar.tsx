@@ -1,39 +1,41 @@
 "use client";
 
-import React from "react";
+import { memo } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
-
 import { Fighter, P4PSidebarProps } from "@/types/rankings";
 
-const FighterCard = React.memo(
-  ({
-    fighter,
-    isPriority = false,
-  }: {
-    fighter: Fighter;
-    isPriority?: boolean;
-  }) => (
-    <li className="relative overflow-hidden group transition-all duration-300 border h-16 rounded-sm shadow-md">
-      {/* Content wrapper with relative positioning */}
-      <div className="relative h-full flex items-center space-x-2 p-2">
+interface FighterCardProps {
+  fighter: Fighter;
+  isPriority?: boolean;
+}
+
+const FighterCard = memo(function FighterCard({
+  fighter,
+  isPriority = false,
+}: FighterCardProps) {
+  const countryCode = getCountryCode(fighter.country);
+
+  return (
+    <li className="relative overflow-hidden group transition-all duration-300 border h-16 rounded-sm shadow-xs bg-gradient-to-bl from-primary/5 to-card dark:bg-card">
+      <div className="relative h-full flex items-center gap-2 p-2">
         <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
         <AthleteAvatar
           imageUrl={fighter.imageUrl}
-          countryCode={getCountryCode(fighter.country)}
+          countryCode={countryCode}
           size="xs"
           priority={isPriority}
         />
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <p className="text-xs font-medium mb-1">{fighter.name}</p>
-          <h4 className="text-[10px] flex items-center space-x-0.5">
-            <span className="text-green-600 dark:text-green-400 tabular-nums">
+          <div className="text-[10px] flex items-center gap-0.5">
+            <span className="text-green-600 dark:text-green-400 tabular-nums font-medium">
               {fighter.wins}
             </span>
             <span className="text-muted-foreground">-</span>
-            <span className="text-red-600 dark:text-red-400 tabular-nums">
+            <span className="text-red-600 dark:text-red-400 tabular-nums font-medium">
               {fighter.losses}
             </span>
             {fighter.draws > 0 && (
@@ -44,14 +46,12 @@ const FighterCard = React.memo(
                 </span>
               </>
             )}
-          </h4>
+          </div>
         </div>
       </div>
     </li>
-  )
-);
-
-FighterCard.displayName = "FighterCard";
+  );
+});
 
 export function P4PSidebarClient({
   maleP4PRankings,

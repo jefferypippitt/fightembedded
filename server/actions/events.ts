@@ -4,8 +4,8 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
-import { revalidatePath } from "next/cache";
-import { cache } from "react";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 
 // Authentication helper
 async function checkAuth() {
@@ -36,13 +36,20 @@ export async function createEvent(formData: FormData) {
     const validatedData = eventSchema.parse(data);
     const event = await prisma.event.create({ data: validatedData });
 
+    // Revalidate cache tags
+    revalidateTag("all-events", "max");
+    revalidateTag("upcoming-events", "max");
+    revalidateTag("live-upcoming-events", "max");
+    revalidateTag("paginated-events", "max");
+    revalidateTag(`event-${event.id}`, "max");
+
     // Revalidate dashboard events
-    revalidatePath("/dashboard/events");
+    revalidatePath("/dashboard/events", "page");
 
     // Revalidate public events pages if the new event is upcoming
     if (validatedData.status === "UPCOMING") {
-      revalidatePath("/events");
-      revalidatePath("/");
+      revalidatePath("/events", "page");
+      revalidatePath("/", "page");
     }
 
     return { status: "success", message: "Event created successfully", event };
@@ -72,10 +79,17 @@ export async function updateEvent(id: string, formData: FormData) {
       data: validatedData,
     });
 
+    // Revalidate cache tags
+    revalidateTag("all-events", "max");
+    revalidateTag("upcoming-events", "max");
+    revalidateTag("live-upcoming-events", "max");
+    revalidateTag("paginated-events", "max");
+    revalidateTag(`event-${id}`, "max");
+
     // Revalidate dashboard events
-    revalidatePath("/dashboard/events");
-    revalidatePath("/events");
-    revalidatePath("/");
+    revalidatePath("/dashboard/events", "page");
+    revalidatePath("/events", "page");
+    revalidatePath("/", "page");
 
     return { status: "success", message: "Event updated successfully", event };
   } catch (error) {
@@ -90,10 +104,17 @@ export async function deleteEvent(id: string) {
 
     await prisma.event.delete({ where: { id } });
 
+    // Revalidate cache tags
+    revalidateTag("all-events", "max");
+    revalidateTag("upcoming-events", "max");
+    revalidateTag("live-upcoming-events", "max");
+    revalidateTag("paginated-events", "max");
+    revalidateTag(`event-${id}`, "max");
+
     // Revalidate dashboard events
-    revalidatePath("/dashboard/events");
-    revalidatePath("/events");
-    revalidatePath("/");
+    revalidatePath("/dashboard/events", "page");
+    revalidatePath("/events", "page");
+    revalidatePath("/", "page");
 
     return { status: "success", message: "Event deleted successfully" };
   } catch (error) {
@@ -102,20 +123,27 @@ export async function deleteEvent(id: string) {
   }
 }
 
-export const getEvent = cache(async (id: string) => {
+export async function getEvent(id: string) {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("event-by-id");
+  cacheTag(`event-${id}`);
+  
   try {
-    // Cached - only revalidates when revalidatePath() is called
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
   } catch (error) {
     console.error(`Failed to fetch event ${id}:`, error);
     return null;
   }
-});
+}
 
-export const getLiveUpcomingEvents = cache(async () => {
+export async function getLiveUpcomingEvents() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("live-upcoming-events");
+  
   try {
-    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -144,11 +172,14 @@ export const getLiveUpcomingEvents = cache(async () => {
     console.error("Error fetching upcoming events:", error);
     return [];
   }
-});
+}
 
-export const getUpcomingEvents = cache(async () => {
+export async function getUpcomingEvents() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("upcoming-events");
+  
   try {
-    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       where: {
         status: "UPCOMING",
@@ -176,12 +207,15 @@ export const getUpcomingEvents = cache(async () => {
     console.error("Error fetching upcoming events:", error);
     return [];
   }
-});
+}
 
 // Get all events
-export const getAllEvents = cache(async () => {
+export async function getAllEvents() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("all-events");
+  
   try {
-    // Cached - only revalidates when revalidatePath() is called
     const events = await prisma.event.findMany({
       orderBy: { date: "desc" },
     });
@@ -190,4 +224,4 @@ export const getAllEvents = cache(async () => {
     console.error("Error fetching all events:", error);
     return [];
   }
-});
+}

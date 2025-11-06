@@ -2,10 +2,12 @@
 
 import prisma from "@/lib/prisma";
 import { getAllDivisions } from "@/data/weight-class";
-import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 
-export const getDivisionStats = cache(async () => {
-  // Cached - only revalidates when revalidatePath() is called
+export async function getDivisionStats() {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("division-stats");
 
   // Get all divisions
   const divisions = getAllDivisions();
@@ -66,4 +68,4 @@ export const getDivisionStats = cache(async () => {
   });
 
   return divisionStats;
-});
+}

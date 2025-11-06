@@ -62,6 +62,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
+import { LoadingSpinner } from "@/components/loading-spinner";
 
 // Helper component for the actions cell
 const ActionsCell = ({
@@ -133,7 +134,31 @@ const StatusFilter = ({ column }: { column: Column<Event, unknown> }) => {
   );
 };
 
-export function EventsDataTable() {
+interface EventsDataTableProps {
+  initialData?: {
+    events: Event[];
+    total: number;
+  };
+}
+
+export function EventsDataTable({ initialData }: EventsDataTableProps) {
+  const [isClient, setIsClient] = React.useState(false);
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return (
+      <div className="flex justify-center py-8">
+        <LoadingSpinner size="lg" text="Loading events..." />
+      </div>
+    );
+  }
+
+  return <EventsDataTableClient initialData={initialData} />;
+}
+
+function EventsDataTableClient({ initialData }: EventsDataTableProps) {
   const router = useRouter();
   const [q, setQ] = useQueryState("q", parseAsString.withDefault(""));
   const [view, setView] = useQueryState(
@@ -147,10 +172,11 @@ export function EventsDataTable() {
     parseAsString.withDefault("date.desc")
   );
 
+  // Initialize with server-provided data to prevent flash of "no events found"
   const [data, setData] = React.useState<{
     events: Event[];
     total: number;
-  }>({ events: [], total: 0 });
+  }>(initialData || { events: [], total: 0 });
 
   const [sorting, setSorting] = React.useState<SortingState>([
     {
@@ -470,6 +496,9 @@ export function EventsDataTable() {
     }
   }, [view, sort, setSort]);
 
+  // Track if we've done the initial mount
+  const isInitialMount = React.useRef(true);
+
   React.useEffect(() => {
     const fetchData = async () => {
       // Transform column filters to the expected format
@@ -488,6 +517,23 @@ export function EventsDataTable() {
         })(),
       }));
 
+      // Skip fetch on initial mount if we have initialData and params match
+      if (
+        isInitialMount.current &&
+        initialData &&
+        page === 1 &&
+        size === 10 &&
+        q === "" &&
+        view === "events" &&
+        sort === "date.desc" &&
+        columnFilters.length === 0
+      ) {
+        isInitialMount.current = false;
+        return;
+      }
+
+      isInitialMount.current = false;
+
       const { events, total } = await getPaginatedEvents({
         page,
         pageSize: size,
@@ -500,7 +546,7 @@ export function EventsDataTable() {
     };
 
     fetchData();
-  }, [page, size, q, view, sort, columnFilters]);
+  }, [page, size, q, view, sort, columnFilters, initialData]);
 
   const columns = createColumns();
 

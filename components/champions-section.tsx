@@ -16,8 +16,9 @@ export default function ChampionsSection({
   return (
     <div className="space-y-8">
       {/* Men's Champions Section */}
+      {/* Champions load with priority=true for instant display, images cached for 1 year */}
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
           {sortedMaleChampions.map((champion) => (
             <AthleteListCard
               key={champion.id}
@@ -44,8 +45,9 @@ export default function ChampionsSection({
       </section>
 
       {/* Women's Champions Section */}
+      {/* Champions load with priority=true for instant display, images cached for 1 year */}
       <section>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
           {sortedFemaleChampions.map((champion) => (
             <AthleteListCard
               key={champion.id}

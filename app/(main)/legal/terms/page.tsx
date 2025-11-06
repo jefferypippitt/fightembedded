@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
+import { LastUpdatedDate } from "@/components/last-updated-date";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -11,7 +13,10 @@ export default function TermsPage() {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">Terms of Service</h1>
         <p className="text-sm text-muted-foreground">
-          Last updated: {new Date().toLocaleDateString()}
+          Last updated:{" "}
+          <Suspense fallback={<span>—</span>}>
+            <LastUpdatedDate />
+          </Suspense>
         </p>
       </div>
 

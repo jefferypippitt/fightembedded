@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
   images: {
     remotePatterns: [
       {
@@ -36,14 +37,17 @@ const nextConfig: NextConfig = {
     ],
     // More conservative optimization settings to avoid payment limits
     formats: ["image/webp", "image/avif"],
-    // Increase cache time to reduce transformations
+    // Aggressive caching for static sports images (1 year)
+    // Images are invalidated when athlete-images cache tag is revalidated
     minimumCacheTTL: 31536000, // 1 year cache
     // Reduce device sizes to minimize transformations
     deviceSizes: [640, 1080],
     // Reduce image sizes to minimize transformations
     imageSizes: [64, 128],
-    // Use only one quality setting to reduce transformations
-    qualities: [75],
+    // Quality settings for image optimization
+    qualities: [75, 85],
+    // Enable static optimization for better caching
+    unoptimized: false,
     // Enable SVG optimization but be conservative
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
