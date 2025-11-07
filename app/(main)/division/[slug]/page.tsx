@@ -81,15 +81,6 @@ async function DivisionContent({ slug }: { slug: string }) {
         />
       </div>
       <AthletesSearchContainer athletes={divisionData.athletes} />
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Full Roster
-        </h2>
-        <AthletesList
-          athletes={divisionData.athletes}
-          emptyMessage="No athletes found in this division."
-        />
-      </div>
     </div>
   );
 }
@@ -127,7 +118,7 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
           </div>
           <p className="text-balance text-sm text-muted-foreground sm:text-base">
             Explore the rankings, records, and profiles of every athlete
-            actively competing in the {fullName.toLowerCase()}.
+            actively competing in the UFC.
           </p>
         </div>
       </header>

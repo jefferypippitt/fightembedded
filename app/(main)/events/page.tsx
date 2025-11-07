@@ -32,9 +32,9 @@ export default async function EventsPage() {
           <p className="text-muted-foreground">No upcoming events scheduled</p>
         </div>
       ) : (
-        <div className="container mx-auto max-w-5xl border">
+        <div className="container mx-auto max-w-5xl overflow-hidden rounded-md border bg-card shadow-sm">
           <Table>
-            <TableCaption className="bg-muted/40 p-2 text-center">
+            <TableCaption className="rounded-b-md bg-muted/40 p-2 text-center">
               A list of upcoming events
             </TableCaption>
             <TableHeader>
