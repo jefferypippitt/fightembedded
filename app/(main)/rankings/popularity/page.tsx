@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default async function DivisionRankingsPage() {
-  "use cache";
   const top20Athletes = await getTop20Athletes();
 
   const maleChartData = top20Athletes.maleAthletes.map((athlete) => ({

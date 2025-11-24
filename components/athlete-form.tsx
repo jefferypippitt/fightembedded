@@ -92,6 +92,11 @@ function CountrySelect({
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState(field.value || "");
 
+  // Sync internal state with field value changes (e.g., when form resets)
+  React.useEffect(() => {
+    setValue(field.value || "");
+  }, [field.value]);
+
   return (
     <Field>
       <FieldLabel htmlFor="country-select">Country</FieldLabel>
@@ -154,31 +159,49 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const form = useForm<FormValues>({
-    defaultValues: {
-      ...initialData,
-      winsByKo: initialData?.winsByKo ?? 0,
-      winsBySubmission: initialData?.winsBySubmission ?? 0,
-      name: initialData?.name || "",
-      gender: initialData?.gender || undefined,
-      age: initialData?.age || 0,
-      country: initialData?.country || "",
-      weightDivision: initialData?.weightDivision || "",
-      wins: initialData?.wins || 0,
-      losses: initialData?.losses || 0,
-      draws: initialData?.draws || 0,
-      followers: initialData?.followers || 0,
-      rank: initialData?.rank || 0,
-      poundForPoundRank: initialData?.poundForPoundRank || 0,
-      imageUrl: initialData?.imageUrl || "",
-      retired: Boolean(initialData?.retired),
-    },
+    defaultValues: initialData
+      ? {
+          ...initialData,
+          winsByKo: initialData.winsByKo ?? 0,
+          winsBySubmission: initialData.winsBySubmission ?? 0,
+          name: initialData.name || "",
+          gender: initialData.gender || undefined,
+          age: initialData.age || 0,
+          country: initialData.country || "",
+          weightDivision: initialData.weightDivision || "",
+          wins: initialData.wins || 0,
+          losses: initialData.losses || 0,
+          draws: initialData.draws || 0,
+          followers: initialData.followers || 0,
+          rank: initialData.rank || 0,
+          poundForPoundRank: initialData.poundForPoundRank || 0,
+          imageUrl: initialData.imageUrl || "",
+          retired: Boolean(initialData.retired),
+        }
+      : {
+          winsByKo: 0,
+          winsBySubmission: 0,
+          name: "",
+          gender: undefined,
+          age: 0,
+          country: "",
+          weightDivision: "",
+          wins: 0,
+          losses: 0,
+          draws: 0,
+          followers: 0,
+          rank: 0,
+          poundForPoundRank: 0,
+          imageUrl: "",
+          retired: false,
+        },
     resolver: zodResolver(athleteSchema),
   });
 
   // Watch the retired field to disable rank fields
   const isRetired = form.watch("retired");
 
-  // Reset form when initialData changes
+  // Reset form when initialData changes (for edit mode) or on mount (for new form)
   React.useEffect(() => {
     if (initialData) {
       form.reset({
@@ -200,6 +223,26 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
         retired: Boolean(initialData.retired),
       });
       setImageUrl(initialData.imageUrl || "");
+    } else {
+      // Ensure form is reset to empty values when initialData is undefined (new form)
+      form.reset({
+        winsByKo: 0,
+        winsBySubmission: 0,
+        name: "",
+        gender: undefined,
+        age: 0,
+        country: "",
+        weightDivision: "",
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        followers: 0,
+        rank: 0,
+        poundForPoundRank: 0,
+        imageUrl: "",
+        retired: false,
+      });
+      setImageUrl("");
     }
   }, [initialData, form]);
 
@@ -236,9 +279,8 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
 
       if (result.status === "success") {
         toast.success(result.message);
-        // Force a hard refresh of the page to ensure fresh data
-        router.refresh();
-        router.push("/dashboard/athletes");
+        // Navigate away - server action will revalidate the new form route
+        router.replace("/dashboard/athletes");
       } else {
         toast.error(
           result.message ||
@@ -358,7 +400,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     <FieldLabel htmlFor="gender">Gender</FieldLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value || ""}
+                      value={field.value || ""}
                     >
                       <SelectTrigger id="gender" className="w-full">
                         <SelectValue placeholder="Select gender" />
@@ -456,7 +498,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                     </FieldLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value)}
-                      defaultValue={field.value || ""}
+                      value={field.value || ""}
                     >
                       <SelectTrigger id="weightDivision" className="w-full">
                         <SelectValue placeholder="Select weight division" />

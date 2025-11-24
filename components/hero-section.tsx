@@ -87,7 +87,6 @@ const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
 );
 
 export default async function HeroSection() {
-  "use cache";
   const stats = await getLiveStats();
   const statsData = createStatsData(stats);
 

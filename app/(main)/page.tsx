@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  "use cache";
   return (
     <main>
       <HeroSectionWrapper />

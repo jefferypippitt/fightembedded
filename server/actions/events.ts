@@ -40,11 +40,9 @@ export async function createEvent(formData: FormData) {
     revalidateTag("all-events", "max");
     revalidateTag("upcoming-events", "max");
     revalidateTag("live-upcoming-events", "max");
-    revalidateTag("paginated-events", "max");
+    revalidateTag("stats", "max");
+    revalidateTag("live-stats", "max");
     revalidateTag(`event-${event.id}`, "max");
-
-    // Revalidate dashboard events
-    revalidatePath("/dashboard/events", "page");
 
     // Revalidate public events pages if the new event is upcoming
     if (validatedData.status === "UPCOMING") {
@@ -83,11 +81,11 @@ export async function updateEvent(id: string, formData: FormData) {
     revalidateTag("all-events", "max");
     revalidateTag("upcoming-events", "max");
     revalidateTag("live-upcoming-events", "max");
-    revalidateTag("paginated-events", "max");
+    revalidateTag("stats", "max");
+    revalidateTag("live-stats", "max");
     revalidateTag(`event-${id}`, "max");
 
-    // Revalidate dashboard events
-    revalidatePath("/dashboard/events", "page");
+    // Revalidate public pages
     revalidatePath("/events", "page");
     revalidatePath("/", "page");
 
@@ -108,11 +106,11 @@ export async function deleteEvent(id: string) {
     revalidateTag("all-events", "max");
     revalidateTag("upcoming-events", "max");
     revalidateTag("live-upcoming-events", "max");
-    revalidateTag("paginated-events", "max");
+    revalidateTag("stats", "max");
+    revalidateTag("live-stats", "max");
     revalidateTag(`event-${id}`, "max");
 
-    // Revalidate dashboard events
-    revalidatePath("/dashboard/events", "page");
+    // Revalidate public pages
     revalidatePath("/events", "page");
     revalidatePath("/", "page");
 
@@ -128,7 +126,7 @@ export async function getEvent(id: string) {
   cacheLife("hours");
   cacheTag("event-by-id");
   cacheTag(`event-${id}`);
-  
+
   try {
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
@@ -140,9 +138,9 @@ export async function getEvent(id: string) {
 
 export async function getLiveUpcomingEvents() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days"); // UFC events are weekly, cache longer since schedule is stable
   cacheTag("live-upcoming-events");
-  
+
   try {
     const events = await prisma.event.findMany({
       where: {
@@ -153,7 +151,6 @@ export async function getLiveUpcomingEvents() {
       orderBy: {
         date: "asc", // Show earliest upcoming events first
       },
-      take: 5, // Limit to 5 events like you mentioned
       select: {
         id: true,
         name: true,
@@ -176,9 +173,9 @@ export async function getLiveUpcomingEvents() {
 
 export async function getUpcomingEvents() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days"); // UFC events are weekly, cache longer since schedule is stable
   cacheTag("upcoming-events");
-  
+
   try {
     const events = await prisma.event.findMany({
       where: {
@@ -214,7 +211,7 @@ export async function getAllEvents() {
   "use cache";
   cacheLife("hours");
   cacheTag("all-events");
-  
+
   try {
     const events = await prisma.event.findMany({
       orderBy: { date: "desc" },

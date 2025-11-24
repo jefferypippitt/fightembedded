@@ -1,12 +1,11 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cacheLife, cacheTag } from "next/cache";
+import { headers } from "next/headers";
 
 export async function getDashboardStats() {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("dashboard-stats");
+  // Access headers first to satisfy Next.js 16 cache requirements
+  await headers();
 
   // Get the start of the current week (Monday)
   const now = new Date();

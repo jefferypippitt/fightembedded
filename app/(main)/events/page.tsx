@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { format } from "date-fns";
 import {
   Table,
-  TableCaption,
   TableBody,
   TableCell,
   TableHead,
@@ -17,73 +16,59 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
-  "use cache";
   const events = await getUpcomingEvents();
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-center">
-        <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-          UFC Fight Schedule
-        </h1>
-      </div>
+    <section className="container space-y-10 py-6">
+      <header className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Event Schedule
+          </p>
+          <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+            UFC Fight Schedule
+          </h1>
+          <p className="text-balance text-sm text-muted-foreground sm:text-base">
+            View all upcoming events, dates, locations, and main event matchups.
+          </p>
+        </div>
+      </header>
       {events.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-muted-foreground">No upcoming events scheduled</p>
         </div>
       ) : (
-        <div className="container mx-auto max-w-5xl overflow-hidden rounded-md border bg-card shadow-sm">
-          <Table>
-            <TableCaption className="rounded-b-md bg-muted/40 p-2 text-center">
-              A list of upcoming events
-            </TableCaption>
-            <TableHeader>
-              <TableRow className="bg-muted/40">
-                <TableHead className="sm:w-72">Event</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead className="text-right">Main Event</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {events.map((event) => {
-                const eventDate = new Date(event.date);
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-primary">Event</TableHead>
+              <TableHead className="text-primary">Date</TableHead>
+              <TableHead className="text-primary">Venue</TableHead>
+              <TableHead className="text-primary">Location</TableHead>
+              <TableHead className="text-right text-primary">
+                Main Event
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map((event) => {
+              const eventDate = new Date(event.date);
 
-                return (
-                  <TableRow key={event.id}>
-                    <TableCell className="font-medium leading-tight">
-                      {event.name}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium tabular-nums">
-                          {format(eventDate, "MMM d, yyyy")}
-                        </span>
-                        <span className="text-xs text-muted-foreground tabular-nums">
-                          {format(eventDate, "EEEE")}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">
-                          {event.venue}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {event.location}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right text-sm font-medium leading-tight text-red-500">
-                      {event.mainEvent}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+              return (
+                <TableRow key={event.id}>
+                  <TableCell className="font-medium">{event.name}</TableCell>
+                  <TableCell>{format(eventDate, "MMM d, yyyy")}</TableCell>
+                  <TableCell>{event.venue}</TableCell>
+                  <TableCell>{event.location}</TableCell>
+                  <TableCell className="text-right">
+                    {event.mainEvent}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
-    </div>
+    </section>
   );
 }

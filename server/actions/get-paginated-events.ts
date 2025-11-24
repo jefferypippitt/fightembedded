@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cacheLife, cacheTag } from "next/cache";
 import { Prisma } from "@prisma/client";
 
 const eventSelect = {
@@ -24,10 +23,6 @@ export async function getPaginatedEvents(params: {
   sort?: string;
   columnFilters?: { id: string; value: string[] }[];
 }) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("paginated-events");
-
   const { page, pageSize, q, view, sort, columnFilters } = params;
 
   const where: Prisma.EventWhereInput = {};
@@ -41,9 +36,7 @@ export async function getPaginatedEvents(params: {
     ];
   }
 
-  const statusFilter = columnFilters?.find(
-    (filter) => filter.id === "status"
-  );
+  const statusFilter = columnFilters?.find((filter) => filter.id === "status");
 
   if (statusFilter && statusFilter.value.length > 0) {
     where.status = {

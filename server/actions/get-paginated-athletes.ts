@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cacheLife, cacheTag } from "next/cache";
 import type { Athlete } from "@/types/athlete";
 import { Prisma } from "@prisma/client";
 
@@ -35,9 +34,6 @@ export async function getPaginatedAthletes(params: {
   sort?: string;
   columnFilters?: { id: string; value: string[] }[];
 }) {
-  "use cache";
-  cacheLife("hours");
-  cacheTag("paginated-athletes");
 
   const { page, pageSize, q, view, gender, sort, columnFilters } = params;
 

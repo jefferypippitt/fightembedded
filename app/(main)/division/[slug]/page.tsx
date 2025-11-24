@@ -6,7 +6,6 @@ import {
   AthletesSearchInput,
 } from "@/components/athletes-search";
 import { Badge } from "@/components/ui/badge";
-import { AthletesList } from "@/components/athletes-list";
 import {
   getAllDivisions,
   getDivisionBySlug,
@@ -100,7 +99,7 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
   );
 
   return (
-    <section className="container space-y-10 py-10">
+    <section className="container space-y-10 py-6">
       <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">

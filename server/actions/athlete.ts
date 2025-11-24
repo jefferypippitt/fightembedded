@@ -456,7 +456,7 @@ export async function getLiveChampions(): Promise<{
 // Get retired athletes
 export async function getRetiredAthletes(): Promise<Athlete[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("years"); // Retired athletes very static (~2/year), cache invalidation handles edge cases
   cacheTag("retired-athletes-data");
   try {
     const retiredAthletes = await prisma.athlete.findMany({
@@ -580,6 +580,8 @@ export async function createAthlete(
     // Always revalidate basic athlete data
     revalidateTag("all-athletes", "max");
     revalidateTag("all-athletes-data", "max");
+    revalidateTag("live-stats", "max");
+    revalidateTag("stats", "max");
     revalidateTag("athletes-page", "max");
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
@@ -623,7 +625,9 @@ export async function createAthlete(
 
     // Only revalidate homepage if athlete affects homepage sections
     if (isChampion || hasP4PRank) {
+      revalidateTag("homepage", "max");
       revalidateTag("homepage-stats", "max");
+      revalidatePath("/", "page");
     }
 
     // Revalidate paths (only for dynamic routes that need it)
@@ -633,7 +637,7 @@ export async function createAthlete(
 
     // Revalidate main pages
     revalidatePath("/athletes", "page");
-    revalidatePath("/", "page"); // Homepage
+    revalidatePath("/dashboard/athletes/new", "page"); // Clear router cache for new form
 
     // Revalidate the specific division path
     const isWomen = validatedData.weightDivision.startsWith("Women's");
@@ -745,6 +749,8 @@ export async function updateAthlete(
     // Always revalidate basic athlete data
     revalidateTag("all-athletes", "max");
     revalidateTag("athlete-by-id", "max");
+    revalidateTag("live-stats", "max");
+    revalidateTag("stats", "max");
     revalidateTag(`athlete-${id}`, "max");
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
@@ -753,7 +759,7 @@ export async function updateAthlete(
     revalidateTag("athletes-page", "max");
     revalidateTag("all-athletes-data", "max");
     revalidateTag("athletes", "max");
-    revalidateTag("homepage", "max");
+    revalidateTag("country-stats", "max");
 
     // Only revalidate image-related caches if image actually changed
     if (imageChanged) {
@@ -792,7 +798,9 @@ export async function updateAthlete(
 
     // Only revalidate homepage if significant changes occurred that affect homepage sections
     if (rankChanged || p4pRankChanged || retiredStatusChanged) {
+      revalidateTag("homepage", "max");
       revalidateTag("homepage-stats", "max");
+      revalidatePath("/", "page");
     }
 
     // Only revalidate paths for dynamic routes that need it
@@ -802,10 +810,6 @@ export async function updateAthlete(
 
     // Revalidate main pages
     revalidatePath("/athletes", "page");
-    revalidatePath("/", "page"); // Homepage
-
-    // Always revalidate division pages when any athlete is updated
-    revalidatePath("/division/[slug]", "page");
 
     // Also revalidate the specific division path if we know the division
     if (currentAthlete?.weightDivision) {
@@ -894,6 +898,8 @@ export async function updateAthleteStatus(
     // Revalidate cache tags
     revalidateTag("all-athletes", "max");
     revalidateTag("athlete-by-id", "max");
+    revalidateTag("live-stats", "max");
+    revalidateTag("stats", "max");
     revalidateTag(`athlete-${athleteId}`, "max");
     revalidateTag("retired-athletes-data", "max");
     revalidateTag("division-athletes", "max");
@@ -947,6 +953,8 @@ export async function deleteAthlete(id: string) {
     // Revalidate cache tags
     revalidateTag("all-athletes", "max");
     revalidateTag("all-athletes-data", "max");
+    revalidateTag("live-stats", "max");
+    revalidateTag("stats", "max");
     revalidateTag("athletes-page", "max");
     revalidateTag("athlete-by-id", "max");
     revalidateTag(`athlete-${id}`, "max");
@@ -956,6 +964,7 @@ export async function deleteAthlete(id: string) {
     revalidateTag("homepage", "max");
     revalidateTag("top-20-athletes", "max");
     revalidateTag("top-5-athletes", "max");
+    revalidateTag("country-stats", "max");
 
     if (athlete.rank === 1) {
       revalidateTag("champions-data", "max");
@@ -1109,11 +1118,11 @@ export async function updateAthleteRanks(
     // Revalidate cache tags
     revalidateTag("all-athletes", "max");
     revalidateTag("all-athletes-data", "max");
+    revalidateTag("live-stats", "max");
     revalidateTag("athletes-page", "max");
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
     revalidateTag("athletes", "max");
-    revalidateTag("paginated-athletes", "max"); // Critical for dashboard data table
     revalidateTag("homepage", "max");
     revalidateTag("top-20-athletes", "max");
     revalidateTag("top-5-athletes", "max");
@@ -1135,7 +1144,6 @@ export async function updateAthleteRanks(
     // Revalidate paths
     revalidatePath("/", "page"); // Homepage - critical for P4P rankings display
     revalidatePath("/athletes", "page");
-    revalidatePath("/dashboard/athletes", "page");
     revalidatePath("/retired", "page");
     revalidatePath("/rankings/divisions", "page"); // Revalidate division rankings page
 

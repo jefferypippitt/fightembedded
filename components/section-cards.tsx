@@ -24,7 +24,6 @@ interface SectionCardsProps {
 }
 
 export async function SectionCards({ stats }: SectionCardsProps) {
-  "use cache";
   const nextEvent = stats.upcomingEvents[0];
 
   // Calculate stats

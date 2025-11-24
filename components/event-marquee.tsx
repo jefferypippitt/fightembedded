@@ -22,6 +22,15 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
     );
   }
 
+  // Duplicate events to fill the marquee without empty space
+  // The Marquee component duplicates children internally, so we need enough items
+  // to create a seamless loop. Aim for at least 8-10 items total.
+  const minItems = 10;
+  const duplicationsNeeded = Math.max(1, Math.ceil(minItems / events.length));
+  const duplicatedEvents = Array(duplicationsNeeded)
+    .fill(null)
+    .flatMap(() => events);
+
   return (
     <section className="space-y-4">
       <div className="flex justify-center">
@@ -30,12 +39,12 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
       <div className="w-full max-w-[1200px] mx-auto px-4">
         <Marquee
           pauseOnHover
-          className="[--duration:40s] [--gap:1rem] cursor-pointer"
+          className="[--duration:80s] [--gap:1rem] cursor-pointer"
         >
-          {events.map((event) => (
+          {duplicatedEvents.map((event, index) => (
             <div
-              key={event.id}
-              className="px-2 cursor-pointer [&>*]:data-[slot=card]:from-primary/5 [&>*]:data-[slot=card]:to-card dark:[&>*]:data-[slot=card]:bg-card [&>*]:data-[slot=card]:bg-gradient-to-t [&>*]:data-[slot=card]:shadow-xs"
+              key={`${event.id}-${index}`}
+              className="px-2 cursor-pointer [&>*]:data-[slot=card]:bg-card [&>*]:data-[slot=card]:shadow-xs"
             >
               <EventCard {...event} />
             </div>

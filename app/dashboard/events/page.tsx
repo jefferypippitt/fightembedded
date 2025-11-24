@@ -1,8 +1,7 @@
-import { SiteHeader } from "@/components/site-header";
 import { EventsDataTable } from "./events-data-table";
 import { getPaginatedEvents } from "@/server/actions/get-paginated-events";
+
 export default async function EventsPage() {
-  "use cache";
   const initialData = await getPaginatedEvents({
     page: 1,
     pageSize: 10,
@@ -13,8 +12,7 @@ export default async function EventsPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
-      <SiteHeader title="Events" />
+    <div className="flex flex-col gap-6 py-4">
       <EventsDataTable initialData={initialData} />
     </div>
   );

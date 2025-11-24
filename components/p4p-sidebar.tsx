@@ -44,7 +44,7 @@ const FighterCard = memo(function FighterCard({
     <li>
       <PrefetchLink
         href={href}
-        className="relative block h-16 overflow-hidden rounded-sm border bg-gradient-to-bl from-primary/5 to-card transition-all duration-300 shadow-xs group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 dark:bg-card"
+        className="relative block h-16 overflow-hidden rounded-sm border bg-card transition-all duration-300 shadow-xs group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
       >
         <div className="relative flex h-full items-center gap-2 p-2">
           <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>

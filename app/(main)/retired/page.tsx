@@ -1,6 +1,10 @@
 import { getRetiredAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
-import { AthletesList } from "@/components/athletes-list";
+import { Suspense } from "react";
+import {
+  AthletesSearchContainer,
+  AthletesSearchInput,
+} from "@/components/athletes-search";
 
 export const metadata: Metadata = {
   title: "Retired Athletes",
@@ -20,22 +24,64 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RetiredPage() {
-  "use cache";
+function RetiredSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="space-y-4">
+        <div className="h-10 w-48 animate-pulse rounded-md bg-muted" />
+        <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function RetiredContent() {
   const athletes = await getRetiredAthletes();
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-center mb-6">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white capitalize tracking-tight">
-          Retired Athletes
-        </h1>
+    <div className="space-y-8">
+      <div className="w-full sm:max-w-xs lg:max-w-sm">
+        <AthletesSearchInput
+          className="w-full"
+          athletes={athletes}
+          placeholder="Search retired athletes..."
+        />
       </div>
-      <AthletesList
-        athletes={athletes}
-        emptyMessage="No retired athletes found."
-        disableCursor={true}
-      />
+      <AthletesSearchContainer athletes={athletes} />
     </div>
+  );
+}
+
+export default async function RetiredPage() {
+  return (
+    <section className="container space-y-10 py-6">
+      <header className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Retired Athletes
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+              Retired Athletes
+            </h1>
+          </div>
+          <p className="text-balance text-sm text-muted-foreground sm:text-base">
+            Explore the career records, statistics, and profiles of every
+            athlete who has retired from active competition in the UFC.
+          </p>
+        </div>
+      </header>
+      <Suspense fallback={<RetiredSkeleton />}>
+        <RetiredContent />
+      </Suspense>
+    </section>
   );
 }

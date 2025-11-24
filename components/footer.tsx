@@ -1,8 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Twitter } from "lucide-react";
 
-export default async function Footer() {
-  "use cache";
+export default function Footer() {
   return (
     <footer>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">

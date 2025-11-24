@@ -12,11 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AthletesPage() {
-  "use cache";
   const athletes = await getAthletes();
 
   return (
-    <section className="container space-y-10 py-10">
+    <section className="container space-y-10 py-6">
       <header className="space-y-4">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide">

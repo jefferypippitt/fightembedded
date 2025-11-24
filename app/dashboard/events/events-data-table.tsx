@@ -62,7 +62,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
-import { LoadingSpinner } from "@/components/loading-spinner";
 
 // Helper component for the actions cell
 const ActionsCell = ({
@@ -142,19 +141,6 @@ interface EventsDataTableProps {
 }
 
 export function EventsDataTable({ initialData }: EventsDataTableProps) {
-  const [isClient, setIsClient] = React.useState(false);
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner size="lg" text="Loading events..." />
-      </div>
-    );
-  }
-
   return <EventsDataTableClient initialData={initialData} />;
 }
 
@@ -237,10 +223,8 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
       const result = await deleteEvent(eventId);
       if (result.status === "success") {
         toast.success("Event deleted successfully");
-        // Force immediate refresh for live environment
+        await refreshData();
         router.refresh();
-        // Also reload to ensure all data is fresh
-        window.location.reload();
       } else {
         toast.error(result.message || "Failed to delete event");
       }

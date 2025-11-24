@@ -61,8 +61,6 @@ export function AthleteAvatar({
             sizes={`(max-width: 768px) ${imageSize.mobile}px, ${imageSize.desktop}px`}
             unoptimized={true}
           />
-          {/* Vignette effect on flag */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,rgba(0,0,0,0.35)_100%)]" />
         </div>
       )}
 

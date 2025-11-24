@@ -92,7 +92,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs";
 import { Switch } from "@/components/ui/switch";
-import { LoadingSpinner } from "@/components/loading-spinner";
 
 // Drag Handle Component
 const DragHandle = ({
@@ -210,30 +209,13 @@ const DraggableRow = ({
 };
 
 // Helper component for the actions cell
-const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
-  const router = useRouter();
-
-  const handleDelete = async () => {
-    try {
-      const success = await deleteAthlete(athlete.id);
-      if (success) {
-        toast.success("Athlete deleted successfully");
-        // Force immediate refresh for live environment
-        router.refresh();
-        // Also reload to ensure all data is fresh
-        window.location.reload();
-      } else {
-        toast.error("Failed to delete athlete");
-      }
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? `Error: ${error.message}`
-          : "An unexpected error occurred. Please try again."
-      );
-    }
-  };
-
+const ActionsCell = ({
+  athlete,
+  onDelete,
+}: {
+  athlete: Athlete;
+  onDelete: () => void;
+}) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -251,7 +233,7 @@ const ActionsCell = ({ athlete }: { athlete: Athlete }) => {
           <Link href={`/dashboard/athletes/${athlete.id}/edit`}>Edit</Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+        <DropdownMenuItem onClick={onDelete} className="text-red-600">
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -800,7 +782,9 @@ const createColumns = (): ColumnDef<Athlete>[] => [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ActionsCell athlete={row.original} />,
+    cell: ({ row }) => (
+      <ActionsCell athlete={row.original} onDelete={() => {}} />
+    ),
   },
 ];
 
@@ -812,20 +796,6 @@ interface AthletesDataTableProps {
 }
 
 export function AthletesDataTable({ initialData }: AthletesDataTableProps) {
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner size="lg" text="Loading athletes..." />
-      </div>
-    );
-  }
-
   return <AthletesDataTableClient initialData={initialData} />;
 }
 
@@ -1099,7 +1069,84 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
     prevFiltersRef.current = currentFilters;
   }, [q, view, gender, division, columnFilters, isReorderMode]);
 
-  const columns = createColumns();
+  // Add a refresh function to force fresh data
+  const refreshData = React.useCallback(async () => {
+    try {
+      // Transform column filters to the expected format
+      const transformedFilters = columnFilters.map((filter) => ({
+        id: filter.id,
+        value: (() => {
+          if (Array.isArray(filter.value)) {
+            return filter.value.filter(
+              (v): v is string => typeof v === "string"
+            );
+          }
+          if (typeof filter.value === "string") {
+            return [filter.value];
+          }
+          return [];
+        })(),
+      }));
+
+      const { athletes, total } = await getPaginatedAthletes({
+        page,
+        pageSize: size,
+        q,
+        view,
+        gender,
+        sort: sort,
+        columnFilters: transformedFilters,
+      });
+
+      setData({ athletes, total });
+
+      // Update original athletes whenever data changes (for reorder mode)
+      if (athletes.length > 0) {
+        setOriginalAthletes([...athletes]);
+      }
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("Failed to refresh data");
+    }
+  }, [page, size, q, view, gender, sort, columnFilters]);
+
+  // Handle delete athlete
+  const handleDeleteAthlete = React.useCallback(
+    async (athleteId: string) => {
+      try {
+        await deleteAthlete(athleteId);
+        toast.success("Athlete deleted successfully");
+        await refreshData();
+        router.refresh();
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? `Error: ${error.message}`
+            : "An unexpected error occurred. Please try again."
+        );
+      }
+    },
+    [refreshData, router]
+  );
+
+  const columns = React.useMemo(
+    () =>
+      createColumns().map((col) => {
+        if (col.id === "actions") {
+          return {
+            ...col,
+            cell: ({ row }: { row: Row<Athlete> }) => (
+              <ActionsCell
+                athlete={row.original}
+                onDelete={() => handleDeleteAthlete(row.original.id)}
+              />
+            ),
+          };
+        }
+        return col;
+      }),
+    [handleDeleteAthlete]
+  );
 
   const table = useReactTable({
     data: data.athletes,
@@ -1231,47 +1278,6 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
     setData((prev) => ({ ...prev, athletes: originalAthletes }));
     setShowExitDialog(false);
   };
-
-  // Add a refresh function to force fresh data
-  const refreshData = React.useCallback(async () => {
-    try {
-      // Transform column filters to the expected format
-      const transformedFilters = columnFilters.map((filter) => ({
-        id: filter.id,
-        value: (() => {
-          if (Array.isArray(filter.value)) {
-            return filter.value.filter(
-              (v): v is string => typeof v === "string"
-            );
-          }
-          if (typeof filter.value === "string") {
-            return [filter.value];
-          }
-          return [];
-        })(),
-      }));
-
-      const { athletes, total } = await getPaginatedAthletes({
-        page,
-        pageSize: size,
-        q,
-        view,
-        gender,
-        sort: sort,
-        columnFilters: transformedFilters,
-      });
-
-      setData({ athletes, total });
-
-      // Update original athletes whenever data changes (for reorder mode)
-      if (athletes.length > 0) {
-        setOriginalAthletes([...athletes]);
-      }
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-      toast.error("Failed to refresh data");
-    }
-  }, [page, size, q, view, gender, sort, columnFilters]);
 
   // Save all changes
   const saveAllChanges = async () => {
