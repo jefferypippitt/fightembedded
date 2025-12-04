@@ -55,7 +55,7 @@ const FighterCard = memo(function FighterCard({
             priority={isPriority}
           />
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="mb-1 text-xs font-medium line-clamp-1">
+            <p className="mb-1 text-xs font-medium">
               {fighter.name}
             </p>
             <div className="flex items-center gap-0.5 text-[10px]">

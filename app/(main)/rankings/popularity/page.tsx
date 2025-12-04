@@ -27,16 +27,21 @@ export default async function DivisionRankingsPage() {
   }));
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-center">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-          Top 20 Athletes by Popularity
-        </h1>
-      </div>
+    <section className="container space-y-6 pt-4 pb-6">
+      <header className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
+            Popularity Rankings
+          </p>
+          <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+            Top 20 Athletes by Popularity
+          </h1>
+        </div>
+      </header>
       <FighterPopularityChart
         maleAthletes={maleChartData}
         femaleAthletes={femaleChartData}
       />
-    </div>
+    </section>
   );
 }

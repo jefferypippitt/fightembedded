@@ -10,6 +10,7 @@ const eventSelect = {
   venue: true,
   location: true,
   mainEvent: true,
+  coMainEvent: true,
   status: true,
   createdAt: true,
   updatedAt: true,
@@ -33,6 +34,7 @@ export async function getPaginatedEvents(params: {
       { venue: { contains: q, mode: "insensitive" } },
       { location: { contains: q, mode: "insensitive" } },
       { mainEvent: { contains: q, mode: "insensitive" } },
+      { coMainEvent: { contains: q, mode: "insensitive" } },
     ];
   }
 
@@ -71,6 +73,9 @@ export async function getPaginatedEvents(params: {
       break;
     case "mainEvent":
       orderBy = { mainEvent: sortOrder as "asc" | "desc" };
+      break;
+    case "coMainEvent":
+      orderBy = { coMainEvent: sortOrder as "asc" | "desc" };
       break;
     case "status":
       orderBy = { status: sortOrder as "asc" | "desc" };

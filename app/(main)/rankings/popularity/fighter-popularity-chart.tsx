@@ -69,10 +69,10 @@ export function FighterPopularityChart({
     <Card className="@container/card h-full relative overflow-hidden py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-          <CardTitle className="text-base sm:text-2xl font-bold">
+          <CardTitle>
             Total Social Media Followers
           </CardTitle>
-          <CardDescription className="text-xs text-muted-foreground">
+          <CardDescription>
             From X and Instagram
           </CardDescription>
         </div>

@@ -5,7 +5,6 @@ import {
   AthletesSearchContainer,
   AthletesSearchInput,
 } from "@/components/athletes-search";
-import { Badge } from "@/components/ui/badge";
 import {
   getAllDivisions,
   getDivisionBySlug,
@@ -99,21 +98,18 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
   );
 
   return (
-    <section className="container space-y-10 py-6">
+    <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Division Overview
+            Division Overview{divisionInfo.weight && (
+              <span className="text-muted-foreground"> - {divisionInfo.weight} lbs</span>
+            )}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
               {fullName}
             </h1>
-            {divisionInfo.weight && (
-              <Badge variant="outline" className="font-mono">
-                {divisionInfo.weight} lbs
-              </Badge>
-            )}
           </div>
           <p className="text-balance text-sm text-muted-foreground sm:text-base">
             Explore the rankings, records, and profiles of every athlete

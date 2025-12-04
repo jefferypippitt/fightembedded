@@ -351,6 +351,28 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
       },
     },
     {
+      accessorKey: "coMainEvent",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Co-Main Event
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("coMainEvent") as string | null;
+        return <span>{value || "-"}</span>;
+      },
+      filterFn: (row, id, filterValue: string) => {
+        const value = row.original.coMainEvent || "";
+        return value.toLowerCase().includes(filterValue.toLowerCase());
+      },
+    },
+    {
       accessorKey: "status",
       header: ({ column }) => {
         return (
@@ -654,7 +676,7 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
       >
         <div className="flex items-center gap-4 py-4">
           <Input
-            placeholder="Filter by name, venue, location, or main event..."
+            placeholder="Filter by name, venue, location, main event, or co-main event..."
             value={q}
             onChange={(event) => {
               setQ(event.target.value || null);

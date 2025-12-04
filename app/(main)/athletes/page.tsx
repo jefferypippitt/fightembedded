@@ -15,8 +15,8 @@ export default async function AthletesPage() {
   const athletes = await getAthletes();
 
   return (
-    <section className="container space-y-10 py-6">
-      <header className="space-y-4">
+    <section className="container space-y-6 pt-4 pb-6">
+      <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide">
             Athlete Directory

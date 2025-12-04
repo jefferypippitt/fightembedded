@@ -5,12 +5,10 @@ import { getLiveStats } from "@/server/actions/get-stats";
 import { Badge } from "@/components/ui/badge";
 import { Dot } from "lucide-react";
 import { ShinyButton } from "./magicui/shiny-button";
-import { IconTrendingUp } from "@tabler/icons-react";
 
 interface StatItem {
   value: number;
   label: string;
-  icon?: React.ReactNode;
 }
 
 interface Stats {
@@ -24,25 +22,22 @@ const createStatsData = (stats: Stats): StatItem[] => [
   {
     value: stats.totalAthletes,
     label: "Total Athletes",
-    icon: <IconTrendingUp className="h-4 w-4 text-green-500" />,
   },
   {
     value: stats.totalEvents,
     label: "Total Events",
-    icon: <IconTrendingUp className="h-4 w-4 text-green-500" />,
   },
 ];
 
 const StatCard = ({ stat }: { stat: StatItem }) => (
   <div className="text-center">
-    <div className="flex items-center justify-center space-x-1 xs:space-x-2">
+    <div className="flex items-center justify-center">
       <NumberTicker
         value={stat.value}
         className="text-lg xs:text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100"
       />
-      {stat.icon && stat.icon}
     </div>
-    <span className="text-sm xs:text-sm font-medium text-muted-foreground">
+    <span className="text-sm xs:text-sm font-medium text-primary">
       {stat.label}
     </span>
   </div>
@@ -51,10 +46,10 @@ const StatCard = ({ stat }: { stat: StatItem }) => (
 const HeroContent = () => (
   <div className="flex flex-col items-start text-left space-y-3 md:space-y-4 w-full lg:flex-1">
     <div className="space-y-1 w-full">
-      <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-gray-800 dark:text-gray-100 text-balance">
+      <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white text-balance">
         Your Ultimate Source For
       </h1>
-      <h1 className="text-2xl xs:text-3xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
+      <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
         UFC Athletes & Events
       </h1>
     </div>
@@ -91,7 +86,7 @@ export default async function HeroSection() {
   const statsData = createStatsData(stats);
 
   return (
-    <section>
+    <section className="py-2 sm:py-4">
       <div className="flex flex-row items-center justify-between gap-4 md:gap-6 lg:gap-8">
         <HeroContent />
         <div className="w-auto flex flex-col items-center">

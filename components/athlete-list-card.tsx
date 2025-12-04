@@ -131,9 +131,10 @@ function AthleteListCardComponent({
         "@container/card h-full relative overflow-hidden group flex flex-col",
         "border-border/40 dark:border-border/40",
         "bg-transparent",
-        "shadow-sm hover:shadow-md",
+        "shadow-sm",
+        !disableCursor && "hover:shadow-md",
         "transition-shadow duration-200",
-        "hover:border-primary/20 dark:hover:border-primary/20",
+        !disableCursor && "hover:border-primary/20 dark:hover:border-primary/20",
         "p-2 sm:p-3",
         !disableCursor && "cursor-pointer",
         isSelected && "ring-1 ring-primary/60"

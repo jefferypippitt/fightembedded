@@ -54,6 +54,7 @@ export function EventForm({ initialData }: EventFormProps) {
         venue: initialData.venue,
         location: initialData.location,
         mainEvent: initialData.mainEvent,
+        coMainEvent: initialData.coMainEvent || "",
         status: initialData.status || "UPCOMING",
       }
     : {
@@ -62,6 +63,7 @@ export function EventForm({ initialData }: EventFormProps) {
         venue: "",
         location: "",
         mainEvent: "",
+        coMainEvent: "",
         status: "UPCOMING",
       };
 
@@ -204,6 +206,24 @@ export function EventForm({ initialData }: EventFormProps) {
                     <FieldLabel htmlFor="mainEvent">Main Event</FieldLabel>
                     <Input
                       id="mainEvent"
+                      placeholder="Fighter 1 vs Fighter 2"
+                      {...field}
+                    />
+                    {fieldState.error && (
+                      <FieldError>{fieldState.error.message}</FieldError>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="coMainEvent"
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="coMainEvent">Co-Main Event</FieldLabel>
+                    <Input
+                      id="coMainEvent"
                       placeholder="Fighter 1 vs Fighter 2"
                       {...field}
                     />

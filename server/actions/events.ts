@@ -30,6 +30,7 @@ export async function createEvent(formData: FormData) {
       venue: String(rawData.venue),
       location: String(rawData.location),
       mainEvent: String(rawData.mainEvent),
+      coMainEvent: rawData.coMainEvent ? String(rawData.coMainEvent) : undefined,
       status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
     };
 
@@ -68,6 +69,7 @@ export async function updateEvent(id: string, formData: FormData) {
       venue: String(rawData.venue),
       location: String(rawData.location),
       mainEvent: String(rawData.mainEvent),
+      coMainEvent: rawData.coMainEvent ? String(rawData.coMainEvent) : undefined,
       status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
     };
 
@@ -158,6 +160,7 @@ export async function getLiveUpcomingEvents() {
         venue: true,
         location: true,
         mainEvent: true,
+        coMainEvent: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -193,6 +196,7 @@ export async function getUpcomingEvents() {
         venue: true,
         location: true,
         mainEvent: true,
+        coMainEvent: true,
         status: true,
         createdAt: true,
         updatedAt: true,

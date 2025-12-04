@@ -62,11 +62,11 @@ async function RetiredContent() {
 
 export default async function RetiredPage() {
   return (
-    <section className="container space-y-10 py-6">
+    <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Retired Athletes
+            Retired Directory
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
             <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
@@ -74,8 +74,7 @@ export default async function RetiredPage() {
             </h1>
           </div>
           <p className="text-balance text-sm text-muted-foreground sm:text-base">
-            Explore the career records, statistics, and profiles of every
-            athlete who has retired from active competition in the UFC.
+            Explore the career records, statistics, and profiles of retired UFC athletes.
           </p>
         </div>
       </header>
