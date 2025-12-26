@@ -12,7 +12,7 @@ export function P4PRankings({
       .filter((fighter) => fighter.poundForPoundRank !== undefined)
       .map((fighter) => ({
         ...fighter,
-        imageUrl: fighter.imageUrl || "/images/default-avatar.svg",
+        imageUrl: fighter.imageUrl || "/placeholder/SILHOUETTE.avif",
         draws: fighter.draws ?? 0,
         poundForPoundRank: fighter.poundForPoundRank!,
       }));

@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { athleteSchema } from "@/schemas/athlete";
 
+// Form input type (from Zod schema)
 export type AthleteInput = z.infer<typeof athleteSchema>;
+
+// Form data type (includes id for edit mode)
+export type AthleteFormData = AthleteInput & { id: string };
 
 export type ActionResponse = {
   status: "success" | "error";

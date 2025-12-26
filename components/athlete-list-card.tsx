@@ -1,10 +1,16 @@
+"use client";
+
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { getCountryCode } from "@/lib/country-codes";
-import { memo } from "react";
+import { memo, useState, useCallback } from "react";
 import Image from "next/image";
+
+// Minimal placeholder for instant initial render
+const PLACEHOLDER_BLUR =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTFhIi8+PC9zdmc+";
 
 export interface AthleteListCardProps {
   id?: string;
@@ -116,14 +122,22 @@ function AthleteListCardComponent({
   priority = false,
   disableCursor = false,
 }: AthleteListCardProps) {
+  // Track image loading states for synchronized reveal
+  const [flagLoaded, setFlagLoaded] = useState(false);
+  const [athleteLoaded, setAthleteLoaded] = useState(false);
+
+  // Both images must load before revealing (or no flag means just athlete)
+  const countryCode = getCountryCode(country);
+  const imagesReady = countryCode ? flagLoaded && athleteLoaded : athleteLoaded;
+
+  const handleFlagLoad = useCallback(() => setFlagLoaded(true), []);
+  const handleAthleteLoad = useCallback(() => setAthleteLoaded(true), []);
+
   // Calculate stats
   const totalFights = wins + losses + draws;
   const winRate = totalFights > 0 ? (wins / totalFights) * 100 : 0;
   const koRate = wins > 0 ? (winsByKo / wins) * 100 : 0;
   const submissionRate = wins > 0 ? (winsBySubmission / wins) * 100 : 0;
-
-  // Get country code for flag
-  const countryCode = getCountryCode(country);
 
   return (
     <Card
@@ -166,35 +180,51 @@ function AthleteListCardComponent({
         {/* Border line that extends across full card width */}
         <div className="border-b border-border/40 -mx-2 sm:-mx-3 mb-3"></div>
 
-        {/* Banner with Flag Background and Athlete Image */}
+        {/* Banner with Flag Background and Athlete Image - Synchronized reveal */}
         <div className="relative h-14 w-full mb-3 overflow-hidden rounded-sm bg-muted/20">
+          {/* Placeholder skeleton while loading */}
+          <div
+            className={cn(
+              "absolute inset-0 bg-muted/40 transition-opacity duration-300",
+              imagesReady ? "opacity-0" : "opacity-100"
+            )}
+          />
+
           {/* Flag Background */}
           {countryCode && (
-            <>
-              <Image
-                src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
-                alt={`${country} flag`}
-                fill
-                className="object-cover opacity-80"
-                priority={priority}
-                quality={75}
-                sizes="(max-width: 640px) 280px, 320px"
-                unoptimized
-              />
-            </>
+            <Image
+              src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
+              alt={`${country} flag`}
+              fill
+              className={cn(
+                "object-cover transition-opacity duration-300",
+                imagesReady ? "opacity-80" : "opacity-0"
+              )}
+              priority={priority}
+              quality={90}
+              sizes="(max-width: 640px) 800px, (max-width: 1024px) 640px, 682px"
+              unoptimized
+              onLoad={handleFlagLoad}
+            />
           )}
 
           {/* Centered Athlete Image */}
           <div className="absolute inset-0 flex items-center justify-center z-10">
-            <div className="relative size-20 overflow-hidden rounded-md brightness-100">
+            <div className="relative size-20 overflow-hidden rounded-md">
               <Image
                 src={imageUrl || "/placeholder/SILHOUETTE.avif"}
                 alt={imageUrl ? name : "Athlete placeholder"}
                 fill
-                className="object-cover object-top brightness-100"
+                className={cn(
+                  "object-cover object-top transition-opacity duration-300",
+                  imagesReady ? "opacity-100" : "opacity-0"
+                )}
                 priority={priority}
-                quality={85}
-                sizes="80px"
+                quality={90}
+                sizes="160px"
+                placeholder="blur"
+                blurDataURL={PLACEHOLDER_BLUR}
+                onLoad={handleAthleteLoad}
               />
             </div>
           </div>

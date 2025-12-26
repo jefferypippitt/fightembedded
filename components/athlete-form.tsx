@@ -60,9 +60,10 @@ import { ControllerRenderProps } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { createAthlete } from "@/server/actions/athlete";
 import { updateAthlete } from "@/server/actions/athlete";
+import { Athlete } from "@/types/athlete";
 
 type AthleteFormProps = {
-  initialData?: z.infer<typeof athleteSchema> & { id: string };
+  initialData?: Athlete;
 };
 
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
@@ -161,40 +162,39 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
   const form = useForm<FormValues>({
     defaultValues: initialData
       ? {
-          ...initialData,
-          winsByKo: initialData.winsByKo ?? 0,
-          winsBySubmission: initialData.winsBySubmission ?? 0,
-          name: initialData.name || "",
-          gender: initialData.gender || undefined,
-          age: initialData.age || 0,
-          country: initialData.country || "",
-          weightDivision: initialData.weightDivision || "",
-          wins: initialData.wins || 0,
-          losses: initialData.losses || 0,
-          draws: initialData.draws || 0,
-          followers: initialData.followers || 0,
-          rank: initialData.rank || 0,
-          poundForPoundRank: initialData.poundForPoundRank || 0,
-          imageUrl: initialData.imageUrl || "",
-          retired: Boolean(initialData.retired),
-        }
+        name: initialData.name,
+        gender: (initialData.gender as "MALE" | "FEMALE") || undefined,
+        age: initialData.age,
+        country: initialData.country,
+        weightDivision: initialData.weightDivision,
+        wins: initialData.wins,
+        losses: initialData.losses,
+        draws: initialData.draws ?? 0,
+        winsByKo: initialData.winsByKo,
+        winsBySubmission: initialData.winsBySubmission,
+        followers: initialData.followers,
+        rank: initialData.rank ?? undefined,
+        poundForPoundRank: initialData.poundForPoundRank ?? undefined,
+        imageUrl: initialData.imageUrl ?? undefined,
+        retired: initialData.retired ?? false,
+      }
       : {
-          winsByKo: 0,
-          winsBySubmission: 0,
-          name: "",
-          gender: undefined,
-          age: 0,
-          country: "",
-          weightDivision: "",
-          wins: 0,
-          losses: 0,
-          draws: 0,
-          followers: 0,
-          rank: 0,
-          poundForPoundRank: 0,
-          imageUrl: "",
-          retired: false,
-        },
+        winsByKo: 0,
+        winsBySubmission: 0,
+        name: "",
+        gender: undefined,
+        age: 0,
+        country: "",
+        weightDivision: "",
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        followers: 0,
+        rank: 0,
+        poundForPoundRank: 0,
+        imageUrl: "",
+        retired: false,
+      },
     resolver: zodResolver(athleteSchema),
   });
 
@@ -205,24 +205,23 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
   React.useEffect(() => {
     if (initialData) {
       form.reset({
-        ...initialData,
-        winsByKo: initialData.winsByKo ?? 0,
-        winsBySubmission: initialData.winsBySubmission ?? 0,
-        name: initialData.name || "",
-        gender: initialData.gender || undefined,
-        age: initialData.age || 0,
-        country: initialData.country || "",
-        weightDivision: initialData.weightDivision || "",
-        wins: initialData.wins || 0,
-        losses: initialData.losses || 0,
-        draws: initialData.draws || 0,
-        followers: initialData.followers || 0,
-        rank: initialData.rank || 0,
-        poundForPoundRank: initialData.poundForPoundRank || 0,
-        imageUrl: initialData.imageUrl || "",
-        retired: Boolean(initialData.retired),
+        name: initialData.name,
+        gender: (initialData.gender as "MALE" | "FEMALE") || undefined,
+        age: initialData.age,
+        country: initialData.country,
+        weightDivision: initialData.weightDivision,
+        wins: initialData.wins,
+        losses: initialData.losses,
+        draws: initialData.draws ?? 0,
+        winsByKo: initialData.winsByKo,
+        winsBySubmission: initialData.winsBySubmission,
+        followers: initialData.followers,
+        rank: initialData.rank ?? undefined,
+        poundForPoundRank: initialData.poundForPoundRank ?? undefined,
+        imageUrl: initialData.imageUrl ?? undefined,
+        retired: initialData.retired ?? false,
       });
-      setImageUrl(initialData.imageUrl || "");
+      setImageUrl(initialData.imageUrl ?? "");
     } else {
       // Ensure form is reset to empty values when initialData is undefined (new form)
       form.reset({
@@ -284,7 +283,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
       } else {
         toast.error(
           result.message ||
-            "Failed to save athlete data. Please check all fields and try again."
+          "Failed to save athlete data. Please check all fields and try again."
         );
       }
     } catch (error) {

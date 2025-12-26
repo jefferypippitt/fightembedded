@@ -30,7 +30,9 @@ export async function createEvent(formData: FormData) {
       venue: String(rawData.venue),
       location: String(rawData.location),
       mainEvent: String(rawData.mainEvent),
-      coMainEvent: rawData.coMainEvent ? String(rawData.coMainEvent) : undefined,
+      coMainEvent: rawData.coMainEvent
+        ? String(rawData.coMainEvent)
+        : undefined,
       status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
     };
 
@@ -69,7 +71,9 @@ export async function updateEvent(id: string, formData: FormData) {
       venue: String(rawData.venue),
       location: String(rawData.location),
       mainEvent: String(rawData.mainEvent),
-      coMainEvent: rawData.coMainEvent ? String(rawData.coMainEvent) : undefined,
+      coMainEvent: rawData.coMainEvent
+        ? String(rawData.coMainEvent)
+        : undefined,
       status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
     };
 
@@ -86,6 +90,7 @@ export async function updateEvent(id: string, formData: FormData) {
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
     revalidateTag(`event-${id}`, "max");
+    revalidateTag(`event-edit-${id}`, "max"); // Invalidate edit cache
 
     // Revalidate public pages
     revalidatePath("/events", "page");
@@ -129,6 +134,17 @@ export async function getEvent(id: string) {
   cacheTag("event-by-id");
   cacheTag(`event-${id}`);
 
+  try {
+    const event = await prisma.event.findUnique({ where: { id } });
+    return event;
+  } catch (error) {
+    console.error(`Failed to fetch event ${id}:`, error);
+    return null;
+  }
+}
+
+// Get single event by ID (for edit pages - always fresh data, no caching)
+export async function getEventForEdit(id: string) {
   try {
     const event = await prisma.event.findUnique({ where: { id } });
     return event;

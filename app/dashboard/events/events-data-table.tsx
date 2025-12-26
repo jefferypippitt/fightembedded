@@ -396,10 +396,10 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
           status === "UPCOMING"
             ? "bg-green-500 dark:bg-green-400"
             : status === "COMPLETED"
-            ? "bg-blue-500 dark:bg-blue-400"
-            : status === "CANCELLED"
-            ? "bg-red-500 dark:bg-red-400"
-            : "bg-gray-500 dark:bg-gray-400";
+              ? "bg-blue-500 dark:bg-blue-400"
+              : status === "CANCELLED"
+                ? "bg-red-500 dark:bg-red-400"
+                : "bg-gray-500 dark:bg-gray-400";
         return (
           <Badge variant="outline" className="text-muted-foreground px-1.5">
             <span className="relative flex items-center gap-1.5">
@@ -682,7 +682,7 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
               setQ(event.target.value || null);
               setPage(1); // Reset to first page when searching
             }}
-            className="max-w-sm"
+            className="max-w-lg"
           />
         </div>
 
@@ -696,9 +696,9 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>

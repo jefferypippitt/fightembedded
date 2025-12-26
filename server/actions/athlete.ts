@@ -22,13 +22,26 @@ async function checkAuth() {
   return session;
 }
 
-// Get single athlete by ID
+// Get single athlete by ID (cached for public pages)
 export async function getAthlete(id: string): Promise<Athlete | null> {
   "use cache";
   cacheLife("hours");
   cacheTag("athlete-by-id");
   cacheTag(`athlete-${id}`);
 
+  try {
+    const athlete = await prisma.athlete.findUnique({
+      where: { id },
+    });
+    return athlete;
+  } catch (error) {
+    console.error("Error fetching athlete:", error);
+    throw new Error("Failed to fetch athlete");
+  }
+}
+
+// Get single athlete by ID (for edit pages - always fresh data, no caching)
+export async function getAthleteForEdit(id: string): Promise<Athlete | null> {
   try {
     const athlete = await prisma.athlete.findUnique({
       where: { id },
@@ -752,6 +765,7 @@ export async function updateAthlete(
     revalidateTag("live-stats", "max");
     revalidateTag("stats", "max");
     revalidateTag(`athlete-${id}`, "max");
+    revalidateTag(`athlete-edit-${id}`, "max"); // Invalidate edit cache
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
     revalidateTag("top-20-athletes", "max");

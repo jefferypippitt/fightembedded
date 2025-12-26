@@ -48,11 +48,11 @@ const nextConfig: NextConfig = {
     // Images are invalidated when athlete-images cache tag is revalidated
     minimumCacheTTL: 31536000, // 1 year cache
     // Reduce device sizes to minimize transformations
-    deviceSizes: [640, 1080],
+    deviceSizes: [640, 960, 1080],
     // Reduce image sizes to minimize transformations
-    imageSizes: [64, 128],
+    imageSizes: [48, 64, 96, 112, 128, 160, 224],
     // Quality settings for image optimization
-    qualities: [75, 85],
+    qualities: [75, 85, 90],
     // Enable static optimization for better caching
     unoptimized: false,
     // Enable SVG optimization but be conservative
