@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { Event } from "@/types/event";
 import { deleteEvent } from "@/server/actions/events";
 import { getPaginatedEvents } from "@/server/actions/get-paginated-events";
+import { usePaginatedData } from "@/lib/swr";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -158,12 +159,6 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
     parseAsString.withDefault("date.desc")
   );
 
-  // Initialize with server-provided data to prevent flash of "no events found"
-  const [data, setData] = React.useState<{
-    events: Event[];
-    total: number;
-  }>(initialData || { events: [], total: 0 });
-
   const [sorting, setSorting] = React.useState<SortingState>([
     {
       id: "date",
@@ -176,46 +171,46 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  // Add a refresh function to force fresh data
-  const refreshData = React.useCallback(async () => {
-    try {
-      // Transform column filters to the expected format
-      const transformedFilters = columnFilters.map((filter) => ({
-        id: filter.id,
-        value: (() => {
-          if (Array.isArray(filter.value)) {
-            return filter.value.filter(
-              (v): v is string => typeof v === "string"
-            );
-          }
-          if (typeof filter.value === "string") {
-            return [filter.value];
-          }
-          return [];
-        })(),
-      }));
+  // Transform column filters to the expected format (memoized)
+  const transformedFilters = React.useMemo(() => {
+    return columnFilters.map((filter) => ({
+      id: filter.id,
+      value: (() => {
+        if (Array.isArray(filter.value)) {
+          return filter.value.filter(
+            (v): v is string => typeof v === "string"
+          );
+        }
+        if (typeof filter.value === "string") {
+          return [filter.value];
+        }
+        return [];
+      })(),
+    }));
+  }, [columnFilters]);
 
-      const { events, total } = await getPaginatedEvents({
-        page,
-        pageSize: size,
-        q,
-        view,
-        sort: sort,
-        columnFilters: transformedFilters,
-      });
-
-      setData({ events, total });
-    } catch (error) {
-      console.error("Error refreshing data:", error);
-      toast.error("Failed to refresh data");
+  // Use SWR for data fetching with automatic deduplication and caching
+  const { data, isLoading, error, mutate } = usePaginatedData(
+    getPaginatedEvents,
+    {
+      page,
+      pageSize: size,
+      q,
+      view,
+      sort,
+      columnFilters: transformedFilters,
+    },
+    {
+      // Use initial data on first render to prevent flash
+      fallbackData: initialData,
     }
-  }, [page, size, q, view, sort, columnFilters]);
+  );
 
-  // Add refresh button to the UI
-  const handleRefresh = () => {
-    refreshData();
-    toast.success("Data refreshed");
-  };
+  // Use data from SWR (falls back to initialData) - type assertion for events
+  const currentData: { events: Event[]; total: number } =
+    (data && 'events' in data)
+      ? data as { events: Event[]; total: number }
+      : initialData || { events: [], total: 0 };
 
   // Handle delete event
   const handleDeleteEvent = async (eventId: string) => {
@@ -223,7 +218,8 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
       const result = await deleteEvent(eventId);
       if (result.status === "success") {
         toast.success("Event deleted successfully");
-        await refreshData();
+        // Revalidate SWR cache to show updated data
+        await mutate();
         router.refresh();
       } else {
         toast.error(result.message || "Failed to delete event");
@@ -502,64 +498,13 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
     }
   }, [view, sort, setSort]);
 
-  // Track if we've done the initial mount
-  const isInitialMount = React.useRef(true);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      // Transform column filters to the expected format
-      const transformedFilters = columnFilters.map((filter) => ({
-        id: filter.id,
-        value: (() => {
-          if (Array.isArray(filter.value)) {
-            return filter.value.filter(
-              (v): v is string => typeof v === "string"
-            );
-          }
-          if (typeof filter.value === "string") {
-            return [filter.value];
-          }
-          return [];
-        })(),
-      }));
-
-      // Skip fetch on initial mount if we have initialData and params match
-      if (
-        isInitialMount.current &&
-        initialData &&
-        page === 1 &&
-        size === 10 &&
-        q === "" &&
-        view === "events" &&
-        sort === "date.desc" &&
-        columnFilters.length === 0
-      ) {
-        isInitialMount.current = false;
-        return;
-      }
-
-      isInitialMount.current = false;
-
-      const { events, total } = await getPaginatedEvents({
-        page,
-        pageSize: size,
-        q,
-        view,
-        sort: sort,
-        columnFilters: transformedFilters,
-      });
-      setData({ events, total });
-    };
-
-    fetchData();
-  }, [page, size, q, view, sort, columnFilters, initialData]);
 
   const columns = createColumns();
 
   const table = useReactTable({
-    data: data.events,
+    data: currentData.events,
     columns,
-    pageCount: Math.ceil(data.total / size),
+    pageCount: Math.ceil(currentData.total / size),
     state: {
       sorting,
       columnFilters,
@@ -638,29 +583,6 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
           </SelectContent>
         </Select>
         <div className="flex items-center gap-2">
-          {/* Refresh Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            className="flex items-center gap-2"
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            <span className="hidden lg:inline">Refresh</span>
-          </Button>
-
           <Button variant="default" size="sm" asChild>
             <Link href="/dashboard/events/new">
               <PlusCircle className="h-4 w-4" />

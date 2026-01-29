@@ -1,39 +1,22 @@
 import { Suspense } from "react";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import { DashboardHeader, SiteHeaderSkeleton } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { auth } from "@/lib/auth";
 
 function SidebarUserFooter() {
   return <NavUser />;
 }
 
-async function AuthenticatedContent({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const requestHeaders = await headers();
-  const session = await auth.api.getSession({
-    headers: requestHeaders,
-  });
+  // Authentication is handled by proxy.ts middleware which runs before this layout
+  // No need to check auth here as unauthenticated users are already redirected
 
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  return <>{children}</>;
-}
-
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
   return (
     <SidebarProvider
       style={
@@ -55,9 +38,7 @@ export default function DashboardLayout({
         <Suspense fallback={<SiteHeaderSkeleton />}>
           <DashboardHeader />
         </Suspense>
-        <Suspense fallback={null}>
-          <AuthenticatedContent>{children}</AuthenticatedContent>
-        </Suspense>
+        {children}
       </SidebarInset>
     </SidebarProvider>
   );

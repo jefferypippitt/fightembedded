@@ -1,119 +1,97 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  useInView,
-  useMotionValue,
-  useSpring,
-  useMotionValueEvent,
-  useVelocity,
-  animate,
-} from "framer-motion";
-
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
-export default function NumberTicker({
-  value,
-  direction = "up",
-  delay = 0,
-  className,
-  decimalPlaces = 0,
-}: {
+interface NumberTickerProps {
   value: number;
   direction?: "up" | "down";
+  delay?: number; // in seconds
+  duration?: number; // in seconds
   className?: string;
-  delay?: number; // delay in s
-  decimalPlaces?: number;
-}) {
+}
+
+export function NumberTicker({
+  value,
+  direction = "up", // kept for API compatibility, currently unused
+  delay = 0,
+  duration = 1.5,
+  className,
+}: NumberTickerProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [displayValue, setDisplayValue] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === "down" ? value : 0);
-  const springValue = useSpring(motionValue, {
-    damping: 60,
-    stiffness: 100,
-  });
-  const velocity = useVelocity(springValue);
-  const isInView = useInView(ref, { once: true, margin: "0px" });
-  const blurMotionValue = useMotionValue(0);
-  const previousValue = useRef(0);
-  const lastUpdateTime = useRef<number | null>(null);
 
   useEffect(() => {
-    if (isInView) {
-      setTimeout(() => {
-        motionValue.set(direction === "down" ? 0 : value);
-      }, delay * 1000);
-    }
-  }, [motionValue, isInView, delay, value, direction]);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const timeoutId = window.setTimeout(() => {
+            setIsVisible(true);
+          }, delay * 1000);
 
-  // Track velocity for high-quality motion blur
-  useMotionValueEvent(springValue, "change", (latest) => {
+          return () => {
+            window.clearTimeout(timeoutId);
+          };
+        }
+      },
+      { threshold: 0.1 }
+    );
+
     if (ref.current) {
-      const currentValue = Number(latest.toFixed(decimalPlaces));
-      const now = Date.now();
+      observer.observe(ref.current);
+    }
 
-      // Initialize lastUpdateTime on first call (client-side only)
-      if (lastUpdateTime.current === null) {
-        lastUpdateTime.current = now;
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [delay]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    let animationFrameId: number;
+    let startTime: number | null = null;
+    const startValue = 0;
+    const endValue = value;
+    const totalDurationMs = duration * 1000;
+
+    const animate = (timestamp: number) => {
+      if (startTime === null) {
+        startTime = timestamp;
       }
 
-      const deltaTime = (now - lastUpdateTime.current) / 1000; // Convert to seconds
-      lastUpdateTime.current = now;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / totalDurationMs, 1);
+      const currentValue =
+        startValue + (endValue - startValue) * progress;
 
-      // Calculate actual velocity (change per second)
-      const valueChange = Math.abs(currentValue - previousValue.current);
-      const actualVelocity = deltaTime > 0 ? valueChange / deltaTime : 0;
+      setDisplayValue(Math.floor(currentValue));
 
-      // Calculate blur based on velocity with smooth curve
-      // Use logarithmic scale for more natural motion blur
-      const blur = Math.min(
-        Math.pow(actualVelocity * 0.15, 0.7) * 2.5,
-        4 // Cap at 4px blur for high quality
-      );
+      if (progress < 1) {
+        animationFrameId = window.requestAnimationFrame(animate);
+      }
+    };
 
-      // Smoothly animate blur changes
-      animate(blurMotionValue, blur, {
-        duration: 0.1,
-        ease: "easeOut",
-      });
+    animationFrameId = window.requestAnimationFrame(animate);
 
-      ref.current.textContent = Intl.NumberFormat("en-US", {
-        minimumFractionDigits: decimalPlaces,
-        maximumFractionDigits: decimalPlaces,
-      }).format(currentValue);
-
-      previousValue.current = currentValue;
-    }
-  });
-
-  // Gradually reduce blur when animation slows down
-  useMotionValueEvent(velocity, "change", (latest) => {
-    if (Math.abs(latest) < 0.1) {
-      // Animation is essentially stopped, fade out blur
-      animate(blurMotionValue, 0, {
-        duration: 0.3,
-        ease: "easeOut",
-      });
-    }
-  });
-
-  // Subscribe to blur motion value for rendering
-  const [blurAmount, setBlurAmount] = useState(0);
-  useMotionValueEvent(blurMotionValue, "change", (latest) => {
-    setBlurAmount(latest);
-  });
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [isVisible, value, duration]);
 
   return (
-    <span
-      className={cn(
-        "inline-block tabular-nums text-black dark:text-white tracking-wider",
-        className
-      )}
+    <motion.span
       ref={ref}
-      style={{
-        filter: `blur(${blurAmount}px)`,
-        willChange: "filter",
-        transform: "translateZ(0)", // Enable hardware acceleration
-      }}
-    />
+      className={cn("tabular-nums", className)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.5, delay }}
+    >
+      {displayValue.toLocaleString()}
+    </motion.span>
   );
 }

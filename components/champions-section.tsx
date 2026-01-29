@@ -1,11 +1,10 @@
+import { getLiveChampions } from "@/server/actions/athlete";
 import { AthleteListCard } from "@/components/athlete-list-card";
-import { ChampionsSectionProps } from "@/types/rankings";
 import { sortChampionsByDivision } from "@/lib/utils";
 
-export default function ChampionsSection({
-  maleChampions,
-  femaleChampions,
-}: ChampionsSectionProps) {
+export default async function ChampionsSection() {
+  const { maleChampions, femaleChampions } = await getLiveChampions();
+
   // Sort champions by weight division (heaviest to lightest)
   const sortedMaleChampions = sortChampionsByDivision(maleChampions, "MALE");
   const sortedFemaleChampions = sortChampionsByDivision(
@@ -26,6 +25,7 @@ export default function ChampionsSection({
               name={champion.name}
               weightDivision={champion.weightDivision}
               imageUrl={champion.imageUrl || undefined}
+              updatedAt={champion.updatedAt}
               country={champion.country}
               wins={champion.wins}
               losses={champion.losses}
@@ -55,6 +55,7 @@ export default function ChampionsSection({
               name={champion.name}
               weightDivision={champion.weightDivision}
               imageUrl={champion.imageUrl || undefined}
+              updatedAt={champion.updatedAt}
               country={champion.country}
               wins={champion.wins}
               losses={champion.losses}

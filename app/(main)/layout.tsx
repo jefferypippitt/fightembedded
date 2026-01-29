@@ -1,6 +1,5 @@
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
-import PrefetchRoutes from "@/components/prefetch-routes";
 import { Suspense } from "react";
 
 export default function MainLayout({
@@ -11,9 +10,6 @@ export default function MainLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Suspense fallback={null}>
-        <PrefetchRoutes />
-      </Suspense>
       <main className="flex-1 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           {children}

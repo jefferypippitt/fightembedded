@@ -1,7 +1,7 @@
 import { getLiveUpcomingEvents } from "@/server/actions/events";
 import { EventMarqueeSection } from "@/components/event-marquee";
 
-export default async function EventsSectionWrapper() {
+export default async function EventsSection() {
   try {
     const events = await getLiveUpcomingEvents();
 
@@ -12,7 +12,7 @@ export default async function EventsSectionWrapper() {
 
     return <EventMarqueeSection events={events} />;
   } catch (error) {
-    console.error("Error in EventsSectionWrapper:", error);
+    console.error("Error in EventsSection:", error);
     // Return null on error to hide the section
     return null;
   }

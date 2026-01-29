@@ -5,6 +5,7 @@ import {
   AthletesSearchContainer,
   AthletesSearchInput,
 } from "@/components/athletes-search";
+import { AthleteImagePreloads } from "@/components/athlete-image-preloads";
 import {
   getAllDivisions,
   getDivisionBySlug,
@@ -72,13 +73,14 @@ async function DivisionContent({ slug }: { slug: string }) {
 
   return (
     <div className="space-y-8">
+      <AthleteImagePreloads athletes={divisionData.athletes} />
       <div className="w-full sm:max-w-xs lg:max-w-sm">
         <AthletesSearchInput
           className="w-full"
           athletes={divisionData.athletes}
         />
       </div>
-      <AthletesSearchContainer athletes={divisionData.athletes} />
+      <AthletesSearchContainer athletes={divisionData.athletes} priorityStrategy="rank-1-8" />
     </div>
   );
 }

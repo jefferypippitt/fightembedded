@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import {
-  IconCalendar,
-  IconCalendarCog,
-  IconLayoutDashboard,
-  IconUserPlus,
-  IconUserShield,
-} from "@tabler/icons-react";
+  Calendar,
+  CalendarCog,
+  LayoutDashboard,
+  UserPlus,
+  UserCog,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavManagement } from "./nav-management";
@@ -28,29 +28,29 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: IconLayoutDashboard,
+      icon: LayoutDashboard,
     },
     {
       title: "Create Athlete",
       url: "/dashboard/athletes/new",
-      icon: IconUserPlus,
+      icon: UserPlus,
     },
     {
       title: "Create Event",
       url: "/dashboard/events/new",
-      icon: IconCalendar,
+      icon: Calendar,
     },
   ],
   management: [
     {
       name: "Manage Athletes",
       url: "/dashboard/athletes",
-      icon: IconUserShield,
+      icon: UserCog,
     },
     {
       name: "Manage Events",
       url: "/dashboard/events",
-      icon: IconCalendarCog,
+      icon: CalendarCog,
     },
   ],
 };

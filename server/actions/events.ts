@@ -6,9 +6,11 @@ import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
+import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 
-// Authentication helper
-async function checkAuth() {
+// Authentication helper - wrapped with React.cache() for per-request deduplication
+const checkAuth = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -17,11 +19,27 @@ async function checkAuth() {
     throw new Error("Unauthorized");
   }
   return session;
-}
+});
 
 export async function createEvent(formData: FormData) {
   try {
     await checkAuth();
+    
+    // Rate limiting: 5 creates per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:create-event`, {
+      limit: 5,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
     const rawData = Object.fromEntries(formData.entries());
 
     const data = {
@@ -45,6 +63,7 @@ export async function createEvent(formData: FormData) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
+    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${event.id}`, "max");
 
     // Revalidate public events pages if the new event is upcoming
@@ -63,6 +82,22 @@ export async function createEvent(formData: FormData) {
 export async function updateEvent(id: string, formData: FormData) {
   try {
     await checkAuth();
+    
+    // Rate limiting: 10 updates per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:update-event`, {
+      limit: 10,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
     const rawData = Object.fromEntries(formData.entries());
 
     const data = {
@@ -89,6 +124,7 @@ export async function updateEvent(id: string, formData: FormData) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
+    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${id}`, "max");
     revalidateTag(`event-edit-${id}`, "max"); // Invalidate edit cache
 
@@ -106,6 +142,22 @@ export async function updateEvent(id: string, formData: FormData) {
 export async function deleteEvent(id: string) {
   try {
     await checkAuth();
+    
+    // Rate limiting: 3 deletes per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:delete-event`, {
+      limit: 3,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
 
     await prisma.event.delete({ where: { id } });
 
@@ -115,6 +167,7 @@ export async function deleteEvent(id: string) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
+    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${id}`, "max");
 
     // Revalidate public pages
@@ -146,6 +199,9 @@ export async function getEvent(id: string) {
 // Get single event by ID (for edit pages - always fresh data, no caching)
 export async function getEventForEdit(id: string) {
   try {
+    // Check authentication for edit pages
+    await checkAuth();
+    
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
   } catch (error) {

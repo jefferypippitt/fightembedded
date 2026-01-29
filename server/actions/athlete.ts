@@ -9,9 +9,11 @@ import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { weightClasses } from "@/data/weight-class";
+import { cache } from "react";
+import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 
-// Authentication helper
-async function checkAuth() {
+// Authentication helper - wrapped with React.cache() for per-request deduplication
+const checkAuth = cache(async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -20,10 +22,11 @@ async function checkAuth() {
     throw new Error("Unauthorized");
   }
   return session;
-}
+});
 
 // Get single athlete by ID (cached for public pages)
-export async function getAthlete(id: string): Promise<Athlete | null> {
+// Wrapped with React.cache() for per-request deduplication
+export const getAthlete = cache(async (id: string): Promise<Athlete | null> => {
   "use cache";
   cacheLife("hours");
   cacheTag("athlete-by-id");
@@ -38,11 +41,14 @@ export async function getAthlete(id: string): Promise<Athlete | null> {
     console.error("Error fetching athlete:", error);
     throw new Error("Failed to fetch athlete");
   }
-}
+});
 
 // Get single athlete by ID (for edit pages - always fresh data, no caching)
 export async function getAthleteForEdit(id: string): Promise<Athlete | null> {
   try {
+    // Check authentication for edit pages
+    await checkAuth();
+    
     const athlete = await prisma.athlete.findUnique({
       where: { id },
     });
@@ -90,7 +96,8 @@ export async function getAllAthletes(): Promise<Athlete[]> {
 }
 
 // Get active athletes (for main athletes page)
-export async function getAthletes(): Promise<Athlete[]> {
+// Wrapped with React.cache() for per-request deduplication
+export const getAthletes = cache(async (): Promise<Athlete[]> => {
   "use cache";
   cacheLife("hours");
   cacheTag("athletes");
@@ -124,7 +131,7 @@ export async function getAthletes(): Promise<Athlete[]> {
     console.error("Error fetching active athletes:", error);
     return [];
   }
-}
+});
 
 // Get athletes by division
 export async function getAthletesByDivision(
@@ -475,13 +482,10 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
     const retiredAthletes = await prisma.athlete.findMany({
       where: { retired: true },
       orderBy: [
-        { rank: "asc" }, // Sort by retirement order (1, 2, 3...)
-        { name: "asc" }, // Fallback to name if ranks are equal or 0
+        { name: "asc" }, // Sort alphabetically by name since retired athletes aren't ranked
       ],
     });
 
-    // If no athletes have retirement order set, they'll be sorted by name
-    // This provides a good default until retirement order is manually set
     return retiredAthletes;
   } catch (error) {
     console.error("Error fetching retired athletes:", error);
@@ -544,6 +548,22 @@ export async function createAthlete(
 ): Promise<ActionResponse> {
   try {
     await checkAuth();
+    
+    // Rate limiting: 5 creates per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:create-athlete`, {
+      limit: 5,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
     const rawData = Object.fromEntries(formData.entries());
 
     const data: AthleteInput = {
@@ -595,6 +615,7 @@ export async function createAthlete(
     revalidateTag("all-athletes-data", "max");
     revalidateTag("live-stats", "max");
     revalidateTag("stats", "max");
+    revalidateTag("dashboard-stats", "max");
     revalidateTag("athletes-page", "max");
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
@@ -696,6 +717,22 @@ export async function updateAthlete(
 ): Promise<ActionResponse> {
   try {
     await checkAuth();
+    
+    // Rate limiting: 10 updates per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:update-athlete`, {
+      limit: 10,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
     const rawData = Object.fromEntries(formData.entries());
 
     const data: AthleteInput = {
@@ -764,6 +801,7 @@ export async function updateAthlete(
     revalidateTag("athlete-by-id", "max");
     revalidateTag("live-stats", "max");
     revalidateTag("stats", "max");
+    revalidateTag("dashboard-stats", "max");
     revalidateTag(`athlete-${id}`, "max");
     revalidateTag(`athlete-edit-${id}`, "max"); // Invalidate edit cache
     revalidateTag("athletes-by-division", "max");
@@ -948,6 +986,22 @@ export async function updateAthleteStatus(
 export async function deleteAthlete(id: string) {
   try {
     await checkAuth();
+    
+    // Rate limiting: 3 deletes per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(`${identifier}:delete-athlete`, {
+      limit: 3,
+      window: 60,
+    });
+    
+    if (!rateLimitResult.success) {
+      return {
+        status: "error",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
+      };
+    }
 
     // Get athlete data before deletion to check attributes
     const athlete = await prisma.athlete.findUnique({

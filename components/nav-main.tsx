@@ -8,8 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Icon } from "@tabler/icons-react";
-import PrefetchLink from "@/components/prefetch-link";
+import { LucideIcon } from "lucide-react";
+import Link from "next/link";
 
 export function NavMain({
   items,
@@ -17,7 +17,7 @@ export function NavMain({
   items: {
     title: string;
     url: string;
-    icon?: Icon;
+    icon?: LucideIcon;
   }[];
 }) {
   return (
@@ -28,10 +28,10 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
-                <PrefetchLink href={item.url}>
+                <Link href={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </PrefetchLink>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

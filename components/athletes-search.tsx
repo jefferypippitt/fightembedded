@@ -16,6 +16,8 @@ import {
 
 interface AthletesSearchProps {
   athletes: Athlete[];
+  /** Priority strategy: 'rank-1-8' for division pages (rank 1-8 get priority), 'none' for no priority */
+  priorityStrategy?: "rank-1-8" | "none";
 }
 
 // Selected athlete button component
@@ -42,15 +44,23 @@ const AthletesGrid = memo(
     selectedAthletes,
     onSelect,
     searchInput,
+    priorityStrategy = "none",
   }: {
     athletes: Athlete[];
     selectedAthletes: Athlete[];
     onSelect: (athlete: Athlete) => void;
     searchInput: string;
+    priorityStrategy?: "rank-1-8" | "none";
   }) => {
     // Sort athletes by rank first, then by name for same rank
+    // For retired athletes, sort by name only (they're not ranked)
     const sortedAthletes = useMemo(() => {
       return [...athletes].sort((a, b) => {
+        // If either athlete is retired, sort by name only
+        if (a.retired || b.retired) {
+          return a.name.localeCompare(b.name);
+        }
+
         // Handle unranked athletes (rank 0 or undefined)
         const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
         const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
@@ -155,6 +165,7 @@ const AthletesGrid = memo(
                   )}
                   selectedAthletes={selectedAthletes}
                   onSelect={onSelect}
+                  priorityStrategy={priorityStrategy}
                 />
               </div>
             )}
@@ -171,6 +182,7 @@ const AthletesGrid = memo(
                   )}
                   selectedAthletes={selectedAthletes}
                   onSelect={onSelect}
+                  priorityStrategy={priorityStrategy}
                 />
               </div>
             )}
@@ -191,9 +203,8 @@ const AthletesGrid = memo(
                   <div className="text-xs text-muted-foreground mb-3 sm:mb-4 text-center">
                     {searchResults.length === 0 && selectedAthletes.length === 0
                       ? "No results found"
-                      : `Showing ${
-                          searchResults.length + selectedAthletes.length
-                        } of ${athletes.length} athletes`}
+                      : `Showing ${searchResults.length + selectedAthletes.length
+                      } of ${athletes.length} athletes`}
                   </div>
 
                   {/* Show search results */}
@@ -206,6 +217,7 @@ const AthletesGrid = memo(
                         athletes={searchResults}
                         selectedAthletes={selectedAthletes}
                         onSelect={onSelect}
+                        priorityStrategy={priorityStrategy}
                       />
                     </div>
                   )}
@@ -219,6 +231,7 @@ const AthletesGrid = memo(
             athletes={sortedAthletes}
             selectedAthletes={selectedAthletes}
             onSelect={onSelect}
+            priorityStrategy={priorityStrategy}
           />
         )}
       </div>
@@ -234,10 +247,12 @@ const AthletesList = memo(
     athletes,
     selectedAthletes,
     onSelect,
+    priorityStrategy = "none",
   }: {
     athletes: Athlete[];
     selectedAthletes: Athlete[];
     onSelect: (athlete: Athlete) => void;
+    priorityStrategy?: "rank-1-8" | "none";
   }) => {
     return (
       <div
@@ -245,20 +260,30 @@ const AthletesList = memo(
         role="grid"
         aria-label="Athletes grid"
       >
-        {athletes.map((athlete, index) => (
-          <AthleteListCard
-            key={athlete.id}
-            {...athlete}
-            imageUrl={athlete.imageUrl || undefined}
-            draws={athlete.draws ?? undefined}
-            rank={athlete.rank ?? undefined}
-            poundForPoundRank={athlete.poundForPoundRank ?? undefined}
-            retired={athlete.retired ?? false}
-            isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
-            onSelect={() => onSelect(athlete)}
-            priority={index < 15}
-          />
-        ))}
+        {athletes.map((athlete) => {
+          // Determine priority based on strategy
+          let priority = false;
+          if (priorityStrategy === "rank-1-8") {
+            // For division pages: rank 1-8 get priority
+            priority = athlete.rank !== null && athlete.rank > 0 && athlete.rank <= 8;
+          }
+          // "none" strategy means no priority (preloading handles it)
+
+          return (
+            <AthleteListCard
+              key={athlete.id}
+              {...athlete}
+              imageUrl={athlete.imageUrl || undefined}
+              draws={athlete.draws ?? undefined}
+              rank={athlete.rank ?? undefined}
+              poundForPoundRank={athlete.poundForPoundRank ?? undefined}
+              retired={athlete.retired ?? false}
+              isSelected={selectedAthletes.some((a) => a.id === athlete.id)}
+              onSelect={() => onSelect(athlete)}
+              priority={priority}
+            />
+          );
+        })}
       </div>
     );
   }
@@ -267,7 +292,7 @@ const AthletesList = memo(
 AthletesList.displayName = "AthletesList";
 
 // Client component that handles search state
-function AthletesSearchClient({ athletes }: AthletesSearchProps) {
+function AthletesSearchClient({ athletes, priorityStrategy = "none" }: AthletesSearchProps) {
   const [searchQuery, setSearchQuery] = useQueryState(
     "q",
     parseAsString
@@ -349,6 +374,7 @@ function AthletesSearchClient({ athletes }: AthletesSearchProps) {
         selectedAthletes={selectedAthletes}
         onSelect={handleSelect}
         searchInput={searchQuery ?? ""}
+        priorityStrategy={priorityStrategy}
       />
     </div>
   );
@@ -434,8 +460,8 @@ export function AthletesSearchInput({
   );
 }
 
-export function AthletesSearchContainer({ athletes }: AthletesSearchProps) {
-  return <AthletesSearchClient athletes={athletes} />;
+export function AthletesSearchContainer({ athletes, priorityStrategy = "none" }: AthletesSearchProps) {
+  return <AthletesSearchClient athletes={athletes} priorityStrategy={priorityStrategy} />;
 }
 
 // Main export

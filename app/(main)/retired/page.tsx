@@ -5,6 +5,7 @@ import {
   AthletesSearchContainer,
   AthletesSearchInput,
 } from "@/components/athletes-search";
+import { AthleteImagePreloads } from "@/components/athlete-image-preloads";
 
 export const metadata: Metadata = {
   title: "Retired Athletes",
@@ -48,6 +49,7 @@ async function RetiredContent() {
 
   return (
     <div className="space-y-8">
+      <AthleteImagePreloads athletes={athletes} />
       <div className="w-full sm:max-w-xs lg:max-w-sm">
         <AthletesSearchInput
           className="w-full"

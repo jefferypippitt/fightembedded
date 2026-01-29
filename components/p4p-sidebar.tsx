@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
 import { getCountryCode } from "@/lib/country-codes";
 import { Fighter, P4PSidebarProps } from "@/types/rankings";
-import PrefetchLink from "@/components/prefetch-link";
+import Link from "next/link";
 import { getAllDivisions } from "@/data/weight-class";
 
 const divisionSlugMap = getAllDivisions().reduce<Record<string, string>>(
@@ -42,7 +42,7 @@ const FighterCard = memo(function FighterCard({
 
   return (
     <li>
-      <PrefetchLink
+      <Link
         href={href}
         className="relative block h-16 overflow-hidden rounded-sm border bg-card transition-all duration-300 shadow-xs group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
       >
@@ -50,6 +50,7 @@ const FighterCard = memo(function FighterCard({
           <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
           <AthleteAvatar
             imageUrl={fighter.imageUrl}
+            updatedAt={fighter.updatedAt}
             countryCode={countryCode}
             size="xs"
             priority={isPriority}
@@ -77,7 +78,7 @@ const FighterCard = memo(function FighterCard({
             </div>
           </div>
         </div>
-      </PrefetchLink>
+      </Link>
     </li>
   );
 });

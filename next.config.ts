@@ -42,20 +42,17 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    // More conservative optimization settings to avoid payment limits
+    // Configure image quality options
+    qualities: [75, 90],
+    // Optimize remote images for better performance
     formats: ["image/webp", "image/avif"],
     // Aggressive caching for static sports images (1 year)
-    // Images are invalidated when athlete-images cache tag is revalidated
     minimumCacheTTL: 31536000, // 1 year cache
-    // Reduce device sizes to minimize transformations
-    deviceSizes: [640, 960, 1080],
-    // Reduce image sizes to minimize transformations
-    imageSizes: [48, 64, 96, 112, 128, 160, 224],
-    // Quality settings for image optimization
-    qualities: [75, 85, 90],
-    // Enable static optimization for better caching
-    unoptimized: false,
-    // Enable SVG optimization but be conservative
+    // Standard device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Standard image sizes for responsive images
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Enable SVG support for flag images
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",

@@ -3,19 +3,16 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
+import { cn, getCachedImageUrl } from "@/lib/utils";
 import { getCountryCode } from "@/lib/country-codes";
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
-
-// Minimal placeholder for instant initial render
-const PLACEHOLDER_BLUR =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTFhIi8+PC9zdmc+";
 
 export interface AthleteListCardProps {
   id?: string;
   name: string;
   imageUrl?: string;
+  updatedAt?: Date | string;
   country: string;
   wins?: number;
   losses?: number;
@@ -32,6 +29,10 @@ export interface AthleteListCardProps {
   onSelect?: () => void;
   priority?: boolean;
   disableCursor?: boolean;
+  /** Called once when this card's images have loaded (or failed). Used for synchronized grid reveal. */
+  onImagesReady?: () => void;
+  /** When true, reveal content (used when parent has confirmed all cards are ready). */
+  revealWhen?: boolean;
 }
 
 // Map division names to badge variants
@@ -106,6 +107,7 @@ const getDivisionVariant = (
 function AthleteListCardComponent({
   name,
   imageUrl,
+  updatedAt,
   country,
   wins = 0,
   losses = 0,
@@ -121,17 +123,41 @@ function AthleteListCardComponent({
   onSelect,
   priority = false,
   disableCursor = false,
+  onImagesReady,
+  revealWhen,
 }: AthleteListCardProps) {
-  // Track image loading states for synchronized reveal
+  // Get cached image URL with version parameter for cache busting
+  const cachedImageUrl = getCachedImageUrl(imageUrl || null, updatedAt);
+  // Track image loading for synchronized grid reveal (simplified)
   const [flagLoaded, setFlagLoaded] = useState(false);
   const [athleteLoaded, setAthleteLoaded] = useState(false);
+  const hasReportedReady = useRef(false);
 
-  // Both images must load before revealing (or no flag means just athlete)
   const countryCode = getCountryCode(country);
   const imagesReady = countryCode ? flagLoaded && athleteLoaded : athleteLoaded;
 
-  const handleFlagLoad = useCallback(() => setFlagLoaded(true), []);
-  const handleAthleteLoad = useCallback(() => setAthleteLoaded(true), []);
+  // Report once to parent when this card's images are ready (for grid-wide reveal)
+  useEffect(() => {
+    if (imagesReady && onImagesReady && !hasReportedReady.current) {
+      hasReportedReady.current = true;
+      onImagesReady();
+    }
+  }, [imagesReady, onImagesReady]);
+
+  const handleFlagLoad = useCallback(() => {
+    setFlagLoaded(true);
+  }, []);
+
+  const handleAthleteLoad = useCallback(() => {
+    setAthleteLoaded(true);
+  }, []);
+
+  // Treat errors as "loaded" so one failed image doesn't block grid reveal
+  const handleFlagError = useCallback(() => setFlagLoaded(true), []);
+  const handleAthleteError = useCallback(() => setAthleteLoaded(true), []);
+
+  // Parent-controlled reveal (all cards at once) or show immediately
+  const showContent = revealWhen !== undefined ? revealWhen : true;
 
   // Calculate stats
   const totalFights = wins + losses + draws;
@@ -167,44 +193,35 @@ function AthleteListCardComponent({
           ) : (
             <span className="text-[12px] font-medium">NR</span>
           )}
-          {age && (
+          {age ? (
             <div className="flex items-center gap-1 text-[10px]">
               <span className="text-muted-foreground">Age:</span>
               <span className="font-medium text-foreground tabular-nums">
                 {age}
               </span>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Border line that extends across full card width */}
         <div className="border-b border-border/40 -mx-2 sm:-mx-3 mb-3"></div>
 
-        {/* Banner with Flag Background and Athlete Image - Synchronized reveal */}
+        {/* Banner with Flag Background and Athlete Image */}
         <div className="relative h-14 w-full mb-3 overflow-hidden rounded-sm bg-muted/20">
-          {/* Placeholder skeleton while loading */}
-          <div
-            className={cn(
-              "absolute inset-0 bg-muted/40 transition-opacity duration-300",
-              imagesReady ? "opacity-0" : "opacity-100"
-            )}
-          />
-
           {/* Flag Background */}
           {countryCode && (
             <Image
               src={`https://flagcdn.com/${countryCode.toLowerCase()}.svg`}
               alt={`${country} flag`}
               fill
-              className={cn(
-                "object-cover transition-opacity duration-300",
-                imagesReady ? "opacity-80" : "opacity-0"
-              )}
+              className="object-cover opacity-80"
               priority={priority}
+              fetchPriority={priority ? "high" : undefined}
               quality={90}
               sizes="(max-width: 640px) 800px, (max-width: 1024px) 640px, 682px"
               unoptimized
               onLoad={handleFlagLoad}
+              onError={handleFlagError}
             />
           )}
 
@@ -212,19 +229,16 @@ function AthleteListCardComponent({
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <div className="relative size-20 overflow-hidden rounded-md">
               <Image
-                src={imageUrl || "/placeholder/SILHOUETTE.avif"}
-                alt={imageUrl ? name : "Athlete placeholder"}
+                src={cachedImageUrl || "/placeholder/SILHOUETTE.avif"}
+                alt={cachedImageUrl ? name : "Athlete placeholder"}
                 fill
-                className={cn(
-                  "object-cover object-top transition-opacity duration-300",
-                  imagesReady ? "opacity-100" : "opacity-0"
-                )}
+                className="object-cover object-top"
                 priority={priority}
+                fetchPriority={priority ? "high" : undefined}
                 quality={90}
                 sizes="160px"
-                placeholder="blur"
-                blurDataURL={PLACEHOLDER_BLUR}
                 onLoad={handleAthleteLoad}
+                onError={handleAthleteError}
               />
             </div>
           </div>

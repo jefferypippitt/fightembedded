@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { cn } from "@/lib/utils";
-import { useState, useCallback } from "react";
+import { cn, getCachedImageUrl } from "@/lib/utils";
 
 interface AthleteAvatarProps {
   imageUrl?: string;
+  updatedAt?: Date | string;
   countryCode?: string;
   size?: "xs" | "sm" | "md" | "lg";
   className?: string;
@@ -26,12 +26,9 @@ const imageSizes = {
   lg: "224px", // 112px * 2 for device pixel ratio
 };
 
-// Minimal placeholder for instant initial render
-const PLACEHOLDER_BLUR =
-  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTFhIi8+PC9zdmc+";
-
 export function AthleteAvatar({
   imageUrl,
+  updatedAt,
   countryCode,
   size = "md",
   className,
@@ -39,9 +36,8 @@ export function AthleteAvatar({
 }: AthleteAvatarProps) {
   const sizeValue = imageSizes[size];
 
-  // Track image loading states for synchronized reveal
-  const [flagLoaded, setFlagLoaded] = useState(false);
-  const [athleteLoaded, setAthleteLoaded] = useState(false);
+  // Get cached image URL with version parameter for cache busting
+  const cachedImageUrl = getCachedImageUrl(imageUrl || null, updatedAt);
 
   // Validate country code
   const validCountryCode =
@@ -49,15 +45,7 @@ export function AthleteAvatar({
       ? countryCode.toLowerCase()
       : null;
 
-  // Both images must load before revealing (or no flag means just athlete)
-  const imagesReady = validCountryCode
-    ? flagLoaded && athleteLoaded
-    : athleteLoaded;
-
-  const handleFlagLoad = useCallback(() => setFlagLoaded(true), []);
-  const handleAthleteLoad = useCallback(() => setAthleteLoaded(true), []);
-
-  const flagSrc = `https://flagcdn.com/${validCountryCode}.svg`;
+  const flagSrc = validCountryCode ? `https://flagcdn.com/${validCountryCode}.svg` : null;
 
   return (
     <div
@@ -67,51 +55,33 @@ export function AthleteAvatar({
         className
       )}
     >
-      {/* Placeholder skeleton while loading */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-muted/40 transition-opacity duration-300 z-0",
-          imagesReady ? "opacity-0" : "opacity-100"
-        )}
-      />
-
       {/* Flag Background */}
-      {validCountryCode && (
+      {flagSrc && (
         <div className="absolute inset-0 z-0">
           <Image
             src={flagSrc}
             alt={`${validCountryCode} flag`}
             fill
-            className={cn(
-              "object-cover transition-opacity duration-300",
-              imagesReady ? "opacity-80" : "opacity-0"
-            )}
+            className="object-cover opacity-80"
             priority={priority}
             quality={90}
             sizes={sizeValue}
             unoptimized={true}
-            onLoad={handleFlagLoad}
           />
         </div>
       )}
 
       {/* Athlete Image */}
       <div className="absolute inset-0 z-10">
-        {imageUrl ? (
+        {cachedImageUrl ? (
           <Image
-            src={imageUrl}
+            src={cachedImageUrl}
             alt="Profile"
             fill
-            className={cn(
-              "object-cover transition-opacity duration-300",
-              imagesReady ? "opacity-100" : "opacity-0"
-            )}
+            className="object-cover"
             priority={priority}
             quality={90}
             sizes={sizeValue}
-            placeholder="blur"
-            blurDataURL={PLACEHOLDER_BLUR}
-            onLoad={handleAthleteLoad}
           />
         ) : (
           <div className="h-full w-full bg-muted/20 flex items-center justify-center">
@@ -119,16 +89,10 @@ export function AthleteAvatar({
               src="/placeholder/SILHOUETTE.avif"
               alt="Profile placeholder"
               fill
-              className={cn(
-                "object-cover opacity-85 transition-opacity duration-300",
-                imagesReady ? "opacity-85" : "opacity-0"
-              )}
+              className="object-cover opacity-85"
               priority={priority}
               quality={90}
               sizes={sizeValue}
-              placeholder="blur"
-              blurDataURL={PLACEHOLDER_BLUR}
-              onLoad={handleAthleteLoad}
             />
           </div>
         )}

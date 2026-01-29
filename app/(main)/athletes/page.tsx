@@ -4,6 +4,7 @@ import {
   AthletesSearchContainer,
   AthletesSearchInput,
 } from "@/components/athletes-search";
+import { AthleteImagePreloads } from "@/components/athlete-image-preloads";
 import { getAthletes } from "@/server/actions/athlete";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default async function AthletesPage() {
 
   return (
     <section className="container space-y-6 pt-4 pb-6">
+      <AthleteImagePreloads athletes={athletes} />
       <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide">

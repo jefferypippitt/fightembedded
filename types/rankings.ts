@@ -23,6 +23,7 @@ export interface Fighter {
   id: string;
   name: string;
   imageUrl: string;
+  updatedAt?: Date | string;
   poundForPoundRank: number;
   wins: number;
   losses: number;

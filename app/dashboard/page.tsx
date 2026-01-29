@@ -1,23 +1,31 @@
 import { Suspense } from "react";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { SectionCards } from "@/components/section-cards";
 import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
 import { getDivisionStats } from "@/server/actions/get-division-stats";
+import { ChartAreaInteractiveWrapper } from "@/components/chart-area-interactive-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 // Separate component for fetching and rendering dashboard stats
-async function DashboardStatsSection() {
-  const dashboardStats = await getDashboardStats();
+async function DashboardStatsSection({
+  dashboardStatsPromise,
+}: {
+  dashboardStatsPromise: Promise<Awaited<ReturnType<typeof getDashboardStats>>>;
+}) {
+  const dashboardStats = await dashboardStatsPromise;
   return <SectionCards stats={dashboardStats} />;
 }
 
 // Separate component for fetching and rendering division stats
-async function DivisionStatsSection() {
-  const divisionStats = await getDivisionStats();
+async function DivisionStatsSection({
+  divisionStatsPromise,
+}: {
+  divisionStatsPromise: Promise<Awaited<ReturnType<typeof getDivisionStats>>>;
+}) {
+  const divisionStats = await divisionStatsPromise;
   return (
     <div className="px-4 lg:px-6">
-      <ChartAreaInteractive data={divisionStats} />
+      <ChartAreaInteractiveWrapper data={divisionStats} />
     </div>
   );
 }
@@ -61,15 +69,19 @@ function DivisionStatsSkeleton() {
 }
 
 export default function DashboardOverviewPage() {
+  // Start both data fetches early to ensure parallel execution
+  const dashboardStatsPromise = getDashboardStats();
+  const divisionStatsPromise = getDivisionStats();
+
   return (
     <div className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           <Suspense fallback={<DashboardStatsSkeleton />}>
-            <DashboardStatsSection />
+            <DashboardStatsSection dashboardStatsPromise={dashboardStatsPromise} />
           </Suspense>
           <Suspense fallback={<DivisionStatsSkeleton />}>
-            <DivisionStatsSection />
+            <DivisionStatsSection divisionStatsPromise={divisionStatsPromise} />
           </Suspense>
         </div>
       </div>

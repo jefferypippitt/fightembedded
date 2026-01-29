@@ -199,17 +199,13 @@ export async function getPaginatedAthletes(params: {
     });
   } else if (view === "retired") {
     // Retired view - only show retired athletes
-    // For retired athletes, we'll use the rank field to store their retirement order
-    // This allows admins to manually reorder retired athletes for display purposes
+    // Sort alphabetically by name since retired athletes aren't ranked
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
       orderBy: [
         {
-          rank: "asc", // Sort by retirement order (1, 2, 3...)
-        },
-        {
-          name: "asc", // Fallback to name if ranks are equal
+          name: "asc", // Sort alphabetically by name
         },
       ],
       skip: (page - 1) * pageSize,

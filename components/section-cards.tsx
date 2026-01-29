@@ -1,9 +1,3 @@
-import {
-  IconTrendingUp,
-  IconCalendarEvent,
-  IconFlag,
-  IconTrendingDown,
-} from "@tabler/icons-react";
 
 import { format } from "date-fns";
 
@@ -16,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TrendingUpDown } from "lucide-react";
+import { CalendarIcon, TrendingDownIcon, TrendingUpDown, TrendingUpIcon } from "lucide-react";
 import { DashboardStats } from "@/types/athlete";
 
 interface SectionCardsProps {
@@ -48,7 +42,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-xs sm:text-sm">
           <div className="line-clamp-1 flex gap-1.5 sm:gap-2 font-medium">
-            Total Events <IconCalendarEvent className="size-3.5 sm:size-4" />
+            Total Events <CalendarIcon className="size-3.5 sm:size-4" />
           </div>
           <div className="text-muted-foreground">Historical event count</div>
         </CardFooter>
@@ -92,7 +86,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Leading nation <IconFlag className="size-4" />
+            Leading nation
           </div>
           <div className="text-muted-foreground">Most represented country</div>
         </CardFooter>
@@ -112,7 +106,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Second place <IconFlag className="size-4" />
+            Second place
           </div>
           <div className="text-muted-foreground">Strong representation</div>
         </CardFooter>
@@ -132,7 +126,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Third place <IconFlag className="size-4" />
+            Third place
           </div>
           <div className="text-muted-foreground">Growing presence</div>
         </CardFooter>
@@ -258,7 +252,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconTrendingDown className="size-3.5" />
+              <TrendingDownIcon className="size-3.5" />
               Retired
             </Badge>
           </CardAction>
@@ -267,7 +261,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           <div className="line-clamp-1 flex gap-2 font-medium">
             Latest:{" "}
             {stats.recentlyRetiredAthletes[0]?.name || "No recent retirements"}{" "}
-            <IconTrendingDown className="size-4" />
+            <TrendingDownIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             {stats.recentlyRetiredAthletes[0]?.winRate || "0"}% win rate
@@ -283,7 +277,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <IconTrendingUp className="size-3.5" />
+              <TrendingUpIcon className="size-3.5" />
               This Week
             </Badge>
           </CardAction>
@@ -291,7 +285,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
             Latest: {stats.recentAthletes[0]?.name || "No additions this week"}{" "}
-            <IconTrendingUp className="size-4" />
+            <TrendingUpIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">Athletes added this week</div>
         </CardFooter>

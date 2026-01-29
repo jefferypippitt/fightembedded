@@ -1,6 +1,6 @@
 "use client";
 
-import { IconLogout } from "@tabler/icons-react";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui/button";
@@ -34,7 +34,7 @@ export function SignOutButton() {
       variant="ghost"
       onClick={handleSignOut}
     >
-      <IconLogout className="size-4 text-red-500" />
+      <LogOut className="size-4 text-red-500" />
       <span>Sign Out</span>
     </Button>
   );
