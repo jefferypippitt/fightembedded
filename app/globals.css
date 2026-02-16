@@ -304,3 +304,98 @@
 .animate-exitToLeft {
   animation: exitToLeft 0.3s ease-in;
 }
+
+/* Explore Athletes Arrow-Dots Button */
+.explore-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: transparent;
+  transition: border-color 0.35s ease;
+}
+
+.explore-btn:hover {
+  border-color: var(--primary);
+}
+
+.explore-btn_bg {
+  position: absolute;
+  inset: 0;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.explore-btn:hover .explore-btn_bg {
+  opacity: 0.07;
+}
+
+.explore-btn_inner {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  position: relative;
+  z-index: 1;
+}
+
+.explore-btn_text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  white-space: nowrap;
+  line-height: 1;
+  transition: color 0.35s ease;
+}
+
+.explore-btn:hover .explore-btn_text {
+  color: var(--primary);
+}
+
+.explore-btn_icon-wrap {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.explore-btn_icon {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  right: 0;
+  opacity: calc(1 - var(--index-parent) * 0.25);
+  transform: translateX(calc(var(--index-parent) * -110%));
+  transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1),
+    opacity 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.explore-btn:hover .explore-btn_icon {
+  transform: translateX(calc(var(--index-parent) * -110% + 110%));
+}
+
+.explore-btn_dot {
+  display: block;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background-color: var(--foreground);
+  transform: translateX(calc(var(--index) * -2.5px));
+  transition: background-color 0.35s ease;
+}
+
+.explore-btn:hover .explore-btn_dot {
+  background-color: var(--primary);
+}

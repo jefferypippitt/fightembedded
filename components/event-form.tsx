@@ -47,7 +47,7 @@ export function EventForm({ initialData }: EventFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const defaultValues: EventFormData = initialData
+  const defaultValues = initialData
     ? {
         name: initialData.name,
         date: new Date(initialData.date),
@@ -59,12 +59,12 @@ export function EventForm({ initialData }: EventFormProps) {
       }
     : {
         name: "",
-        date: new Date(),
+        date: undefined,
         venue: "",
         location: "",
         mainEvent: "",
         coMainEvent: "",
-        status: "UPCOMING",
+        status: "UPCOMING" as const,
       };
 
   const form = useForm<EventFormData>({

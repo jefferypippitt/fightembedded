@@ -16,7 +16,7 @@ export interface DivisionRankings {
 // Cache the function per request - prevents refetching on same request
 export async function getTop5Athletes() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("top-5-athletes");
   try {
     const divisions = await prisma.athlete.findMany({

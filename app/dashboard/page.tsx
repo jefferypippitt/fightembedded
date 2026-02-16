@@ -4,7 +4,12 @@ import { getDashboardStats } from "@/server/actions/get-dashboard-stats";
 import { getDivisionStats } from "@/server/actions/get-division-stats";
 import { ChartAreaInteractiveWrapper } from "@/components/chart-area-interactive-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+} from "@/components/ui/card";
 
 // Separate component for fetching and rendering dashboard stats
 async function DashboardStatsSection({
@@ -53,15 +58,32 @@ function DashboardStatsSkeleton() {
 
 // Fallback UI for division stats chart
 function DivisionStatsSkeleton() {
+  const barHeights = [85, 70, 60, 75, 90, 55, 45, 65];
   return (
     <div className="px-4 lg:px-6">
-      <Card className="@container/card">
+      <Card className="@container/card data-[slot=card]:shadow-xs">
         <CardHeader>
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-64 mt-2" />
+          <Skeleton className="h-6 w-44" />
+          <Skeleton className="h-4 w-56 mt-1" />
+          <CardAction>
+            <div className="hidden @[767px]/card:flex gap-1">
+              <Skeleton className="h-8 w-16 rounded-md" />
+              <Skeleton className="h-8 w-20 rounded-md" />
+            </div>
+          </CardAction>
         </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[350px] w-full" />
+        <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+          <div className="flex h-[350px] items-end gap-4 pb-10 pl-10">
+            {barHeights.map((h, i) => (
+              <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                <Skeleton
+                  className="w-8 rounded-t-sm"
+                  style={{ height: `${h}%` }}
+                />
+                <Skeleton className="h-3 w-12" />
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

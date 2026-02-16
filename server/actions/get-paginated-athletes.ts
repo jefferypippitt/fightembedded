@@ -118,57 +118,42 @@ export async function getPaginatedAthletes(params: {
     });
   } else if (view === "p4p") {
     // Special handling for P4P view - include all athletes but prioritize P4P rankings
-    // Get P4P ranked athletes first (1-15), then division ranked athletes, then unranked ones
-
-    // 1. P4P ranked athletes (1-15) - highest priority
-    const p4pRankedAthletes = await prisma.athlete.findMany({
-      where: {
-        ...where,
-        poundForPoundRank: { gt: 0, lte: 15 }, // Only P4P ranked 1-15
-      },
-      select: athleteSelect,
-      orderBy: [
-        {
-          poundForPoundRank: "asc", // Always ascending for P4P view (1, 2, 3... 15)
-        },
-        {
-          name: "asc",
-        },
-      ],
-    });
-
-    // 2. Division ranked athletes (but not P4P ranked) - medium priority
-    const divisionRankedAthletes = await prisma.athlete.findMany({
-      where: {
-        ...where,
-        rank: { gt: 0 }, // Division ranked
-        poundForPoundRank: { not: { gt: 0, lte: 15 } }, // Not P4P ranked 1-15
-      },
-      select: athleteSelect,
-      orderBy: [
-        {
-          rank: "asc", // Sort by division rank
-        },
-        {
-          name: "asc",
-        },
-      ],
-    });
-
-    // 3. Unranked athletes (no division rank, no P4P rank) - lowest priority
-    const unrankedAthletes = await prisma.athlete.findMany({
-      where: {
-        ...where,
-        rank: 0, // No division rank
-        poundForPoundRank: { not: { gt: 0, lte: 15 } }, // Not P4P ranked 1-15
-      },
-      select: athleteSelect,
-      orderBy: [
-        {
-          name: "asc", // Sort unranked by name
-        },
-      ],
-    });
+    // Fetch all three tiers in parallel for maximum throughput
+    const [p4pRankedAthletes, divisionRankedAthletes, unrankedAthletes] =
+      await Promise.all([
+        prisma.athlete.findMany({
+          where: {
+            ...where,
+            poundForPoundRank: { gt: 0, lte: 15 },
+          },
+          select: athleteSelect,
+          orderBy: [
+            { poundForPoundRank: "asc" },
+            { name: "asc" },
+          ],
+        }),
+        prisma.athlete.findMany({
+          where: {
+            ...where,
+            rank: { gt: 0 },
+            poundForPoundRank: { not: { gt: 0, lte: 15 } },
+          },
+          select: athleteSelect,
+          orderBy: [
+            { rank: "asc" },
+            { name: "asc" },
+          ],
+        }),
+        prisma.athlete.findMany({
+          where: {
+            ...where,
+            rank: 0,
+            poundForPoundRank: { not: { gt: 0, lte: 15 } },
+          },
+          select: athleteSelect,
+          orderBy: [{ name: "asc" }],
+        }),
+      ]);
 
     // Combine in priority order: P4P ranked first, then division ranked, then unranked
     const allP4PAthletes = [
@@ -213,35 +198,28 @@ export async function getPaginatedAthletes(params: {
     });
   } else if (effectiveSortColumn === "rank") {
     // For rank sorting, we need to handle 0 values (unranked) specially
-    // Get ranked athletes first, then unranked ones
-    const rankedAthletes = await prisma.athlete.findMany({
-      where: {
-        ...where,
-        rank: { gt: 0 }, // Only ranked athletes
-      },
-      select: athleteSelect,
-      orderBy: [
-        {
-          rank: sortOrder === "desc" ? "desc" : "asc",
+    // Fetch ranked and unranked athletes in parallel
+    const [rankedAthletes, unrankedAthletes] = await Promise.all([
+      prisma.athlete.findMany({
+        where: {
+          ...where,
+          rank: { gt: 0 },
         },
-        {
-          name: "asc",
+        select: athleteSelect,
+        orderBy: [
+          { rank: sortOrder === "desc" ? "desc" : "asc" },
+          { name: "asc" },
+        ],
+      }),
+      prisma.athlete.findMany({
+        where: {
+          ...where,
+          rank: 0,
         },
-      ],
-    });
-
-    const unrankedAthletes = await prisma.athlete.findMany({
-      where: {
-        ...where,
-        rank: 0, // Only unranked athletes
-      },
-      select: athleteSelect,
-      orderBy: [
-        {
-          name: "asc", // Sort unranked by name
-        },
-      ],
-    });
+        select: athleteSelect,
+        orderBy: [{ name: "asc" }],
+      }),
+    ]);
 
     // Combine ranked and unranked athletes
     const allAthletes = [...rankedAthletes, ...unrankedAthletes];
@@ -356,57 +334,42 @@ export async function getPaginatedAthletes(params: {
     // Default sorting based on view
     if (view === "p4p") {
       // For P4P view, default to poundForPoundRank ascending
-      // Get P4P ranked athletes first (1-15), then division ranked athletes, then unranked ones
-
-      // 1. P4P ranked athletes (1-15) - highest priority
-      const p4pRankedAthletes = await prisma.athlete.findMany({
-        where: {
-          ...where,
-          poundForPoundRank: { gt: 0, lte: 15 }, // Only P4P ranked 1-15
-        },
-        select: athleteSelect,
-        orderBy: [
-          {
-            poundForPoundRank: "asc", // Always ascending for P4P view (1, 2, 3... 15)
-          },
-          {
-            name: "asc",
-          },
-        ],
-      });
-
-      // 2. Division ranked athletes (but not P4P ranked) - medium priority
-      const divisionRankedAthletes = await prisma.athlete.findMany({
-        where: {
-          ...where,
-          rank: { gt: 0 }, // Division ranked
-          poundForPoundRank: { not: { gt: 0, lte: 15 } }, // Not P4P ranked 1-15
-        },
-        select: athleteSelect,
-        orderBy: [
-          {
-            rank: "asc", // Sort by division rank
-          },
-          {
-            name: "asc",
-          },
-        ],
-      });
-
-      // 3. Unranked athletes (no division rank, no P4P rank) - lowest priority
-      const unrankedAthletes = await prisma.athlete.findMany({
-        where: {
-          ...where,
-          rank: 0, // No division rank
-          poundForPoundRank: { not: { gt: 0, lte: 15 } }, // Not P4P ranked 1-15
-        },
-        select: athleteSelect,
-        orderBy: [
-          {
-            name: "asc", // Sort unranked by name
-          },
-        ],
-      });
+      // Fetch all three tiers in parallel for maximum throughput
+      const [p4pRankedAthletes, divisionRankedAthletes, unrankedAthletes] =
+        await Promise.all([
+          prisma.athlete.findMany({
+            where: {
+              ...where,
+              poundForPoundRank: { gt: 0, lte: 15 },
+            },
+            select: athleteSelect,
+            orderBy: [
+              { poundForPoundRank: "asc" },
+              { name: "asc" },
+            ],
+          }),
+          prisma.athlete.findMany({
+            where: {
+              ...where,
+              rank: { gt: 0 },
+              poundForPoundRank: { not: { gt: 0, lte: 15 } },
+            },
+            select: athleteSelect,
+            orderBy: [
+              { rank: "asc" },
+              { name: "asc" },
+            ],
+          }),
+          prisma.athlete.findMany({
+            where: {
+              ...where,
+              rank: 0,
+              poundForPoundRank: { not: { gt: 0, lte: 15 } },
+            },
+            select: athleteSelect,
+            orderBy: [{ name: "asc" }],
+          }),
+        ]);
 
       // Combine in priority order: P4P ranked first, then division ranked, then unranked
       const allP4PAthletes = [
@@ -420,35 +383,28 @@ export async function getPaginatedAthletes(params: {
       const endIndex = startIndex + pageSize;
       athletes = allP4PAthletes.slice(startIndex, endIndex);
     } else {
-      // Default to rank sorting - ranked first, then unranked
-      const rankedAthletes = await prisma.athlete.findMany({
-        where: {
-          ...where,
-          rank: { gt: 0 },
-        },
-        select: athleteSelect,
-        orderBy: [
-          {
-            rank: "asc",
+      // Default to rank sorting - fetch ranked and unranked in parallel
+      const [rankedAthletes, unrankedAthletes] = await Promise.all([
+        prisma.athlete.findMany({
+          where: {
+            ...where,
+            rank: { gt: 0 },
           },
-          {
-            name: "asc",
+          select: athleteSelect,
+          orderBy: [
+            { rank: "asc" },
+            { name: "asc" },
+          ],
+        }),
+        prisma.athlete.findMany({
+          where: {
+            ...where,
+            rank: 0,
           },
-        ],
-      });
-
-      const unrankedAthletes = await prisma.athlete.findMany({
-        where: {
-          ...where,
-          rank: 0,
-        },
-        select: athleteSelect,
-        orderBy: [
-          {
-            name: "asc",
-          },
-        ],
-      });
+          select: athleteSelect,
+          orderBy: [{ name: "asc" }],
+        }),
+      ]);
 
       // Combine ranked and unranked athletes
       const allAthletes = [...rankedAthletes, ...unrankedAthletes];

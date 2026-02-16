@@ -12,12 +12,39 @@ export const metadata: Metadata = {
   description: "Search and compare UFC athletes by name, country, or division.",
 };
 
-export default async function AthletesPage() {
+function AthletesSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="h-10 w-full sm:max-w-xs lg:max-w-sm animate-pulse rounded-md bg-muted" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 9 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function AthletesContent() {
   const athletes = await getAthletes();
 
   return (
-    <section className="container space-y-6 pt-4 pb-6">
+    <div className="space-y-8">
       <AthleteImagePreloads athletes={athletes} />
+      <div className="w-full sm:max-w-xs lg:max-w-sm">
+        <AthletesSearchInput className="w-full" athletes={athletes} />
+      </div>
+      <AthletesSearchContainer athletes={athletes} />
+    </div>
+  );
+}
+
+export default function AthletesPage() {
+  return (
+    <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
         <div className="space-y-2">
           <p className="text-sm font-semibold text-primary uppercase tracking-wide">
@@ -27,18 +54,13 @@ export default async function AthletesPage() {
             All UFC Athletes
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground text-balance max-w-2xl">
-            Discover every active fighter across the UFC roster. Filter by name,
-            country, or division to lock in quick comparisons.
+            Discover active fighters across the UFC roster. Filter by name,
+            country, or division.
           </p>
         </div>
-        <div className="w-full sm:max-w-xs lg:max-w-sm">
-          <Suspense fallback={null}>
-            <AthletesSearchInput className="w-full" athletes={athletes} />
-          </Suspense>
-        </div>
       </header>
-      <Suspense fallback={null}>
-        <AthletesSearchContainer athletes={athletes} />
+      <Suspense fallback={<AthletesSkeleton />}>
+        <AthletesContent />
       </Suspense>
     </section>
   );

@@ -2,11 +2,10 @@
 
 import prisma from "@/lib/prisma";
 import { getAllDivisions } from "@/data/weight-class";
-import { headers } from "next/headers";
+import { connection } from "next/server";
 
 export async function getDivisionStats() {
-  // Access headers first to satisfy Next.js 16 cache requirements
-  await headers();
+  await connection();
 
   // Get all divisions
   const divisions = getAllDivisions();

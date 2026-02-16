@@ -69,26 +69,18 @@ export async function getAllAthletes(): Promise<Athlete[]> {
       orderBy: [{ rank: "asc" }, { name: "asc" }],
     });
 
-    // Sort athletes by rank first, then by name for same rank
-    athletes.sort((a, b) => {
-      // If both have ranks, sort by rank
+    return athletes.toSorted((a, b) => {
       if (a.rank !== null && b.rank !== null) {
         return a.rank - b.rank;
       }
-
-      // If only one has a rank, put the ranked one first
       if (a.rank !== null && b.rank === null) {
         return -1;
       }
       if (a.rank === null && b.rank !== null) {
         return 1;
       }
-
-      // If neither has a rank, sort by name
       return a.name.localeCompare(b.name);
     });
-
-    return athletes;
   } catch (error) {
     console.error("Error fetching all athletes:", error);
     return [];
@@ -99,7 +91,7 @@ export async function getAllAthletes(): Promise<Athlete[]> {
 // Wrapped with React.cache() for per-request deduplication
 export const getAthletes = cache(async (): Promise<Athlete[]> => {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("athletes");
   try {
     const athletes = await prisma.athlete.findMany({
@@ -107,26 +99,18 @@ export const getAthletes = cache(async (): Promise<Athlete[]> => {
       orderBy: [{ rank: "asc" }, { name: "asc" }],
     });
 
-    // Sort athletes by rank first, then by name for same rank
-    athletes.sort((a, b) => {
-      // If both have ranks, sort by rank
+    return athletes.toSorted((a, b) => {
       if (a.rank !== null && b.rank !== null) {
         return a.rank - b.rank;
       }
-
-      // If only one has a rank, put the ranked one first
       if (a.rank !== null && b.rank === null) {
         return -1;
       }
       if (a.rank === null && b.rank !== null) {
         return 1;
       }
-
-      // If neither has a rank, sort by name
       return a.name.localeCompare(b.name);
     });
-
-    return athletes;
   } catch (error) {
     console.error("Error fetching active athletes:", error);
     return [];
@@ -138,7 +122,7 @@ export async function getAthletesByDivision(
   division: string
 ): Promise<Athlete[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("athletes-by-division");
   cacheTag(`division-${division}`);
 
@@ -148,26 +132,18 @@ export async function getAthletesByDivision(
       orderBy: { rank: "asc" },
     });
 
-    // Sort athletes by rank first, then by name for same rank
-    athletes.sort((a, b) => {
-      // If both have ranks, sort by rank
+    return athletes.toSorted((a, b) => {
       if (a.rank !== null && b.rank !== null) {
         return a.rank - b.rank;
       }
-
-      // If only one has a rank, put the ranked one first
       if (a.rank !== null && b.rank === null) {
         return -1;
       }
       if (a.rank === null && b.rank !== null) {
         return 1;
       }
-
-      // If neither has a rank, sort by name
       return a.name.localeCompare(b.name);
     });
-
-    return athletes;
   } catch (error) {
     console.error("Error fetching athletes by division:", error);
     return [];
@@ -179,7 +155,7 @@ export async function getDivisionAthletes(
   slug: string
 ): Promise<{ name: string; weight?: number; athletes: Athlete[] } | null> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("division-athletes");
   cacheTag(`division-slug-${slug}`);
 
@@ -225,26 +201,19 @@ export async function getDivisionAthletes(
       orderBy: [{ rank: "asc" }, { name: "asc" }],
     });
 
-    // Sort athletes by rank first, then by name for same rank
-    athletes.sort((a, b) => {
-      // Handle unranked athletes (rank 0 or undefined)
+    const sortedAthletes = athletes.toSorted((a, b) => {
       const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
       const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
 
-      // If both have valid ranks, sort by rank
       if (aRank !== Infinity && bRank !== Infinity) {
         return aRank - bRank;
       }
-
-      // If only one has a valid rank, put the ranked one first
       if (aRank !== Infinity && bRank === Infinity) {
         return -1;
       }
       if (aRank === Infinity && bRank !== Infinity) {
         return 1;
       }
-
-      // If neither has a valid rank, sort by name
       return a.name.localeCompare(b.name);
     });
 
@@ -255,7 +224,7 @@ export async function getDivisionAthletes(
     return {
       name: fullDivisionName,
       weight: divisionData?.weight,
-      athletes,
+      athletes: sortedAthletes,
     };
   } catch (error) {
     console.error("Error fetching division athletes:", error);
@@ -279,7 +248,7 @@ export async function getTop20Athletes(): Promise<{
   }[];
 }> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("top-20-athletes");
   cacheTag("athlete-popularity");
 
@@ -335,7 +304,7 @@ export async function getTop20Athletes(): Promise<{
 // Get top 5 athletes by followers
 export async function getTop5Athletes(): Promise<Athlete[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("top-5-athletes");
   cacheTag("athlete-popularity");
 
@@ -358,7 +327,7 @@ export async function getP4PRankings(): Promise<{
   female: Athlete[];
 }> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("p4p-rankings-data");
 
   try {
@@ -394,7 +363,7 @@ export async function getLiveP4PRankings(): Promise<{
   femaleP4PRankings: Athlete[];
 }> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("p4p-rankings-data");
   cacheTag("homepage-p4p");
 
@@ -428,7 +397,7 @@ export async function getLiveP4PRankings(): Promise<{
 // Get champions
 export async function getChampions(): Promise<Athlete[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("champions-data");
 
   try {
@@ -449,7 +418,7 @@ export async function getLiveChampions(): Promise<{
   femaleChampions: Athlete[];
 }> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("champions-data");
   cacheTag("homepage-champions");
 
@@ -496,7 +465,7 @@ export async function getRetiredAthletes(): Promise<Athlete[]> {
 // Get undefeated athletes
 export async function getUndefeatedAthletes(): Promise<Athlete[]> {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("undefeated-athletes");
 
   try {
@@ -516,7 +485,7 @@ export async function getCountryStats(): Promise<
   { country: string; count: number }[]
 > {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("country-stats");
 
   try {
@@ -615,7 +584,6 @@ export async function createAthlete(
     revalidateTag("all-athletes-data", "max");
     revalidateTag("live-stats", "max");
     revalidateTag("stats", "max");
-    revalidateTag("dashboard-stats", "max");
     revalidateTag("athletes-page", "max");
     revalidateTag("athletes-by-division", "max");
     revalidateTag("division-athletes", "max");
@@ -801,7 +769,6 @@ export async function updateAthlete(
     revalidateTag("athlete-by-id", "max");
     revalidateTag("live-stats", "max");
     revalidateTag("stats", "max");
-    revalidateTag("dashboard-stats", "max");
     revalidateTag(`athlete-${id}`, "max");
     revalidateTag(`athlete-edit-${id}`, "max"); // Invalidate edit cache
     revalidateTag("athletes-by-division", "max");
@@ -957,11 +924,17 @@ export async function updateAthleteStatus(
     revalidateTag("division-athletes", "max");
     revalidateTag("athletes", "max");
     revalidateTag("homepage", "max");
+    revalidateTag("top-20-athletes", "max");
+    revalidateTag("top-5-athletes", "max");
+    revalidateTag("all-athletes-data", "max");
+    revalidateTag("athletes-page", "max");
 
     // Revalidate paths
     revalidatePath("/retired", "page");
     revalidatePath("/athletes", "page");
     revalidatePath(`/athlete/${athleteId}`, "page");
+    revalidatePath("/rankings/divisions", "page");
+    revalidatePath("/rankings/popularity", "page");
 
     // Revalidate division page if we know the division
     if (currentAthlete?.weightDivision) {

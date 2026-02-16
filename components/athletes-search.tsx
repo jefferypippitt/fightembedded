@@ -55,7 +55,7 @@ const AthletesGrid = memo(
     // Sort athletes by rank first, then by name for same rank
     // For retired athletes, sort by name only (they're not ranked)
     const sortedAthletes = useMemo(() => {
-      return [...athletes].sort((a, b) => {
+      return athletes.toSorted((a, b) => {
         // If either athlete is retired, sort by name only
         if (a.retired || b.retired) {
           return a.name.localeCompare(b.name);

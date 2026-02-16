@@ -12,47 +12,46 @@ export interface Athlete {
 
 export async function getTop20Athletes() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("top-20-athletes");
 
   try {
-    // Fetch top 20 male athletes
-    const maleAthletes = await prisma.athlete.findMany({
-      where: {
-        AND: [{ gender: "MALE" }, { retired: false }, { followers: { gt: 0 } }],
-      },
-      orderBy: {
-        followers: "desc",
-      },
-      select: {
-        id: true,
-        name: true,
-        followers: true,
-        gender: true,
-      },
-      take: 20,
-    });
-
-    // Fetch top 20 female athletes
-    const femaleAthletes = await prisma.athlete.findMany({
-      where: {
-        AND: [
-          { gender: "FEMALE" },
-          { retired: false },
-          { followers: { gt: 0 } },
-        ],
-      },
-      orderBy: {
-        followers: "desc",
-      },
-      select: {
-        id: true,
-        name: true,
-        followers: true,
-        gender: true,
-      },
-      take: 20,
-    });
+    const [maleAthletes, femaleAthletes] = await Promise.all([
+      prisma.athlete.findMany({
+        where: {
+          AND: [{ gender: "MALE" }, { retired: false }, { followers: { gt: 0 } }],
+        },
+        orderBy: {
+          followers: "desc",
+        },
+        select: {
+          id: true,
+          name: true,
+          followers: true,
+          gender: true,
+        },
+        take: 20,
+      }),
+      prisma.athlete.findMany({
+        where: {
+          AND: [
+            { gender: "FEMALE" },
+            { retired: false },
+            { followers: { gt: 0 } },
+          ],
+        },
+        orderBy: {
+          followers: "desc",
+        },
+        select: {
+          id: true,
+          name: true,
+          followers: true,
+          gender: true,
+        },
+        take: 20,
+      }),
+    ]);
 
     return {
       maleAthletes,

@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn, getCachedImageUrl } from "@/lib/utils";
 import { getCountryCode } from "@/lib/country-codes";
@@ -34,75 +33,6 @@ export interface AthleteListCardProps {
   /** When true, reveal content (used when parent has confirmed all cards are ready). */
   revealWhen?: boolean;
 }
-
-// Map division names to badge variants
-const getDivisionVariant = (
-  division: string
-):
-  | "lightweight"
-  | "welterweight"
-  | "middleweight"
-  | "lightHeavyweight"
-  | "heavyweight"
-  | "featherweight"
-  | "bantamweight"
-  | "flyweight"
-  | "womenFeatherweight"
-  | "womenBantamweight"
-  | "womenFlyweight"
-  | "womenStrawweight"
-  | "default" => {
-  // Remove gender prefix if present
-  const divisionName = division.replace(/^(Men's|Women's)\s+/, "");
-
-  // Men's divisions
-  const menDivisions: Record<
-    string,
-    | "lightweight"
-    | "welterweight"
-    | "middleweight"
-    | "lightHeavyweight"
-    | "heavyweight"
-    | "featherweight"
-    | "bantamweight"
-    | "flyweight"
-  > = {
-    Heavyweight: "heavyweight",
-    "Light Heavyweight": "lightHeavyweight",
-    Middleweight: "middleweight",
-    Welterweight: "welterweight",
-    Lightweight: "lightweight",
-    Featherweight: "featherweight",
-    Bantamweight: "bantamweight",
-    Flyweight: "flyweight",
-  };
-
-  // Women's divisions
-  const womenDivisions: Record<
-    string,
-    | "womenFeatherweight"
-    | "womenBantamweight"
-    | "womenFlyweight"
-    | "womenStrawweight"
-  > = {
-    Featherweight: "womenFeatherweight",
-    Bantamweight: "womenBantamweight",
-    Flyweight: "womenFlyweight",
-    Strawweight: "womenStrawweight",
-  };
-
-  // Check if it's a men's division first
-  if (menDivisions[divisionName]) {
-    return menDivisions[divisionName];
-  }
-
-  // Then check if it's a women's division
-  if (womenDivisions[divisionName]) {
-    return womenDivisions[divisionName];
-  }
-
-  return "default";
-};
 
 function AthleteListCardComponent({
   name,
@@ -179,6 +109,7 @@ function AthleteListCardComponent({
         !disableCursor && "cursor-pointer",
         isSelected && "ring-1 ring-primary/60"
       )}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "0 280px" }}
       onClick={onSelect}
     >
       <CardContent className="p-0 flex flex-col">
@@ -269,12 +200,9 @@ function AthleteListCardComponent({
         {/* Division */}
         {weightDivision && (
           <div className="flex items-center justify-center mb-3">
-            <Badge
-              variant={getDivisionVariant(weightDivision)}
-              className="text-[10px] py-0 px-2 font-medium"
-            >
+            <span className="text-[10px] py-0 px-2 font-semibold text-foreground/70 uppercase tracking-wide">
               {weightDivision.replace(/^(Men's|Women's)\s+/, "")}
-            </Badge>
+            </span>
           </div>
         )}
 

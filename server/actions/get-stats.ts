@@ -5,7 +5,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 export async function getStats() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("stats");
 
   const [activeAthletes, weightClasses, champions, events, maleP4P, femaleP4P] =
@@ -86,7 +86,7 @@ export async function getStats() {
 // Live stats function for hero section
 export async function getLiveStats() {
   "use cache";
-  cacheLife("hours");
+  cacheLife("days");
   cacheTag("stats");
   cacheTag("live-stats");
 

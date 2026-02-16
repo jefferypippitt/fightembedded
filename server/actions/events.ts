@@ -63,7 +63,6 @@ export async function createEvent(formData: FormData) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
-    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${event.id}`, "max");
 
     // Revalidate public events pages if the new event is upcoming
@@ -124,7 +123,6 @@ export async function updateEvent(id: string, formData: FormData) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
-    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${id}`, "max");
     revalidateTag(`event-edit-${id}`, "max"); // Invalidate edit cache
 
@@ -167,7 +165,6 @@ export async function deleteEvent(id: string) {
     revalidateTag("live-upcoming-events", "max");
     revalidateTag("stats", "max");
     revalidateTag("live-stats", "max");
-    revalidateTag("dashboard-stats", "max");
     revalidateTag(`event-${id}`, "max");
 
     // Revalidate public pages
