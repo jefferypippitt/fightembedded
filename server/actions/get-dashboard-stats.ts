@@ -1,12 +1,11 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { cacheTag, cacheLife } from "next/cache";
+import { connection } from "next/server";
 
 export async function getDashboardStats() {
-  "use cache";
-  cacheTag("dashboard-stats");
-  cacheLife("hours");
+  // Force fresh data for every dashboard render/request.
+  await connection();
 
   // Get the start of the current week (Monday)
   const now = new Date();

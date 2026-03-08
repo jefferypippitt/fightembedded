@@ -4,16 +4,27 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import { DashboardHeader, SiteHeaderSkeleton } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { connection } from "next/server";
+
+function DashboardLayoutFallback() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <SiteHeaderSkeleton />
+    </div>
+  );
+}
 
 function SidebarUserFooter() {
   return <NavUser />;
 }
 
-export default async function DashboardLayout({
+async function DashboardLayoutContent({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await connection();
+
   // Authentication is handled by proxy.ts middleware which runs before this layout
   // No need to check auth here as unauthenticated users are already redirected
 
@@ -41,5 +52,17 @@ export default async function DashboardLayout({
         {children}
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Suspense fallback={<DashboardLayoutFallback />}>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </Suspense>
   );
 }
