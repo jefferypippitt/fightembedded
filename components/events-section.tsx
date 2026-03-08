@@ -1,9 +1,9 @@
-import { getLiveUpcomingEvents } from "@/server/actions/events";
+import { getUpcomingEvents } from "@/server/actions/events";
 import { EventMarqueeSection } from "@/components/event-marquee";
 
 export default async function EventsSection() {
   try {
-    const events = await getLiveUpcomingEvents();
+    const events = await getUpcomingEvents();
 
     // Only render if there are upcoming events
     if (!events || events.length === 0) {

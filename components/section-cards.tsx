@@ -35,7 +35,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.totalEvents.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="default" className="text-xs">
               All Time
             </Badge>
           </CardAction>
@@ -57,7 +57,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
               : "No Events"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">{nextEvent?.name || "TBD"}</Badge>
+            <Badge variant="default">{nextEvent?.name || "TBD"}</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -79,7 +79,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.topCountries[0]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               {stats.topCountries[0]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -99,7 +99,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.topCountries[1]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               {stats.topCountries[1]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -119,7 +119,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.topCountries[2]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               {stats.topCountries[2]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -139,7 +139,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.totalChampions.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">Active</Badge>
+            <Badge variant="default">Active</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -157,7 +157,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {stats.mostFollowedAthlete?.name || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               {stats.mostFollowedAthlete?.followers.toLocaleString() || 0}{" "}
               followers
             </Badge>
@@ -183,7 +183,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {totalAthletes.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">{thisWeekAthletesCount} this week</Badge>
+            <Badge variant="default">{thisWeekAthletesCount} this week</Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -203,7 +203,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {male?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               <TrendingUpDown className="size-3.5" />
               {male?.winRate || "0"}% WR
             </Badge>
@@ -226,7 +226,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {female?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               <TrendingUpDown className="size-3.5" />
               {female?.winRate || "0"}% WR
             </Badge>
@@ -251,7 +251,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {recentlyRetiredCount}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               <TrendingDownIcon className="size-3.5" />
               Retired
             </Badge>
@@ -276,7 +276,7 @@ export async function SectionCards({ stats }: SectionCardsProps) {
             {thisWeekAthletesCount}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
+            <Badge variant="default">
               <TrendingUpIcon className="size-3.5" />
               This Week
             </Badge>

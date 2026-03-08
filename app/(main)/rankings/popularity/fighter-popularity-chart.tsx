@@ -15,6 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ChartData {
   name: string;
@@ -96,65 +97,68 @@ export function FighterPopularityChart({
           ))}
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:p-6 relative z-10">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[500px] sm:h-[500px] w-full"
-        >
-          <BarChart
-            data={chartData}
-            layout="vertical"
-            margin={{
-              left: 1,
-              right: 5,
-              top: 1,
-              bottom: 1,
-            }}
+      <ScrollArea className="h-[600px]">
+        <CardContent className="px-2 sm:p-6 relative z-10">
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-auto w-full"
+            style={{ height: Math.max(400, chartData.length * 28) }}
           >
-            <CartesianGrid horizontal={false} vertical={true} />
-            <XAxis
-              type="number"
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(value) => value.toLocaleString()}
-              tick={{
-                fill: "hsl(var(--foreground))",
-                fontSize: "9px",
+            <BarChart
+              data={chartData}
+              layout="vertical"
+              margin={{
+                left: 1,
+                right: 5,
+                top: 1,
+                bottom: 1,
               }}
-            />
-            <YAxis
-              dataKey="name"
-              type="category"
-              tickLine={false}
-              tickMargin={15}
-              axisLine={false}
-              width={140}
-              interval={0}
-              tick={{
-                fill: "hsl(var(--foreground))",
-                fontSize: "9px",
-                fontWeight: 500,
-                x: 0,
-              }}
-            />
-            <ChartTooltip
-              cursor={{ fill: "hsl(var(--muted))" }}
-              content={
-                <ChartTooltipContent
-                  className="w-[150px] bg-background border shadow-lg text-[10px]"
-                  nameKey={activeChart}
-                />
-              }
-            />
-            <Bar
-              dataKey={activeChart}
-              fill={`var(--color-${activeChart})`}
-              radius={[0, 4, 4, 0]}
-              className="[&>path]:fill-[var(--chart-color)]"
-            />
-          </BarChart>
-        </ChartContainer>
-      </CardContent>
+            >
+              <CartesianGrid horizontal={false} vertical={true} />
+              <XAxis
+                type="number"
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={(value) => value.toLocaleString()}
+                tick={{
+                  fill: "hsl(var(--foreground))",
+                  fontSize: "9px",
+                }}
+              />
+              <YAxis
+                dataKey="name"
+                type="category"
+                tickLine={false}
+                tickMargin={15}
+                axisLine={false}
+                width={140}
+                interval={0}
+                tick={{
+                  fill: "hsl(var(--foreground))",
+                  fontSize: "9px",
+                  fontWeight: 500,
+                  x: 0,
+                }}
+              />
+              <ChartTooltip
+                cursor={{ fill: "hsl(var(--muted))" }}
+                content={
+                  <ChartTooltipContent
+                    className="w-[150px] bg-background border shadow-lg text-[10px]"
+                    nameKey={activeChart}
+                  />
+                }
+              />
+              <Bar
+                dataKey={activeChart}
+                fill={`var(--color-${activeChart})`}
+                radius={[0, 4, 4, 0]}
+                className="[&>path]:fill-[var(--chart-color)]"
+              />
+            </BarChart>
+          </ChartContainer>
+        </CardContent>
+      </ScrollArea>
     </Card>
   );
 }

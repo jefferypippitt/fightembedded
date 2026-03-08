@@ -13,7 +13,7 @@ export default function HeroContent() {
         </h1>
       </div>
       <div className="mt-2">
-        <Button asChild variant="outline" size="lg" className="rounded-full hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground">
+        <Button asChild variant="outline" size="lg">
           <Link href="/athletes" className="tracking-wide font-medium uppercase text-xs sm:text-sm">Explore All Athletes</Link>
         </Button>
       </div>

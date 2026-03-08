@@ -52,22 +52,18 @@ const AthletesGrid = memo(
     searchInput: string;
     priorityStrategy?: "rank-1-8" | "none";
   }) => {
-    // Sort athletes by rank first, then by name for same rank
-    // For retired athletes, sort by name only (they're not ranked)
+    // Sort athletes by rank first, then by name.
+    // Retired pages still use rank because admin reorder writes retired ordering to rank.
     const sortedAthletes = useMemo(() => {
       return athletes.toSorted((a, b) => {
-        // If either athlete is retired, sort by name only
-        if (a.retired || b.retired) {
-          return a.name.localeCompare(b.name);
-        }
-
-        // Handle unranked athletes (rank 0 or undefined)
+        // Handle unranked athletes (rank 0, null, or undefined)
         const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
         const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
 
         // If both have valid ranks, sort by rank
         if (aRank !== Infinity && bRank !== Infinity) {
-          return aRank - bRank;
+          if (aRank !== bRank) return aRank - bRank;
+          return a.name.localeCompare(b.name);
         }
 
         // If only one has a valid rank, put the ranked one first

@@ -207,46 +207,11 @@ export async function getEventForEdit(id: string) {
   }
 }
 
-export async function getLiveUpcomingEvents() {
-  "use cache";
-  cacheLife("days"); // UFC events are weekly, cache longer since schedule is stable
-  cacheTag("live-upcoming-events");
-
-  try {
-    const events = await prisma.event.findMany({
-      where: {
-        status: "UPCOMING",
-        // Removed date filter to show all UPCOMING events regardless of date
-        // Events will only be hidden when status is changed to COMPLETED or CANCELLED
-      },
-      orderBy: {
-        date: "asc", // Show earliest upcoming events first
-      },
-      select: {
-        id: true,
-        name: true,
-        date: true,
-        venue: true,
-        location: true,
-        mainEvent: true,
-        coMainEvent: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return events;
-  } catch (error) {
-    console.error("Error fetching upcoming events:", error);
-    return [];
-  }
-}
-
 export async function getUpcomingEvents() {
   "use cache";
   cacheLife("days"); // UFC events are weekly, cache longer since schedule is stable
   cacheTag("upcoming-events");
+  cacheTag("live-upcoming-events");
 
   try {
     const events = await prisma.event.findMany({

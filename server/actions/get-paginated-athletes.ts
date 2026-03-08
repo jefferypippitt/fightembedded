@@ -3,6 +3,20 @@
 import prisma from "@/lib/prisma";
 import type { Athlete } from "@/types/athlete";
 import { Prisma } from "@prisma/client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { cache } from "react";
+
+const checkAuth = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+});
 
 const athleteSelect = {
   id: true,
@@ -34,6 +48,7 @@ export async function getPaginatedAthletes(params: {
   sort?: string;
   columnFilters?: { id: string; value: string[] }[];
 }) {
+  await checkAuth();
 
   const { page, pageSize, q, view, gender, sort, columnFilters } = params;
 
@@ -184,13 +199,16 @@ export async function getPaginatedAthletes(params: {
     });
   } else if (view === "retired") {
     // Retired view - only show retired athletes
-    // Sort alphabetically by name since retired athletes aren't ranked
+    // Sort by rank (retirement order, set during reorder) then alphabetically by name
     athletes = await prisma.athlete.findMany({
       where,
       select: athleteSelect,
       orderBy: [
         {
-          name: "asc", // Sort alphabetically by name
+          rank: "asc", // Sort by rank (retirement order)
+        },
+        {
+          name: "asc", // Then alphabetically by name
         },
       ],
       skip: (page - 1) * pageSize,

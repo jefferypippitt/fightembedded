@@ -321,44 +321,8 @@ export async function getTop5Athletes(): Promise<Athlete[]> {
   }
 }
 
-// Get pound-for-pound rankings
-export async function getP4PRankings(): Promise<{
-  male: Athlete[];
-  female: Athlete[];
-}> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("p4p-rankings-data");
-
-  try {
-    const [male, female] = await Promise.all([
-      prisma.athlete.findMany({
-        where: {
-          gender: "MALE",
-          retired: false,
-          poundForPoundRank: { gt: 0 },
-        },
-        orderBy: { poundForPoundRank: "asc" },
-      }),
-      prisma.athlete.findMany({
-        where: {
-          gender: "FEMALE",
-          retired: false,
-          poundForPoundRank: { gt: 0 },
-        },
-        orderBy: { poundForPoundRank: "asc" },
-      }),
-    ]);
-
-    return { male, female };
-  } catch (error) {
-    console.error("Error fetching P4P rankings:", error);
-    return { male: [], female: [] };
-  }
-}
-
 // Get live P4P rankings (with Next.js cache and tags for proper revalidation)
-export async function getLiveP4PRankings(): Promise<{
+export async function getP4PRankings(): Promise<{
   maleP4PRankings: Athlete[];
   femaleP4PRankings: Athlete[];
 }> {
@@ -394,26 +358,8 @@ export async function getLiveP4PRankings(): Promise<{
   }
 }
 
-// Get champions
-export async function getChampions(): Promise<Athlete[]> {
-  "use cache";
-  cacheLife("days");
-  cacheTag("champions-data");
-
-  try {
-    const champions = await prisma.athlete.findMany({
-      where: { rank: 1, retired: false },
-      orderBy: { weightDivision: "asc" },
-    });
-    return champions;
-  } catch (error) {
-    console.error("Error fetching champions:", error);
-    return [];
-  }
-}
-
-// Get live champions (for homepage)
-export async function getLiveChampions(): Promise<{
+// Get champions (separated by gender for homepage/display use)
+export async function getChampions(): Promise<{
   maleChampions: Athlete[];
   femaleChampions: Athlete[];
 }> {
@@ -437,7 +383,7 @@ export async function getLiveChampions(): Promise<{
 
     return { maleChampions, femaleChampions };
   } catch (error) {
-    console.error("Error fetching live champions:", error);
+    console.error("Error fetching champions:", error);
     return { maleChampions: [], femaleChampions: [] };
   }
 }
@@ -445,13 +391,15 @@ export async function getLiveChampions(): Promise<{
 // Get retired athletes
 export async function getRetiredAthletes(): Promise<Athlete[]> {
   "use cache";
-  cacheLife("years"); // Retired athletes very static (~2/year), cache invalidation handles edge cases
+  cacheLife("days");
   cacheTag("retired-athletes-data");
+
   try {
     const retiredAthletes = await prisma.athlete.findMany({
       where: { retired: true },
       orderBy: [
-        { name: "asc" }, // Sort alphabetically by name since retired athletes aren't ranked
+        { rank: "asc" }, // Sort by rank (retirement order from admin reorder)
+        { name: "asc" }, // Then alphabetically by name
       ],
     });
 
@@ -624,6 +572,7 @@ export async function createAthlete(
 
     // Always revalidate popularity rankings (based on followers)
     revalidatePath("/rankings/popularity", "page");
+    revalidatePath("/rankings/all-time", "page");
 
     // Only revalidate homepage if athlete affects homepage sections
     if (isChampion || hasP4PRank) {
@@ -739,11 +688,15 @@ export async function updateAthlete(
       },
     });
 
-    // If athlete is being marked as retired, clear their ranks
+    // Only clear ranks when athlete is BEING marked as retired (not already retired)
+    // Handle both false and null (some legacy data might have null)
+    const isCurrentlyActive = currentAthlete?.retired === false || currentAthlete?.retired === null;
+    const isBeingMarkedRetired = isCurrentlyActive && validatedData.retired === true;
+    
     const finalData = {
       ...validatedData,
-      rank: validatedData.retired ? 0 : validatedData.rank ?? 0,
-      poundForPoundRank: validatedData.retired
+      rank: isBeingMarkedRetired ? 0 : validatedData.rank ?? 0,
+      poundForPoundRank: isBeingMarkedRetired
         ? 0
         : validatedData.poundForPoundRank ?? 0,
       retired: validatedData.retired,
@@ -801,6 +754,11 @@ export async function updateAthlete(
       currentAthlete?.followers !== validatedData.followers;
     if (followersChanged) {
       revalidatePath("/rankings/popularity", "page");
+      revalidatePath("/rankings/all-time", "page");
+    }
+
+    if (retiredStatusChanged) {
+      revalidatePath("/rankings/all-time", "page");
     }
 
     if (retiredStatusChanged) {
@@ -935,6 +893,7 @@ export async function updateAthleteStatus(
     revalidatePath(`/athlete/${athleteId}`, "page");
     revalidatePath("/rankings/divisions", "page");
     revalidatePath("/rankings/popularity", "page");
+    revalidatePath("/rankings/all-time", "page");
 
     // Revalidate division page if we know the division
     if (currentAthlete?.weightDivision) {
@@ -1037,6 +996,7 @@ export async function deleteAthlete(id: string) {
     // Revalidate popularity rankings (athlete had followers)
     if (athlete.followers > 0) {
       revalidatePath("/rankings/popularity", "page");
+      revalidatePath("/rankings/all-time", "page");
     }
 
     // Only revalidate homepage if athlete affects homepage sections

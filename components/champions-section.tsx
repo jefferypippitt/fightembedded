@@ -1,9 +1,9 @@
-import { getLiveChampions } from "@/server/actions/athlete";
+import { getChampions } from "@/server/actions/athlete";
 import { AthleteListCard } from "@/components/athlete-list-card";
 import { sortChampionsByDivision } from "@/lib/utils";
 
 export default async function ChampionsSection() {
-  const { maleChampions, femaleChampions } = await getLiveChampions();
+  const { maleChampions, femaleChampions } = await getChampions();
 
   // Sort champions by weight division (heaviest to lightest)
   const sortedMaleChampions = sortChampionsByDivision(maleChampions, "MALE");

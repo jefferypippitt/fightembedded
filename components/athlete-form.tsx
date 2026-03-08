@@ -38,7 +38,7 @@ import { z } from "zod";
 
 import { useRef } from "react";
 
-import { weightClasses } from "@/data/weight-class";
+import { weightClasses, getDivisionDisplayLabel } from "@/data/weight-class";
 import { countries } from "@/data/countries";
 import * as React from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
@@ -510,8 +510,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                               key={division.slug}
                               value={`Men's ${division.name}`}
                             >
-                              {division.name}{" "}
-                              {division.weight && `(${division.weight}lbs)`}
+                              {getDivisionDisplayLabel(division, false)}
                             </SelectItem>
                           ))}
                         </SelectGroup>
@@ -522,8 +521,7 @@ export function AthleteForm({ initialData }: AthleteFormProps) {
                               key={division.slug}
                               value={`Women's ${division.name}`}
                             >
-                              {division.name}{" "}
-                              {division.weight && `(${division.weight}lbs)`}
+                              {getDivisionDisplayLabel(division, true)}
                             </SelectItem>
                           ))}
                         </SelectGroup>

@@ -113,10 +113,6 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
               {fullName}
             </h1>
           </div>
-          <p className="text-balance text-sm text-muted-foreground sm:text-base">
-            Explore the rankings, records, and profiles of every athlete
-            actively competing in the UFC.
-          </p>
         </div>
       </header>
       <Suspense fallback={<DivisionSkeleton />}>

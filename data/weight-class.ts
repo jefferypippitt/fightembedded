@@ -89,6 +89,14 @@ export const getFullDivisionName = (
   return `${isWomen ? "Women's" : "Men's"} ${division.name}`;
 };
 
+export const getDivisionDisplayLabel = (
+  division: WeightDivision,
+  isWomen: boolean
+): string => {
+  const fullName = getFullDivisionName(division, isWomen);
+  return division.weight ? `${fullName} (${division.weight}lbs)` : fullName;
+};
+
 export const getAllDivisions = (): Array<{ slug: string; name: string }> => {
   const menDivisions = weightClasses.men.map((division) => ({
     slug: generateDivisionSlug(division, false),

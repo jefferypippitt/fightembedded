@@ -50,7 +50,11 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { weightClasses, getFullDivisionName } from "@/data/weight-class";
+import {
+  weightClasses,
+  getFullDivisionName,
+  getDivisionDisplayLabel,
+} from "@/data/weight-class";
 import { Athlete } from "@/types/athlete";
 import { deleteAthlete, updateAthleteRanks } from "@/server/actions/athlete";
 import { getPaginatedAthletes } from "@/server/actions/get-paginated-athletes";
@@ -245,23 +249,6 @@ const WeightDivisionFilter = ({
 }: {
   column: Column<Athlete, unknown>;
 }) => {
-  const maleDivisions = [
-    "Men's Flyweight",
-    "Men's Bantamweight",
-    "Men's Featherweight",
-    "Men's Lightweight",
-    "Men's Welterweight",
-    "Men's Middleweight",
-    "Men's Light Heavyweight",
-    "Men's Heavyweight",
-  ];
-
-  const femaleDivisions = [
-    "Women's Strawweight",
-    "Women's Flyweight",
-    "Women's Bantamweight",
-  ];
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -271,45 +258,55 @@ const WeightDivisionFilter = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Male Divisions</DropdownMenuLabel>
-        {maleDivisions.map((division) => (
-          <DropdownMenuCheckboxItem
-            key={division}
-            checked={(column.getFilterValue() as string[])?.includes(division)}
-            onCheckedChange={(checked) => {
-              const currentFilter = (column.getFilterValue() as string[]) ?? [];
-              if (checked) {
-                column.setFilterValue([...currentFilter, division]);
-              } else {
-                column.setFilterValue(
-                  currentFilter.filter((item) => item !== division)
-                );
-              }
-            }}
-          >
-            {division}
-          </DropdownMenuCheckboxItem>
-        ))}
+        <DropdownMenuLabel>Mens Divisions</DropdownMenuLabel>
+        {weightClasses.men.map((division) => {
+          const fullDivisionName = getFullDivisionName(division, false);
+          return (
+            <DropdownMenuCheckboxItem
+              key={`men-${division.slug}`}
+              checked={(column.getFilterValue() as string[])?.includes(
+                fullDivisionName
+              )}
+              onCheckedChange={(checked) => {
+                const currentFilter = (column.getFilterValue() as string[]) ?? [];
+                if (checked) {
+                  column.setFilterValue([...currentFilter, fullDivisionName]);
+                } else {
+                  column.setFilterValue(
+                    currentFilter.filter((item) => item !== fullDivisionName)
+                  );
+                }
+              }}
+            >
+              {getDivisionDisplayLabel(division, false)}
+            </DropdownMenuCheckboxItem>
+          );
+        })}
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Female Divisions</DropdownMenuLabel>
-        {femaleDivisions.map((division) => (
-          <DropdownMenuCheckboxItem
-            key={division}
-            checked={(column.getFilterValue() as string[])?.includes(division)}
-            onCheckedChange={(checked) => {
-              const currentFilter = (column.getFilterValue() as string[]) ?? [];
-              if (checked) {
-                column.setFilterValue([...currentFilter, division]);
-              } else {
-                column.setFilterValue(
-                  currentFilter.filter((item) => item !== division)
-                );
-              }
-            }}
-          >
-            {division}
-          </DropdownMenuCheckboxItem>
-        ))}
+        <DropdownMenuLabel>Womens Divisions</DropdownMenuLabel>
+        {weightClasses.women.map((division) => {
+          const fullDivisionName = getFullDivisionName(division, true);
+          return (
+            <DropdownMenuCheckboxItem
+              key={`women-${division.slug}`}
+              checked={(column.getFilterValue() as string[])?.includes(
+                fullDivisionName
+              )}
+              onCheckedChange={(checked) => {
+                const currentFilter = (column.getFilterValue() as string[]) ?? [];
+                if (checked) {
+                  column.setFilterValue([...currentFilter, fullDivisionName]);
+                } else {
+                  column.setFilterValue(
+                    currentFilter.filter((item) => item !== fullDivisionName)
+                  );
+                }
+              }}
+            >
+              {getDivisionDisplayLabel(division, true)}
+            </DropdownMenuCheckboxItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -1231,14 +1228,12 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
       let rankUpdates;
 
       if (isRetiredView) {
-        // For retired athletes, we'll use the rank field to store their retirement order
-        // This represents their legacy ranking or display order
+        // For retired athletes, ALWAYS assign new ranks based on current position
+        // This allows free reordering of retired athletes
         rankUpdates = currentData.athletes.map((athlete, index) => {
-          const newRetirementOrder = index + 1;
-
           return {
             id: athlete.id,
-            rank: newRetirementOrder,
+            rank: index + 1, // Always assign 1, 2, 3 based on position
           };
         });
       } else {
@@ -1507,7 +1502,7 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
                     const name = getFullDivisionName(d, false);
                     return (
                       <SelectItem key={`men-${d.slug}`} value={name}>
-                        {name}
+                        {getDivisionDisplayLabel(d, false)}
                       </SelectItem>
                     );
                   })
@@ -1517,7 +1512,7 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
                     const name = getFullDivisionName(d, true);
                     return (
                       <SelectItem key={`women-${d.slug}`} value={name}>
-                        {name}
+                        {getDivisionDisplayLabel(d, true)}
                       </SelectItem>
                     );
                   })

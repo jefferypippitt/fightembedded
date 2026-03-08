@@ -38,5 +38,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.cursor
-.cursorrules
+
+
+# next-agents-md
+.next-docs/

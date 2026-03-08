@@ -2,6 +2,20 @@
 
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { cache } from "react";
+
+const checkAuth = cache(async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+  return session;
+});
 
 const eventSelect = {
   id: true,
@@ -24,6 +38,8 @@ export async function getPaginatedEvents(params: {
   sort?: string;
   columnFilters?: { id: string; value: string[] }[];
 }) {
+  await checkAuth();
+
   const { page, pageSize, q, view, sort, columnFilters } = params;
 
   const where: Prisma.EventWhereInput = {};

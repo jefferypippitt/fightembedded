@@ -123,6 +123,11 @@ const navigationLinks = [
         label: "Popular Division Rankings",
         description: "Top 5 athletes by division popularity",
       },
+      {
+        href: "/rankings/all-time",
+        label: "All Time Popularity",
+        description: "Most popular athletes",
+      },
     ],
   },
   { href: "/events", label: "Events" },
