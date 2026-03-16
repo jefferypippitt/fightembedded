@@ -1,3 +1,5 @@
+"use cache";
+
 import { Metadata } from "next";
 import { Suspense } from "react";
 import {
@@ -11,22 +13,6 @@ export const metadata: Metadata = {
   title: "All UFC Athletes",
   description: "Search and compare UFC athletes by name, country, or division.",
 };
-
-function AthletesSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="h-10 w-full sm:max-w-xs lg:max-w-sm animate-pulse rounded-md bg-muted" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 9 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 async function AthletesContent() {
   const athletes = await getAthletes();
@@ -42,7 +28,7 @@ async function AthletesContent() {
   );
 }
 
-export default function AthletesPage() {
+export default async function AthletesPage() {
   return (
     <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
@@ -50,7 +36,7 @@ export default function AthletesPage() {
           <p className="text-sm font-semibold text-primary uppercase tracking-wide">
             Athlete Directory
           </p>
-          <h1 className="text-balance text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-white">
+          <h1 className="text-balance text-2xl sm:text-3xl font-semibold">
             All UFC Athletes
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground text-balance max-w-2xl">
@@ -59,7 +45,7 @@ export default function AthletesPage() {
           </p>
         </div>
       </header>
-      <Suspense fallback={<AthletesSkeleton />}>
+      <Suspense fallback={<div>Loading athletes...</div>}>
         <AthletesContent />
       </Suspense>
     </section>

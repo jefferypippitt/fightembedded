@@ -5,7 +5,6 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -70,12 +69,9 @@ export function FighterPopularityChart({
     <Card className="@container/card h-full relative overflow-hidden py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-          <CardTitle>
-            Total Social Media Followers
+          <CardTitle className="text-2xl font-semibold">
+            Total Followers
           </CardTitle>
-          <CardDescription>
-            From X and Instagram
-          </CardDescription>
         </div>
         <div className="flex">
           {(["male", "female"] as const).map((key) => (
@@ -101,7 +97,7 @@ export function FighterPopularityChart({
         <CardContent className="px-2 sm:p-6 relative z-10">
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto w-full"
+            className="aspect-auto w-full [&_.recharts-yAxis_.recharts-cartesian-axis-tick_text]:!fill-foreground"
             style={{ height: Math.max(400, chartData.length * 28) }}
           >
             <BarChart

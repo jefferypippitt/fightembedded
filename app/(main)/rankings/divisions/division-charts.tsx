@@ -156,7 +156,7 @@ export function DivisionChartData({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[300px] w-full overflow-x-auto"
+      className="aspect-auto h-[300px] w-full overflow-x-auto [&_.recharts-yAxis_.recharts-cartesian-axis-tick_text]:!fill-foreground"
     >
       <BarChart
         data={chartData}

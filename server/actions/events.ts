@@ -6,11 +6,10 @@ import { headers } from "next/headers";
 import { eventSchema } from "@/schemas/event";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
-import { cache } from "react";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 
-// Authentication helper - wrapped with React.cache() for per-request deduplication
-const checkAuth = cache(async () => {
+// Authentication helper
+const checkAuth = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -19,7 +18,7 @@ const checkAuth = cache(async () => {
     throw new Error("Unauthorized");
   }
   return session;
-});
+};
 
 export async function createEvent(formData: FormData) {
   try {

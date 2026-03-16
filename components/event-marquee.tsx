@@ -12,9 +12,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
   if (!events.length) {
     return (
       <section className="space-y-2">
-        <div className="flex justify-center">
-          <h2 className="text-2xl font-semibold">Upcoming Events</h2>
-        </div>
+        <h2 className="text-2xl font-semibold text-center">Upcoming Events</h2>
         <p className="text-neutral-600 dark:text-neutral-400">
           No upcoming events found.
         </p>
@@ -33,10 +31,8 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
 
   return (
     <section className="space-y-4">
-      <div className="flex justify-center">
-        <h2 className="text-2xl font-semibold">Upcoming Events</h2>
-      </div>
-      <div className="w-full max-w-[1200px] mx-auto px-4">
+      <h2 className="text-2xl font-semibold text-center">Upcoming Events</h2>
+      <div className="mx-auto w-full max-w-[1200px] px-0 sm:px-4">
         <Marquee
           pauseOnHover
           className="[--duration:80s] [--gap:1rem] cursor-pointer"

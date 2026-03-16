@@ -1,9 +1,13 @@
 import { getUpcomingEvents } from "@/server/actions/events";
 import { EventMarqueeSection } from "@/components/event-marquee";
 
-export default async function EventsSection() {
+interface EventsSectionProps {
+  events?: Awaited<ReturnType<typeof getUpcomingEvents>>;
+}
+
+export default async function EventsSection({ events: providedEvents }: EventsSectionProps = {}) {
   try {
-    const events = await getUpcomingEvents();
+    const events = providedEvents ?? (await getUpcomingEvents());
 
     // Only render if there are upcoming events
     if (!events || events.length === 0) {

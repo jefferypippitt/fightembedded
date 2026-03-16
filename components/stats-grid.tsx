@@ -1,8 +1,19 @@
 import { StatCard } from "./stat-card";
 import { StatItem } from "@/types/hero";
+import { cn } from "@/lib/utils";
 
-export const StatsGrid = ({ statsData }: { statsData: StatItem[] }) => (
-  <div className="grid grid-cols-2 gap-3 xs:gap-4 sm:gap-6 w-full max-w-[260px] xs:max-w-[280px] sm:max-w-[320px]">
+interface StatsGridProps {
+  statsData: StatItem[];
+  className?: string;
+}
+
+export const StatsGrid = ({ statsData, className }: StatsGridProps) => (
+  <div
+    className={cn(
+      "grid grid-cols-2 gap-2 sm:gap-4 md:gap-6 w-[180px] sm:w-[200px] md:max-w-[320px]",
+      className
+    )}
+  >
     {statsData.map((stat, index) => (
       <StatCard key={index} stat={stat} />
     ))}

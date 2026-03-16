@@ -5,9 +5,8 @@ import type { Athlete } from "@/types/athlete";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { cache } from "react";
 
-const checkAuth = cache(async () => {
+const checkAuth = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -16,7 +15,7 @@ const checkAuth = cache(async () => {
     throw new Error("Unauthorized");
   }
   return session;
-});
+};
 
 const athleteSelect = {
   id: true,

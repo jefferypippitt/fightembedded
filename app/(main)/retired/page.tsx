@@ -1,3 +1,5 @@
+"use cache";
+
 import { getRetiredAthletes } from "@/server/actions/athlete";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -24,25 +26,6 @@ export const metadata: Metadata = {
       "Complete stats and career records of retired UFC athletes. Access detailed performance metrics and analytics.",
   },
 };
-
-function RetiredSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <div className="h-10 w-48 animate-pulse rounded-md bg-muted" />
-        <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 async function RetiredContent() {
   const athletes = await getRetiredAthletes();
@@ -71,7 +54,7 @@ export default async function RetiredPage() {
             Retired Directory
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+            <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
               Retired Athletes
             </h1>
           </div>
@@ -80,7 +63,7 @@ export default async function RetiredPage() {
           </p>
         </div>
       </header>
-      <Suspense fallback={<RetiredSkeleton />}>
+      <Suspense fallback={<div>Loading athletes...</div>}>
         <RetiredContent />
       </Suspense>
     </section>

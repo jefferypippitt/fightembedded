@@ -17,7 +17,7 @@ export default async function EventsPage() {
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
             Event Schedule
           </p>
-          <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
             UFC Fight Schedule
           </h1>
           <p className="text-balance text-sm text-muted-foreground sm:text-base">

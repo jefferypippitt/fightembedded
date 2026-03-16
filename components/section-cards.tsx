@@ -1,6 +1,13 @@
 
 import { format } from "date-fns";
+import {
+  CalendarIcon,
+  TrendingDownIcon,
+  TrendingUpDown,
+  TrendingUpIcon,
+} from "lucide-react";
 
+import { DashboardStats } from "@/types/athlete";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -10,8 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CalendarIcon, TrendingDownIcon, TrendingUpDown, TrendingUpIcon } from "lucide-react";
-import { DashboardStats } from "@/types/athlete";
 
 interface SectionCardsProps {
   stats: DashboardStats;
@@ -27,42 +32,47 @@ export async function SectionCards({ stats }: SectionCardsProps) {
   const { male, female } = stats.poundForPoundRankings;
 
   return (
-    <div className="grid grid-cols-1 gap-3 px-4 *:data-[slot=card]:shadow-xs sm:gap-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Events</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.totalEvents.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="default" className="text-xs">
+            <Badge variant="outline">
+              <CalendarIcon className="size-4" />
               All Time
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-xs sm:text-sm">
-          <div className="line-clamp-1 flex gap-1.5 sm:gap-2 font-medium">
-            Total Events <CalendarIcon className="size-3.5 sm:size-4" />
+        <CardFooter className="flex-col items-start gap-1.5 text-sm">
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            Historical event count <TrendingUpIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">Historical event count</div>
+          <div className="text-muted-foreground">Tracked across all promotions</div>
         </CardFooter>
       </Card>
 
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Next Event</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {nextEvent
               ? format(new Date(nextEvent.date), "MMM d, yyyy")
               : "No Events"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">{nextEvent?.name || "TBD"}</Badge>
+            <Badge variant="outline">
+              <CalendarIcon className="size-4" />
+              {nextEvent?.name || "TBD"}
+            </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            {nextEvent?.name || "No upcoming events"}
+            {nextEvent ? "Upcoming fight card" : "No upcoming events"}
+            <CalendarIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
             {nextEvent
@@ -75,11 +85,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>#1 Country</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.topCountries[0]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
               {stats.topCountries[0]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -95,11 +106,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>#2 Country</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.topCountries[1]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
               {stats.topCountries[1]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -115,11 +127,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>#3 Country</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.topCountries[2]?.country || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
               {stats.topCountries[2]?.count || 0} athletes
             </Badge>
           </CardAction>
@@ -135,11 +148,14 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Champions</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.totalChampions.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">Active</Badge>
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
+              Active
+            </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -153,11 +169,12 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Most Followed</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {stats.mostFollowedAthlete?.name || "N/A"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
               {stats.mostFollowedAthlete?.followers.toLocaleString() || 0}{" "}
               followers
             </Badge>
@@ -179,11 +196,14 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Athletes</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {totalAthletes.toLocaleString()}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">{thisWeekAthletesCount} this week</Badge>
+            <Badge variant="outline">
+              <TrendingUpIcon className="size-4" />
+              {thisWeekAthletesCount} this week
+            </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -199,11 +219,11 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Men&apos;s P4P #1</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {male?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
               <TrendingUpDown className="size-3.5" />
               {male?.winRate || "0"}% WR
             </Badge>
@@ -222,11 +242,11 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Women&apos;s P4P #1</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {female?.name || "No #1 Ranked"}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
               <TrendingUpDown className="size-3.5" />
               {female?.winRate || "0"}% WR
             </Badge>
@@ -247,11 +267,11 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Recently Retired</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {recentlyRetiredCount}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
               <TrendingDownIcon className="size-3.5" />
               Retired
             </Badge>
@@ -272,11 +292,11 @@ export async function SectionCards({ stats }: SectionCardsProps) {
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Added This Week</CardDescription>
-          <CardTitle className="text-lg font-semibold tabular-nums sm:text-xl @[250px]/card:text-2xl @[300px]/card:text-3xl">
+          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
             {thisWeekAthletesCount}
           </CardTitle>
           <CardAction>
-            <Badge variant="default">
+            <Badge variant="outline">
               <TrendingUpIcon className="size-3.5" />
               This Week
             </Badge>

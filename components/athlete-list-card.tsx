@@ -25,6 +25,7 @@ export interface AthleteListCardProps {
   weightDivision?: string;
   poundForPoundRank?: number;
   isSelected?: boolean;
+  suppressSelectedStyles?: boolean;
   onSelect?: () => void;
   priority?: boolean;
   disableCursor?: boolean;
@@ -49,12 +50,12 @@ function AthleteListCardComponent({
   age,
   retired = false,
   weightDivision,
-  isSelected,
+  isSelected = false,
+  suppressSelectedStyles = false,
   onSelect,
-  priority = false,
   disableCursor = false,
+  priority = false,
   onImagesReady,
-  revealWhen,
 }: AthleteListCardProps) {
   // Get cached image URL with version parameter for cache busting
   const cachedImageUrl = getCachedImageUrl(imageUrl || null, updatedAt);
@@ -86,8 +87,19 @@ function AthleteListCardComponent({
   const handleFlagError = useCallback(() => setFlagLoaded(true), []);
   const handleAthleteError = useCallback(() => setAthleteLoaded(true), []);
 
-  // Parent-controlled reveal (all cards at once) or show immediately
-  const showContent = revealWhen !== undefined ? revealWhen : true;
+  const isClickable = Boolean(onSelect);
+  const isInteractive = isClickable && !disableCursor;
+
+  const handleCardKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!isInteractive || !onSelect) return;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onSelect();
+      }
+    },
+    [isInteractive, onSelect]
+  );
 
   // Calculate stats
   const totalFights = wins + losses + draws;
@@ -98,19 +110,24 @@ function AthleteListCardComponent({
   return (
     <Card
       className={cn(
-        "@container/card h-full relative overflow-hidden group flex flex-col",
-        "border-border/40 dark:border-border/40",
-        "bg-transparent",
-        "shadow-sm",
-        !disableCursor && "hover:shadow-md",
-        "transition-shadow duration-200",
-        !disableCursor && "hover:border-primary/20 dark:hover:border-primary/20",
-        "p-2 sm:p-3",
-        !disableCursor && "cursor-pointer",
-        isSelected && "ring-1 ring-primary/60"
+        "@container/card h-full relative overflow-hidden group flex flex-col border-border/40 dark:border-border/40 bg-transparent shadow-sm p-2 sm:p-3 transition-all duration-200",
+        isInteractive &&
+          "cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/55 focus:ring-offset-2 focus:ring-offset-background focus-visible:ring-2 focus-visible:ring-primary/55 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+        isInteractive &&
+          isSelected &&
+          !suppressSelectedStyles &&
+          "border-primary/55 hover:border-primary/70 hover:bg-transparent hover:ring-0",
+        isInteractive &&
+          !isSelected &&
+          "hover:border-primary/45 hover:shadow-md hover:bg-primary/5 hover:ring-2 hover:ring-primary/45 dark:hover:ring-primary/60"
       )}
       style={{ contentVisibility: "auto", containIntrinsicSize: "0 280px" }}
-      onClick={onSelect}
+      onClick={isInteractive ? onSelect : undefined}
+      onKeyDown={handleCardKeyDown}
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-pressed={isInteractive ? isSelected : undefined}
+      aria-label={isInteractive ? `Select ${name} for comparison` : undefined}
     >
       <CardContent className="p-0 flex flex-col">
         {/* Corner Badges */}
@@ -176,8 +193,8 @@ function AthleteListCardComponent({
         </div>
 
         {/* Name and Record section */}
-        <div className="text-center mb-3">
-          <h3 className="font-semibold text-sm text-foreground leading-tight">
+        <div className="mb-3 text-center">
+          <h3 className="line-clamp-1 font-semibold text-sm text-foreground leading-tight">
             {name}
           </h3>
           <h4 className="text-[11px] mt-1 leading-none flex items-center justify-center space-x-0.5">
@@ -200,7 +217,7 @@ function AthleteListCardComponent({
         {/* Division */}
         {weightDivision && (
           <div className="flex items-center justify-center mb-3">
-            <span className="text-[10px] py-0 px-2 font-semibold text-foreground/70 uppercase tracking-wide">
+            <span className="max-w-full truncate px-2 py-0 text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
               {weightDivision.replace(/^(Men's|Women's)\s+/, "")}
             </span>
           </div>
@@ -244,11 +261,11 @@ function AthleteListCardComponent({
 
         {/* Footer */}
         <CardFooter className="px-0 pt-4">
-          <div className="flex items-center justify-between w-full text-[10px]">
-            <span className="font-medium text-foreground">{country}</span>
-            <div className="flex items-center gap-1">
-              <span className="text-muted-foreground">Followers:</span>
-              <span className="font-medium text-foreground">
+          <div className="flex w-full items-center justify-between gap-2 text-[10px]">
+            <span className="truncate font-medium text-foreground">{country}</span>
+            <div className="flex min-w-0 items-center gap-1">
+              <span className="shrink-0 text-muted-foreground">Followers:</span>
+              <span className="truncate font-medium text-foreground">
                 {followers.toLocaleString()}
               </span>
             </div>

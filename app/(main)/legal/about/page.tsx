@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
 import { LastUpdatedDate } from "@/components/last-updated-date";
 
 export const metadata: Metadata = {
@@ -16,9 +15,7 @@ export default function AboutPage() {
         </h1>
         <p className="text-sm text-muted-foreground">
           Last updated:{" "}
-          <Suspense fallback={<span>—</span>}>
-            <LastUpdatedDate />
-          </Suspense>
+          <LastUpdatedDate />
         </p>
       </div>
 

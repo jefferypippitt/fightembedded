@@ -18,7 +18,7 @@ import {
 import {
   ArrowUpDown,
   Filter,
-  MoreHorizontal,
+  EllipsisVertical,
   PlusCircle,
   ChevronLeft,
   ChevronRight,
@@ -226,7 +226,7 @@ const ActionsCell = ({
           className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
           size="icon"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <EllipsisVertical className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -601,9 +601,7 @@ const createColumns = (page: number, pageSize: number): ColumnDef<Athlete>[] => 
     },
     cell: ({ row }) => (
       <div className="flex justify-center">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {row.getValue("gender") === "MALE" ? "Male" : "Female"}
-        </Badge>
+        {row.getValue("gender") === "MALE" ? "Male" : "Female"}
       </div>
     ),
     sortingFn: (rowA, rowB) => {
@@ -644,7 +642,11 @@ const createColumns = (page: number, pageSize: number): ColumnDef<Athlete>[] => 
       );
     },
     cell: ({ row }) => (
-      <div className="flex justify-center">{row.getValue("country")}</div>
+      <div className="flex justify-center">
+        <Badge variant="secondary" className="px-1.5">
+          {row.getValue("country")}
+        </Badge>
+      </div>
     ),
     sortingFn: (rowA, rowB) => {
       // Handle retired athletes - they should be at the bottom
@@ -668,7 +670,15 @@ const createColumns = (page: number, pageSize: number): ColumnDef<Athlete>[] => 
     header: "Record",
     cell: ({ row }) => {
       const athlete = row.original;
-      return `${athlete.wins}-${athlete.losses}-${athlete.draws}`;
+      return (
+        <Badge variant="outline" className="font-medium tabular-nums px-1.5">
+          <span className="text-green-600 dark:text-green-400">{athlete.wins}</span>
+          <span className="text-muted-foreground">-</span>
+          <span className="text-red-600 dark:text-red-400">{athlete.losses}</span>
+          <span className="text-muted-foreground">-</span>
+          <span className="text-muted-foreground">{athlete.draws}</span>
+        </Badge>
+      );
     },
   },
   {

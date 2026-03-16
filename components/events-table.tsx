@@ -43,11 +43,19 @@ export function EventsTable({ events }: EventsTableProps) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="text-primary">Event</TableHead>
-          <TableHead className="text-primary">Date</TableHead>
-          <TableHead className="text-primary">Venue</TableHead>
-          <TableHead className="text-primary">Location</TableHead>
-          <TableHead className="text-right text-primary">
+          <TableHead className="text-xs font-semibold uppercase text-primary">
+            Event
+          </TableHead>
+          <TableHead className="text-xs font-semibold uppercase text-primary">
+            Date
+          </TableHead>
+          <TableHead className="text-xs font-semibold uppercase text-primary">
+            Venue
+          </TableHead>
+          <TableHead className="text-xs font-semibold uppercase text-primary">
+            Location
+          </TableHead>
+          <TableHead className="text-right text-xs font-semibold uppercase text-primary">
             Main Event
           </TableHead>
         </TableRow>
@@ -64,18 +72,26 @@ export function EventsTable({ events }: EventsTableProps) {
                 className={hasCoMainEvent ? "cursor-pointer hover:bg-muted/50" : ""}
                 onClick={hasCoMainEvent ? () => toggleRow(event.id) : undefined}
               >
-                <TableCell className="font-medium">{event.name}</TableCell>
-                <TableCell>{format(eventDate, "MMM d, yyyy")}</TableCell>
-                <TableCell>{event.venue}</TableCell>
-                <TableCell>{event.location}</TableCell>
+                <TableCell className="font-medium text-foreground">
+                  {event.name}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {format(eventDate, "MMM d, yyyy")}
+                </TableCell>
+                <TableCell className="text-muted-foreground">{event.venue}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {event.location}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <span>{event.mainEvent}</span>
+                    <span className="font-medium text-foreground">
+                      {event.mainEvent}
+                    </span>
                     {hasCoMainEvent && (
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6"
+                        className="h-6 w-6 text-muted-foreground hover:bg-muted/60 hover:text-primary"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleRow(event.id);
@@ -92,14 +108,16 @@ export function EventsTable({ events }: EventsTableProps) {
                 </TableCell>
               </TableRow>
               {isExpanded && hasCoMainEvent && (
-                <TableRow key={`${event.id}-expanded`}>
+                <TableRow key={`${event.id}-expanded`} className="bg-muted/20">
                   <TableCell colSpan={4}></TableCell>
                   <TableCell className="text-right">
                     <div className="flex flex-col items-end gap-1">
-                      <span className="text-sm font-medium text-primary">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-primary">
                         Co-Main Event
                       </span>
-                      <span className="text-sm">{event.coMainEvent}</span>
+                      <span className="text-sm font-medium text-foreground">
+                        {event.coMainEvent}
+                      </span>
                     </div>
                   </TableCell>
                 </TableRow>

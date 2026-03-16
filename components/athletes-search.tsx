@@ -111,6 +111,7 @@ const AthletesGrid = memo(
                   poundForPoundRank={athlete.poundForPoundRank ?? undefined}
                   retired={athlete.retired ?? false}
                   isSelected={true}
+                  suppressSelectedStyles={true}
                   onSelect={() => onSelect(athlete)}
                   priority={true}
                 />

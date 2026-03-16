@@ -1,20 +1,25 @@
 import "./globals.css";
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Toaster } from "@/components/ui/sonner";
+import { Geist, Geist_Mono } from "next/font/google";
 
-
-const inter = Inter({
+const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
-  display: "swap",
+});
+
+
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fightembedded.com"),
+  manifest: "/manifest.json",
   title: {
     template: "%s | Fight Embedded",
     default: "Fight Embedded",
@@ -56,13 +61,15 @@ export const metadata: Metadata = {
   },
 };
 
-export function generateViewport() {
-  return {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  };
-}
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+};
 
 export default function RootLayout({
   children,
@@ -72,38 +79,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} font-sans antialiased`}
       suppressHydrationWarning
+      className={cn("antialiased", "font-sans", fontSans.variable, fontMono.variable, "font-mono")}
     >
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="manifest" href="/manifest.json" />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/apple-icon.png"
-        />
-        <link
-          rel="icon"
-          type="image/svg+xml"
-          href="/icon0.svg"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          href="/icon1.png"
-        />
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: light)"
-          content="#ffffff"
-        />
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: dark)"
-          content="#000000"
-        />
-      </head>
       <body className="min-h-screen font-sans antialiased ">
         <ThemeProvider
           attribute="class"

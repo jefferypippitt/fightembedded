@@ -2,16 +2,16 @@ import useSWR from 'swr'
 import type { SWRConfiguration } from 'swr'
 
 // Fetcher function for server actions
-async function serverActionFetcher<T>(
+async function serverActionFetcher<T, A extends readonly unknown[]>(
   key: string,
-  action: (...args: any[]) => Promise<T>,
-  ...args: any[]
+  action: (...args: A) => Promise<T>,
+  ...args: A
 ): Promise<T> {
   return action(...args)
 }
 
 // Custom hook for server actions with SWR
-export function useServerAction<T, P extends any[]>(
+export function useServerAction<T, P extends readonly unknown[]>(
   action: ((...args: P) => Promise<T>) | null,
   args: P | null,
   options?: SWRConfiguration<T>
@@ -37,13 +37,18 @@ export function useServerAction<T, P extends any[]>(
 }
 
 // Hook for paginated data with optimistic updates
-export function usePaginatedData<T, P extends Record<string, any>>(
+export function usePaginatedData<T, P extends Record<string, unknown>>(
   action: (params: P) => Promise<{ data: T[]; total: number } | { athletes: T[]; total: number } | { events: T[]; total: number }>,
   params: P,
   options?: SWRConfiguration<{ data: T[]; total: number } | { athletes: T[]; total: number } | { events: T[]; total: number }>
 ) {
+  const hasFallbackData =
+    !!options &&
+    "fallbackData" in options &&
+    options.fallbackData !== undefined;
+
   return useServerAction(action, [params], {
-    revalidateOnMount: true,
+    revalidateOnMount: hasFallbackData ? false : true,
     ...options,
   })
 }

@@ -3,20 +3,15 @@ import Link from "next/link";
 
 export default function HeroContent() {
   return (
-    <div className="flex flex-col items-start text-left space-y-3 md:space-y-4 w-full lg:flex-1">
-      <div className="space-y-1 w-full">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white text-balance">
-          Your Ultimate Source For
-        </h1>
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight leading-tight text-red-500 dark:text-red-500 text-balance">
-          UFC Athletes & Events
-        </h1>
-      </div>
-      <div className="mt-2">
-        <Button asChild variant="outline" size="lg">
-          <Link href="/athletes" className="tracking-wide font-medium uppercase text-xs sm:text-sm">Explore All Athletes</Link>
-        </Button>
-      </div>
+    <div className="flex flex-col items-start gap-3 text-left lg:flex-1 lg:max-w-2xl">
+      <h1 className="w-full text-balance text-2xl leading-tight font-semibold tracking-tight sm:text-2xl md:text-3xl lg:text-4xl">
+        Your Ultimate Source For <span className="text-primary">UFC Athletes & Events</span>
+      </h1>
+      <Button asChild variant="outline" size="default" className="text-xs sm:text-sm md:text-base">
+        <Link href="/athletes" className="text-center font-medium tracking-wide uppercase">
+          Explore All Athletes
+        </Link>
+      </Button>
     </div>
   );
 }

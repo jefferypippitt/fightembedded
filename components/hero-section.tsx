@@ -4,20 +4,20 @@ import { StatsGrid } from "./stats-grid";
 import HeroContent from "./hero-content";
 import LiveUpdatesBadge from "./live-updates-badge";
 
-export default async function HeroSection() {
-  const stats = await getLiveStats();
+interface HeroSectionProps {
+  stats?: Awaited<ReturnType<typeof getLiveStats>>;
+}
+
+export default async function HeroSection({ stats: providedStats }: HeroSectionProps = {}) {
+  const stats = providedStats ?? (await getLiveStats());
   const statsData = createStatsData(stats);
 
   return (
-    <section className="space-y-2 py-2 sm:py-4">
-      <div className="flex flex-row items-center justify-between gap-4 md:gap-6 lg:gap-8">
-        <HeroContent />
-        <div className="w-auto flex flex-col items-center">
-          <LiveUpdatesBadge />
-          <div className="mt-3 md:mt-4">
-            <StatsGrid statsData={statsData} />
-          </div>
-        </div>
+    <section className="flex flex-row items-center justify-between gap-4 py-3 sm:py-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+      <HeroContent />
+      <div className="flex flex-col items-center gap-2 lg:gap-3">
+        <LiveUpdatesBadge />
+        <StatsGrid statsData={statsData} className="lg:w-auto" />
       </div>
     </section>
   );

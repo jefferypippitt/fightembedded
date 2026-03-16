@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, memo } from "react";
+import { memo } from "react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AthleteAvatar } from "@/components/ui/athlete-avatar";
@@ -44,10 +44,10 @@ const FighterCard = memo(function FighterCard({
     <li>
       <Link
         href={href}
-        className="relative block h-16 overflow-hidden rounded-sm border bg-card transition-all duration-300 shadow-xs group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
+        className="group relative block h-16 overflow-hidden rounded-sm border bg-card shadow-xs transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2"
       >
-        <div className="relative flex h-full items-center gap-2 p-2">
-          <span className="px-2.5 text-xs">{fighter.poundForPoundRank}.</span>
+        <div className="relative flex h-full items-center gap-1.5 p-2 sm:gap-2">
+          <span className="px-1.5 text-xs sm:px-2.5">{fighter.poundForPoundRank}.</span>
           <AthleteAvatar
             imageUrl={fighter.imageUrl}
             updatedAt={fighter.updatedAt}
@@ -56,24 +56,24 @@ const FighterCard = memo(function FighterCard({
             priority={isPriority}
           />
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="mb-1 text-xs font-medium">
+            <p className="mb-1 truncate text-xs font-medium text-foreground">
               {fighter.name}
             </p>
-            <div className="flex items-center gap-0.5 text-[10px]">
-              <span className="font-medium text-green-600 tabular-nums dark:text-green-400">
+            <div className="flex items-center gap-1 text-[10px]">
+              <span className="font-medium text-green-500 tabular-nums">
                 {fighter.wins}
               </span>
-              <span className="text-muted-foreground">-</span>
-              <span className="font-medium text-red-600 tabular-nums dark:text-red-400">
+              <span className="text-foreground">-</span>
+              <span className="font-medium text-red-500 tabular-nums">
                 {fighter.losses}
               </span>
               {fighter.draws > 0 && (
-                <Fragment>
-                  <span className="text-muted-foreground">-</span>
-                  <span className="text-neutral-600 tabular-nums dark:text-neutral-400">
+                <>
+                  <span className="text-foreground">-</span>
+                  <span className="font-medium text-foreground/80 tabular-nums">
                     {fighter.draws}
                   </span>
-                </Fragment>
+                </>
               )}
             </div>
           </div>
@@ -88,30 +88,30 @@ export function P4PSidebarClient({
   femaleP4PRankings,
 }: P4PSidebarProps) {
   return (
-    <Card className="p-0">
+    <Card className="min-w-0 overflow-hidden p-0">
       <Tabs defaultValue="male" className="h-full flex flex-col">
         <TabsList className="w-full bg-transparent border-b shadow-sm">
           <TabsTrigger
             value="male"
-            className="data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
+            className="text-xs sm:text-sm data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
           >
             Male
           </TabsTrigger>
           <TabsTrigger
             value="female"
-            className="data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
+            className="text-xs sm:text-sm data-[state=inactive]:bg-background/50 data-[state=inactive]:shadow-xs"
           >
             Female
           </TabsTrigger>
         </TabsList>
 
-        <CardTitle className="text-center p-4 border-b">
+        <CardTitle className="border-b p-3 text-center text-base sm:p-4 sm:text-lg">
           Pound For Pound Rankings
         </CardTitle>
 
-        <CardContent className="p-4 flex-1 overflow-y-auto">
+        <CardContent className="flex-1 overflow-y-auto p-2 sm:p-4">
           <TabsContent value="male" className="h-full">
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {maleP4PRankings.map((fighter, index) => (
                 <FighterCard
                   key={fighter.id}
@@ -122,7 +122,7 @@ export function P4PSidebarClient({
             </ul>
           </TabsContent>
           <TabsContent value="female" className="h-full">
-            <ul className="space-y-3">
+            <ul className="space-y-2 sm:space-y-3">
               {femaleP4PRankings.map((fighter, index) => (
                 <FighterCard
                   key={fighter.id}

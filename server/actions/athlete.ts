@@ -9,11 +9,10 @@ import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { weightClasses } from "@/data/weight-class";
-import { cache } from "react";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 
-// Authentication helper - wrapped with React.cache() for per-request deduplication
-const checkAuth = cache(async () => {
+// Authentication helper
+const checkAuth = async () => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -22,11 +21,10 @@ const checkAuth = cache(async () => {
     throw new Error("Unauthorized");
   }
   return session;
-});
+};
 
 // Get single athlete by ID (cached for public pages)
-// Wrapped with React.cache() for per-request deduplication
-export const getAthlete = cache(async (id: string): Promise<Athlete | null> => {
+export async function getAthlete(id: string): Promise<Athlete | null> {
   "use cache";
   cacheLife("hours");
   cacheTag("athlete-by-id");
@@ -41,7 +39,7 @@ export const getAthlete = cache(async (id: string): Promise<Athlete | null> => {
     console.error("Error fetching athlete:", error);
     throw new Error("Failed to fetch athlete");
   }
-});
+}
 
 // Get single athlete by ID (for edit pages - always fresh data, no caching)
 export async function getAthleteForEdit(id: string): Promise<Athlete | null> {
@@ -88,8 +86,7 @@ export async function getAllAthletes(): Promise<Athlete[]> {
 }
 
 // Get active athletes (for main athletes page)
-// Wrapped with React.cache() for per-request deduplication
-export const getAthletes = cache(async (): Promise<Athlete[]> => {
+export async function getAthletes(): Promise<Athlete[]> {
   "use cache";
   cacheLife("days");
   cacheTag("athletes");
@@ -115,7 +112,7 @@ export const getAthletes = cache(async (): Promise<Athlete[]> => {
     console.error("Error fetching active athletes:", error);
     return [];
   }
-});
+}
 
 // Get athletes by division
 export async function getAthletesByDivision(
@@ -856,6 +853,8 @@ export async function updateAthleteStatus(
   retired: boolean
 ): Promise<Athlete> {
   try {
+    await checkAuth();
+
     // Get athlete data before update to know the division
     const currentAthlete = await prisma.athlete.findUnique({
       where: { id: athleteId },

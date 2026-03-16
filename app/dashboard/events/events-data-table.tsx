@@ -17,7 +17,7 @@ import {
 import {
   ArrowUpDown,
   Filter,
-  MoreHorizontal,
+  EllipsisVertical,
   PlusCircle,
   ChevronLeft,
   ChevronRight,
@@ -80,7 +80,7 @@ const ActionsCell = ({
           className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
           size="icon"
         >
-          <MoreHorizontal className="h-4 w-4" />
+          <EllipsisVertical className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -272,7 +272,11 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
       },
       cell: ({ row }) => {
         const date = row.getValue("date") as Date;
-        return format(date, "MMM d, yyyy");
+        return (
+          <Badge variant="outline" className="px-1.5">
+            {format(date, "MMM d, yyyy")}
+          </Badge>
+        );
       },
       sortingFn: (rowA, rowB) => {
         const dateA = rowA.original.date;
@@ -294,7 +298,11 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
         );
       },
       cell: ({ row }) => {
-        return <span>{row.getValue("venue")}</span>;
+        return (
+          <Badge variant="secondary" className="px-1.5">
+            {row.getValue("venue")}
+          </Badge>
+        );
       },
       filterFn: (row, id, filterValue: string) => {
         return row.original.venue
@@ -316,7 +324,11 @@ function EventsDataTableClient({ initialData }: EventsDataTableProps) {
         );
       },
       cell: ({ row }) => {
-        return <span>{row.getValue("location")}</span>;
+        return (
+          <Badge variant="outline" className="text-muted-foreground px-1.5">
+            {row.getValue("location")}
+          </Badge>
+        );
       },
       filterFn: (row, id, filterValue: string) => {
         return row.original.location

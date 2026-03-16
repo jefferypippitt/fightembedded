@@ -1,18 +1,15 @@
+"use cache";
+
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import {
-  AthletesSearchContainer,
-  AthletesSearchInput,
-} from "@/components/athletes-search";
-import { AthleteImagePreloads } from "@/components/athlete-image-preloads";
 import {
   getAllDivisions,
   getDivisionBySlug,
   getFullDivisionName,
   parseDivisionSlug,
 } from "@/data/weight-class";
-import { getDivisionAthletes } from "@/server/actions/athlete";
+import { DivisionContent } from "./division-content";
 
 interface DivisionPageProps {
   params: Promise<{ slug: string }>;
@@ -41,48 +38,8 @@ export async function generateMetadata({
   };
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return getAllDivisions().map((division) => ({ slug: division.slug }));
-}
-
-function DivisionSkeleton() {
-  return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <div className="h-10 w-48 animate-pulse rounded-md bg-muted" />
-        <div className="h-4 w-64 animate-pulse rounded-md bg-muted" />
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-48 animate-pulse rounded-xl border border-border/60 bg-muted/40"
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-async function DivisionContent({ slug }: { slug: string }) {
-  const divisionData = await getDivisionAthletes(slug);
-
-  if (!divisionData) {
-    notFound();
-  }
-
-  return (
-    <div className="space-y-8">
-      <AthleteImagePreloads athletes={divisionData.athletes} />
-      <div className="w-full sm:max-w-xs lg:max-w-sm">
-        <AthletesSearchInput
-          className="w-full"
-          athletes={divisionData.athletes}
-        />
-      </div>
-      <AthletesSearchContainer athletes={divisionData.athletes} priorityStrategy="rank-1-8" />
-    </div>
-  );
 }
 
 export default async function DivisionPage({ params }: DivisionPageProps) {
@@ -109,13 +66,13 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
             )}
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
+            <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
               {fullName}
             </h1>
           </div>
         </div>
       </header>
-      <Suspense fallback={<DivisionSkeleton />}>
+      <Suspense fallback={<div>Loading athletes...</div>}>
         <DivisionContent slug={slug} />
       </Suspense>
     </section>

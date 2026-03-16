@@ -15,7 +15,7 @@ export default function MainLayout({
           {children}
         </div>
       </main>
-      <Suspense fallback={<div className="h-14" />}>
+      <Suspense fallback={null}>
         <Footer />
       </Suspense>
     </div>

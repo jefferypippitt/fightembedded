@@ -39,16 +39,10 @@ async function DashboardLayoutContent({
     >
       <AppSidebar
         variant="inset"
-        userSlot={
-          <Suspense fallback={null}>
-            <SidebarUserFooter />
-          </Suspense>
-        }
+        userSlot={<SidebarUserFooter />}
       />
       <SidebarInset>
-        <Suspense fallback={<SiteHeaderSkeleton />}>
-          <DashboardHeader />
-        </Suspense>
+        <DashboardHeader />
         {children}
       </SidebarInset>
     </SidebarProvider>

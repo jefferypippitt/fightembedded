@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { Event } from "@/types/event";
@@ -16,35 +16,36 @@ export default function EventCard({
   mainEvent,
 }: EventCardProps) {
   return (
-    <Card className="@container/card w-[340px] h-32 px-2 py-2">
-      <CardHeader className="p-0 pb-1">
+    <Card className="@container/card flex h-32 w-[300px] sm:w-[340px] min-w-0 flex-col justify-between gap-0 p-2">
+      <CardHeader className="p-0">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center justify-between gap-2">
-            <CardTitle className="text-base font-medium line-clamp-1">
+            <CardTitle className="line-clamp-1 text-base font-semibold text-foreground">
               {name}
             </CardTitle>
-            <span className="text-xs  text-zinc-600 dark:text-zinc-400">
+            <span className="shrink-0 text-[11px] font-medium text-foreground/70">
               {format(date, "MMM d, yyyy")}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400 text-xs mt-4">
-            <MapPin className="h-4 w-4" />
-            <span className="truncate leading-tight">
-              {venue}, {location}
-            </span>
+          <div className="mt-2 flex min-w-0 gap-2 text-xs">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary/70" />
+            <div className="min-w-0 leading-tight">
+              <div className="truncate font-medium text-foreground/90">{venue}</div>
+              <div className="truncate text-muted-foreground">{location}</div>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col gap-1.5">
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium text-gray-700 dark:text-gray-300 shrink-0">
+      <CardFooter className="p-0 pb-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="shrink-0 text-[12px] font-semibold text-foreground">
             Main Event:
           </span>
-          <span className="text-[12px] text-red-600 dark:text-red-400 truncate">
+          <span className="min-w-0 truncate text-[12px] font-semibold text-primary">
             {mainEvent}
           </span>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }

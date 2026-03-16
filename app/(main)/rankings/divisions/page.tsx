@@ -24,9 +24,10 @@ export default async function DivisionRankingsPage() {
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
             Popularity Rankings
+            <span className="text-muted-foreground"> - By Division</span>
           </p>
-          <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
-            Top 5 Most Popular Athletes by Division
+          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
+            Top 5 Ranked Athletes
           </h1>
         </div>
       </header>

@@ -32,9 +32,10 @@ export default async function AllTimePopularityPage() {
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">
             Popularity Rankings
+            <span className="text-muted-foreground"> - X and Instagram</span>
           </p>
-          <h1 className="text-balance text-2xl font-semibold text-gray-900 dark:text-white sm:text-3xl">
-            All Time Popularity
+          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
+            All-Time Popularity
           </h1>
         </div>
       </header>
