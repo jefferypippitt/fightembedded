@@ -104,18 +104,18 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
+// Recharts 2.x does not export TooltipContentProps; custom tooltip render props
+// match TooltipProps (see ContentType in recharts' Tooltip.d.ts). Recharts 3 adds
+// TooltipContentProps as a separate export.
+type RechartsTooltipProps = RechartsPrimitive.TooltipProps<number, string>
+
 type TooltipInjectedProps = Pick<
-  RechartsPrimitive.TooltipContentProps,
-  | "active"
-  | "payload"
-  | "coordinate"
-  | "label"
-  | "accessibilityLayer"
-  | "activeIndex"
+  RechartsTooltipProps,
+  "active" | "payload" | "coordinate" | "label" | "accessibilityLayer"
 >
 
 type ChartTooltipContentProps = Omit<
-  RechartsPrimitive.TooltipContentProps,
+  RechartsTooltipProps,
   keyof TooltipInjectedProps
 > &
   Partial<TooltipInjectedProps> &
@@ -126,6 +126,8 @@ type ChartTooltipContentProps = Omit<
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    /** Present in Recharts 3 custom tooltip payloads; omitted from v2 typings. */
+    activeIndex?: number | string | ReadonlyArray<number | string>
   }
 
 function ChartTooltipContent({
