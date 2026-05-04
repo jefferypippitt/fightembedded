@@ -12,10 +12,56 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Event } from "@/types/event";
+import { EnrichedEvent, EventFighter } from "@/types/event";
+import { AthleteAvatar } from "@/components/ui/athlete-avatar";
+import { getCountryCode } from "@/lib/country-codes";
 
 interface EventsTableProps {
-  events: Event[];
+  events: EnrichedEvent[];
+}
+
+function FighterMatchup({ fighters }: { fighters: [EventFighter, EventFighter] }) {
+  const [f1, f2] = fighters;
+  return (
+    <div className="flex items-center justify-end gap-3">
+      <div className="flex -space-x-2 shrink-0">
+        <span
+          title={f1.name}
+          className="inline-flex shrink-0 rounded-full ring-2 ring-background"
+        >
+          <AthleteAvatar
+            imageUrl={f1.imageUrl ?? undefined}
+            updatedAt={f1.updatedAt ?? undefined}
+            countryCode={
+              f1.country ? getCountryCode(f1.country) : undefined
+            }
+            size="xs"
+            className="rounded-full"
+            priority
+          />
+        </span>
+        <span
+          title={f2.name}
+          className="inline-flex shrink-0 rounded-full ring-2 ring-background"
+        >
+          <AthleteAvatar
+            imageUrl={f2.imageUrl ?? undefined}
+            updatedAt={f2.updatedAt ?? undefined}
+            countryCode={
+              f2.country ? getCountryCode(f2.country) : undefined
+            }
+            size="xs"
+            className="rounded-full"
+            priority
+          />
+        </span>
+      </div>
+      <div className="flex flex-col text-right leading-tight">
+        <span className="text-xs font-medium text-foreground">{f1.name}</span>
+        <span className="text-xs font-medium text-foreground">{f2.name}</span>
+      </div>
+    </div>
+  );
 }
 
 export function EventsTable({ events }: EventsTableProps) {
@@ -84,9 +130,13 @@ export function EventsTable({ events }: EventsTableProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <span className="font-medium text-foreground">
-                      {event.mainEvent}
-                    </span>
+                    {event.mainEventFighters ? (
+                      <FighterMatchup fighters={event.mainEventFighters} />
+                    ) : (
+                      <span className="font-medium text-foreground">
+                        {event.mainEvent}
+                      </span>
+                    )}
                     {hasCoMainEvent && (
                       <Button
                         variant="ghost"
@@ -111,13 +161,17 @@ export function EventsTable({ events }: EventsTableProps) {
                 <TableRow key={`${event.id}-expanded`} className="bg-muted/20">
                   <TableCell colSpan={4}></TableCell>
                   <TableCell className="text-right">
-                    <div className="flex flex-col items-end gap-1">
+                    <div className="flex flex-col items-end gap-2">
                       <span className="text-xs font-semibold uppercase tracking-wide text-primary">
                         Co-Main Event
                       </span>
-                      <span className="text-sm font-medium text-foreground">
-                        {event.coMainEvent}
-                      </span>
+                      {event.coMainEventFighters ? (
+                        <FighterMatchup fighters={event.coMainEventFighters} />
+                      ) : (
+                        <span className="text-sm font-medium text-foreground">
+                          {event.coMainEvent}
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

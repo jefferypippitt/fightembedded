@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { getUpcomingEvents } from "@/server/actions/events";
 import { EventsTable } from "@/components/events-table";
+import { EventFighterImagePreloads } from "@/components/athlete-image-preloads";
 
 export const metadata: Metadata = {
   title: "Upcoming Events",
@@ -12,18 +13,14 @@ export default async function EventsPage() {
 
   return (
     <section className="container space-y-6 pt-4 pb-6">
-      <header className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Event Schedule
-          </p>
-          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
-            UFC Fight Schedule
-          </h1>
-          <p className="text-balance text-sm text-muted-foreground sm:text-base">
-            View all upcoming events, dates, locations, and main event matchups.
-          </p>
-        </div>
+      <EventFighterImagePreloads events={events} />
+      <header className="space-y-2">
+        <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+          UFC Fight <span className="text-primary">Schedule</span>
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
+          View all upcoming events, dates, locations, and main event matchups.
+        </p>
       </header>
       <EventsTable events={events} />
     </section>

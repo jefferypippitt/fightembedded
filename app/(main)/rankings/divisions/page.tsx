@@ -1,3 +1,4 @@
+import { RankingsPageHeader } from "@/components/rankings-page-header";
 import { Metadata } from "next";
 import { getTop5Athletes } from "@/server/actions/get-top-5-athletes";
 import { DivisionRankingsGrid } from "./division-charts";
@@ -20,17 +21,11 @@ export default async function DivisionRankingsPage() {
 
   return (
     <section className="container space-y-6 pt-4 pb-6">
-      <header className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Popularity Rankings
-            <span className="text-muted-foreground"> - By Division</span>
-          </p>
-          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
-            Top 5 Ranked Athletes
-          </h1>
-        </div>
-      </header>
+      <RankingsPageHeader>
+        <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+          Top 5 Ranked <span className="text-primary">Athletes</span>
+        </h1>
+      </RankingsPageHeader>
       <DivisionRankingsGrid
         maleDivisions={maleDivisions}
         femaleDivisions={femaleDivisions}

@@ -50,15 +50,10 @@ export default async function RetiredPage() {
     <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Retired Directory
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
-              Retired Athletes
-            </h1>
-          </div>
-          <p className="text-balance text-sm text-muted-foreground sm:text-base">
+          <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+            Retired <span className="text-primary">Athletes</span>
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
             Explore the career records, statistics, and profiles of retired UFC athletes.
           </p>
         </div>

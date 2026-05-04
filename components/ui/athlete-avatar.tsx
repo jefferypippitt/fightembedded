@@ -20,10 +20,10 @@ const sizeMap = {
 };
 
 const imageSizes = {
-  xs: "96px", // 48px * 2 for device pixel ratio
-  sm: "112px", // 56px * 2 for device pixel ratio
-  md: "128px", // 64px * 2 for device pixel ratio
-  lg: "224px", // 112px * 2 for device pixel ratio
+  xs: "96px",
+  sm: "112px",
+  md: "128px",
+  lg: "224px",
 };
 
 export function AthleteAvatar({
@@ -35,11 +35,8 @@ export function AthleteAvatar({
   priority = false,
 }: AthleteAvatarProps) {
   const sizeValue = imageSizes[size];
-
-  // Get cached image URL with version parameter for cache busting
   const cachedImageUrl = getCachedImageUrl(imageUrl || null, updatedAt);
 
-  // Validate country code
   const validCountryCode =
     countryCode && countryCode.length >= 2 && countryCode.length <= 10
       ? countryCode.toLowerCase()

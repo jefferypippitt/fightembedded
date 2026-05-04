@@ -12,7 +12,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
   if (!events.length) {
     return (
       <section className="space-y-2">
-        <h2 className="text-2xl font-semibold text-center">Upcoming Events</h2>
+        <h2 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter text-center">Upcoming Events</h2>
         <p className="text-neutral-600 dark:text-neutral-400">
           No upcoming events found.
         </p>
@@ -20,9 +20,6 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
     );
   }
 
-  // Duplicate events to fill the marquee without empty space
-  // The Marquee component duplicates children internally, so we need enough items
-  // to create a seamless loop. Aim for at least 8-10 items total.
   const minItems = 10;
   const duplicationsNeeded = Math.max(1, Math.ceil(minItems / events.length));
   const duplicatedEvents = Array(duplicationsNeeded)
@@ -31,7 +28,7 @@ export function EventMarqueeSection({ events }: EventMarqueeSectionProps) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-2xl font-semibold text-center">Upcoming Events</h2>
+      <h2 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter text-center">Upcoming Events</h2>
       <div className="mx-auto w-full max-w-[1200px] px-0 sm:px-4">
         <Marquee
           pauseOnHover

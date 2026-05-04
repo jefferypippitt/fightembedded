@@ -58,19 +58,15 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
 
   return (
     <section className="container space-y-6 pt-4 pb-6">
-      <header className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Division Overview{divisionInfo.weight && (
-              <span className="text-muted-foreground"> - {divisionInfo.weight} lbs</span>
-            )}
+      <header className="space-y-2">
+        <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+          {fullName} <span className="text-primary">Division</span>
+        </h1>
+        {divisionInfo.weight && (
+          <p className="text-sm sm:text-base text-muted-foreground">
+            {divisionInfo.weight} lbs
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
-              {fullName}
-            </h1>
-          </div>
-        </div>
+        )}
       </header>
       <Suspense fallback={<div>Loading athletes...</div>}>
         <DivisionContent slug={slug} />

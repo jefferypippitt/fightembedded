@@ -1,3 +1,4 @@
+import { RankingsPageHeader } from "@/components/rankings-page-header";
 import { Metadata } from "next";
 import { getAllAthletesPopularity } from "@/server/actions/get-all-athletes-popularity";
 import { FighterPopularityChart } from "../popularity/fighter-popularity-chart";
@@ -28,17 +29,11 @@ export default async function AllTimePopularityPage() {
 
   return (
     <section className="container space-y-6 pt-4 pb-6">
-      <header className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">
-            Popularity Rankings
-            <span className="text-muted-foreground"> - X and Instagram</span>
-          </p>
-          <h1 className="text-balance text-2xl font-semibold sm:text-3xl">
-            All-Time Popularity
-          </h1>
-        </div>
-      </header>
+      <RankingsPageHeader>
+        <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+          All-Time <span className="text-primary">Popularity</span>
+        </h1>
+      </RankingsPageHeader>
       <FighterPopularityChart
         maleAthletes={maleChartData}
         femaleAthletes={femaleChartData}

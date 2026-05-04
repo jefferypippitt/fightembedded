@@ -33,13 +33,10 @@ export default async function AthletesPage() {
     <section className="container space-y-6 pt-4 pb-6">
       <header className="space-y-6">
         <div className="space-y-2">
-          <p className="text-sm font-semibold text-primary uppercase tracking-wide">
-            Athlete Directory
-          </p>
-          <h1 className="text-balance text-2xl sm:text-3xl font-semibold">
-            All UFC Athletes
+          <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
+            All UFC <span className="text-primary">Athletes</span>
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground text-balance max-w-2xl">
+          <p className="text-sm sm:text-base text-muted-foreground max-w-2xl">
             Discover active fighters across the UFC roster. Filter by name,
             country, or division.
           </p>

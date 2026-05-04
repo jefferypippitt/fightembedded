@@ -27,3 +27,15 @@ export type ActionResponse<T = unknown> = {
 
 // Alias for backward compatibility
 export type UFCEvent = Event;
+
+export type EventFighter = {
+  name: string;
+  imageUrl: string | null;
+  country: string | null;
+  updatedAt: Date | null;
+};
+
+export type EnrichedEvent = Event & {
+  mainEventFighters: [EventFighter, EventFighter] | null;
+  coMainEventFighters: [EventFighter, EventFighter] | null;
+};

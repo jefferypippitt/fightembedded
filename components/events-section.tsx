@@ -6,18 +6,17 @@ interface EventsSectionProps {
 }
 
 export default async function EventsSection({ events: providedEvents }: EventsSectionProps = {}) {
+  let events;
   try {
-    const events = providedEvents ?? (await getUpcomingEvents());
-
-    // Only render if there are upcoming events
-    if (!events || events.length === 0) {
-      return null;
-    }
-
-    return <EventMarqueeSection events={events} />;
+    events = providedEvents ?? (await getUpcomingEvents());
   } catch (error) {
     console.error("Error in EventsSection:", error);
-    // Return null on error to hide the section
     return null;
   }
+
+  if (!events || events.length === 0) {
+    return null;
+  }
+
+  return <EventMarqueeSection events={events} />;
 }

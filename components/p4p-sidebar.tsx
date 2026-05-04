@@ -56,7 +56,7 @@ const FighterCard = memo(function FighterCard({
             priority={isPriority}
           />
           <div className="flex min-w-0 flex-1 flex-col justify-center">
-            <p className="mb-1 truncate text-xs font-medium text-foreground">
+            <p className="mb-1 text-xs font-medium text-foreground">
               {fighter.name}
             </p>
             <div className="flex items-center gap-1 text-[10px]">
@@ -105,7 +105,7 @@ export function P4PSidebarClient({
           </TabsTrigger>
         </TabsList>
 
-        <CardTitle className="border-b p-3 text-center text-base sm:p-4 sm:text-lg">
+        <CardTitle className="border-b p-3 text-center text-lg sm:p-4 sm:text-xl tracking-tighter">
           Pound For Pound Rankings
         </CardTitle>
 

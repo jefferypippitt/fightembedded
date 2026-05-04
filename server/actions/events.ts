@@ -7,6 +7,7 @@ import { eventSchema } from "@/schemas/event";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
+import type { EnrichedEvent, EventFighter } from "@/types/event";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -206,22 +207,16 @@ export async function getEventForEdit(id: string) {
   }
 }
 
-export async function getUpcomingEvents() {
+export async function getUpcomingEvents(): Promise<EnrichedEvent[]> {
   "use cache";
-  cacheLife("days"); // UFC events are weekly, cache longer since schedule is stable
+  cacheLife("days");
   cacheTag("upcoming-events");
   cacheTag("live-upcoming-events");
 
   try {
     const events = await prisma.event.findMany({
-      where: {
-        status: "UPCOMING",
-        // Removed date filter to show all UPCOMING events regardless of date
-        // Events will only be hidden when status is changed to COMPLETED or CANCELLED
-      },
-      orderBy: {
-        date: "asc", // Show earliest upcoming events first
-      },
+      where: { status: "UPCOMING" },
+      orderBy: { date: "asc" },
       select: {
         id: true,
         name: true,
@@ -236,7 +231,60 @@ export async function getUpcomingEvents() {
       },
     });
 
-    return events;
+    // Parse all fighter names — split case-insensitively on " vs "
+    const splitMatchup = (matchup: string) =>
+      matchup.split(/\s+vs\s+/i).map((n) => n.trim()).filter(Boolean);
+
+    const parsedNames = events.flatMap((event) => {
+      const names: string[] = [];
+      const mainParts = splitMatchup(event.mainEvent);
+      if (mainParts.length === 2) names.push(...mainParts);
+      if (event.coMainEvent) {
+        const coParts = splitMatchup(event.coMainEvent);
+        if (coParts.length === 2) names.push(...coParts);
+      }
+      return names;
+    });
+
+    const uniqueNames = [...new Set(parsedNames)];
+    const athletes = uniqueNames.length
+      ? await prisma.athlete.findMany({
+          where: {
+            OR: uniqueNames.map((n) => ({
+              name: { equals: n, mode: "insensitive" as const },
+            })),
+          },
+          select: { name: true, imageUrl: true, country: true, updatedAt: true },
+        })
+      : [];
+
+    // Key by lowercase so lookups are case-insensitive
+    const athleteMap = new Map(athletes.map((a) => [a.name.toLowerCase(), a]));
+
+    const toFighter = (name: string): EventFighter => {
+      const a = athleteMap.get(name.toLowerCase());
+      return {
+        name,
+        imageUrl: a?.imageUrl ?? null,
+        country: a?.country ?? null,
+        updatedAt: a?.updatedAt ?? null,
+      };
+    };
+
+    const parseFighters = (
+      matchup: string | null
+    ): [EventFighter, EventFighter] | null => {
+      if (!matchup) return null;
+      const parts = splitMatchup(matchup);
+      if (parts.length !== 2) return null;
+      return [toFighter(parts[0]), toFighter(parts[1])];
+    };
+
+    return events.map((event) => ({
+      ...event,
+      mainEventFighters: parseFighters(event.mainEvent),
+      coMainEventFighters: parseFighters(event.coMainEvent ?? null),
+    }));
   } catch (error) {
     console.error("Error fetching upcoming events:", error);
     return [];

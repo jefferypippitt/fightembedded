@@ -189,7 +189,11 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
                 offset={5}
                 className="fill-foreground"
                 fontSize={12}
-                formatter={(value: number) => value.toLocaleString()}
+                formatter={(label) =>
+                  typeof label === "number"
+                    ? label.toLocaleString()
+                    : String(label ?? "")
+                }
               />
             </Bar>
           </BarChart>

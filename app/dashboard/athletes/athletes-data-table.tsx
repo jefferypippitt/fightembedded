@@ -1261,8 +1261,6 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
               ? originalAthlete?.poundForPoundRank
               : originalAthlete?.rank;
 
-            // If the athlete was originally unranked (rank = 0 or null), keep them unranked
-            // If they had a rank > 0, give them a new rank based on position
             const wasOriginallyUnranked =
               !originalAthlete || !originalRankValue || originalRankValue === 0;
 
@@ -1273,14 +1271,15 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
               if (wasOriginallyUnranked) {
                 newRankValue = 0;
               } else if (index < 15) {
-                // Only first 15 positions get P4P ranks
                 newRankValue = index + 1;
               } else {
-                // Athletes beyond position 15 lose their P4P rank
                 newRankValue = 0;
               }
             } else {
-              newRankValue = wasOriginallyUnranked ? 0 : index + 1;
+              // Position-based: top 16 slots are ranked, everything below is NR.
+              // This lets NR athletes be promoted into ranked slots and ranked
+              // athletes be demoted to NR when pushed out of the top 16.
+              newRankValue = index < 16 ? index + 1 : 0;
             }
 
             // Return the appropriate update object
@@ -1297,21 +1296,20 @@ function AthletesDataTableClient({ initialData }: AthletesDataTableProps) {
             }
           })
           .filter((update) => {
-            // For P4P view, include all updates (even if rank becomes 0)
-            // This ensures athletes moved beyond position 15 lose their P4P rank
+            const originalAthlete = originalAthletes.find(
+              (oa) => oa.id === update.id
+            );
             if (isP4PView) {
-              const originalAthlete = originalAthletes.find(
-                (oa) => oa.id === update.id
-              );
               const currentRank = update.poundForPoundRank ?? 0;
               const originalRank = originalAthlete?.poundForPoundRank ?? 0;
-              // Include if rank changed (either up, down, or removed)
               return currentRank !== originalRank;
             } else {
-              const rankValue = (update as { id: string; rank: number }).rank;
-              return rankValue > 0;
+              // Include any athlete whose rank actually changed (covers promotions AND demotions to NR)
+              const currentRank = (update as { id: string; rank: number }).rank;
+              const originalRank = originalAthlete?.rank ?? 0;
+              return currentRank !== originalRank;
             }
-          }); // Only include athletes that need rank updates
+          });
       }
 
       if (rankUpdates.length === 0) {

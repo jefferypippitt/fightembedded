@@ -55,13 +55,13 @@ export function AthleteComparisonChart({
     const submissionPercentage = (winsBySubmission / wins) * 100;
     const decisionPercentage = (decisionWins / wins) * 100;
 
-    // Calculate versatility based on how balanced the fighter is
-    // A perfectly balanced fighter (33.3% each) would get 100
-    // A fighter with 100% in one method would get 0
+    // Normalize: best possible balance (33.3% each method) scores 66.7 raw,
+    // so divide by 66.7 to bring the ceiling to 100
+    const MAX_BALANCE = 100 - 100 / 3;
     const balanceScore =
       100 - Math.max(koPercentage, submissionPercentage, decisionPercentage);
 
-    return Math.round(Math.max(Math.min(balanceScore, 100), 0));
+    return Math.round(Math.max(Math.min((balanceScore / MAX_BALANCE) * 100, 100), 0));
   };
 
   // Calculate activity level (fights per year on average)
@@ -77,26 +77,11 @@ export function AthleteComparisonChart({
     return Math.round(Math.max(Math.min(scaledActivity, 100), 0));
   };
 
-  // Calculate decision wins percentage
-  const getDecision = (
-    wins: number,
-    winsByKo: number,
-    winsBySubmission: number
-  ) => {
-    if (wins === 0) return 0;
-
-    // Ensure values are non-negative
-    const totalWins = Math.max(wins, 0);
-    const koWins = Math.max(winsByKo, 0);
-    const submissionWins = Math.max(winsBySubmission, 0);
-
-    // Calculate decision wins (wins that went to decision)
-    const decisionWins = Math.max(totalWins - koWins - submissionWins, 0);
-
-    // Calculate decision win percentage
-    const decisionPercentage = (decisionWins / totalWins) * 100;
-
-    return Math.round(Math.max(Math.min(decisionPercentage, 100), 0));
+  // Calculate overall win rate
+  const getWinRate = (wins: number, losses: number, draws: number) => {
+    const totalFights = Math.max(wins, 0) + Math.max(losses, 0) + Math.max(draws, 0);
+    if (totalFights === 0) return 0;
+    return Math.round((Math.max(wins, 0) / totalFights) * 100);
   };
 
   // Calculate experience (total fights)
@@ -108,23 +93,23 @@ export function AthleteComparisonChart({
 
     const totalFights = totalWins + totalLosses + totalDraws;
 
-    // Return total fights (capped at 100 for display)
-    return Math.round(Math.max(Math.min(totalFights, 100), 0));
+    // Normalize against 30 fights as an elite benchmark (100%)
+    return Math.round(Math.max(Math.min((totalFights / 30) * 100, 100), 0));
   };
 
   // Create chart data with normalized values
   const chartData = [
     {
-      stat: "Decision",
-      athlete1: getDecision(
+      stat: "Win Rate",
+      athlete1: getWinRate(
         athlete1.wins,
-        athlete1.winsByKo,
-        athlete1.winsBySubmission
+        athlete1.losses,
+        athlete1.draws ?? 0
       ),
-      athlete2: getDecision(
+      athlete2: getWinRate(
         athlete2.wins,
-        athlete2.winsByKo,
-        athlete2.winsBySubmission
+        athlete2.losses,
+        athlete2.draws ?? 0
       ),
     },
     {
@@ -234,8 +219,13 @@ export function AthleteComparisonChart({
               fillOpacity={0.6}
             />
             <ChartLegend
-              className="mt-2 sm:mt-4"
-              content={<ChartLegendContent />}
+              content={(props) => (
+                <ChartLegendContent
+                  className="mt-2 sm:mt-4"
+                  payload={props.payload}
+                  verticalAlign={props.verticalAlign}
+                />
+              )}
             />
           </RadarChart>
         </ChartContainer>

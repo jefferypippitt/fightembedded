@@ -17,10 +17,10 @@ import {
 import {
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
-  Rectangle,
 } from "recharts";
 import { DivisionRankings } from "@/server/actions/get-top-5-athletes";
 import { weightClasses } from "@/data/weight-class";
@@ -76,7 +76,7 @@ export function DivisionRankingsGrid({
           {maleDivisions.map((divisionData) => (
             <Card key={divisionData.division}>
               <CardHeader>
-                <CardTitle>{divisionData.division}</CardTitle>
+                <CardTitle className="tracking-tight font-medium">{divisionData.division}</CardTitle>
                 <CardDescription>
                   {getDivisionWeight(divisionData.division)}
                 </CardDescription>
@@ -95,7 +95,7 @@ export function DivisionRankingsGrid({
           {femaleDivisions.map((divisionData) => (
             <Card key={divisionData.division}>
               <CardHeader>
-                <CardTitle>{divisionData.division}</CardTitle>
+                <CardTitle className="tracking-tight font-medium">{divisionData.division}</CardTitle>
                 <CardDescription>
                   {getDivisionWeight(divisionData.division)}
                 </CardDescription>
@@ -156,7 +156,7 @@ export function DivisionChartData({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[300px] w-full overflow-x-auto [&_.recharts-yAxis_.recharts-cartesian-axis-tick_text]:!fill-foreground"
+      className="aspect-auto h-[300px] w-full overflow-x-auto"
     >
       <BarChart
         data={chartData}
@@ -175,8 +175,10 @@ export function DivisionChartData({
           axisLine={false}
           tickLine={false}
           tickFormatter={(value) => value.toLocaleString()}
-          tick={{ fontSize: 9 }}
-          className="text-[9px] sm:text-[10px]"
+          tick={{
+            fill: "hsl(var(--foreground))",
+            fontSize: "9px",
+          }}
         />
         <YAxis
           dataKey="name"
@@ -187,8 +189,11 @@ export function DivisionChartData({
           width={yAxisWidth}
           interval={0}
           tickFormatter={(value, index) => `${chartData[index].rank}. ${value}`}
-          tick={{ fontSize: 9 }}
-          className="text-[9px] sm:text-[10px]"
+          tick={{
+            className: "!fill-foreground",
+            fontSize: "9px",
+            fontWeight: 500,
+          }}
         />
         <ChartTooltip
           cursor={{ fill: "hsl(var(--muted))" }}
@@ -199,21 +204,18 @@ export function DivisionChartData({
             />
           }
         />
-        <Bar
-          dataKey="followers"
-          fill="var(--chart-1)"
-          radius={[0, 4, 4, 0]}
-          activeIndex={activeIndex}
-          activeBar={({ ...props }) => (
-            <Rectangle
-              {...props}
-              fillOpacity={0.8}
-              stroke={props.payload.fill}
-              strokeDasharray={4}
-              strokeDashoffset={4}
+        <Bar dataKey="followers" radius={[0, 4, 4, 0]}>
+          {chartData.map((entry, index) => (
+            <Cell
+              key={entry.name}
+              fill={entry.fill}
+              fillOpacity={index === activeIndex ? 0.8 : 1}
+              stroke={index === activeIndex ? entry.fill : undefined}
+              strokeDasharray={index === activeIndex ? 4 : undefined}
+              strokeDashoffset={index === activeIndex ? 4 : undefined}
             />
-          )}
-        />
+          ))}
+        </Bar>
       </BarChart>
     </ChartContainer>
   );

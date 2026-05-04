@@ -69,7 +69,7 @@ export function FighterPopularityChart({
     <Card className="@container/card h-full relative overflow-hidden py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pt-4 pb-3 sm:!py-0">
-          <CardTitle className="text-2xl font-semibold">
+          <CardTitle className="text-2xl tracking-tighter font-medium">
             Total Followers
           </CardTitle>
         </div>
@@ -81,12 +81,10 @@ export function FighterPopularityChart({
               className="data-[active=true]:bg-muted/50 relative z-30 flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6 cursor-pointer"
               onClick={() => setActiveChart(key)}
             >
-              <div className="flex items-center mb-1">
-                <span className="text-xs text-muted-foreground">
-                  {key === "male" ? "Male" : "Female"} {chartConfig[key].label}
-                </span>
-              </div>
-              <span className="text-lg leading-none font-bold sm:text-3xl ">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground">
+                {key === "male" ? "Male" : "Female"}
+              </span>
+              <span className="text-lg leading-none font-medium tracking-tighter sm:text-3xl">
                 {total[key].toLocaleString()}
               </span>
             </button>
@@ -97,7 +95,7 @@ export function FighterPopularityChart({
         <CardContent className="px-2 sm:p-6 relative z-10">
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto w-full [&_.recharts-yAxis_.recharts-cartesian-axis-tick_text]:!fill-foreground"
+            className="aspect-auto w-full"
             style={{ height: Math.max(400, chartData.length * 28) }}
           >
             <BarChart
@@ -130,10 +128,9 @@ export function FighterPopularityChart({
                 width={140}
                 interval={0}
                 tick={{
-                  fill: "hsl(var(--foreground))",
+                  className: "!fill-foreground",
                   fontSize: "9px",
                   fontWeight: 500,
-                  x: 0,
                 }}
               />
               <ChartTooltip
