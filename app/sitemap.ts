@@ -82,6 +82,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     ...divisionUrls,
     {
+      url: `${baseUrl}/athletes/quick-stats`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/retired`,
       lastModified: new Date(),
       changeFrequency: "yearly",

@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { athleteSchema } from "@/schemas/athlete";
 
-// Form input type (from Zod schema)
 export type AthleteInput = z.infer<typeof athleteSchema>;
 
-// Form data type (includes id for edit mode)
+
 export type AthleteFormData = AthleteInput & { id: string };
 
 export type ActionResponse = {
@@ -34,7 +33,6 @@ export interface Athlete {
   updatedAt: Date;
 }
 
-// Dashboard stats types that match what getDashboardStats actually returns
 export interface DashboardStats {
   totalAthletes: {
     value: number;
@@ -97,7 +95,6 @@ export interface DashboardStats {
   } | null;
 }
 
-// Division stats type that matches what getDivisionStats returns
 export interface DivisionStats {
   name: string;
   slug: string;
@@ -106,3 +103,24 @@ export interface DivisionStats {
     count: number;
   }[];
 }
+
+export type QuickStatsTopCountry = {
+  country: string;
+  count: number;
+};
+
+export type QuickStatsPageData = {
+  undefeated: Athlete[];
+  currentChampions: Athlete[];
+  mostFollowed: Athlete[];
+  mostFollowedRetiredMale: Athlete[];
+  mostFollowedRetiredFemale: Athlete[];
+  newestAdded: Athlete[];
+  recentlyRetired: Athlete[];
+  bestSubmissionRate: Athlete[];
+  bestKoRate: Athlete[];
+  topCountries: QuickStatsTopCountry[];
+  leastCountries: QuickStatsTopCountry[];
+  oldest: Athlete[];
+  youngest: Athlete[];
+};

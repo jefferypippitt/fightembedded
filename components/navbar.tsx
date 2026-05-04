@@ -52,6 +52,12 @@ const menuSections: MenuSection[] = [
         title: "Retired Fighters",
         description: "View hall of fame and retired UFC fighters.",
       },
+      {
+        href: "/athletes/quick-stats",
+        title: "UFC Insights",
+        description:
+          "Snapshot of standout stats across the organization.",
+      },
     ],
   },
   {

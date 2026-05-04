@@ -25,11 +25,13 @@ export function getDivisionWeight(
   division: string,
   gender: "MALE" | "FEMALE"
 ): number {
-  const order = WEIGHT_DIVISION_ORDER[gender];
-  const index = order.findIndex((d) =>
-    division.toLowerCase().includes(d.toLowerCase())
-  );
-  return index === -1 ? order.length : index; // Put unknown divisions at the end
+  const order: readonly string[] = WEIGHT_DIVISION_ORDER[gender];
+  const divLower = division.toLowerCase();
+  // Longest label first so "Light Heavyweight" is not classified as "Heavyweight"
+  const byLengthDesc = [...order].sort((a, b) => b.length - a.length);
+  const matched = byLengthDesc.find((d) => divLower.includes(d.toLowerCase()));
+  if (!matched) return order.length;
+  return order.indexOf(matched);
 }
 
 // Sorting utility for champions by weight division (heaviest to lightest)

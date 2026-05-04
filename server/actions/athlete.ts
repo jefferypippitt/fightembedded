@@ -5,9 +5,12 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { athleteSchema } from "@/schemas/athlete";
 import { z } from "zod";
-import { AthleteInput, ActionResponse, Athlete } from "@/types/athlete";
-import { revalidatePath, revalidateTag } from "next/cache";
-import { cacheLife, cacheTag } from "next/cache";
+import {
+  AthleteInput,
+  ActionResponse,
+  Athlete,
+} from "@/types/athlete";
+import { revalidatePath, revalidateTag, cacheLife, cacheTag } from "next/cache";
 import { weightClasses } from "@/data/weight-class";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 
@@ -548,6 +551,8 @@ export async function createAthlete(
       revalidateTag("homepage-champions", "max");
     }
 
+    revalidateTag("country-stats", "max");
+
     if (isUndefeated) {
       revalidateTag("undefeated-athletes", "max");
     }
@@ -885,6 +890,8 @@ export async function updateAthleteStatus(
     revalidateTag("top-5-athletes", "max");
     revalidateTag("all-athletes-data", "max");
     revalidateTag("athletes-page", "max");
+    revalidateTag("country-stats", "max");
+    revalidateTag("undefeated-athletes", "max");
 
     // Revalidate paths
     revalidatePath("/retired", "page");

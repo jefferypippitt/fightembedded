@@ -41,14 +41,22 @@ export function EventFighterImagePreloads({ events }: { events: EnrichedEvent[] 
 // Preload the first N athletes sorted by rank — covers ~3 rows at desktop
 const PRELOAD_LIMIT = 12;
 
-export function AthleteImagePreloads({ athletes }: { athletes: Athlete[] }) {
-  const toPreload = [...athletes]
-    .sort((a, b) => {
-      const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
-      const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
-      return aRank - bRank;
-    })
-    .slice(0, PRELOAD_LIMIT);
+export function AthleteImagePreloads({
+  athletes,
+  sortByRank = true,
+}: {
+  athletes: Athlete[];
+  sortByRank?: boolean;
+}) {
+  const toPreload = (
+    sortByRank
+      ? [...athletes].sort((a, b) => {
+          const aRank = a.rank && a.rank > 0 ? a.rank : Infinity;
+          const bRank = b.rank && b.rank > 0 ? b.rank : Infinity;
+          return aRank - bRank;
+        })
+      : athletes
+  ).slice(0, PRELOAD_LIMIT);
 
   if (toPreload.length === 0) return null;
 
