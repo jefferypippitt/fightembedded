@@ -189,7 +189,7 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
                 offset={5}
                 className="fill-foreground"
                 fontSize={12}
-                formatter={(label) =>
+                formatter={(label: unknown) =>
                   typeof label === "number"
                     ? label.toLocaleString()
                     : String(label ?? "")
