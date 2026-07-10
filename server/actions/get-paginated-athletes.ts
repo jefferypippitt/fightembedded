@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { mergeAndPaginate } from "@/lib/paginate-athletes";
 import type { Athlete } from "@/types/athlete";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
@@ -169,17 +170,11 @@ export async function getPaginatedAthletes(params: {
         }),
       ]);
 
-    // Combine in priority order: P4P ranked first, then division ranked, then unranked
-    const allP4PAthletes = [
-      ...p4pRankedAthletes,
-      ...divisionRankedAthletes,
-      ...unrankedAthletes,
-    ];
-
-    // Apply pagination to the combined results
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    athletes = allP4PAthletes.slice(startIndex, endIndex);
+    athletes = mergeAndPaginate(
+      [p4pRankedAthletes, divisionRankedAthletes, unrankedAthletes],
+      page,
+      pageSize
+    );
   } else if (view === "undefeated") {
     // Undefeated view - only show athletes with 0 losses
     athletes = await prisma.athlete.findMany({
@@ -238,13 +233,7 @@ export async function getPaginatedAthletes(params: {
       }),
     ]);
 
-    // Combine ranked and unranked athletes
-    const allAthletes = [...rankedAthletes, ...unrankedAthletes];
-
-    // Apply pagination to the combined results
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    athletes = allAthletes.slice(startIndex, endIndex);
+    athletes = mergeAndPaginate([rankedAthletes, unrankedAthletes], page, pageSize);
   } else if (effectiveSortColumn === "name") {
     athletes = await prisma.athlete.findMany({
       where,
@@ -389,16 +378,11 @@ export async function getPaginatedAthletes(params: {
         ]);
 
       // Combine in priority order: P4P ranked first, then division ranked, then unranked
-      const allP4PAthletes = [
-        ...p4pRankedAthletes,
-        ...divisionRankedAthletes,
-        ...unrankedAthletes,
-      ];
-
-      // Apply pagination to the combined results
-      const startIndex = (page - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      athletes = allP4PAthletes.slice(startIndex, endIndex);
+      athletes = mergeAndPaginate(
+        [p4pRankedAthletes, divisionRankedAthletes, unrankedAthletes],
+        page,
+        pageSize
+      );
     } else {
       // Default to rank sorting - fetch ranked and unranked in parallel
       const [rankedAthletes, unrankedAthletes] = await Promise.all([
@@ -424,12 +408,7 @@ export async function getPaginatedAthletes(params: {
       ]);
 
       // Combine ranked and unranked athletes
-      const allAthletes = [...rankedAthletes, ...unrankedAthletes];
-
-      // Apply pagination to the combined results
-      const startIndex = (page - 1) * pageSize;
-      const endIndex = startIndex + pageSize;
-      athletes = allAthletes.slice(startIndex, endIndex);
+      athletes = mergeAndPaginate([rankedAthletes, unrankedAthletes], page, pageSize);
     }
   }
 
