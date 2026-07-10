@@ -85,6 +85,13 @@ model Athlete {
   winsByKo          Int
   winsBySubmission  Int
   retired           Boolean? @default(false)
+
+  @@index([retired, rank])
+  @@index([retired, poundForPoundRank])
+  @@index([retired, gender, poundForPoundRank])
+  @@index([weightDivision, gender, retired])
+  @@index([retired, followers])
+  @@index([country])
 }
 
 model Event {
@@ -100,6 +107,7 @@ model Event {
   updatedAt   DateTime    @updatedAt
   status      EventStatus @default(UPCOMING)
 
+  @@index([status, date])
   @@map("event")
 }
 
