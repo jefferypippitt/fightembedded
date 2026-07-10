@@ -64,6 +64,26 @@ export async function getAthleteForEdit(id: string): Promise<Athlete | null> {
   }
 }
 
+const athleteListSelect = {
+  id: true,
+  name: true,
+  gender: true,
+  age: true,
+  weightDivision: true,
+  country: true,
+  imageUrl: true,
+  wins: true,
+  losses: true,
+  draws: true,
+  winsByKo: true,
+  winsBySubmission: true,
+  followers: true,
+  updatedAt: true,
+  poundForPoundRank: true,
+  rank: true,
+  retired: true,
+} as const;
+
 // Get active athletes (for main athletes page)
 export async function getAthletes(): Promise<Athlete[]> {
   "use cache";
@@ -72,6 +92,7 @@ export async function getAthletes(): Promise<Athlete[]> {
   try {
     const athletes = await prisma.athlete.findMany({
       where: { retired: false },
+      select: athleteListSelect,
       orderBy: [{ rank: "asc" }, { name: "asc" }],
     });
 
@@ -86,7 +107,7 @@ export async function getAthletes(): Promise<Athlete[]> {
         return 1;
       }
       return a.name.localeCompare(b.name);
-    });
+    }) as Athlete[];
   } catch (error) {
     console.error("Error fetching active athletes:", error);
     return [];

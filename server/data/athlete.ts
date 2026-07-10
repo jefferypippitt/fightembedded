@@ -8,7 +8,18 @@ import {
   QUICK_STATS_MOST_FOLLOWED_LIMIT,
   QUICK_STATS_RECENT_ADDITIONS_LIMIT,
 } from "@/lib/quick-stats";
-import type { QuickStatsPageData, QuickStatsTopCountry } from "@/types/athlete";
+import type { Athlete, QuickStatsPageData, QuickStatsTopCountry } from "@/types/athlete";
+
+const finishRateAthleteSelect = {
+  id: true,
+  name: true,
+  imageUrl: true,
+  country: true,
+  updatedAt: true,
+  wins: true,
+  winsByKo: true,
+  winsBySubmission: true,
+} as const;
 
 /** Snapshot for /athletes/quick-stats — shares cache tags with related lists */
 export async function getQuickStatsPageData(): Promise<QuickStatsPageData> {
@@ -88,11 +99,14 @@ export async function getQuickStatsPageData(): Promise<QuickStatsPageData> {
           retired: false,
           wins: { gte: QUICK_STATS_MIN_WINS_FOR_FINISH_RATE },
         },
+        select: finishRateAthleteSelect,
       }),
     ]);
 
-    const bestSubmissionRate = topAthletesBySubmissionRate(athletesForFinishRates);
-    const bestKoRate = topAthletesByKoRate(athletesForFinishRates);
+    const bestSubmissionRate = topAthletesBySubmissionRate(
+      athletesForFinishRates as Athlete[]
+    );
+    const bestKoRate = topAthletesByKoRate(athletesForFinishRates as Athlete[]);
 
     const maleChamps = championsRaw.filter((a) => a.gender === "MALE");
     const femaleChamps = championsRaw.filter((a) => a.gender === "FEMALE");
