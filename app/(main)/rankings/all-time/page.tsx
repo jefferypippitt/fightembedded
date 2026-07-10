@@ -1,7 +1,7 @@
 import { RankingsPageHeader } from "@/components/rankings-page-header";
 import { Metadata } from "next";
 import { getAllAthletesPopularity } from "@/server/actions/get-all-athletes-popularity";
-import { FighterPopularityChart } from "../popularity/fighter-popularity-chart";
+import { FighterPopularityChartWrapper } from "@/components/fighter-popularity-chart-wrapper";
 
 export const metadata: Metadata = {
   title: "All-Time Popularity",
@@ -34,7 +34,7 @@ export default async function AllTimePopularityPage() {
           All-Time <span className="text-primary">Popularity</span>
         </h1>
       </RankingsPageHeader>
-      <FighterPopularityChart
+      <FighterPopularityChartWrapper
         maleAthletes={maleChartData}
         femaleAthletes={femaleChartData}
       />
