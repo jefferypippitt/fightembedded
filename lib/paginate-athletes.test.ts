@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { computeTierSlices, mergeAndPaginate } from "./paginate-athletes";
+import {
+  computeTierSlices,
+  fetchBoundedTierPage,
+  mergeAndPaginate,
+} from "./paginate-athletes";
 
 type Item = { id: string; name: string };
 
@@ -79,5 +83,66 @@ describe("computeTierSlices", () => {
     expect(computeTierSlices([3, 5], 3, 2)).toEqual([
       { tierIndex: 1, skip: 1, take: 2 },
     ]);
+  });
+});
+
+describe("fetchBoundedTierPage", () => {
+  const tier1: Item[] = [
+    { id: "1", name: "a" },
+    { id: "2", name: "b" },
+    { id: "3", name: "c" },
+  ];
+  const tier2: Item[] = [
+    { id: "4", name: "d" },
+    { id: "5", name: "e" },
+    { id: "6", name: "f" },
+  ];
+
+  it("matches mergeAndPaginate for page within tier 1", async () => {
+    const page = 1;
+    const pageSize = 2;
+    const bounded = await fetchBoundedTierPage(
+      [tier1.length, tier2.length],
+      page,
+      pageSize,
+      async (tierIndex, skip, take) => {
+        const tier = tierIndex === 0 ? tier1 : tier2;
+        return tier.slice(skip, skip + take);
+      }
+    );
+
+    expect(bounded).toEqual(mergeAndPaginate([tier1, tier2], page, pageSize));
+  });
+
+  it("matches mergeAndPaginate across tier boundary", async () => {
+    const page = 2;
+    const pageSize = 2;
+    const bounded = await fetchBoundedTierPage(
+      [tier1.length, tier2.length],
+      page,
+      pageSize,
+      async (tierIndex, skip, take) => {
+        const tier = tierIndex === 0 ? tier1 : tier2;
+        return tier.slice(skip, skip + take);
+      }
+    );
+
+    expect(bounded).toEqual(mergeAndPaginate([tier1, tier2], page, pageSize));
+  });
+
+  it("matches mergeAndPaginate for page within tier 2", async () => {
+    const page = 3;
+    const pageSize = 2;
+    const bounded = await fetchBoundedTierPage(
+      [tier1.length, tier2.length],
+      page,
+      pageSize,
+      async (tierIndex, skip, take) => {
+        const tier = tierIndex === 0 ? tier1 : tier2;
+        return tier.slice(skip, skip + take);
+      }
+    );
+
+    expect(bounded).toEqual(mergeAndPaginate([tier1, tier2], page, pageSize));
   });
 });

@@ -45,3 +45,16 @@ export function computeTierSlices(
 
   return slices;
 }
+
+export async function fetchBoundedTierPage<T>(
+  tierCounts: number[],
+  page: number,
+  pageSize: number,
+  fetchTier: (tierIndex: number, skip: number, take: number) => Promise<T[]>
+): Promise<T[]> {
+  const slices = computeTierSlices(tierCounts, page, pageSize);
+  const results = await Promise.all(
+    slices.map(({ tierIndex, skip, take }) => fetchTier(tierIndex, skip, take))
+  );
+  return results.flat();
+}
