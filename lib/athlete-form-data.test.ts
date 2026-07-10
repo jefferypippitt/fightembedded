@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { athleteInputFromFormData } from "./athlete-form-data";
 
 function buildFormData(overrides: Record<string, string> = {}): FormData {
@@ -69,5 +70,35 @@ describe("athleteInputFromFormData", () => {
     expect(() =>
       athleteInputFromFormData(buildFormData({ age: "abc" }))
     ).toThrow();
+  });
+
+  it("throws when country is missing", () => {
+    const formData = buildFormData();
+    formData.delete("country");
+
+    expect(() => athleteInputFromFormData(formData)).toThrow(z.ZodError);
+  });
+
+  it("throws when weightDivision is missing", () => {
+    const formData = buildFormData();
+    formData.delete("weightDivision");
+
+    expect(() => athleteInputFromFormData(formData)).toThrow(z.ZodError);
+  });
+
+  it("throws when name is missing", () => {
+    const formData = buildFormData();
+    formData.delete("name");
+
+    expect(() => athleteInputFromFormData(formData)).toThrow(z.ZodError);
+  });
+
+  it("parses successfully with imageUrl omitted", () => {
+    const formData = buildFormData();
+    formData.delete("imageUrl");
+
+    const result = athleteInputFromFormData(formData);
+
+    expect(result.imageUrl).toBeUndefined();
   });
 });
