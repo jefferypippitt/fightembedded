@@ -8,6 +8,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 import type { EnrichedEvent, EventFighter } from "@/types/event";
+import { isUnauthorizedError } from "@/lib/action-errors";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -20,10 +21,6 @@ const checkAuth = async () => {
   }
   return session;
 };
-
-function isUnauthorizedError(error: unknown): boolean {
-  return error instanceof Error && error.message === "Unauthorized";
-}
 
 export async function createEvent(formData: FormData) {
   try {

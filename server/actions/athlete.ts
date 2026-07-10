@@ -3,16 +3,17 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
-import { athleteSchema, athleteRankUpdatesSchema } from "@/schemas/athlete";
+import { athleteRankUpdatesSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import {
-  AthleteInput,
   ActionResponse,
   Athlete,
 } from "@/types/athlete";
 import { revalidatePath, revalidateTag, cacheLife, cacheTag } from "next/cache";
 import { weightClasses } from "@/data/weight-class";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
+import { isUnauthorizedError } from "@/lib/action-errors";
+import { athleteInputFromFormData } from "@/lib/athlete-form-data";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -25,10 +26,6 @@ const checkAuth = async () => {
   }
   return session;
 };
-
-function isUnauthorizedError(error: unknown): boolean {
-  return error instanceof Error && error.message === "Unauthorized";
-}
 
 // Get single athlete by ID (cached for public pages)
 export async function getAthlete(id: string): Promise<Athlete | null> {
@@ -488,29 +485,7 @@ export async function createAthlete(
         )} seconds.`,
       };
     }
-    const rawData = Object.fromEntries(formData.entries());
-
-    const data: AthleteInput = {
-      name: String(rawData.name),
-      gender: rawData.gender as "MALE" | "FEMALE",
-      weightDivision: String(rawData.weightDivision),
-      country: String(rawData.country),
-      age: parseInt(rawData.age as string),
-      wins: parseInt(rawData.wins as string),
-      losses: parseInt(rawData.losses as string),
-      draws: parseInt(rawData.draws as string),
-      winsByKo: parseInt(rawData.winsByKo as string),
-      winsBySubmission: parseInt(rawData.winsBySubmission as string),
-      followers: parseInt(rawData.followers as string),
-      rank: rawData.rank ? parseInt(rawData.rank as string) : 0,
-      poundForPoundRank: rawData.poundForPoundRank
-        ? parseInt(rawData.poundForPoundRank as string)
-        : 0,
-      imageUrl: String(rawData.imageUrl),
-      retired: rawData.retired === "true",
-    };
-
-    const validatedData = athleteSchema.parse(data);
+    const validatedData = athleteInputFromFormData(formData);
 
     // If athlete is being created as retired, clear their ranks
     const finalData = {
@@ -663,29 +638,7 @@ export async function updateAthlete(
         )} seconds.`,
       };
     }
-    const rawData = Object.fromEntries(formData.entries());
-
-    const data: AthleteInput = {
-      name: String(rawData.name),
-      gender: rawData.gender as "MALE" | "FEMALE",
-      weightDivision: String(rawData.weightDivision),
-      country: String(rawData.country),
-      age: parseInt(rawData.age as string),
-      wins: parseInt(rawData.wins as string),
-      losses: parseInt(rawData.losses as string),
-      draws: parseInt(rawData.draws as string),
-      winsByKo: parseInt(rawData.winsByKo as string),
-      winsBySubmission: parseInt(rawData.winsBySubmission as string),
-      followers: parseInt(rawData.followers as string),
-      rank: rawData.rank ? parseInt(rawData.rank as string) : 0,
-      poundForPoundRank: rawData.poundForPoundRank
-        ? parseInt(rawData.poundForPoundRank as string)
-        : 0,
-      imageUrl: String(rawData.imageUrl),
-      retired: rawData.retired === "true",
-    };
-
-    const validatedData = athleteSchema.parse(data);
+    const validatedData = athleteInputFromFormData(formData);
 
     // Get the current athlete to compare changes
     const currentAthlete = await prisma.athlete.findUnique({
