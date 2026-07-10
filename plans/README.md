@@ -20,12 +20,12 @@ Batch 2 (plans 005-036) generated 2026-07-10 (standard-depth audit at `4633e33`)
 | 008  | Fix String(undefined) coercion in athlete form-data | P2 | S | — | DONE |
 | 009  | Remove dead athlete query/mutation functions | P2 | S | — | DONE |
 | 010  | Add existence check to deleteEvent | P3 | S | — | DONE |
-| 011  | Trim unbounded public athlete queries (select) | P2 | S | 009 | TODO |
-| 012  | DB-level pagination for admin athlete table | P2 | M | 016 | TODO |
-| 013  | Add missing Prisma indexes | P3 | S | — | TODO |
-| 014  | DB-side division-stats aggregation | P3 | M | 018 | TODO |
-| 015  | Dynamic-import recharts chart components | P3 | S | — | TODO |
-| 016  | Characterize + extract paginated-athletes merge logic | P1 | M | — | TODO |
+| 011  | Trim unbounded public athlete queries (select) | P2 | S | 009 | DONE |
+| 012  | DB-level pagination for admin athlete table | P2 | M | 016 | DONE |
+| 013  | Add missing Prisma indexes | P3 | S | — | DONE |
+| 014  | DB-side division-stats aggregation | P3 | M | 018 | BLOCKED (requires plan 018 characterization tests first) |
+| 015  | Dynamic-import recharts chart components | P3 | S | — | DONE |
+| 016  | Characterize + extract paginated-athletes merge logic | P1 | M | — | DONE |
 | 017  | Unit tests for quick-stats/utils pure helpers | P2 | S | — | TODO |
 | 018  | Characterize + extract dashboard/division stats aggregation | P2 | M | — | TODO |
 | 019  | Extract + test client-side rank-recompute logic | P1 | M | — | TODO |
@@ -76,6 +76,24 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
   6. `c213fb7` Add not-found check to deleteEvent
 - **Reviewer verification:** `pnpm typecheck` exit 0; `pnpm test` 35/35 pass; `pnpm build` exit 0.
 - **Deviations:** Plan 007 event-form-data test uses a too-short `venue` value instead of a deleted key — `String(undefined)` on omitted fields still produces `"undefined"` (same latent issue as athlete fields before plan 008); flagged for a follow-up if desired.
+- **Not merged** into the user's working branch — merge/checkout is the maintainer's decision.
+
+## Execution record (2026-07-10, batch 011-016)
+
+- **Branch:** `advisor/011-016-batch`
+- **Worktree:** `C:\Users\Jeffery\fightembedded`
+- **Commits (oldest→newest):**
+  1. `31c62ad` Extract and test athlete pagination merge logic
+  2. `76f51b0` Add select projections to unbounded public athlete queries
+  3. `ee945aa` Add indexes for athlete and event filter columns
+  4. `f8e9dab` Dynamic-import recharts-based chart components
+  5. `aec40c0` Use DB-level pagination for rank and P4P athlete sorts
+- **Reviewer verification:** `pnpm typecheck` exit 0; `pnpm test` 47/47 pass; `pnpm build` exit 0.
+- **Skipped:** Plan 014 blocked on plan 018 (characterization tests for dashboard/division stats aggregation).
+- **Deviations:**
+  - Plan 013: `prisma migrate dev --create-only` failed in non-interactive shell; migration SQL generated via `prisma migrate diff` and committed under `prisma/migrations/` (not applied to any database).
+  - Plan 015: Next.js 16 disallows `ssr: false` dynamic imports in Server Components; added client wrappers (`fighter-popularity-chart-wrapper.tsx`, `division-rankings-grid-wrapper.tsx`) matching existing `chart-area-interactive-wrapper.tsx` pattern. `ChartAreaInteractive` was already dynamically imported.
+  - Optional follow-up: applied `stringOrUndefined` pattern to `lib/event-form-data.ts` (included in plan 011 commit).
 - **Not merged** into the user's working branch — merge/checkout is the maintainer's decision.
 
 ## Dependency notes
