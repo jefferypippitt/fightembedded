@@ -3,7 +3,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
-import { athleteSchema } from "@/schemas/athlete";
+import { athleteSchema, athleteRankUpdatesSchema } from "@/schemas/athlete";
 import { z } from "zod";
 import {
   AthleteInput,
@@ -1071,16 +1071,39 @@ export async function updateAthleteRanks(
   try {
     await checkAuth();
 
-    // Validate input
-    if (!Array.isArray(athleteRankUpdates) || athleteRankUpdates.length === 0) {
+    // Rate limiting: 10 rank updates per minute
+    const identifier = await getRateLimitIdentifier();
+    const rateLimitResult = await rateLimit(
+      `${identifier}:update-athlete-ranks`,
+      {
+        limit: 10,
+        window: 60,
+      }
+    );
+
+    if (!rateLimitResult.success) {
       return {
         status: "error",
-        message: "Invalid input: athlete rank updates array is required",
+        message: `Rate limit exceeded. Please try again in ${Math.ceil(
+          (rateLimitResult.resetAt - Date.now()) / 1000
+        )} seconds.`,
       };
     }
 
+    const parsed = athleteRankUpdatesSchema.safeParse(athleteRankUpdates);
+    if (!parsed.success) {
+      return {
+        status: "error",
+        message: `Validation error: ${parsed.error.errors
+          .map((e) => e.message)
+          .join(", ")}`,
+      };
+    }
+
+    const validatedUpdates = parsed.data;
+
     // Update each athlete's rank(s)
-    const updatePromises = athleteRankUpdates.map((update) => {
+    const updatePromises = validatedUpdates.map((update) => {
       const updateData: {
         rank?: number;
         poundForPoundRank?: number;
@@ -1098,7 +1121,7 @@ export async function updateAthleteRanks(
     await Promise.all(updatePromises);
 
     // Fetch affected athletes to get their division information for cache revalidation
-    const affectedAthleteIds = athleteRankUpdates.map((update) => update.id);
+    const affectedAthleteIds = validatedUpdates.map((update) => update.id);
     const affectedAthletes = await prisma.athlete.findMany({
       where: { id: { in: affectedAthleteIds } },
       select: { weightDivision: true, gender: true },

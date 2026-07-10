@@ -40,3 +40,19 @@ export const athleteSchema = z
     message: "KO and submission wins cannot exceed total wins",
     path: ["winsByKo"],
   });
+
+export const athleteRankUpdateSchema = z
+  .object({
+    id: z.string().min(1),
+    rank: z.number().int().min(0).max(20).optional(),
+    poundForPoundRank: z.number().int().min(0).max(15).optional(),
+  })
+  .refine(
+    (row) => row.rank !== undefined || row.poundForPoundRank !== undefined,
+    { message: "Each update must include rank and/or poundForPoundRank" }
+  );
+
+export const athleteRankUpdatesSchema = z
+  .array(athleteRankUpdateSchema)
+  .min(1)
+  .max(50);

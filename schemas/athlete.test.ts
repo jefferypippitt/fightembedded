@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { athleteSchema } from "./athlete";
+import { athleteRankUpdatesSchema, athleteSchema } from "./athlete";
 
 describe("athleteSchema", () => {
   it("accepts a valid athlete payload", () => {
@@ -136,5 +136,69 @@ describe("athleteSchema", () => {
     });
 
     expect(result.success).toBe(true);
+  });
+});
+
+describe("athleteRankUpdatesSchema", () => {
+  it("accepts a valid rank update", () => {
+    const result = athleteRankUpdatesSchema.safeParse([
+      { id: "athlete-1", rank: 1 },
+    ]);
+
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a valid poundForPoundRank update", () => {
+    const result = athleteRankUpdatesSchema.safeParse([
+      { id: "athlete-1", poundForPoundRank: 5 },
+    ]);
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an empty array", () => {
+    const result = athleteRankUpdatesSchema.safeParse([]);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an array longer than 50 entries", () => {
+    const updates = Array.from({ length: 51 }, (_, index) => ({
+      id: `athlete-${index}`,
+      rank: 1,
+    }));
+    const result = athleteRankUpdatesSchema.safeParse(updates);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects rank below 0", () => {
+    const result = athleteRankUpdatesSchema.safeParse([
+      { id: "athlete-1", rank: -1 },
+    ]);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects rank above 20", () => {
+    const result = athleteRankUpdatesSchema.safeParse([
+      { id: "athlete-1", rank: 21 },
+    ]);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects poundForPoundRank above 15", () => {
+    const result = athleteRankUpdatesSchema.safeParse([
+      { id: "athlete-1", poundForPoundRank: 16 },
+    ]);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects updates missing both rank and poundForPoundRank", () => {
+    const result = athleteRankUpdatesSchema.safeParse([{ id: "athlete-1" }]);
+
+    expect(result.success).toBe(false);
   });
 });
