@@ -153,6 +153,12 @@ export async function deleteEvent(id: string) {
       };
     }
 
+    const event = await prisma.event.findUnique({ where: { id } });
+
+    if (!event) {
+      return { status: "error", message: "Event not found" };
+    }
+
     await prisma.event.delete({ where: { id } });
 
     // Revalidate cache tags
