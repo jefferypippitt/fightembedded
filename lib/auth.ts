@@ -15,8 +15,5 @@ export const auth = betterAuth({
     autoSignIn: false,
     allowSignUp: false,
   },
-  cors: {
-    origin: allowedOrigins,
-    credentials: true
-  }
+  trustedOrigins: allowedOrigins,
 });
