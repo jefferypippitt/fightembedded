@@ -21,6 +21,10 @@ const checkAuth = async () => {
   return session;
 };
 
+function isUnauthorizedError(error: unknown): boolean {
+  return error instanceof Error && error.message === "Unauthorized";
+}
+
 export async function createEvent(formData: FormData) {
   try {
     await checkAuth();
@@ -73,6 +77,9 @@ export async function createEvent(formData: FormData) {
 
     return { status: "success", message: "Event created successfully", event };
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
     console.error("Failed to create event:", error);
     return { status: "error", message: "Failed to create event" };
   }
@@ -132,6 +139,9 @@ export async function updateEvent(id: string, formData: FormData) {
 
     return { status: "success", message: "Event updated successfully", event };
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
     console.error(`Failed to update event ${id}:`, error);
     return { status: "error", message: "Failed to update event" };
   }
@@ -173,6 +183,9 @@ export async function deleteEvent(id: string) {
 
     return { status: "success", message: "Event deleted successfully" };
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
     console.error(`Failed to delete event ${id}:`, error);
     return { status: "error", message: "Failed to delete event" };
   }
@@ -202,6 +215,9 @@ export async function getEventForEdit(id: string) {
     const event = await prisma.event.findUnique({ where: { id } });
     return event;
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      throw error;
+    }
     console.error(`Failed to fetch event ${id}:`, error);
     return null;
   }

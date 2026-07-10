@@ -26,6 +26,10 @@ const checkAuth = async () => {
   return session;
 };
 
+function isUnauthorizedError(error: unknown): boolean {
+  return error instanceof Error && error.message === "Unauthorized";
+}
+
 // Get single athlete by ID (cached for public pages)
 export async function getAthlete(id: string): Promise<Athlete | null> {
   "use cache";
@@ -55,6 +59,9 @@ export async function getAthleteForEdit(id: string): Promise<Athlete | null> {
     });
     return athlete;
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      throw error;
+    }
     console.error("Error fetching athlete:", error);
     throw new Error("Failed to fetch athlete");
   }
@@ -610,6 +617,10 @@ export async function createAthlete(
   } catch (error) {
     console.error("Create athlete error:", error);
 
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
+
     if (error instanceof z.ZodError) {
       return {
         status: "error",
@@ -822,6 +833,10 @@ export async function updateAthlete(
   } catch (error) {
     console.error("Update athlete error:", error);
 
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
+
     if (error instanceof z.ZodError) {
       return {
         status: "error",
@@ -915,6 +930,9 @@ export async function updateAthleteStatus(
 
     return updatedAthlete as Athlete;
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      throw error;
+    }
     console.error("Error updating athlete status:", error);
     throw new Error("Failed to update athlete status");
   }
@@ -1034,6 +1052,9 @@ export async function deleteAthlete(id: string) {
 
     return true;
   } catch (error) {
+    if (isUnauthorizedError(error)) {
+      throw error;
+    }
     console.error("Delete athlete error:", error);
     throw new Error("Failed to delete athlete");
   }
@@ -1165,6 +1186,10 @@ export async function updateAthleteRanks(
     };
   } catch (error) {
     console.error("Update athlete ranks error:", error);
+
+    if (isUnauthorizedError(error)) {
+      return { status: "error", message: "Unauthorized" };
+    }
 
     return {
       status: "error",
