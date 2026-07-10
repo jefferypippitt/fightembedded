@@ -1,9 +1,25 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { headers } from "next/headers";
 import { connection } from "next/server";
 
+const checkAuth = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  return session;
+};
+
 export async function getDashboardStats() {
+  await checkAuth();
+
   // Force fresh data for every dashboard render/request.
   await connection();
 

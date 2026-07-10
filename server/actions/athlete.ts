@@ -1055,23 +1055,24 @@ export async function updateAthleteRanks(
 
     const validatedUpdates = parsed.data;
 
-    // Update each athlete's rank(s)
-    const updatePromises = validatedUpdates.map((update) => {
-      const updateData: {
-        rank?: number;
-        poundForPoundRank?: number;
-      } = {};
-      if (update.rank !== undefined) updateData.rank = update.rank;
-      if (update.poundForPoundRank !== undefined)
-        updateData.poundForPoundRank = update.poundForPoundRank;
+    // Update each athlete's rank(s) atomically
+    await prisma.$transaction(
+      validatedUpdates.map((update) => {
+        const updateData: {
+          rank?: number;
+          poundForPoundRank?: number;
+        } = {};
+        if (update.rank !== undefined) updateData.rank = update.rank;
+        if (update.poundForPoundRank !== undefined) {
+          updateData.poundForPoundRank = update.poundForPoundRank;
+        }
 
-      return prisma.athlete.update({
-        where: { id: update.id },
-        data: updateData,
-      });
-    });
-
-    await Promise.all(updatePromises);
+        return prisma.athlete.update({
+          where: { id: update.id },
+          data: updateData,
+        });
+      })
+    );
 
     // Fetch affected athletes to get their division information for cache revalidation
     const affectedAthleteIds = validatedUpdates.map((update) => update.id);

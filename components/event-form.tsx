@@ -155,7 +155,6 @@ export function EventForm({ initialData }: EventFormProps) {
                           mode="single"
                           selected={field.value}
                           onSelect={field.onChange}
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>

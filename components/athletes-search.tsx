@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, memo, useState, useEffect } from "react";
+import { useCallback, useMemo, memo } from "react";
 import { Search, X, Loader2 } from "lucide-react";
+import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { AthleteListCard } from "@/components/athlete-list-card";
@@ -400,20 +401,9 @@ export function AthletesSearchInput({
   );
 
   const selectionLimitReached = selectedNames.length >= 2;
-  const [isSearching, setIsSearching] = useState(false);
-
-  // Show spinner when typing
-  useEffect(() => {
-    if (searchQuery?.trim()) {
-      setIsSearching(true);
-      const timer = setTimeout(() => {
-        setIsSearching(false);
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      setIsSearching(false);
-    }
-  }, [searchQuery]);
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
+  const isSearching =
+    Boolean(searchQuery?.trim()) && searchQuery !== debouncedSearchQuery;
 
   // Calculate filtered results count
   const filteredCount = useMemo(() => {

@@ -104,31 +104,41 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-// Recharts 2.x does not export TooltipContentProps; custom tooltip render props
-// match TooltipProps (see ContentType in recharts' Tooltip.d.ts). Recharts 3 adds
-// TooltipContentProps as a separate export.
-type RechartsTooltipProps = RechartsPrimitive.TooltipProps<number, string>
-
-type TooltipInjectedProps = Pick<
-  RechartsTooltipProps,
-  "active" | "payload" | "coordinate" | "label" | "accessibilityLayer"
->
-
-type ChartTooltipContentProps = Omit<
-  RechartsTooltipProps,
-  keyof TooltipInjectedProps
-> &
-  Partial<TooltipInjectedProps> &
-  Pick<React.ComponentProps<"div">, "className"> & {
-    color?: string
-    hideLabel?: boolean
-    hideIndicator?: boolean
-    indicator?: "line" | "dot" | "dashed"
-    nameKey?: string
-    labelKey?: string
-    /** Present in Recharts 3 custom tooltip payloads; omitted from v2 typings. */
-    activeIndex?: number | string | ReadonlyArray<number | string>
+type ChartTooltipPayloadItem = {
+  type?: string
+  dataKey?: string | number
+  name?: string
+  value?: number
+  color?: string
+  payload?: {
+    fill?: string
+    [key: string]: unknown
   }
+}
+
+type ChartTooltipContentProps = React.ComponentProps<"div"> & {
+  active?: boolean
+  payload?: ChartTooltipPayloadItem[]
+  label?: React.ReactNode
+  labelFormatter?: (
+    label: React.ReactNode,
+    payload: ChartTooltipPayloadItem[]
+  ) => React.ReactNode
+  labelClassName?: string
+  formatter?: (
+    value: number,
+    name: string,
+    item: ChartTooltipPayloadItem,
+    index: number,
+    payload: ChartTooltipPayloadItem["payload"]
+  ) => React.ReactNode
+  color?: string
+  hideLabel?: boolean
+  hideIndicator?: boolean
+  indicator?: "line" | "dot" | "dashed"
+  nameKey?: string
+  labelKey?: string
+}
 
 function ChartTooltipContent({
   active,
@@ -203,7 +213,7 @@ function ChartTooltipContent({
           .map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`
             const itemConfig = getPayloadConfigFromPayload(config, item, key)
-            const indicatorColor = color || item.payload.fill || item.color
+            const indicatorColor = color || item.payload?.fill || item.color
 
             const rowKey =
               typeof item.dataKey === "string" ||

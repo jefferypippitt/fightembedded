@@ -4,6 +4,9 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { NavUser } from "@/components/nav-user";
 import { DashboardHeader, SiteHeaderSkeleton } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 function DashboardLayoutFallback() {
@@ -25,8 +28,13 @@ async function DashboardLayoutContent({
 }) {
   await connection();
 
-  // Authentication is handled by proxy.ts middleware which runs before this layout
-  // No need to check auth here as unauthenticated users are already redirected
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
 
   return (
     <SidebarProvider
