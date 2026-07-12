@@ -1,0 +1,2 @@
+-- Historical failed migration (Event table did not exist at the time).
+-- Marked rolled back via prisma migrate resolve. No-op stub for history parity.
