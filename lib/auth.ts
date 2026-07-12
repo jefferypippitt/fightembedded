@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 
-// Trust both apex and www — metadata/sitemap use apex, auth client may hit www.
+// Trust both apex and www — metadata/sitemap use apex; requests may come from either.
 const allowedOrigins =
   process.env.NODE_ENV === "development"
     ? ["http://localhost:3000"]
@@ -20,8 +20,5 @@ export const auth = betterAuth({
     autoSignIn: false,
     allowSignUp: false,
   },
-  cors: {
-    origin: allowedOrigins,
-    credentials: true
-  }
+  trustedOrigins: allowedOrigins,
 });
