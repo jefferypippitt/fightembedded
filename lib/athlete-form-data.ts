@@ -1,14 +1,20 @@
 import { athleteSchema } from "@/schemas/athlete";
 import type { AthleteInput } from "@/types/athlete";
 
+function stringOrUndefined(
+  value: FormDataEntryValue | undefined
+): string | undefined {
+  return value === undefined ? undefined : String(value);
+}
+
 export function athleteInputFromFormData(formData: FormData): AthleteInput {
   const rawData = Object.fromEntries(formData.entries());
 
   const data: AthleteInput = {
-    name: String(rawData.name),
+    name: stringOrUndefined(rawData.name) ?? "",
     gender: rawData.gender as "MALE" | "FEMALE",
-    weightDivision: String(rawData.weightDivision),
-    country: String(rawData.country),
+    weightDivision: stringOrUndefined(rawData.weightDivision) ?? "",
+    country: stringOrUndefined(rawData.country) ?? "",
     age: parseInt(rawData.age as string),
     wins: parseInt(rawData.wins as string),
     losses: parseInt(rawData.losses as string),
@@ -20,7 +26,7 @@ export function athleteInputFromFormData(formData: FormData): AthleteInput {
     poundForPoundRank: rawData.poundForPoundRank
       ? parseInt(rawData.poundForPoundRank as string)
       : 0,
-    imageUrl: String(rawData.imageUrl),
+    imageUrl: stringOrUndefined(rawData.imageUrl),
     retired: rawData.retired === "true",
   };
 

@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useMemo, memo } from "react";
+import dynamic from "next/dynamic";
 import { Search, X, Loader2 } from "lucide-react";
 import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { AthleteListCard } from "@/components/athlete-list-card";
-import { AthleteComparisonChart } from "@/components/athlete-comparison-chart";
 import type { Athlete } from "@/types/athlete";
 import { useQueryState, parseAsArrayOf, parseAsString } from "nuqs";
 import {
@@ -14,6 +14,19 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+
+const AthleteComparisonChart = dynamic(
+  () =>
+    import("@/components/athlete-comparison-chart").then(
+      (mod) => mod.AthleteComparisonChart
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[300px] animate-pulse rounded-md bg-muted" />
+    ),
+  }
+);
 
 interface AthletesSearchProps {
   athletes: Athlete[];

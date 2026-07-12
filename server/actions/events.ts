@@ -3,12 +3,13 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
-import { eventSchema } from "@/schemas/event";
+import { eventInputFromFormData } from "@/lib/event-form-data";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 import type { EnrichedEvent, EventFighter } from "@/types/event";
 import { isUnauthorizedError } from "@/lib/action-errors";
+import { z } from "zod";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -41,21 +42,7 @@ export async function createEvent(formData: FormData) {
         )} seconds.`,
       };
     }
-    const rawData = Object.fromEntries(formData.entries());
-
-    const data = {
-      name: String(rawData.name),
-      date: new Date(String(rawData.date)),
-      venue: String(rawData.venue),
-      location: String(rawData.location),
-      mainEvent: String(rawData.mainEvent),
-      coMainEvent: rawData.coMainEvent
-        ? String(rawData.coMainEvent)
-        : undefined,
-      status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
-    };
-
-    const validatedData = eventSchema.parse(data);
+    const validatedData = eventInputFromFormData(formData);
     const event = await prisma.event.create({ data: validatedData });
 
     // Revalidate cache tags
@@ -76,6 +63,14 @@ export async function createEvent(formData: FormData) {
   } catch (error) {
     if (isUnauthorizedError(error)) {
       return { status: "error", message: "Unauthorized" };
+    }
+    if (error instanceof z.ZodError) {
+      return {
+        status: "error",
+        message: `Validation error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`,
+      };
     }
     console.error("Failed to create event:", error);
     return { status: "error", message: "Failed to create event" };
@@ -101,21 +96,7 @@ export async function updateEvent(id: string, formData: FormData) {
         )} seconds.`,
       };
     }
-    const rawData = Object.fromEntries(formData.entries());
-
-    const data = {
-      name: String(rawData.name),
-      date: new Date(String(rawData.date)),
-      venue: String(rawData.venue),
-      location: String(rawData.location),
-      mainEvent: String(rawData.mainEvent),
-      coMainEvent: rawData.coMainEvent
-        ? String(rawData.coMainEvent)
-        : undefined,
-      status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
-    };
-
-    const validatedData = eventSchema.parse(data);
+    const validatedData = eventInputFromFormData(formData);
     const event = await prisma.event.update({
       where: { id },
       data: validatedData,
@@ -138,6 +119,14 @@ export async function updateEvent(id: string, formData: FormData) {
   } catch (error) {
     if (isUnauthorizedError(error)) {
       return { status: "error", message: "Unauthorized" };
+    }
+    if (error instanceof z.ZodError) {
+      return {
+        status: "error",
+        message: `Validation error: ${error.errors
+          .map((e) => e.message)
+          .join(", ")}`,
+      };
     }
     console.error(`Failed to update event ${id}:`, error);
     return { status: "error", message: "Failed to update event" };
@@ -162,6 +151,12 @@ export async function deleteEvent(id: string) {
           (rateLimitResult.resetAt - Date.now()) / 1000
         )} seconds.`,
       };
+    }
+
+    const event = await prisma.event.findUnique({ where: { id } });
+
+    if (!event) {
+      return { status: "error", message: "Event not found" };
     }
 
     await prisma.event.delete({ where: { id } });

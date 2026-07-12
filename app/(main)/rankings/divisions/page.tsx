@@ -1,7 +1,7 @@
 import { RankingsPageHeader } from "@/components/rankings-page-header";
 import { Metadata } from "next";
 import { getTop5Athletes } from "@/server/actions/get-top-5-athletes";
-import { DivisionRankingsGrid } from "./division-charts";
+import { DivisionRankingsGridWrapper } from "@/components/division-rankings-grid-wrapper";
 
 export const metadata: Metadata = {
   title: "Division Popularity",
@@ -26,7 +26,7 @@ export default async function DivisionRankingsPage() {
           Top 5 Ranked <span className="text-primary">Athletes</span>
         </h1>
       </RankingsPageHeader>
-      <DivisionRankingsGrid
+      <DivisionRankingsGridWrapper
         maleDivisions={maleDivisions}
         femaleDivisions={femaleDivisions}
       />

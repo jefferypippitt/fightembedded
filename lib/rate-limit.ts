@@ -1,3 +1,4 @@
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 interface RateLimitOptions {
@@ -80,17 +81,19 @@ export async function rateLimit(
  */
 export async function getRateLimitIdentifier(): Promise<string> {
   const requestHeaders = await headers();
-  
-  // Try to get IP from headers (common proxy headers)
+
+  const session = await auth.api.getSession({ headers: requestHeaders });
+  if (session?.user?.id) {
+    return `rate-limit:user:${session.user.id}`;
+  }
+
+  // Fallback for unauthenticated callers (should not occur on the
+  // checkAuth()-gated mutation paths, but keep a safe default).
   const forwardedFor = requestHeaders.get("x-forwarded-for");
   const realIp = requestHeaders.get("x-real-ip");
   const ip = forwardedFor?.split(",")[0] || realIp || "unknown";
 
-  // For authenticated requests, you could use session ID instead
-  // const session = await auth.api.getSession({ headers: requestHeaders });
-  // return session?.user?.id || ip;
-
-  return `rate-limit:${ip}`;
+  return `rate-limit:ip:${ip}`;
 }
 
 /**

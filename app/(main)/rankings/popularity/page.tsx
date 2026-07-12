@@ -1,6 +1,6 @@
 import { RankingsPageHeader } from "@/components/rankings-page-header";
 import { getTop20Athletes } from "@/server/actions/get-top-20-athletes";
-import { FighterPopularityChart } from "./fighter-popularity-chart";
+import { FighterPopularityChartWrapper } from "@/components/fighter-popularity-chart-wrapper";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function DivisionRankingsPage() {
           Top 20 Athletes By <span className="text-primary">Popularity</span>
         </h1>
       </RankingsPageHeader>
-      <FighterPopularityChart
+      <FighterPopularityChartWrapper
         maleAthletes={maleChartData}
         femaleAthletes={femaleChartData}
       />
