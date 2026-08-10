@@ -59,6 +59,9 @@ export async function createEvent(formData: FormData) {
       revalidatePath("/", "page");
     }
 
+    // Clear router cache for new form so back-to-back creates start empty
+    revalidatePath("/dashboard/events/new", "page");
+
     return { status: "success", message: "Event created successfully", event };
   } catch (error) {
     if (isUnauthorizedError(error)) {

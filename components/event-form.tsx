@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/schemas/event";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ import {
 import { createEvent, updateEvent } from "@/server/actions/events";
 import { toast } from "sonner";
 import { Event } from "@/types/event";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
@@ -43,6 +43,16 @@ type EventFormProps = {
 
 type EventFormData = z.infer<typeof eventSchema>;
 
+const emptyEventValues: DefaultValues<EventFormData> = {
+  name: "",
+  date: undefined,
+  venue: "",
+  location: "",
+  mainEvent: "",
+  coMainEvent: "",
+  status: "UPCOMING",
+};
+
 export function EventForm({ initialData }: EventFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,20 +67,31 @@ export function EventForm({ initialData }: EventFormProps) {
         coMainEvent: initialData.coMainEvent || "",
         status: initialData.status || "UPCOMING",
       }
-    : {
-        name: "",
-        date: undefined,
-        venue: "",
-        location: "",
-        mainEvent: "",
-        coMainEvent: "",
-        status: "UPCOMING" as const,
-      };
+    : emptyEventValues;
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues,
   });
+
+  // Reset when initialData changes (edit) or on mount (new) — mirrors athlete-form.
+  // Combined with revalidatePath("/dashboard/events/new") in createEvent, this
+  // clears Next.js router-cache restores after back-to-back creates.
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        name: initialData.name,
+        date: new Date(initialData.date),
+        venue: initialData.venue,
+        location: initialData.location,
+        mainEvent: initialData.mainEvent,
+        coMainEvent: initialData.coMainEvent || "",
+        status: initialData.status || "UPCOMING",
+      });
+    } else {
+      form.reset(emptyEventValues);
+    }
+  }, [initialData, form]);
 
   async function onSubmit(data: EventFormData) {
     setIsSubmitting(true);
@@ -93,8 +114,11 @@ export function EventForm({ initialData }: EventFormProps) {
       }
 
       toast.success(response.message);
-      router.push("/dashboard/events");
-      router.refresh();
+      if (!initialData) {
+        form.reset(emptyEventValues);
+      }
+      // Navigate away — createEvent revalidates the new-form route so the next visit is empty
+      router.replace("/dashboard/events");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Something went wrong"
