@@ -3,10 +3,7 @@ import { validateBearerToken, createUnauthorizedResponse } from "@/lib/bot-auth"
 import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ name: string }> }
-) {
+export async function GET(request: NextRequest) {
   // Validate bearer token
   if (!validateBearerToken(request)) {
     return createUnauthorizedResponse();
@@ -26,14 +23,21 @@ export async function GET(
   }
 
   try {
-    const { name } = await params;
-    const decodedName = decodeURIComponent(name);
+    const searchParams = request.nextUrl.searchParams;
+    const name = searchParams.get("name");
+
+    if (!name) {
+      return NextResponse.json(
+        { error: "Missing 'name' query parameter" },
+        { status: 400, headers: rateLimitHeaders }
+      );
+    }
 
     // Search for athlete by name (case-insensitive partial match)
     const athletes = await prisma.athlete.findMany({
       where: {
         name: {
-          contains: decodedName,
+          contains: name,
           mode: "insensitive",
         },
       },

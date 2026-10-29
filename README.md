@@ -31,6 +31,8 @@ The following environment variables are required:
 
 The application includes a bearer-token-protected bot API for automated athlete data management. All endpoints require a valid bearer token in the `Authorization` header.
 
+> **Note:** The API uses an in-memory rate limiter which is safe for serverless deployments. Each serverless function instance maintains its own rate limit state, providing per-instance protection. For distributed rate limiting across all instances, consider using Redis or a similar external store.
+
 ### Authentication
 
 Include the bearer token in the `Authorization` header:
@@ -45,17 +47,17 @@ Authorization: Bearer YOUR_BOT_API_SECRET
 
 Search for athletes by name (case-insensitive partial match).
 
-**Endpoint:** `GET /api/bot/athlete/{name}`
+**Endpoint:** `GET /api/bot/athletes?name={name}`
 
 **Parameters:**
-- `name` (path parameter) - The athlete name or partial name to search for
+- `name` (query parameter) - The athlete name or partial name to search for
 
 **Rate Limit:** 60 requests per minute
 
 **Example:**
 
 ```bash
-curl -X GET "https://your-domain.com/api/bot/athlete/John%20Doe" \
+curl -X GET "https://your-domain.com/api/bot/athletes?name=John%20Doe" \
   -H "Authorization: Bearer YOUR_BOT_API_SECRET"
 ```
 
@@ -86,40 +88,48 @@ curl -X GET "https://your-domain.com/api/bot/athlete/John%20Doe" \
 }
 ```
 
-#### 2. Update Athlete Stats
+#### 2. Update Athlete Data
 
-Update only the statistics for an athlete (wins, losses, draws, KO wins, submission wins, followers). Uses the same cache invalidation strategy as the dashboard.
+Update athlete statistics, rankings, and other fields. Uses the same cache invalidation strategy as the dashboard.
 
-**Endpoint:** `PATCH /api/bot/athlete/{id}/stats`
+**Endpoint:** `PATCH /api/bot/athletes/{id}/stats`
 
 **Parameters:**
 - `id` (path parameter) - The athlete ID
 
-**Request Body:** (at least one field required)
+**Updatable Fields:** (at least one field required)
 
-```json
-{
-  "wins": 16,
-  "losses": 2,
-  "draws": 0,
-  "winsByKo": 9,
-  "winsBySubmission": 5,
-  "followers": 52000
-}
-```
+**Statistics:**
+- `wins` (number, non-negative integer) - Total wins
+- `losses` (number, non-negative integer) - Total losses
+- `draws` (number, non-negative integer) - Total draws
+- `winsByKo` (number, non-negative integer) - Wins by knockout
+- `winsBySubmission` (number, non-negative integer) - Wins by submission
+- `followers` (number, non-negative integer) - Social media followers
+
+**Rankings:**
+- `rank` (number, non-negative integer) - Division rank (0 for unranked)
+- `poundForPoundRank` (number, non-negative integer) - Pound-for-pound rank (0 for unranked)
+
+**Other:**
+- `age` (number, positive integer) - Athlete's age
+- `weightDivision` (string) - Must be one of: `Men's Heavyweight`, `Men's Light Heavyweight`, `Men's Middleweight`, `Men's Welterweight`, `Men's Lightweight`, `Men's Featherweight`, `Men's Bantamweight`, `Men's Flyweight`, `Women's Bantamweight`, `Women's Flyweight`, `Women's Strawweight`
+- `retired` (boolean) - Retirement status (automatically clears ranks when set to `true`)
 
 **Rate Limit:** 30 requests per minute
 
 **Example:**
 
 ```bash
-curl -X PATCH "https://your-domain.com/api/bot/athlete/abc123/stats" \
+curl -X PATCH "https://your-domain.com/api/bot/athletes/abc123/stats" \
   -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{
     "wins": 16,
     "losses": 2,
-    "followers": 52000
+    "followers": 52000,
+    "rank": 2,
+    "age": 29
   }'
 ```
 
@@ -127,13 +137,15 @@ curl -X PATCH "https://your-domain.com/api/bot/athlete/abc123/stats" \
 
 ```json
 {
-  "message": "Athlete stats updated successfully",
+  "message": "Athlete updated successfully",
   "athlete": {
     "id": "abc123",
     "name": "John Doe",
     "wins": 16,
     "losses": 2,
-    "followers": 52000
+    "followers": 52000,
+    "rank": 2,
+    "age": 29
   }
 }
 ```
