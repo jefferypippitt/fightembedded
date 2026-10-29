@@ -4,12 +4,13 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { eventInputFromFormData } from "@/lib/event-form-data";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { cacheLife, cacheTag } from "next/cache";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 import type { EnrichedEvent, EventFighter } from "@/types/event";
 import { isUnauthorizedError } from "@/lib/action-errors";
 import { z } from "zod";
+import { invalidateEventCache } from "@/lib/cache-invalidation";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -45,19 +46,11 @@ export async function createEvent(formData: FormData) {
     const validatedData = eventInputFromFormData(formData);
     const event = await prisma.event.create({ data: validatedData });
 
-    // Revalidate cache tags
-    revalidateTag("all-events", "max");
-    revalidateTag("upcoming-events", "max");
-    revalidateTag("live-upcoming-events", "max");
-    revalidateTag("stats", "max");
-    revalidateTag("live-stats", "max");
-    revalidateTag(`event-${event.id}`, "max");
-
-    // Revalidate public events pages if the new event is upcoming
-    if (validatedData.status === "UPCOMING") {
-      revalidatePath("/events", "page");
-      revalidatePath("/", "page");
-    }
+    // Revalidate caches using shared helper
+    invalidateEventCache({
+      eventId: event.id,
+      isUpcoming: validatedData.status === "UPCOMING",
+    });
 
     // Clear router cache for new form so back-to-back creates start empty
     revalidatePath("/dashboard/events/new", "page");
@@ -105,18 +98,11 @@ export async function updateEvent(id: string, formData: FormData) {
       data: validatedData,
     });
 
-    // Revalidate cache tags
-    revalidateTag("all-events", "max");
-    revalidateTag("upcoming-events", "max");
-    revalidateTag("live-upcoming-events", "max");
-    revalidateTag("stats", "max");
-    revalidateTag("live-stats", "max");
-    revalidateTag(`event-${id}`, "max");
-    revalidateTag(`event-edit-${id}`, "max"); // Invalidate edit cache
-
-    // Revalidate public pages
-    revalidatePath("/events", "page");
-    revalidatePath("/", "page");
+    // Revalidate caches using shared helper
+    invalidateEventCache({
+      eventId: id,
+      isUpcoming: validatedData.status === "UPCOMING",
+    });
 
     return { status: "success", message: "Event updated successfully", event };
   } catch (error) {
@@ -164,17 +150,11 @@ export async function deleteEvent(id: string) {
 
     await prisma.event.delete({ where: { id } });
 
-    // Revalidate cache tags
-    revalidateTag("all-events", "max");
-    revalidateTag("upcoming-events", "max");
-    revalidateTag("live-upcoming-events", "max");
-    revalidateTag("stats", "max");
-    revalidateTag("live-stats", "max");
-    revalidateTag(`event-${id}`, "max");
-
-    // Revalidate public pages
-    revalidatePath("/events", "page");
-    revalidatePath("/", "page");
+    // Revalidate caches using shared helper
+    invalidateEventCache({
+      eventId: id,
+      isUpcoming: event.status === "UPCOMING",
+    });
 
     return { status: "success", message: "Event deleted successfully" };
   } catch (error) {

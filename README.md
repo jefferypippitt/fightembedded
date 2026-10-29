@@ -213,6 +213,181 @@ curl -X POST "https://your-domain.com/api/bot/revalidate-all" \
 }
 ```
 
+---
+
+## Bot API - Events
+
+The bot API also provides endpoints for managing events.
+
+### Endpoints
+
+#### 1. Create Event
+
+Create a new event.
+
+**Endpoint:** `POST /api/bot/events`
+
+**Required Fields:**
+- `name` (string, min 2 chars) - Event name
+- `date` (string, ISO 8601 format) - Event date
+- `venue` (string, min 2 chars) - Venue name
+- `location` (string, min 2 chars) - Location/city
+- `mainEvent` (string, min 2 chars) - Main event matchup
+
+**Optional Fields:**
+- `coMainEvent` (string) - Co-main event matchup
+- `imageUrl` (string, valid URL) - Event poster/image URL
+- `status` (string: `UPCOMING`, `COMPLETED`, `CANCELLED`) - Defaults to `UPCOMING`
+
+**Rate Limit:** 20 requests per minute
+
+**Example:**
+
+```bash
+curl -X POST "https://your-domain.com/api/bot/events" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "UFC 300",
+    "date": "2024-04-13T02:00:00Z",
+    "venue": "T-Mobile Arena",
+    "location": "Las Vegas, Nevada",
+    "mainEvent": "Alex Pereira vs Jamahal Hill",
+    "coMainEvent": "Zhang Weili vs Yan Xiaonan",
+    "imageUrl": "https://example.com/ufc300.jpg",
+    "status": "UPCOMING"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "message": "Event created successfully",
+  "event": {
+    "id": "xyz789",
+    "name": "UFC 300",
+    "date": "2024-04-13T02:00:00.000Z",
+    "venue": "T-Mobile Arena",
+    "location": "Las Vegas, Nevada",
+    "mainEvent": "Alex Pereira vs Jamahal Hill",
+    "coMainEvent": "Zhang Weili vs Yan Xiaonan",
+    "imageUrl": "https://example.com/ufc300.jpg",
+    "status": "UPCOMING",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T10:30:00.000Z"
+  }
+}
+```
+
+#### 2. List/Search Events
+
+Search for events by name or status (uncached for bot use).
+
+**Endpoint:** `GET /api/bot/events`
+
+**Query Parameters:**
+- `name` (optional) - Search by event name (case-insensitive partial match)
+- `status` (optional) - Filter by status: `UPCOMING`, `COMPLETED`, or `CANCELLED`
+
+**Rate Limit:** 60 requests per minute
+
+**Examples:**
+
+```bash
+# List all events (up to 50 most recent)
+curl -X GET "https://your-domain.com/api/bot/events" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+
+# Search by name
+curl -X GET "https://your-domain.com/api/bot/events?name=UFC%20300" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+
+# Filter by status
+curl -X GET "https://your-domain.com/api/bot/events?status=UPCOMING" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+
+# Combine filters
+curl -X GET "https://your-domain.com/api/bot/events?name=UFC&status=UPCOMING" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+```
+
+**Response:**
+
+```json
+{
+  "count": 2,
+  "events": [
+    {
+      "id": "xyz789",
+      "name": "UFC 300",
+      "date": "2024-04-13T02:00:00.000Z",
+      "venue": "T-Mobile Arena",
+      "location": "Las Vegas, Nevada",
+      "mainEvent": "Alex Pereira vs Jamahal Hill",
+      "coMainEvent": "Zhang Weili vs Yan Xiaonan",
+      "imageUrl": "https://example.com/ufc300.jpg",
+      "status": "UPCOMING",
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+#### 3. Update Event
+
+Update an event's status and other fields.
+
+**Endpoint:** `PATCH /api/bot/events/{id}`
+
+**Parameters:**
+- `id` (path parameter) - The event ID
+
+**Updatable Fields:** (at least one field required)
+- `name` (string, min 2 chars) - Event name
+- `date` (string, ISO 8601 format) - Event date
+- `venue` (string, min 2 chars) - Venue name
+- `location` (string, min 2 chars) - Location/city
+- `mainEvent` (string, min 2 chars) - Main event matchup
+- `coMainEvent` (string) - Co-main event matchup
+- `imageUrl` (string, valid URL or empty string to clear) - Event poster/image URL
+- `status` (string: `UPCOMING`, `COMPLETED`, `CANCELLED`) - Event status
+
+**Rate Limit:** 30 requests per minute
+
+**Example:**
+
+```bash
+curl -X PATCH "https://your-domain.com/api/bot/events/xyz789" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "COMPLETED"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "message": "Event updated successfully",
+  "event": {
+    "id": "xyz789",
+    "name": "UFC 300",
+    "date": "2024-04-13T02:00:00.000Z",
+    "venue": "T-Mobile Arena",
+    "location": "Las Vegas, Nevada",
+    "mainEvent": "Alex Pereira vs Jamahal Hill",
+    "coMainEvent": "Zhang Weili vs Yan Xiaonan",
+    "imageUrl": "https://example.com/ufc300.jpg",
+    "status": "COMPLETED",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-15T12:45:00.000Z"
+  }
+}
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
