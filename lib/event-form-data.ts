@@ -19,6 +19,9 @@ export function eventInputFromFormData(formData: FormData): EventInput {
     coMainEvent: rawData.coMainEvent
       ? String(rawData.coMainEvent)
       : undefined,
+    imageUrl: rawData.imageUrl && String(rawData.imageUrl).trim() !== ""
+      ? String(rawData.imageUrl)
+      : undefined,
     status: String(rawData.status) as "UPCOMING" | "COMPLETED" | "CANCELLED",
   };
 

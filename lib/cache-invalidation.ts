@@ -192,3 +192,32 @@ export function revalidateAllCaches(): void {
     revalidatePath(`/division/${slug}`, "page");
   });
 }
+
+/**
+ * Shared cache invalidation helper for event-related data
+ * Revalidates all relevant cache tags and paths when event data changes
+ */
+export function invalidateEventCache(options?: {
+  eventId?: string;
+  isUpcoming?: boolean;
+}): void {
+  const { eventId, isUpcoming = false } = options || {};
+
+  // Always revalidate basic event data
+  revalidateTag("all-events", "max");
+  revalidateTag("upcoming-events", "max");
+  revalidateTag("live-upcoming-events", "max");
+  revalidateTag("stats", "max");
+  revalidateTag("live-stats", "max");
+
+  if (eventId) {
+    revalidateTag(`event-${eventId}`, "max");
+    revalidateTag(`event-edit-${eventId}`, "max");
+  }
+
+  // Revalidate public pages if the event is upcoming
+  if (isUpcoming) {
+    revalidatePath("/events", "page");
+    revalidatePath("/", "page");
+  }
+}

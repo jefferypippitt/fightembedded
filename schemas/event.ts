@@ -7,5 +7,6 @@ export const eventSchema = z.object({
   location: z.string().min(2, "Location is required"),
   mainEvent: z.string().min(2, "Main event is required"),
   coMainEvent: z.string().optional(),
+  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   status: z.enum(["UPCOMING", "COMPLETED", "CANCELLED"]),
 });
