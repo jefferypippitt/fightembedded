@@ -3,37 +3,23 @@ import * as React from "react";
 const MOBILE_BREAKPOINT = 768;
 
 export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
-    undefined
-  );
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const onChange = () => {
-      setIsMobile(mql.matches);
-    };
-    mql.addEventListener("change", onChange);
-    setIsMobile(mql.matches);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  return !!isMobile;
+  return useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
 }
 
 export function useMediaQuery(query: string) {
-  const [value, setValue] = React.useState(false);
+  const subscribe = React.useCallback(
+    (onChange: () => void) => {
+      const result = window.matchMedia(query);
+      result.addEventListener("change", onChange);
+      return () => result.removeEventListener("change", onChange);
+    },
+    [query]
+  );
 
-  React.useEffect(() => {
-    function onChange(event: MediaQueryListEvent) {
-      setValue(event.matches);
-    }
-
-    const result = matchMedia(query);
-    result.addEventListener("change", onChange);
-    setValue(result.matches);
-
-    return () => result.removeEventListener("change", onChange);
-  }, [query]);
-
-  return value;
+  return React.useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    // Matches the previous behavior of reporting false until hydrated
+    () => false
+  );
 }

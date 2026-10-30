@@ -91,12 +91,8 @@ function CountrySelect({
   error?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState(field.value || "");
-
-  // Sync internal state with field value changes (e.g., when form resets)
-  React.useEffect(() => {
-    setValue(field.value || "");
-  }, [field.value]);
+  // Read straight from the form so resets and selections stay in sync
+  const value = field.value || "";
 
   return (
     <Field>
@@ -127,7 +123,6 @@ function CountrySelect({
                     key={country.name}
                     value={country.name}
                     onSelect={(currentValue) => {
-                      setValue(currentValue === value ? "" : currentValue);
                       field.onChange(currentValue);
                       setOpen(false);
                     }}
