@@ -18,15 +18,12 @@ export function FollowerSourcesAvatars() {
   return (
     <TooltipProvider delayDuration={200}>
       <AvatarGroup
-        className="-space-x-1.5"
+        className="-space-x-1.5 *:data-[slot=avatar]:ring-0"
         aria-label="Follower totals combine Instagram and X (formerly Twitter)"
       >
         <Tooltip>
           <TooltipTrigger asChild>
-            <Avatar
-              size="sm"
-              className="cursor-default border border-border/60 bg-background"
-            >
+            <Avatar size="sm" className="cursor-default bg-transparent">
               <AvatarFallback className="rounded-full bg-transparent p-1">
                 <InstagramIcon className="size-full" />
               </AvatarFallback>
@@ -36,10 +33,7 @@ export function FollowerSourcesAvatars() {
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Avatar
-              size="sm"
-              className="cursor-default border border-border/60 bg-background"
-            >
+            <Avatar size="sm" className="cursor-default bg-transparent">
               <AvatarFallback className="rounded-full bg-transparent p-1.5 text-foreground">
                 <XIcon className="size-full" />
               </AvatarFallback>
