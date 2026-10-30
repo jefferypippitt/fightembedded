@@ -303,3 +303,52 @@ export function diffRankChanges(
 
   return changes;
 }
+
+export const retiredOrderBodySchema = z.object({
+  athleteIds: z.array(z.string().min(1)).min(1),
+  dryRun: z.boolean().optional(),
+});
+
+/**
+ * Builds the retired-page order. Listed athletes take positions 1..n in the
+ * order given; every other retired athlete follows in its current order.
+ * `current` must already be in page order (rank asc, then name asc).
+ */
+export function buildRetiredOrder(
+  current: ScopedAthlete[],
+  athleteIds: string[]
+): { errors: string[]; rankings: RankingAssignment[] } {
+  const retiredIds = new Set(current.map((athlete) => athlete.id));
+  const errors: string[] = [];
+  const seen = new Set<string>();
+
+  for (const athleteId of athleteIds) {
+    if (seen.has(athleteId)) {
+      errors.push(`Duplicate athleteId: ${athleteId}`);
+    }
+    seen.add(athleteId);
+
+    if (!retiredIds.has(athleteId)) {
+      errors.push(`Athlete not found or not retired: ${athleteId}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    return { errors, rankings: [] };
+  }
+
+  const ordered = [
+    ...athleteIds,
+    ...current
+      .map((athlete) => athlete.id)
+      .filter((athleteId) => !seen.has(athleteId)),
+  ];
+
+  return {
+    errors,
+    rankings: ordered.map((athleteId, index) => ({
+      athleteId,
+      rank: index + 1,
+    })),
+  };
+}

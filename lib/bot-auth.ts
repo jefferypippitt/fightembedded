@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextRequest } from "next/server";
 
 /**
@@ -25,7 +26,34 @@ export function validateBearerToken(request: NextRequest): boolean {
     return false;
   }
 
-  return token === expectedToken;
+  // Hash both sides so the comparison is constant-time and length-independent
+  const tokenHash = createHash("sha256").update(token).digest();
+  const expectedHash = createHash("sha256").update(expectedToken).digest();
+
+  return timingSafeEqual(tokenHash, expectedHash);
+}
+
+/**
+ * Reads a JSON request body without throwing on malformed input
+ */
+export async function readJsonBody(
+  request: Request
+): Promise<{ ok: true; body: unknown } | { ok: false }> {
+  try {
+    return { ok: true, body: await request.json() };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/**
+ * Creates a 400 response for a body that is not valid JSON
+ */
+export function createInvalidJsonResponse(headers?: Headers) {
+  return Response.json(
+    { error: "Request body must be valid JSON." },
+    { status: 400, headers }
+  );
 }
 
 /**

@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateBearerToken, createUnauthorizedResponse } from "@/lib/bot-auth";
+import {
+  validateBearerToken,
+  createUnauthorizedResponse,
+  readJsonBody,
+  createInvalidJsonResponse,
+} from "@/lib/bot-auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateAthleteCreatedCache } from "@/lib/cache-invalidation";
 import { hasForbiddenRankFields } from "@/lib/rankings";
 import {
   botAthleteCreateSchema,
+  parseAthleteListQuery,
   RANK_FIELDS_ON_CREATE_ERROR,
+  sortByDivisionRank,
 } from "@/lib/bot-athletes";
 
 export async function GET(request: NextRequest) {
@@ -29,28 +36,35 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const name = searchParams.get("name");
+    const query = parseAthleteListQuery(request.nextUrl.searchParams);
 
-    if (!name) {
+    if (!query.ok) {
       return NextResponse.json(
-        { error: "Missing 'name' query parameter" },
+        { error: query.error },
         { status: 400, headers: rateLimitHeaders }
       );
     }
 
-    // Search for athlete by name (case-insensitive partial match)
-    const athletes = await prisma.athlete.findMany({
+    const { name, weightDivision, retired } = query;
+
+    const found = await prisma.athlete.findMany({
       where: {
-        name: {
-          contains: name,
-          mode: "insensitive",
-        },
+        // Case-insensitive partial match
+        ...(name && { name: { contains: name, mode: "insensitive" } }),
+        ...(weightDivision && { weightDivision }),
+        // retired is nullable; treat null as active
+        ...(retired === true && { retired: true }),
+        ...(retired === false && { retired: { not: true } }),
       },
-      take: 10, // Limit to 10 results
+      orderBy: { name: "asc" },
+      // Name searches stay short; a division listing returns the whole division
+      take: weightDivision ? 200 : 10,
     });
 
-    if (athletes.length === 0) {
+    const athletes = weightDivision ? sortByDivisionRank(found) : found;
+
+    // A name search that finds nothing is a 404; an empty division is just empty
+    if (name && athletes.length === 0) {
       return NextResponse.json(
         { error: "Athlete not found" },
         { status: 404, headers: rateLimitHeaders }
@@ -93,7 +107,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parsedBody = await readJsonBody(request);
+    if (!parsedBody.ok) {
+      return createInvalidJsonResponse(rateLimitHeaders);
+    }
+    const body = parsedBody.body;
 
     if (hasForbiddenRankFields(body)) {
       return NextResponse.json(

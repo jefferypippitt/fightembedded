@@ -5,6 +5,53 @@ import prisma from "@/lib/prisma";
 import { invalidateAthleteDeletedCache } from "@/lib/cache-invalidation";
 import { isRankedAthlete } from "@/lib/bot-athletes";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Validate bearer token
+  if (!validateBearerToken(request)) {
+    return createUnauthorizedResponse();
+  }
+
+  // Rate limiting: 60 requests per minute
+  const { rateLimited, headers: rateLimitHeaders } = await checkRateLimit(
+    request,
+    { limit: 60, window: 60 }
+  );
+
+  if (rateLimited) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please try again later." },
+      { status: 429, headers: rateLimitHeaders }
+    );
+  }
+
+  try {
+    const { id } = await params;
+
+    // Uncached so the bot always sees the current record
+    const athlete = await prisma.athlete.findUnique({
+      where: { id },
+    });
+
+    if (!athlete) {
+      return NextResponse.json(
+        { error: "Athlete not found" },
+        { status: 404, headers: rateLimitHeaders }
+      );
+    }
+
+    return NextResponse.json({ athlete }, { headers: rateLimitHeaders });
+  } catch (error) {
+    console.error("Error fetching athlete:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500, headers: rateLimitHeaders }
+    );
+  }
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

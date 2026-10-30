@@ -27,6 +27,65 @@ export function isRankedAthlete(athlete: {
   return athlete.rank > 0 || athlete.poundForPoundRank > 0;
 }
 
+export type AthleteListQuery =
+  | {
+      ok: true;
+      name?: string;
+      weightDivision?: string;
+      retired?: boolean;
+    }
+  | { ok: false; error: string };
+
+export function parseAthleteListQuery(
+  params: URLSearchParams
+): AthleteListQuery {
+  const name = params.get("name")?.trim() || undefined;
+  const weightDivision = params.get("division") || undefined;
+  const retiredParam = params.get("retired");
+
+  if (!name && !weightDivision) {
+    return {
+      ok: false,
+      error: "Provide a 'name' or 'division' query parameter",
+    };
+  }
+
+  if (
+    weightDivision &&
+    !(VALID_WEIGHT_DIVISIONS as readonly string[]).includes(weightDivision)
+  ) {
+    return {
+      ok: false,
+      error: `Unknown division '${weightDivision}'. Use one of: ${VALID_WEIGHT_DIVISIONS.join(", ")}`,
+    };
+  }
+
+  if (retiredParam !== null && retiredParam !== "true" && retiredParam !== "false") {
+    return { ok: false, error: "'retired' must be 'true' or 'false'" };
+  }
+
+  return {
+    ok: true,
+    name,
+    weightDivision,
+    retired: retiredParam === null ? undefined : retiredParam === "true",
+  };
+}
+
+/**
+ * Ranked athletes first (champion, then #1–#15), then unranked by input order
+ */
+export function sortByDivisionRank<T extends { rank: number }>(
+  athletes: T[]
+): T[] {
+  return [...athletes].sort((a, b) => {
+    const aRank = a.rank > 0 ? a.rank : Infinity;
+    const bRank = b.rank > 0 ? b.rank : Infinity;
+    if (aRank === bRank) return 0;
+    return aRank - bRank;
+  });
+}
+
 const count = z.number().int().nonnegative();
 const imageUrl = z.string().url("Must be a valid URL").or(z.literal(""));
 

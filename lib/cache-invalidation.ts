@@ -15,6 +15,7 @@ export function invalidateAthleteCache(options?: {
   rankChanged?: boolean;
   p4pRankChanged?: boolean;
   retiredStatusChanged?: boolean;
+  retiredOrderChanged?: boolean;
   lossesChanged?: boolean;
   divisionChanged?: boolean;
   imageChanged?: boolean;
@@ -32,6 +33,7 @@ export function invalidateAthleteCache(options?: {
     rankChanged = false,
     p4pRankChanged = false,
     retiredStatusChanged = false,
+    retiredOrderChanged = false,
     lossesChanged = false,
     divisionChanged = false,
     imageChanged = false,
@@ -103,6 +105,11 @@ export function invalidateAthleteCache(options?: {
 
   if (retiredStatusChanged) {
     revalidatePath("/rankings/all-time", "page");
+    revalidatePath("/retired", "page");
+  }
+
+  // The retired page is ordered by rank
+  if (retiredOrderChanged) {
     revalidatePath("/retired", "page");
   }
 
