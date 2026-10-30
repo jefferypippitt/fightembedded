@@ -90,7 +90,7 @@ curl -X GET "https://your-domain.com/api/bot/athletes?name=John%20Doe" \
 
 #### 2. Update Athlete Data
 
-Update athlete statistics, rankings, and other fields. Uses the same cache invalidation strategy as the dashboard.
+Update athlete statistics and profile fields. Division rank and pound-for-pound rank are not accepted here; use the bulk rankings endpoints below. Retirement still clears both ranks. Uses the same cache invalidation strategy as the dashboard.
 
 **Endpoint:** `PATCH /api/bot/athletes/{id}/stats`
 
@@ -107,14 +107,12 @@ Update athlete statistics, rankings, and other fields. Uses the same cache inval
 - `winsBySubmission` (number, non-negative integer) - Wins by submission
 - `followers` (number, non-negative integer) - Social media followers
 
-**Rankings:**
-- `rank` (number, non-negative integer) - Division rank (0 for unranked)
-- `poundForPoundRank` (number, non-negative integer) - Pound-for-pound rank (0 for unranked)
-
 **Other:**
 - `age` (number, positive integer) - Athlete's age
 - `weightDivision` (string) - Must be one of: `Men's Heavyweight`, `Men's Light Heavyweight`, `Men's Middleweight`, `Men's Welterweight`, `Men's Lightweight`, `Men's Featherweight`, `Men's Bantamweight`, `Men's Flyweight`, `Women's Bantamweight`, `Women's Flyweight`, `Women's Strawweight`
-- `retired` (boolean) - Retirement status (automatically clears ranks when set to `true`)
+- `retired` (boolean) - Retirement status (automatically clears division rank and pound-for-pound rank when set to `true`)
+
+Sending `rank` or `poundForPoundRank` returns **400** and does not update the athlete. Set those with `PUT /api/bot/rankings/division` or `PUT /api/bot/rankings/p4p`.
 
 **Rate Limit:** 30 requests per minute
 
@@ -128,7 +126,6 @@ curl -X PATCH "https://your-domain.com/api/bot/athletes/abc123/stats" \
     "wins": 16,
     "losses": 2,
     "followers": 52000,
-    "rank": 2,
     "age": 29
   }'
 ```
@@ -144,13 +141,125 @@ curl -X PATCH "https://your-domain.com/api/bot/athletes/abc123/stats" \
     "wins": 16,
     "losses": 2,
     "followers": 52000,
-    "rank": 2,
     "age": 29
   }
 }
 ```
 
-#### 3. Revalidate All Caches
+#### 3. Get Rankings
+
+Read the current board directly from the database. Responses are uncached.
+
+**Division:** `GET /api/bot/rankings?division={weightDivision}`
+
+**Pound-for-pound:** `GET /api/bot/rankings?p4p={gender}`
+
+**Parameters:**
+- `division` - Full division name, such as `Men's Lightweight` or `Women's Strawweight`. Do not combine with `p4p`.
+- `p4p` - `MALE` or `FEMALE`. Do not combine with `division`.
+
+Returns non-retired athletes who currently hold a rank greater than 0: `id`, `name`, and `rank` or `poundForPoundRank`.
+
+**Rate Limit:** 60 requests per minute
+
+**Example:**
+
+```bash
+curl -X GET "https://your-domain.com/api/bot/rankings?division=Men%27s%20Lightweight" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+```
+
+**Response:**
+
+```json
+{
+  "weightDivision": "Men's Lightweight",
+  "count": 2,
+  "rankings": [
+    { "id": "abc123", "name": "Jane Doe", "rank": 1 },
+    { "id": "def456", "name": "John Doe", "rank": 2 }
+  ]
+}
+```
+
+#### 4. Replace Division Rankings
+
+Replace the full division board in one transaction. Athletes in that division who are omitted are set to rank `0`.
+
+**Endpoint:** `PUT /api/bot/rankings/division`
+
+**Body:**
+- `weightDivision` (string) - Full division name
+- `rankings` (array) - `{ "athleteId": string, "rank": number }`. This is the complete board, not a partial patch.
+- `dryRun` (boolean, optional) - When `true`, return the before/after diff and write nothing
+- `vacantChampion` (boolean, optional) - When `true`, ranks start at 2 because there is no champion
+
+**Rules:**
+- Ranks are unique and contiguous, starting at 1 (or 2 when `vacantChampion` is true), and no rank is above 16. Rank 1 is champion. Ranks 2–16 are UFC #1–#15. A vacant title can list at most 15 fighters (ranks 2–16).
+- `athleteId` values are unique.
+- Every athlete exists, fights in `weightDivision`, and is not retired.
+- An empty `rankings` array clears the division.
+
+**Rate Limit:** 10 requests per minute
+
+**Example:**
+
+```bash
+curl -X PUT "https://your-domain.com/api/bot/rankings/division" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d "{\"weightDivision\":\"Men's Lightweight\",\"dryRun\":true,\"rankings\":[{\"athleteId\":\"abc123\",\"rank\":1},{\"athleteId\":\"def456\",\"rank\":2}]}"
+```
+
+**Dry-run response:**
+
+```json
+{
+  "dryRun": true,
+  "weightDivision": "Men's Lightweight",
+  "vacantChampion": false,
+  "changes": [
+    { "athleteId": "abc123", "name": "Jane Doe", "before": 2, "after": 1 },
+    { "athleteId": "ghi789", "name": "Alex Smith", "before": 1, "after": 0 }
+  ]
+}
+```
+
+Omit `dryRun` (or set it to `false`) to apply the diff. The response includes `updated` and the same `changes` array. Cache invalidation runs only after a write.
+
+#### 5. Replace Pound-for-Pound Rankings
+
+Replace the full pound-for-pound board for one gender. Other athletes of that gender are set to `poundForPoundRank` 0.
+
+**Endpoint:** `PUT /api/bot/rankings/p4p`
+
+**Body:**
+- `gender` - `MALE` or `FEMALE`
+- `rankings` - `{ "athleteId": string, "rank": number }` for the complete board
+- `dryRun` (boolean, optional) - When `true`, return the diff and write nothing
+
+**Rules:**
+- Ranks are unique and contiguous from 1 through at most 15.
+- Every athlete exists, matches `gender`, and is not retired.
+
+**Rate Limit:** 10 requests per minute
+
+**Example:**
+
+```bash
+curl -X PUT "https://your-domain.com/api/bot/rankings/p4p" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "gender": "MALE",
+    "rankings": [
+      { "athleteId": "abc123", "rank": 1 },
+      { "athleteId": "def456", "rank": 2 }
+    ]
+  }'
+```
+
+#### 6. Revalidate All Caches
 
 Trigger a comprehensive cache invalidation for all athlete-related data, rankings, and pages.
 

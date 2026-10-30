@@ -4,6 +4,10 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateAthleteCache } from "@/lib/cache-invalidation";
 import { weightClasses } from "@/data/weight-class";
+import {
+  hasForbiddenRankFields,
+  RANK_FIELDS_MOVED_ERROR,
+} from "@/lib/rankings";
 import { z } from "zod";
 
 // Get all valid weight division names
@@ -20,9 +24,6 @@ const statsUpdateSchema = z.object({
   winsByKo: z.number().int().nonnegative().optional(),
   winsBySubmission: z.number().int().nonnegative().optional(),
   followers: z.number().int().nonnegative().optional(),
-  // Ranking fields
-  rank: z.number().int().nonnegative().optional(),
-  poundForPoundRank: z.number().int().nonnegative().optional(),
   // Other updatable fields
   age: z.number().int().positive().optional(),
   weightDivision: z.enum(validWeightDivisions as [string, ...string[]]).optional(),
@@ -57,6 +58,13 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
+
+    if (hasForbiddenRankFields(body)) {
+      return NextResponse.json(
+        { error: RANK_FIELDS_MOVED_ERROR },
+        { status: 400, headers: rateLimitHeaders }
+      );
+    }
 
     // Validate request body
     const validationResult = statsUpdateSchema.safeParse(body);
@@ -93,14 +101,12 @@ export async function PATCH(
     }
 
     // If athlete is being marked as retired, clear their ranks
-    const isBeingMarkedRetired = 
+    const isBeingMarkedRetired =
       !currentAthlete.retired && updateData.retired === true;
-    
-    const finalData = {
-      ...updateData,
-      rank: isBeingMarkedRetired ? 0 : updateData.rank,
-      poundForPoundRank: isBeingMarkedRetired ? 0 : updateData.poundForPoundRank,
-    };
+
+    const finalData = isBeingMarkedRetired
+      ? { ...updateData, rank: 0, poundForPoundRank: 0 }
+      : updateData;
 
     // Update athlete
     const updatedAthlete = await prisma.athlete.update({
@@ -115,12 +121,9 @@ export async function PATCH(
     const followersChanged =
       updateData.followers !== undefined &&
       updateData.followers !== currentAthlete.followers;
-    const rankChanged =
-      updateData.rank !== undefined &&
-      updateData.rank !== currentAthlete.rank;
+    const rankChanged = isBeingMarkedRetired && currentAthlete.rank !== 0;
     const p4pRankChanged =
-      updateData.poundForPoundRank !== undefined &&
-      updateData.poundForPoundRank !== currentAthlete.poundForPoundRank;
+      isBeingMarkedRetired && currentAthlete.poundForPoundRank !== 0;
     const retiredStatusChanged =
       updateData.retired !== undefined &&
       updateData.retired !== currentAthlete.retired;
@@ -130,12 +133,15 @@ export async function PATCH(
 
     const finalRetired = updateData.retired ?? currentAthlete.retired ?? false;
     const finalLosses = updateData.losses ?? currentAthlete.losses;
-    const finalRank = finalData.rank ?? currentAthlete.rank ?? 0;
-    const finalP4PRank = finalData.poundForPoundRank ?? currentAthlete.poundForPoundRank ?? 0;
+    const finalRank = isBeingMarkedRetired ? 0 : currentAthlete.rank;
+    const finalP4PRank = isBeingMarkedRetired ? 0 : currentAthlete.poundForPoundRank;
 
     const isUndefeated = finalLosses === 0;
-    const isChampion = finalRank === 1;
-    const hasP4PRank = finalP4PRank > 0;
+    const isChampion =
+      finalRank === 1 || (isBeingMarkedRetired && currentAthlete.rank === 1);
+    const hasP4PRank =
+      finalP4PRank > 0 ||
+      (isBeingMarkedRetired && currentAthlete.poundForPoundRank > 0);
 
     // Invalidate relevant caches
     invalidateAthleteCache({
