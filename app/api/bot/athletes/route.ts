@@ -9,6 +9,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateAthleteCreatedCache } from "@/lib/cache-invalidation";
 import { hasForbiddenRankFields } from "@/lib/rankings";
+import { findAthleteWithName, lockAthleteName } from "@/lib/bot-duplicates";
 import {
   botAthleteCreateSchema,
   parseAthleteListQuery,
@@ -134,36 +135,39 @@ export async function POST(request: NextRequest) {
 
     const athleteData = validationResult.data;
 
-    // Reject duplicates by exact name (case-insensitive)
-    const existingAthlete = await prisma.athlete.findFirst({
-      where: {
-        name: {
-          equals: athleteData.name,
-          mode: "insensitive",
+    // Reject duplicates by exact name (case-insensitive), locked so two
+    // concurrent creates of the same name cannot both succeed
+    const result = await prisma.$transaction(async (tx) => {
+      await lockAthleteName(tx, athleteData.name);
+
+      const existing = await findAthleteWithName(tx, athleteData.name);
+      if (existing) {
+        return { existing };
+      }
+
+      // New athletes always start unranked
+      const created = await tx.athlete.create({
+        data: {
+          ...athleteData,
+          rank: 0,
+          poundForPoundRank: 0,
         },
-      },
-      select: { id: true, name: true },
+      });
+      return { created };
     });
 
-    if (existingAthlete) {
+    if (result.existing) {
       return NextResponse.json(
         {
           error: "An athlete with this name already exists",
-          id: existingAthlete.id,
-          name: existingAthlete.name,
+          id: result.existing.id,
+          name: result.existing.name,
         },
         { status: 409, headers: rateLimitHeaders }
       );
     }
 
-    // New athletes always start unranked
-    const athlete = await prisma.athlete.create({
-      data: {
-        ...athleteData,
-        rank: 0,
-        poundForPoundRank: 0,
-      },
-    });
+    const athlete = result.created;
 
     // Same invalidation as the dashboard createAthlete action
     invalidateAthleteCreatedCache(athlete);

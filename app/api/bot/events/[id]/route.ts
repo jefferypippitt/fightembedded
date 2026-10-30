@@ -9,6 +9,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateEventCache } from "@/lib/cache-invalidation";
 import { z } from "zod";
+import { findDuplicateEvent, lockEventName } from "@/lib/bot-duplicates";
 
 const eventUpdateSchema = z.object({
   name: z.string().min(2, "Event name is required").optional(),
@@ -91,11 +92,56 @@ export async function PATCH(
       );
     }
 
-    // Update event
-    const updatedEvent = await prisma.event.update({
-      where: { id },
-      data: finalData,
-    });
+    // A name or date change must not collide with another event. The check
+    // and write run under a lock on the resulting name.
+    const finalName = updateData.name ?? existingEvent.name;
+    const finalDate = updateData.date
+      ? new Date(updateData.date)
+      : existingEvent.date;
+    const identityChanged =
+      finalName.toLowerCase() !== existingEvent.name.toLowerCase() ||
+      finalDate.getTime() !== existingEvent.date.getTime();
+
+    const result = identityChanged
+      ? await prisma.$transaction(async (tx) => {
+          await lockEventName(tx, finalName);
+
+          const duplicate = await findDuplicateEvent(
+            tx,
+            finalName,
+            finalDate,
+            id
+          );
+          if (duplicate) {
+            return { duplicate };
+          }
+
+          const updated = await tx.event.update({
+            where: { id },
+            data: finalData,
+          });
+          return { updated };
+        })
+      : {
+          updated: await prisma.event.update({
+            where: { id },
+            data: finalData,
+          }),
+        };
+
+    if (result.duplicate) {
+      return NextResponse.json(
+        {
+          error: "Another event with this name already exists on this date",
+          id: result.duplicate.id,
+          name: result.duplicate.name,
+          date: result.duplicate.date,
+        },
+        { status: 409, headers: rateLimitHeaders }
+      );
+    }
+
+    const updatedEvent = result.updated;
 
     // Determine if event is upcoming (either from update or existing status)
     const isUpcoming = 

@@ -17,6 +17,7 @@ import {
   DIVISION_GENDER_MISMATCH_ERROR,
   divisionMatchesGender,
 } from "@/lib/bot-athletes";
+import { findAthleteWithName, lockAthleteName } from "@/lib/bot-duplicates";
 
 export async function PATCH(
   request: NextRequest,
@@ -130,31 +131,6 @@ export async function PATCH(
       );
     }
 
-    // Names are unique (case-insensitive)
-    if (
-      updateData.name !== undefined &&
-      updateData.name.toLowerCase() !== currentAthlete.name.toLowerCase()
-    ) {
-      const nameTaken = await prisma.athlete.findFirst({
-        where: {
-          id: { not: id },
-          name: { equals: updateData.name, mode: "insensitive" },
-        },
-        select: { id: true, name: true },
-      });
-
-      if (nameTaken) {
-        return NextResponse.json(
-          {
-            error: "An athlete with this name already exists",
-            id: nameTaken.id,
-            name: nameTaken.name,
-          },
-          { status: 409, headers: rateLimitHeaders }
-        );
-      }
-    }
-
     // If athlete is being marked as retired, clear their ranks
     const isBeingMarkedRetired =
       !currentAthlete.retired && updateData.retired === true;
@@ -163,11 +139,47 @@ export async function PATCH(
       ? { ...updateData, rank: 0, poundForPoundRank: 0 }
       : updateData;
 
-    // Update athlete
-    const updatedAthlete = await prisma.athlete.update({
-      where: { id },
-      data: finalData,
-    });
+    // Names are unique (case-insensitive). A rename is checked and written
+    // under a lock on the new name so two requests cannot both claim it.
+    const newName = updateData.name;
+    const isRenaming =
+      newName !== undefined &&
+      newName.toLowerCase() !== currentAthlete.name.toLowerCase();
+
+    const result = isRenaming
+      ? await prisma.$transaction(async (tx) => {
+          await lockAthleteName(tx, newName);
+
+          const nameTaken = await findAthleteWithName(tx, newName, id);
+          if (nameTaken) {
+            return { nameTaken };
+          }
+
+          const updated = await tx.athlete.update({
+            where: { id },
+            data: finalData,
+          });
+          return { updated };
+        })
+      : {
+          updated: await prisma.athlete.update({
+            where: { id },
+            data: finalData,
+          }),
+        };
+
+    if (result.nameTaken) {
+      return NextResponse.json(
+        {
+          error: "An athlete with this name already exists",
+          id: result.nameTaken.id,
+          name: result.nameTaken.name,
+        },
+        { status: 409, headers: rateLimitHeaders }
+      );
+    }
+
+    const updatedAthlete = result.updated;
 
     // Determine what changed for intelligent cache invalidation
     const lossesChanged =

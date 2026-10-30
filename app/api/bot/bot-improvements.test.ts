@@ -15,8 +15,8 @@ vi.mock("@/lib/rate-limit", () => ({
   })),
 }));
 
-vi.mock("@/lib/prisma", () => ({
-  default: {
+vi.mock("@/lib/prisma", () => {
+  const db = {
     athlete: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -24,12 +24,19 @@ vi.mock("@/lib/prisma", () => ({
     },
     event: {
       findFirst: vi.fn(),
+      findMany: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
+      update: vi.fn(),
     },
-    $transaction: vi.fn(),
-  },
-}));
+    $executeRaw: vi.fn(),
+    // Interactive transactions run against the same mock client
+    $transaction: vi.fn(async (arg: unknown) =>
+      typeof arg === "function" ? arg(db) : Promise.all(arg as unknown[])
+    ),
+  };
+  return { default: db };
+});
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import prisma from "@/lib/prisma";
@@ -39,7 +46,7 @@ import {
 } from "./athletes/route";
 import { GET as getAthlete } from "./athletes/[id]/route";
 import { PATCH as patchAthleteStats } from "./athletes/[id]/stats/route";
-import { POST as createEvent } from "./events/route";
+import { GET as listEvents, POST as createEvent } from "./events/route";
 import { GET as getEvent, PATCH as patchEvent } from "./events/[id]/route";
 import { PUT as putDivision } from "./rankings/division/route";
 import { PUT as putP4p } from "./rankings/p4p/route";
@@ -370,7 +377,6 @@ describe("/api/bot/rankings/retired", () => {
 
   it("writes the new order and revalidates the retired page", async () => {
     db.athlete.findMany.mockResolvedValue(retired as never);
-    db.$transaction.mockResolvedValue([]);
 
     const res = await putRetiredOrder(
       botRequest("/api/bot/rankings/retired", {
@@ -407,4 +413,132 @@ describe("/api/bot/rankings/retired", () => {
     expect(res.status).toBe(400);
     expect(db.$transaction).not.toHaveBeenCalled();
   });
+});
+
+describe("duplicate guards take a lock first", () => {
+  it("locks the lowercased event name before checking", async () => {
+    db.event.findFirst.mockResolvedValue(null);
+    db.event.create.mockResolvedValue(eventRecord);
+
+    await createEvent(
+      botRequest("/api/bot/events", {
+        method: "POST",
+        body: {
+          name: "UFC 999",
+          date: "2026-12-12T03:00:00Z",
+          venue: "T-Mobile Arena",
+          location: "Las Vegas, Nevada",
+          mainEvent: "A vs B",
+        },
+      })
+    );
+
+    expect(db.$executeRaw).toHaveBeenCalledTimes(1);
+    expect(db.$executeRaw.mock.calls[0]).toContain("ufc 999");
+    expect(db.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      db.event.findFirst.mock.invocationCallOrder[0]
+    );
+  });
+});
+
+describe("PATCH /api/bot/events/{id} duplicate guard", () => {
+  function patch(body: unknown) {
+    return patchEvent(
+      botRequest("/api/bot/events/evt_1", { method: "PATCH", body }),
+      idParams("evt_1")
+    );
+  }
+
+  it("returns 409 when a rename collides with another event", async () => {
+    db.event.findUnique.mockResolvedValue(eventRecord);
+    db.event.findFirst.mockResolvedValue({
+      id: "evt_2",
+      name: "UFC 1000",
+      date: eventRecord.date,
+    } as never);
+
+    const res = await patch({ name: "UFC 1000" });
+    const json = await res.json();
+
+    expect(res.status).toBe(409);
+    expect(json.id).toBe("evt_2");
+    expect(db.event.update).not.toHaveBeenCalled();
+    expect(db.event.findFirst.mock.calls[0][0]?.where?.id).toEqual({
+      not: "evt_1",
+    });
+  });
+
+  it("checks a date change against other events", async () => {
+    db.event.findUnique.mockResolvedValue(eventRecord);
+    db.event.findFirst.mockResolvedValue(null);
+    db.event.update.mockResolvedValue(eventRecord);
+
+    const res = await patch({ date: "2026-12-19T03:00:00Z" });
+
+    expect(res.status).toBe(200);
+    expect(db.$executeRaw).toHaveBeenCalledTimes(1);
+    expect(db.event.findFirst).toHaveBeenCalled();
+  });
+
+  it("skips the check when name and date are unchanged", async () => {
+    db.event.findUnique.mockResolvedValue(eventRecord);
+    db.event.update.mockResolvedValue({ ...eventRecord, status: "COMPLETED" });
+
+    const res = await patch({ status: "COMPLETED", name: "ufc 999" });
+
+    expect(res.status).toBe(200);
+    expect(db.$transaction).not.toHaveBeenCalled();
+    expect(db.event.findFirst).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /api/bot/events filters", () => {
+  it("keeps the default of 50 newest events", async () => {
+    db.event.findMany.mockResolvedValue([]);
+
+    const res = await listEvents(
+      botRequest("/api/bot/events", { method: "GET" })
+    );
+
+    expect(res.status).toBe(200);
+    expect(db.event.findMany).toHaveBeenCalledWith({
+      where: {},
+      orderBy: { date: "desc" },
+      take: 50,
+    });
+  });
+
+  it("applies from, to, and limit", async () => {
+    db.event.findMany.mockResolvedValue([]);
+
+    await listEvents(
+      botRequest(
+        "/api/bot/events?from=2025-01-01&to=2025-12-31T23:59:59Z&limit=200",
+        { method: "GET" }
+      )
+    );
+
+    expect(db.event.findMany).toHaveBeenCalledWith({
+      where: {
+        date: {
+          gte: new Date("2025-01-01"),
+          lte: new Date("2025-12-31T23:59:59Z"),
+        },
+      },
+      orderBy: { date: "desc" },
+      take: 200,
+    });
+  });
+
+  it.each(["from=yesterday", "to=nope", "limit=0", "limit=201", "limit=1.5"])(
+    "rejects %s with 400",
+    async (query) => {
+      const res = await listEvents(
+        botRequest(`/api/bot/events?${query}`, { method: "GET" })
+      );
+
+      expect(res.status).toBe(400);
+      expect(db.event.findMany).not.toHaveBeenCalled();
+    }
+  );
 });
