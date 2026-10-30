@@ -33,16 +33,20 @@ The application includes a bearer-token-protected bot API for automated athlete 
 
 | Method | Path | Purpose | Rate limit |
 | --- | --- | --- | --- |
-| `GET` | `/api/bot/athletes?name={name}` | Search athletes by name | 60/min |
+| `GET` | `/api/bot/athletes?name=…&division=…&retired=…` | Search by name or list a division | 60/min |
+| `GET` | `/api/bot/athletes/{id}` | Get one athlete | 60/min |
 | `POST` | `/api/bot/athletes` | Create an athlete (always unranked) | 20/min |
 | `PATCH` | `/api/bot/athletes/{id}/stats` | Update stats and profile fields | 30/min |
 | `DELETE` | `/api/bot/athletes/{id}` | Delete an athlete (`?force=true` if ranked) | 10/min |
 | `GET` | `/api/bot/rankings?division=…` or `?p4p=…` | Read a rankings board | 60/min |
 | `PUT` | `/api/bot/rankings/division` | Replace a division board | 10/min |
 | `PUT` | `/api/bot/rankings/p4p` | Replace a pound-for-pound board | 10/min |
+| `GET` | `/api/bot/rankings/retired` | Read the retired page order | 60/min |
+| `PUT` | `/api/bot/rankings/retired` | Set the retired page order | 10/min |
 | `POST` | `/api/bot/revalidate-all` | Revalidate every athlete cache | 10/min |
 | `POST` | `/api/bot/events` | Create an event | 20/min |
 | `GET` | `/api/bot/events` | List or search events | 60/min |
+| `GET` | `/api/bot/events/{id}` | Get one event | 60/min |
 | `PATCH` | `/api/bot/events/{id}` | Update an event | 30/min |
 | `DELETE` | `/api/bot/events/{id}` | Delete an event | 10/min |
 
@@ -58,21 +62,28 @@ Authorization: Bearer YOUR_BOT_API_SECRET
 
 ### Endpoints
 
-#### 1. Athlete Lookup by Name
+#### 1. Search or List Athletes
 
-Search for athletes by name (case-insensitive partial match).
+Search athletes by name, list a whole division, or both. Responses are uncached.
 
-**Endpoint:** `GET /api/bot/athletes?name={name}`
+**Endpoint:** `GET /api/bot/athletes?name={name}&division={weightDivision}&retired={true|false}`
 
-**Parameters:**
-- `name` (query parameter) - The athlete name or partial name to search for
+**Parameters:** (at least one of `name` or `division` is required)
+- `name` (query parameter, optional) - The athlete name or partial name (case-insensitive). Returns at most 10 results, sorted by name. Returns **404** if nothing matches.
+- `division` (query parameter, optional) - Full division name, such as `Men's Lightweight`. Returns up to 200 athletes: ranked athletes first (champion, then #1–#15), then unranked athletes by name. An empty division returns **200** with `count: 0`.
+- `retired` (query parameter, optional) - `true` for retired athletes only, `false` for active athletes only. Omit it to include both.
 
 **Rate Limit:** 60 requests per minute
 
-**Example:**
+**Examples:**
 
 ```bash
+# Search by name
 curl -X GET "https://your-domain.com/api/bot/athletes?name=John%20Doe" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+
+# Every active athlete in a division
+curl -X GET "https://your-domain.com/api/bot/athletes?division=Men%27s%20Lightweight&retired=false" \
   -H "Authorization: Bearer YOUR_BOT_API_SECRET"
 ```
 
@@ -103,7 +114,45 @@ curl -X GET "https://your-domain.com/api/bot/athletes?name=John%20Doe" \
 }
 ```
 
-#### 2. Create Athlete
+#### 2. Get Athlete by ID
+
+Fetch one athlete's full, current record. Responses are uncached.
+
+**Endpoint:** `GET /api/bot/athletes/{id}`
+
+**Parameters:**
+- `id` (path parameter) - The athlete ID
+
+Returns **404** with `{ "error": "Athlete not found" }` if no athlete has that ID.
+
+**Rate Limit:** 60 requests per minute
+
+**Example:**
+
+```bash
+curl -X GET "https://your-domain.com/api/bot/athletes/abc123" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+```
+
+**Response:**
+
+```json
+{
+  "athlete": {
+    "id": "abc123",
+    "name": "John Doe",
+    "gender": "MALE",
+    "weightDivision": "Men's Lightweight",
+    "rank": 3,
+    "poundForPoundRank": 0,
+    "retired": false
+  }
+}
+```
+
+The `athlete` object contains every field (truncated above).
+
+#### 3. Create Athlete
 
 Create a new athlete. New athletes always start with `rank` 0 and `poundForPoundRank` 0; place them on a board afterwards with the rankings endpoints below. Uses the same cache invalidation as the dashboard's create action.
 
@@ -112,7 +161,7 @@ Create a new athlete. New athletes always start with `rank` 0 and `poundForPound
 **Required Fields:**
 - `name` (string, min 2 chars, trimmed) - Must not match an existing athlete's name (case-insensitive)
 - `gender` (string: `MALE` or `FEMALE`)
-- `weightDivision` (string) - One of the divisions listed under [Update Athlete](#3-update-athlete). Must match `gender`: `MALE` uses `Men's …` and `FEMALE` uses `Women's …`.
+- `weightDivision` (string) - One of the divisions listed under [Update Athlete](#4-update-athlete). Must match `gender`: `MALE` uses `Men's …` and `FEMALE` uses `Women's …`.
 - `country` (string, min 2 chars)
 - `age` (number, positive integer)
 
@@ -172,7 +221,7 @@ curl -X POST "https://your-domain.com/api/bot/athletes" \
 }
 ```
 
-#### 3. Update Athlete
+#### 4. Update Athlete
 
 Update athlete statistics and profile fields. Division rank and pound-for-pound rank are not accepted here; use the bulk rankings endpoints below. Retirement still clears both ranks. Uses the same cache invalidation strategy as the dashboard.
 
@@ -240,7 +289,7 @@ curl -X PATCH "https://your-domain.com/api/bot/athletes/abc123/stats" \
 
 The response `athlete` is the full updated record (truncated above).
 
-#### 4. Delete Athlete
+#### 5. Delete Athlete
 
 Delete an athlete. Uses the same cache invalidation as the dashboard's delete action.
 
@@ -288,7 +337,7 @@ curl -X DELETE "https://your-domain.com/api/bot/athletes/abc123?force=true" \
 }
 ```
 
-#### 5. Get Rankings
+#### 6. Get Rankings
 
 Read the current board directly from the database. Responses are uncached.
 
@@ -324,7 +373,7 @@ curl -X GET "https://your-domain.com/api/bot/rankings?division=Men%27s%20Lightwe
 }
 ```
 
-#### 6. Replace Division Rankings
+#### 7. Replace Division Rankings
 
 Replace the full division board in one transaction. Athletes in that division who are omitted are set to rank `0`.
 
@@ -369,7 +418,7 @@ curl -X PUT "https://your-domain.com/api/bot/rankings/division" \
 
 Omit `dryRun` (or set it to `false`) to apply the diff. The response includes `updated` and the same `changes` array. Cache invalidation runs only after a write.
 
-#### 7. Replace Pound-for-Pound Rankings
+#### 8. Replace Pound-for-Pound Rankings
 
 Replace the full pound-for-pound board for one gender. Other athletes of that gender are set to `poundForPoundRank` 0.
 
@@ -401,7 +450,60 @@ curl -X PUT "https://your-domain.com/api/bot/rankings/p4p" \
   }'
 ```
 
-#### 8. Revalidate All Caches
+#### 9. Retired Athletes Order
+
+Read or set the order of the public `/retired` page. Retired athletes are ordered by their `rank` field (1, 2, 3, …), the same field the dashboard's retired view sets when you drag to reorder.
+
+**Read:** `GET /api/bot/rankings/retired`
+
+Returns every retired athlete in page order: `id`, `name`, `rank`, and `weightDivision`.
+
+```json
+{
+  "count": 2,
+  "athletes": [
+    { "id": "abc123", "name": "Jane Doe", "rank": 1, "weightDivision": "Women's Bantamweight" },
+    { "id": "def456", "name": "John Doe", "rank": 2, "weightDivision": "Men's Lightweight" }
+  ]
+}
+```
+
+**Set:** `PUT /api/bot/rankings/retired`
+
+**Body:**
+- `athleteIds` (array of strings, at least one) - Athletes to place at the top, in this order. Every other retired athlete keeps its current relative order after them. Send every retired ID to set the full order.
+- `dryRun` (boolean, optional) - When `true`, return the diff and write nothing
+
+**Rules:**
+- Every ID belongs to a retired athlete, and no ID appears twice. Otherwise the response is **400** and nothing is written.
+- After the write, every retired athlete has a rank from 1 to N with no gaps.
+
+**Rate Limit:** 60 requests per minute (GET), 10 requests per minute (PUT)
+
+**Example:** move one athlete to the top of the retired page
+
+```bash
+curl -X PUT "https://your-domain.com/api/bot/rankings/retired" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{ "athleteIds": ["def456"], "dryRun": true }'
+```
+
+**Response:**
+
+```json
+{
+  "dryRun": true,
+  "changes": [
+    { "athleteId": "def456", "name": "John Doe", "before": 2, "after": 1 },
+    { "athleteId": "abc123", "name": "Jane Doe", "before": 1, "after": 2 }
+  ]
+}
+```
+
+Without `dryRun`, the response has `message`, `updated` (the number of athletes whose position changed), and the same `changes` array.
+
+#### 10. Revalidate All Caches
 
 Trigger a comprehensive cache invalidation for all athlete-related data, rankings, and pages.
 
@@ -451,7 +553,7 @@ curl -X POST "https://your-domain.com/api/bot/revalidate-all" \
 }
 ```
 
-**409 Conflict** - Duplicate athlete name, ranked athlete delete without `?force=true`, or gender change while holding a pound-for-pound rank. The body includes `error` and, where relevant, the conflicting athlete's `id`.
+**409 Conflict** - Duplicate athlete name, duplicate event (same name within 24 hours), ranked athlete delete without `?force=true`, or gender change while holding a pound-for-pound rank. The body includes `error` and, where relevant, the `id` of the existing athlete or event.
 
 ```json
 {
@@ -461,11 +563,19 @@ curl -X POST "https://your-domain.com/api/bot/revalidate-all" \
 }
 ```
 
-**500 Internal Server Error** - Unexpected server or database error, including a request body that is not valid JSON
+**500 Internal Server Error** - Unexpected server or database error
 
 ```json
 {
   "error": "Internal server error"
+}
+```
+
+**400 Bad Request** - Request body is not valid JSON
+
+```json
+{
+  "error": "Request body must be valid JSON."
 }
 ```
 
@@ -507,6 +617,17 @@ Create a new event.
 - `coMainEvent` (string) - Co-main event matchup
 - `imageUrl` (string, valid URL) - Event poster/image URL
 - `status` (string: `UPCOMING`, `COMPLETED`, `CANCELLED`) - Defaults to `UPCOMING`
+
+If an event with the same name (case-insensitive) already exists within 24 hours of `date`, the response is **409** and nothing is created. This makes retries safe:
+
+```json
+{
+  "error": "An event with this name already exists on this date",
+  "id": "xyz789",
+  "name": "UFC 300",
+  "date": "2024-04-13T02:00:00.000Z"
+}
+```
 
 **Rate Limit:** 20 requests per minute
 
@@ -604,7 +725,29 @@ curl -X GET "https://your-domain.com/api/bot/events?name=UFC&status=UPCOMING" \
 }
 ```
 
-#### 3. Update Event
+#### 3. Get Event by ID
+
+Fetch one event's full, current record. Responses are uncached.
+
+**Endpoint:** `GET /api/bot/events/{id}`
+
+**Parameters:**
+- `id` (path parameter) - The event ID
+
+Returns **404** with `{ "error": "Event not found" }` if no event has that ID.
+
+**Rate Limit:** 60 requests per minute
+
+**Example:**
+
+```bash
+curl -X GET "https://your-domain.com/api/bot/events/xyz789" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+```
+
+**Response:** `{ "event": { … } }`, with the same fields as an item from the list endpoint.
+
+#### 4. Update Event
 
 Update an event's status and other fields.
 
@@ -657,7 +800,7 @@ curl -X PATCH "https://your-domain.com/api/bot/events/xyz789" \
 }
 ```
 
-#### 4. Delete Event
+#### 5. Delete Event
 
 Delete an event. Uses the same cache invalidation as the dashboard's delete action.
 

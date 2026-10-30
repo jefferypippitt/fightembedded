@@ -4,7 +4,48 @@ import {
   botAthleteUpdateSchema,
   divisionMatchesGender,
   isRankedAthlete,
+  parseAthleteListQuery,
+  sortByDivisionRank,
 } from "./bot-athletes";
+
+describe("parseAthleteListQuery", () => {
+  const parse = (query: string) =>
+    parseAthleteListQuery(new URLSearchParams(query));
+
+  it("requires a name or a division", () => {
+    expect(parse("").ok).toBe(false);
+    expect(parse("retired=true").ok).toBe(false);
+  });
+
+  it("parses name, division, and retired", () => {
+    expect(
+      parse("name=Jon&division=Men's+Heavyweight&retired=false")
+    ).toEqual({
+      ok: true,
+      name: "Jon",
+      weightDivision: "Men's Heavyweight",
+      retired: false,
+    });
+  });
+
+  it("rejects unknown divisions and bad retired values", () => {
+    expect(parse("division=Men's+Cruiserweight").ok).toBe(false);
+    expect(parse("name=Jon&retired=yes").ok).toBe(false);
+  });
+});
+
+describe("sortByDivisionRank", () => {
+  it("puts ranked athletes first by rank and keeps unranked order", () => {
+    const sorted = sortByDivisionRank([
+      { id: "a", rank: 0 },
+      { id: "b", rank: 3 },
+      { id: "c", rank: 0 },
+      { id: "d", rank: 1 },
+    ]);
+
+    expect(sorted.map((athlete) => athlete.id)).toEqual(["d", "b", "a", "c"]);
+  });
+});
 
 const validCreate = {
   name: "Jane Doe",

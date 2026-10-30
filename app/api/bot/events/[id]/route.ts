@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateBearerToken, createUnauthorizedResponse } from "@/lib/bot-auth";
+import {
+  validateBearerToken,
+  createUnauthorizedResponse,
+  readJsonBody,
+  createInvalidJsonResponse,
+} from "@/lib/bot-auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateEventCache } from "@/lib/cache-invalidation";
@@ -45,7 +50,11 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
+    const parsedBody = await readJsonBody(request);
+    if (!parsedBody.ok) {
+      return createInvalidJsonResponse(rateLimitHeaders);
+    }
+    const body = parsedBody.body;
 
     // Validate request body
     const validationResult = eventUpdateSchema.safeParse(body);
@@ -107,6 +116,53 @@ export async function PATCH(
     );
   } catch (error) {
     console.error("Error updating event:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500, headers: rateLimitHeaders }
+    );
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Validate bearer token
+  if (!validateBearerToken(request)) {
+    return createUnauthorizedResponse();
+  }
+
+  // Rate limiting: 60 requests per minute
+  const { rateLimited, headers: rateLimitHeaders } = await checkRateLimit(
+    request,
+    { limit: 60, window: 60 }
+  );
+
+  if (rateLimited) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please try again later." },
+      { status: 429, headers: rateLimitHeaders }
+    );
+  }
+
+  try {
+    const { id } = await params;
+
+    // Uncached so the bot always sees the current record
+    const event = await prisma.event.findUnique({
+      where: { id },
+    });
+
+    if (!event) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404, headers: rateLimitHeaders }
+      );
+    }
+
+    return NextResponse.json({ event }, { headers: rateLimitHeaders });
+  } catch (error) {
+    console.error("Error fetching event:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500, headers: rateLimitHeaders }

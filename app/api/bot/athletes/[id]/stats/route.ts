@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateBearerToken, createUnauthorizedResponse } from "@/lib/bot-auth";
+import {
+  validateBearerToken,
+  createUnauthorizedResponse,
+  readJsonBody,
+  createInvalidJsonResponse,
+} from "@/lib/bot-auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateAthleteCache } from "@/lib/cache-invalidation";
@@ -37,7 +42,11 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
+    const parsedBody = await readJsonBody(request);
+    if (!parsedBody.ok) {
+      return createInvalidJsonResponse(rateLimitHeaders);
+    }
+    const body = parsedBody.body;
 
     if (hasForbiddenRankFields(body)) {
       return NextResponse.json(

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DIVISION_MAX_RANK,
+  buildRetiredOrder,
   P4P_MAX_RANK,
   diffRankChanges,
   divisionStartRank,
@@ -346,5 +347,45 @@ describe("hasForbiddenRankFields", () => {
     expect(hasForbiddenRankFields({ wins: 1 })).toBe(false);
     expect(hasForbiddenRankFields(null)).toBe(false);
     expect(hasForbiddenRankFields([{ rank: 1 }])).toBe(false);
+  });
+});
+
+describe("buildRetiredOrder", () => {
+  const current = [
+    { id: "a", name: "A", rank: 1 },
+    { id: "b", name: "B", rank: 2 },
+    { id: "c", name: "C", rank: 3 },
+    { id: "d", name: "D", rank: 0 },
+  ];
+
+  it("puts listed athletes first and keeps the rest in current order", () => {
+    expect(buildRetiredOrder(current, ["c", "d"])).toEqual({
+      errors: [],
+      rankings: [
+        { athleteId: "c", rank: 1 },
+        { athleteId: "d", rank: 2 },
+        { athleteId: "a", rank: 3 },
+        { athleteId: "b", rank: 4 },
+      ],
+    });
+  });
+
+  it("accepts a full reorder", () => {
+    const { rankings } = buildRetiredOrder(current, ["d", "c", "b", "a"]);
+    expect(rankings.map((entry) => entry.athleteId)).toEqual([
+      "d",
+      "c",
+      "b",
+      "a",
+    ]);
+  });
+
+  it("rejects duplicates and athletes who are not retired", () => {
+    const { errors, rankings } = buildRetiredOrder(current, ["a", "a", "zz"]);
+    expect(errors).toEqual([
+      "Duplicate athleteId: a",
+      "Athlete not found or not retired: zz",
+    ]);
+    expect(rankings).toEqual([]);
   });
 });
