@@ -3,35 +3,15 @@ import { validateBearerToken, createUnauthorizedResponse } from "@/lib/bot-auth"
 import { checkRateLimit } from "@/lib/rate-limit";
 import prisma from "@/lib/prisma";
 import { invalidateAthleteCache } from "@/lib/cache-invalidation";
-import { weightClasses } from "@/data/weight-class";
 import {
   hasForbiddenRankFields,
   RANK_FIELDS_MOVED_ERROR,
 } from "@/lib/rankings";
-import { z } from "zod";
-
-// Get all valid weight division names
-const validWeightDivisions = [
-  ...weightClasses.men.map((d) => `Men's ${d.name}`),
-  ...weightClasses.women.map((d) => `Women's ${d.name}`),
-];
-
-const statsUpdateSchema = z.object({
-  // Stats fields
-  wins: z.number().int().nonnegative().optional(),
-  losses: z.number().int().nonnegative().optional(),
-  draws: z.number().int().nonnegative().optional(),
-  winsByKo: z.number().int().nonnegative().optional(),
-  winsBySubmission: z.number().int().nonnegative().optional(),
-  followers: z.number().int().nonnegative().optional(),
-  // Other updatable fields
-  age: z.number().int().positive().optional(),
-  weightDivision: z.enum(validWeightDivisions as [string, ...string[]]).optional(),
-  retired: z.boolean().optional(),
-}).refine(
-  (data) => Object.keys(data).length > 0,
-  { message: "At least one field must be provided" }
-);
+import {
+  botAthleteUpdateSchema,
+  DIVISION_GENDER_MISMATCH_ERROR,
+  divisionMatchesGender,
+} from "@/lib/bot-athletes";
 
 export async function PATCH(
   request: NextRequest,
@@ -67,7 +47,7 @@ export async function PATCH(
     }
 
     // Validate request body
-    const validationResult = statsUpdateSchema.safeParse(body);
+    const validationResult = botAthleteUpdateSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -84,6 +64,9 @@ export async function PATCH(
     const currentAthlete = await prisma.athlete.findUnique({
       where: { id },
       select: {
+        name: true,
+        gender: true,
+        imageUrl: true,
         losses: true,
         followers: true,
         weightDivision: true,
@@ -98,6 +81,69 @@ export async function PATCH(
         { error: "Athlete not found" },
         { status: 404, headers: rateLimitHeaders }
       );
+    }
+
+    const finalGender = updateData.gender ?? currentAthlete.gender;
+    const finalDivision =
+      updateData.weightDivision ?? currentAthlete.weightDivision;
+
+    if (
+      (updateData.gender !== undefined ||
+        updateData.weightDivision !== undefined) &&
+      !divisionMatchesGender(finalGender, finalDivision)
+    ) {
+      return NextResponse.json(
+        {
+          error: "Validation error",
+          details: [
+            {
+              message: DIVISION_GENDER_MISMATCH_ERROR,
+              path: ["weightDivision"],
+            },
+          ],
+        },
+        { status: 400, headers: rateLimitHeaders }
+      );
+    }
+
+    // A pound-for-pound rank belongs to one gender's board
+    if (
+      updateData.gender !== undefined &&
+      updateData.gender !== currentAthlete.gender &&
+      currentAthlete.poundForPoundRank > 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Cannot change gender while the athlete holds a pound-for-pound rank. Remove them from the board with PUT /api/bot/rankings/p4p first.",
+        },
+        { status: 409, headers: rateLimitHeaders }
+      );
+    }
+
+    // Names are unique (case-insensitive)
+    if (
+      updateData.name !== undefined &&
+      updateData.name.toLowerCase() !== currentAthlete.name.toLowerCase()
+    ) {
+      const nameTaken = await prisma.athlete.findFirst({
+        where: {
+          id: { not: id },
+          name: { equals: updateData.name, mode: "insensitive" },
+        },
+        select: { id: true, name: true },
+      });
+
+      if (nameTaken) {
+        return NextResponse.json(
+          {
+            error: "An athlete with this name already exists",
+            id: nameTaken.id,
+            name: nameTaken.name,
+          },
+          { status: 409, headers: rateLimitHeaders }
+        );
+      }
     }
 
     // If athlete is being marked as retired, clear their ranks
@@ -130,6 +176,10 @@ export async function PATCH(
     const divisionChanged =
       updateData.weightDivision !== undefined &&
       updateData.weightDivision !== currentAthlete.weightDivision;
+    const imageChanged =
+      updateData.imageUrl !== undefined &&
+      updateData.imageUrl !== (currentAthlete.imageUrl ?? "");
+    const finalImageUrl = updateData.imageUrl ?? currentAthlete.imageUrl;
 
     const finalRetired = updateData.retired ?? currentAthlete.retired ?? false;
     const finalLosses = updateData.losses ?? currentAthlete.losses;
@@ -146,6 +196,8 @@ export async function PATCH(
     // Invalidate relevant caches
     invalidateAthleteCache({
       athleteId: id,
+      hasImage: !!finalImageUrl,
+      imageChanged,
       isChampion,
       isUndefeated,
       isRetired: finalRetired,

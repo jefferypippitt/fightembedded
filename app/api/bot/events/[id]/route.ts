@@ -113,3 +113,70 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Validate bearer token
+  if (!validateBearerToken(request)) {
+    return createUnauthorizedResponse();
+  }
+
+  // Rate limiting: 10 requests per minute
+  const { rateLimited, headers: rateLimitHeaders } = await checkRateLimit(
+    request,
+    { limit: 10, window: 60 }
+  );
+
+  if (rateLimited) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Please try again later." },
+      { status: 429, headers: rateLimitHeaders }
+    );
+  }
+
+  try {
+    const { id } = await params;
+
+    const event = await prisma.event.findUnique({
+      where: { id },
+    });
+
+    if (!event) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404, headers: rateLimitHeaders }
+      );
+    }
+
+    await prisma.event.delete({
+      where: { id },
+    });
+
+    // Same invalidation as the dashboard deleteEvent action
+    invalidateEventCache({
+      eventId: id,
+      isUpcoming: event.status === "UPCOMING",
+    });
+
+    return NextResponse.json(
+      {
+        message: "Event deleted successfully",
+        event: {
+          id: event.id,
+          name: event.name,
+          date: event.date,
+          status: event.status,
+        },
+      },
+      { headers: rateLimitHeaders }
+    );
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500, headers: rateLimitHeaders }
+    );
+  }
+}

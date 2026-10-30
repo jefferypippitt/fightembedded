@@ -14,6 +14,10 @@ import { weightClasses } from "@/data/weight-class";
 import { getRateLimitIdentifier, rateLimit } from "@/lib/rate-limit";
 import { isUnauthorizedError } from "@/lib/action-errors";
 import { athleteInputFromFormData } from "@/lib/athlete-form-data";
+import {
+  invalidateAthleteCreatedCache,
+  invalidateAthleteDeletedCache,
+} from "@/lib/cache-invalidation";
 
 // Authentication helper
 const checkAuth = async () => {
@@ -322,89 +326,8 @@ export async function createAthlete(
       data: finalData,
     })) as Athlete;
 
-    // Intelligent cache invalidation based on athlete properties
-    const hasImage =
-      validatedData.imageUrl && validatedData.imageUrl.trim() !== "";
-    const isChampion = validatedData.rank === 1;
-    const hasRank = (validatedData.rank ?? 0) > 0;
-    const isUndefeated = validatedData.losses === 0;
-    const isRetired = validatedData.retired;
-    const hasP4PRank = (validatedData.poundForPoundRank ?? 0) > 0;
-
-    // Always revalidate basic athlete data
-    revalidateTag("all-athletes", "max");
-    revalidateTag("all-athletes-data", "max");
-    revalidateTag("live-stats", "max");
-    revalidateTag("stats", "max");
-    revalidateTag("athletes-page", "max");
-    revalidateTag("athletes-by-division", "max");
-    revalidateTag("division-athletes", "max");
-    revalidateTag("athletes", "max");
-    revalidateTag("homepage", "max");
-    revalidateTag("top-20-athletes", "max");
-    revalidateTag("top-5-athletes", "max");
-
-    // Only revalidate image-related caches if athlete has an image
-    if (hasImage) {
-      revalidateTag("athlete-images", "max");
-    }
-
-    // Only revalidate specific caches based on athlete properties
-    if (isChampion) {
-      revalidateTag("champions-data", "max");
-      revalidateTag("homepage-champions", "max");
-    }
-
-    revalidateTag("country-stats", "max");
-
-    if (isUndefeated) {
-      revalidateTag("undefeated-athletes", "max");
-    }
-
-    if (isRetired) {
-      revalidateTag("retired-athletes-data", "max");
-      revalidateTag("retired-page", "max");
-    }
-
-    if (hasP4PRank) {
-      revalidateTag("p4p-rankings-data", "max");
-      revalidateTag("homepage-p4p", "max");
-    }
-
-    // Revalidate rankings pages if athlete has rank
-    if (hasRank || hasP4PRank) {
-      revalidatePath("/rankings/divisions", "page");
-    }
-
-    // Always revalidate popularity rankings (based on followers)
-    revalidatePath("/rankings/popularity", "page");
-    revalidatePath("/rankings/all-time", "page");
-
-    // Only revalidate homepage if athlete affects homepage sections
-    if (isChampion || hasP4PRank) {
-      revalidateTag("homepage", "max");
-      revalidateTag("homepage-stats", "max");
-      revalidatePath("/", "page");
-    }
-
-    // Revalidate paths (only for dynamic routes that need it)
-    if (isRetired) {
-      revalidatePath("/retired", "page");
-    }
-
-    // Revalidate main pages
-    revalidatePath("/athletes", "page");
-    revalidatePath("/dashboard/athletes/new", "page"); // Clear router cache for new form
-
-    // Revalidate the specific division path
-    const isWomen = validatedData.weightDivision.startsWith("Women's");
-    const divisionName = validatedData.weightDivision.replace(
-      /^(Women's|Men's)\s+/,
-      ""
-    );
-    const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
-    const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
-    revalidatePath(`/division/${fullSlug}`, "page");
+    // Same invalidation as POST /api/bot/athletes
+    invalidateAthleteCreatedCache(validatedData);
 
     return {
       status: "success",
@@ -678,81 +601,8 @@ export async function deleteAthlete(id: string) {
       },
     });
 
-    // Revalidate cache tags
-    revalidateTag("all-athletes", "max");
-    revalidateTag("all-athletes-data", "max");
-    revalidateTag("live-stats", "max");
-    revalidateTag("stats", "max");
-    revalidateTag("athletes-page", "max");
-    revalidateTag("athlete-by-id", "max");
-    revalidateTag(`athlete-${id}`, "max");
-    revalidateTag("athletes-by-division", "max");
-    revalidateTag("division-athletes", "max");
-    revalidateTag("athletes", "max");
-    revalidateTag("homepage", "max");
-    revalidateTag("top-20-athletes", "max");
-    revalidateTag("top-5-athletes", "max");
-    revalidateTag("country-stats", "max");
-
-    if (athlete.rank === 1) {
-      revalidateTag("champions-data", "max");
-      revalidateTag("homepage-champions", "max");
-    }
-
-    if (athlete.losses === 0) {
-      revalidateTag("undefeated-athletes", "max");
-    }
-
-    if (athlete.retired) {
-      revalidateTag("retired-athletes-data", "max");
-      revalidateTag("retired-page", "max");
-    }
-
-    if (athlete.poundForPoundRank && athlete.poundForPoundRank > 0) {
-      revalidateTag("p4p-rankings-data", "max");
-      revalidateTag("homepage-p4p", "max");
-    }
-
-    // Revalidate rankings pages if athlete has rank
-    if (
-      (athlete.rank && athlete.rank > 0) ||
-      (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
-    ) {
-      revalidatePath("/rankings/divisions", "page");
-    }
-
-    // Revalidate popularity rankings (athlete had followers)
-    if (athlete.followers > 0) {
-      revalidatePath("/rankings/popularity", "page");
-      revalidatePath("/rankings/all-time", "page");
-    }
-
-    // Only revalidate homepage if athlete affects homepage sections
-    if (
-      athlete.rank === 1 ||
-      (athlete.poundForPoundRank && athlete.poundForPoundRank > 0)
-    ) {
-      revalidateTag("homepage-stats", "max");
-    }
-
-    // Revalidate paths for dynamic routes that need it
-    if (athlete.retired) {
-      revalidatePath("/retired", "page");
-    }
-
-    // Revalidate main pages
-    revalidatePath("/athletes", "page");
-    revalidatePath("/", "page"); // Homepage
-
-    // Revalidate the specific division path
-    const isWomen = athlete.weightDivision.startsWith("Women's");
-    const divisionName = athlete.weightDivision.replace(
-      /^(Women's|Men's)\s+/,
-      ""
-    );
-    const divisionSlug = divisionName.toLowerCase().replace(/\s+/g, "-");
-    const fullSlug = `${isWomen ? "women" : "men"}-${divisionSlug}`;
-    revalidatePath(`/division/${fullSlug}`, "page");
+    // Same invalidation as DELETE /api/bot/athletes/{id}
+    invalidateAthleteDeletedCache(athlete);
 
     return true;
   } catch (error) {
