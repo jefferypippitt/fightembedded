@@ -172,7 +172,7 @@ Create a new athlete. New athletes always start with `rank` 0 and `poundForPound
 
 Sending `rank` or `poundForPoundRank` (with any value) returns **400** and creates nothing. Set ranks with `PUT /api/bot/rankings/division` or `PUT /api/bot/rankings/p4p`.
 
-If an athlete with the same name already exists (case-insensitive), the response is **409** and includes that athlete's `id` and `name`:
+If an athlete with the same name already exists (case-insensitive), the response is **409** and includes that athlete's `id` and `name`. The check holds even when two identical requests arrive at the same moment, so retries are safe:
 
 ```json
 {
@@ -553,7 +553,7 @@ curl -X POST "https://your-domain.com/api/bot/revalidate-all" \
 }
 ```
 
-**409 Conflict** - Duplicate athlete name, duplicate event (same name within 24 hours), ranked athlete delete without `?force=true`, or gender change while holding a pound-for-pound rank. The body includes `error` and, where relevant, the `id` of the existing athlete or event.
+**409 Conflict** - Duplicate athlete name (on create or rename), duplicate event (same name within 24 hours, on create or on a name/date change), ranked athlete delete without `?force=true`, or gender change while holding a pound-for-pound rank. The body includes `error` and, where relevant, the `id` of the existing athlete or event.
 
 ```json
 {
@@ -618,7 +618,7 @@ Create a new event.
 - `imageUrl` (string, valid URL) - Event poster/image URL
 - `status` (string: `UPCOMING`, `COMPLETED`, `CANCELLED`) - Defaults to `UPCOMING`
 
-If an event with the same name (case-insensitive) already exists within 24 hours of `date`, the response is **409** and nothing is created. This makes retries safe:
+If an event with the same name (case-insensitive) already exists within 24 hours of `date`, the response is **409** and nothing is created. The check holds even when two identical requests arrive at the same moment, so retries are safe:
 
 ```json
 {
@@ -679,6 +679,11 @@ Search for events by name or status (uncached for bot use).
 **Query Parameters:**
 - `name` (optional) - Search by event name (case-insensitive partial match)
 - `status` (optional) - Filter by status: `UPCOMING`, `COMPLETED`, or `CANCELLED`
+- `from` (optional, ISO 8601 date) - Only events on or after this date
+- `to` (optional, ISO 8601 date) - Only events on or before this date
+- `limit` (optional, integer 1–200) - Maximum results. Defaults to 50.
+
+Results are sorted newest first. To page back through older events, pass the `date` of the last event you received as `to` on the next request. `to` is inclusive, so that last event comes back again; skip it by `id`. An invalid `from`, `to`, or `limit` returns **400**.
 
 **Rate Limit:** 60 requests per minute
 
@@ -699,6 +704,10 @@ curl -X GET "https://your-domain.com/api/bot/events?status=UPCOMING" \
 
 # Combine filters
 curl -X GET "https://your-domain.com/api/bot/events?name=UFC&status=UPCOMING" \
+  -H "Authorization: Bearer YOUR_BOT_API_SECRET"
+
+# Every event in 2025, up to 200
+curl -X GET "https://your-domain.com/api/bot/events?from=2025-01-01&to=2025-12-31T23:59:59Z&limit=200" \
   -H "Authorization: Bearer YOUR_BOT_API_SECRET"
 ```
 
@@ -765,6 +774,8 @@ Update an event's status and other fields.
 - `coMainEvent` (string) - Co-main event matchup
 - `imageUrl` (string, valid URL or empty string to clear) - Event poster/image URL
 - `status` (string: `UPCOMING`, `COMPLETED`, `CANCELLED`) - Event status
+
+If a `name` or `date` change would make this event match another event (same name, case-insensitive, within 24 hours), the response is **409** with the other event's `id`, `name`, and `date`, and nothing is updated.
 
 **Rate Limit:** 30 requests per minute
 

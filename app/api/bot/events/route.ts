@@ -10,8 +10,17 @@ import prisma from "@/lib/prisma";
 import { invalidateEventCache } from "@/lib/cache-invalidation";
 import { eventSchema } from "@/schemas/event";
 import { z } from "zod";
+import { findDuplicateEvent, lockEventName } from "@/lib/bot-duplicates";
 
-const DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_LIST_LIMIT = 50;
+const MAX_LIST_LIMIT = 200;
+
+// undefined when absent, null when present but not a date
+function parseDateParam(value: string | null): Date | undefined | null {
+  if (value === null || value === "") return undefined;
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
+}
 
 // Create event schema for bot API (accepts ISO date string instead of Date object)
 const botEventCreateSchema = eventSchema.extend({
@@ -65,34 +74,39 @@ export async function POST(request: NextRequest) {
 
     const eventData = validationResult.data;
 
-    // Reject retries and duplicates: same name within a day of the same date
-    const existingEvent = await prisma.event.findFirst({
-      where: {
-        name: { equals: eventData.name, mode: "insensitive" },
-        date: {
-          gte: new Date(eventData.date.getTime() - DUPLICATE_WINDOW_MS),
-          lte: new Date(eventData.date.getTime() + DUPLICATE_WINDOW_MS),
-        },
-      },
-      select: { id: true, name: true, date: true },
+    // Reject retries and duplicates: same name within a day of the same
+    // date. Locked so two concurrent creates cannot both succeed.
+    const result = await prisma.$transaction(async (tx) => {
+      await lockEventName(tx, eventData.name);
+
+      const existing = await findDuplicateEvent(
+        tx,
+        eventData.name,
+        eventData.date
+      );
+      if (existing) {
+        return { existing };
+      }
+
+      const created = await tx.event.create({
+        data: eventData,
+      });
+      return { created };
     });
 
-    if (existingEvent) {
+    if (result.existing) {
       return NextResponse.json(
         {
           error: "An event with this name already exists on this date",
-          id: existingEvent.id,
-          name: existingEvent.name,
-          date: existingEvent.date,
+          id: result.existing.id,
+          name: result.existing.name,
+          date: result.existing.date,
         },
         { status: 409, headers: rateLimitHeaders }
       );
     }
 
-    // Create event
-    const event = await prisma.event.create({
-      data: eventData,
-    });
+    const event = result.created;
 
     // Invalidate relevant caches
     invalidateEventCache({
@@ -139,12 +153,38 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const name = searchParams.get("name");
     const status = searchParams.get("status");
+    const from = parseDateParam(searchParams.get("from"));
+    const to = parseDateParam(searchParams.get("to"));
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam === null ? DEFAULT_LIST_LIMIT : Number(limitParam);
+
+    if (from === null || to === null) {
+      return NextResponse.json(
+        { error: "'from' and 'to' must be dates in ISO 8601 format" },
+        { status: 400, headers: rateLimitHeaders }
+      );
+    }
+
+    if (!Number.isInteger(limit) || limit < 1 || limit > MAX_LIST_LIMIT) {
+      return NextResponse.json(
+        { error: `'limit' must be an integer from 1 to ${MAX_LIST_LIMIT}` },
+        { status: 400, headers: rateLimitHeaders }
+      );
+    }
 
     // Build where clause
     const where: {
       name?: { contains: string; mode: "insensitive" };
       status?: "UPCOMING" | "COMPLETED" | "CANCELLED";
+      date?: { gte?: Date; lte?: Date };
     } = {};
+
+    if (from || to) {
+      where.date = {
+        ...(from && { gte: from }),
+        ...(to && { lte: to }),
+      };
+    }
 
     if (name) {
       where.name = {
@@ -164,7 +204,7 @@ export async function GET(request: NextRequest) {
     const events = await prisma.event.findMany({
       where,
       orderBy: { date: "desc" },
-      take: 50, // Limit to 50 results
+      take: limit,
     });
 
     return NextResponse.json(

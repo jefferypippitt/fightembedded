@@ -15,8 +15,8 @@ vi.mock("@/lib/rate-limit", () => ({
   })),
 }));
 
-vi.mock("@/lib/prisma", () => ({
-  default: {
+vi.mock("@/lib/prisma", () => {
+  const db = {
     athlete: {
       findFirst: vi.fn(),
       findUnique: vi.fn(),
@@ -28,8 +28,14 @@ vi.mock("@/lib/prisma", () => ({
       findUnique: vi.fn(),
       delete: vi.fn(),
     },
-  },
-}));
+    $executeRaw: vi.fn(),
+    // Interactive transactions run against the same mock client
+    $transaction: vi.fn(async (arg: unknown) =>
+      typeof arg === "function" ? arg(db) : Promise.all(arg as unknown[])
+    ),
+  };
+  return { default: db };
+});
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import prisma from "@/lib/prisma";
@@ -190,6 +196,20 @@ describe("POST /api/bot/athletes", () => {
     );
     expect(db.athlete.create).not.toHaveBeenCalled();
     expect(mockRevalidateTag).not.toHaveBeenCalled();
+  });
+
+  it("locks the lowercased name before checking for duplicates", async () => {
+    db.athlete.findFirst.mockResolvedValue(null);
+    db.athlete.create.mockResolvedValue(storedAthlete);
+
+    await createAthlete(
+      botRequest("/api/bot/athletes", { method: "POST", body })
+    );
+
+    expect(db.$executeRaw.mock.calls[0]).toContain("jane doe");
+    expect(db.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      db.athlete.findFirst.mock.invocationCallOrder[0]
+    );
   });
 });
 
