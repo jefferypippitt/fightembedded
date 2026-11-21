@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  experimental: {
+    agentUpgrade: "security",
+  },
   cacheLife: {
     years: {
       stale: 31536000, // 1 year in seconds
