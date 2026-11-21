@@ -177,7 +177,7 @@ function SectionListItem({
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-50 bg-background">
       <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6 lg:px-8">
         <div className="flex min-w-0 items-center gap-2 justify-self-start">
           <Sheet>
