@@ -198,11 +198,11 @@ function AthleteListCardComponent({
             {name}
           </h3>
           <h4 className="text-[11px] mt-1 leading-none flex items-center justify-center space-x-0.5">
-            <span className="text-green-500 tabular-nums font-medium">
+            <span className="text-green-600 dark:text-green-400 tabular-nums font-medium">
               {wins}
             </span>
             <span className="text-muted-foreground">-</span>
-            <span className="text-red-500 tabular-nums font-medium">
+            <span className="text-red-600 dark:text-red-400 tabular-nums font-medium">
               {losses}
             </span>
             {draws > 0 && (

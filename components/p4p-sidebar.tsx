@@ -60,11 +60,11 @@ const FighterCard = memo(function FighterCard({
               {fighter.name}
             </p>
             <div className="flex items-center gap-1 text-[10px]">
-              <span className="font-medium text-green-500 tabular-nums">
+              <span className="font-medium text-green-600 dark:text-green-400 tabular-nums">
                 {fighter.wins}
               </span>
               <span className="text-muted-foreground">-</span>
-              <span className="font-medium text-red-500 tabular-nums">
+              <span className="font-medium text-red-600 dark:text-red-400 tabular-nums">
                 {fighter.losses}
               </span>
               {fighter.draws > 0 && (
