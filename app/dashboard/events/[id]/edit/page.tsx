@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { EventForm } from "@/components/event-form";
+import { FormSkeleton } from "@/components/form-skeleton";
 import { getEventForEdit } from "@/server/actions/events";
 import { notFound } from "next/navigation";
 
@@ -30,7 +32,9 @@ export default function EditEventPage({
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-2 py-2 md:gap-2 md:py-2">
           <div className="px-4 lg:px-6">
-            <EditEventContent params={params} />
+            <Suspense fallback={<FormSkeleton fields={6} />}>
+              <EditEventContent params={params} />
+            </Suspense>
           </div>
         </div>
       </div>

@@ -1,8 +1,8 @@
-"use cache";
-
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { AthletesGridSkeleton } from "@/components/athletes-grid-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   getAllDivisions,
   getDivisionBySlug,
@@ -42,8 +42,27 @@ export async function generateStaticParams() {
   return getAllDivisions().map((division) => ({ slug: division.slug }));
 }
 
-export default async function DivisionPage({ params }: DivisionPageProps) {
+function DivisionPageSkeleton() {
+  return (
+    <>
+      <header className="space-y-2">
+        <Skeleton className="h-8 md:h-9 lg:h-10 w-64 sm:w-80" />
+        <Skeleton className="h-4 sm:h-5 w-16" />
+      </header>
+      <AthletesGridSkeleton count={8} />
+    </>
+  );
+}
+
+// Reads the URL param inside the Suspense boundary so the section frame stays
+// in the shared App Shell used by Partial Prefetching.
+async function DivisionFromParams({ params }: DivisionPageProps) {
   const { slug } = await params;
+  return <DivisionDetails slug={slug} />;
+}
+
+async function DivisionDetails({ slug }: { slug: string }) {
+  "use cache";
   const parseResult = parseDivisionSlug(slug);
   const divisionInfo = getDivisionBySlug(slug);
 
@@ -57,7 +76,7 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
   );
 
   return (
-    <section className="container space-y-6 pt-4 pb-6">
+    <>
       <header className="space-y-2">
         <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-4xl tracking-tighter">
           {fullName} <span className="text-primary">Division</span>
@@ -70,6 +89,16 @@ export default async function DivisionPage({ params }: DivisionPageProps) {
       </header>
       <Suspense fallback={<div>Loading athletes...</div>}>
         <DivisionContent slug={slug} />
+      </Suspense>
+    </>
+  );
+}
+
+export default function DivisionPage({ params }: DivisionPageProps) {
+  return (
+    <section className="container space-y-6 pt-4 pb-6">
+      <Suspense fallback={<DivisionPageSkeleton />}>
+        <DivisionFromParams params={params} />
       </Suspense>
     </section>
   );

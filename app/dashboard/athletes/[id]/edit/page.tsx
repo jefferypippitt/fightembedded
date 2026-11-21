@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { AthleteForm } from "@/components/athlete-form";
+import { FormSkeleton } from "@/components/form-skeleton";
 import { notFound } from "next/navigation";
 import { getAthleteForEdit } from "@/server/actions/athlete";
 
@@ -30,7 +32,9 @@ export default function EditAthletePage({
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-2 py-2 md:gap-2 md:py-2">
           <div className="px-4 lg:px-6">
-            <EditAthleteContent params={params} />
+            <Suspense fallback={<FormSkeleton />}>
+              <EditAthleteContent params={params} />
+            </Suspense>
           </div>
         </div>
       </div>
