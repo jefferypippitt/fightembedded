@@ -208,7 +208,9 @@ function AthleteListCardComponent({
             {draws > 0 && (
               <>
                 <span className="text-muted-foreground">-</span>
-                <span className="text-neutral-500 tabular-nums">{draws}</span>
+                <span className="text-foreground tabular-nums font-medium">
+                  {draws}
+                </span>
               </>
             )}
           </h4>

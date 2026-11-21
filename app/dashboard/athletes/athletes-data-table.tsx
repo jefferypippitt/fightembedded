@@ -676,7 +676,7 @@ const createColumns = (page: number, pageSize: number): ColumnDef<Athlete>[] => 
           <span className="text-muted-foreground">-</span>
           <span className="text-red-600 dark:text-red-400">{athlete.losses}</span>
           <span className="text-muted-foreground">-</span>
-          <span className="text-muted-foreground">{athlete.draws}</span>
+          <span className="text-foreground">{athlete.draws}</span>
         </Badge>
       );
     },
